@@ -1,7 +1,7 @@
 import { createSignal } from "solid-js";
 import type { Photo, PhotoDetail, PhotoComment, Album } from "../api/api";
 import {
-  fetchPhotoSummary, fetchAlbums,
+  fetchPhotoSummary, fetchPhotoSummaryMeta, fetchAlbumsMeta,
   fetchPhotoAlbum, fetchPhotoImage,
   togglePhotoReaction, postPhotoComment,
   createAlbum as apiCreateAlbum,
@@ -25,6 +25,9 @@ const [loading, setLoading]       = createSignal(false);
 const [albumsLoading, setAlbumsLoading] = createSignal(false);
 const [albumsError, setAlbumsError] = createSignal<'denied' | null>(null);
 const [nick, setNick]             = createSignal('');
+// write_storage on the channel currently being viewed — any observer (local
+// or remote) with the ACL grant, not just the owner. Refreshed by every loader.
+const [canWrite, setCanWrite]     = createSignal(false);
 
 // ─── Loaders ──────────────────────────────────────────────────────────────────
 
@@ -34,8 +37,9 @@ export async function loadSummary(nickname: string, start = 0) {
   setDetail(null);
   setAlbumName('');
   try {
-    const items = await fetchPhotoSummary(nickname, start);
+    const { photos: items, canWrite: cw } = await fetchPhotoSummaryMeta(nickname, start);
     setPhotos(items);
+    setCanWrite(cw);
   } catch (err) {
     console.error('loadSummary failed', err);
   } finally {
@@ -47,8 +51,9 @@ export async function loadAlbums(nickname: string) {
   setAlbumsLoading(true);
   setAlbumsError(null);
   try {
-    const items = await fetchAlbums(nickname);
+    const { albums: items, canWrite: cw } = await fetchAlbumsMeta(nickname);
     setAlbums(items);
+    setCanWrite(cw);
   } catch (err: unknown) {
     const status = (err as { error?: { status?: number } })?.error?.status;
     if (status === 403) setAlbumsError('denied');
@@ -72,9 +77,10 @@ export async function loadAlbum(nickname: string, albumHash: string, start = 0) 
   setLoading(true);
   setDetail(null);
   try {
-    const { photos: items, album_name } = await fetchPhotoAlbum(nickname, albumHash, start);
+    const { photos: items, album_name, canWrite: cw } = await fetchPhotoAlbum(nickname, albumHash, start);
     setPhotos(items);
     setAlbumName(album_name);
+    setCanWrite(cw);
   } catch (err) {
     console.error('loadAlbum failed', err);
   } finally {
@@ -88,6 +94,7 @@ export async function loadImage(nickname: string, resourceId: string) {
   try {
     const res = await fetchPhotoImage(nickname, resourceId);
     setDetail(res);
+    setCanWrite(!!res.can_write);
   } catch (err) {
     console.error('loadImage failed', err);
   } finally {
@@ -215,4 +222,4 @@ export async function toggleNsfwAction(nick: string, resourceId: string, is_nsfw
   setDetail(prev => prev ? { ...prev, is_nsfw } : prev);
 }
 
-export { photos, albums, recentPhotos, albumName, detail, loading, albumsLoading, albumsError, nick };
+export { photos, albums, recentPhotos, albumName, detail, loading, albumsLoading, albumsError, nick, canWrite };

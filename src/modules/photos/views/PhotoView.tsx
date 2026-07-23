@@ -6,7 +6,7 @@ import { useI18n } from "@/i18n";
 import { useAuth } from "@/shared/store/auth-store";
 import { useNavViewer } from "@/shared/store/nav-store";
 import {
-  photos, albums, albumName, detail, loading, albumsLoading, albumsError,
+  photos, albums, albumName, detail, loading, albumsLoading, albumsError, canWrite,
   loadSummary, loadAlbum, loadImage, loadAlbums,
   handleLike, handleDislike, addComment, handleCommentReaction,
   createNewAlbum, deletePhotoAction, batchDeleteAction, deleteAlbumAction, renamePhotoAction,
@@ -99,7 +99,6 @@ type ViewMode = 'grid' | 'list';
 
 function SummaryView() {
   const params   = useParams<{ nick?: string }>();
-  const auth     = useAuth();
   const { t }    = useI18n();
   const [sortBy, setSortBy]         = createSignal<SortKey>('date');
   const [viewMode, setViewMode]     = createSignal<ViewMode>('grid');
@@ -107,8 +106,6 @@ function SummaryView() {
   const [newName, setNewName]       = createSignal('');
   const [creating, setCreating]     = createSignal(false);
   const [createError, setCreateError] = createSignal('');
-
-  const isOwner = () => !!auth()?.nick && auth()!.nick === params.nick;
 
   const sortedAlbums = createMemo(() => {
     const a = albums();
@@ -177,7 +174,7 @@ function SummaryView() {
             <MdFillFormat_list_bulleted size={17} />
           </button>
 
-          <Show when={isOwner()}>
+          <Show when={canWrite()}>
             <button
               onClick={() => { setShowForm(v => !v); setCreateError(''); setNewName(''); }}
               title={t("photos.new_album")}
@@ -476,7 +473,7 @@ function AlbumGrid() {
     <div
       class="flex flex-col gap-4"
       onDragEnter={(e) => {
-        if (!isOwner() || !e.dataTransfer?.types?.length) return;
+        if (!canWrite() || !e.dataTransfer?.types?.length) return;
         e.preventDefault();
         setIsDragging(true);
       }}
@@ -545,7 +542,7 @@ function AlbumGrid() {
           )}
         </For>
 
-        <Show when={isOwner()}>
+        <Show when={canWrite()}>
           {/* Upload */}
           <button
             onClick={() => fileInputRef?.click()}
@@ -573,8 +570,8 @@ function AlbumGrid() {
             </button>
           </Show>
 
-          {/* Delete album */}
-          <Show when={!selectMode()}>
+          {/* Delete album — bulk-destructive, stays owner-only regardless of write_storage */}
+          <Show when={!selectMode() && isOwner()}>
             <Show when={confirmAlbum()} fallback={
               <button onClick={handleDeleteAlbum} disabled={deletingAlbum()}
                 class="px-2.5 py-1.5 rounded-lg text-xs font-medium text-red-500/70
@@ -597,8 +594,8 @@ function AlbumGrid() {
             </Show>
           </Show>
 
-          {/* Album privacy — only for real albums (non-root) */}
-          <Show when={!selectMode() && !!params.datum}>
+          {/* Album privacy — ACL changes stay owner-only, only for real albums (non-root) */}
+          <Show when={!selectMode() && !!params.datum && isOwner()}>
             <button
               onClick={() => setAclOpen(v => !v)}
               title={t("photos.acl_privacy")}
@@ -742,8 +739,8 @@ function AlbumGrid() {
                   </button>
                 </Show>
 
-                {/* Per-photo delete (owner, non-select mode) */}
-                <Show when={isOwner() && !selectMode()}>
+                {/* Per-photo delete (write access, non-select mode) */}
+                <Show when={canWrite() && !selectMode()}>
                   <Show when={isPending()} fallback={
                     <button
                       onClick={() => handleDeletePhoto(photo.resource_id)}
@@ -1280,8 +1277,8 @@ function ImageView() {
             </span>
           </Show>
 
-          {/* Title — editable for owner */}
-          <Show when={isOwner()} fallback={
+          {/* Title — editable with write access */}
+          <Show when={canWrite()} fallback={
             <Show when={d()?.title}>
               <p class="text-txt font-medium mb-1">{d()?.title}</p>
             </Show>
@@ -1322,8 +1319,8 @@ function ImageView() {
             </Show>
           </Show>
 
-          {/* Description — editable for owner */}
-          <Show when={isOwner()} fallback={
+          {/* Description — editable with write access */}
+          <Show when={canWrite()} fallback={
             <Show when={d()?.description}>
               <p class="text-sm text-muted mb-2 whitespace-pre-wrap">{d()?.description}</p>
             </Show>
@@ -1461,7 +1458,7 @@ function ImageView() {
             </Show>
 
             {/* More dropdown */}
-            <Show when={isOwner()}>
+            <Show when={canWrite()}>
               <div ref={moreRef} class="relative">
                 <button
                   onClick={openMoreDropdown}
@@ -1504,14 +1501,17 @@ function ImageView() {
                   <MdOutlineEdit size={15} class="opacity-60" />
                   <span>{t("photos.rename")}</span>
                 </button>
-                <button
-                  onClick={() => { setMoreOpen(false); setAclOpen(v => !v); }}
-                  class="w-full flex items-center gap-2 px-3 py-2 text-sm text-txt
-                         hover:bg-overlay transition-colors text-left"
-                >
-                  <MdOutlineLock size={15} />
-                  <span>{t("photos.acl_privacy")}</span>
-                </button>
+                {/* ACL changes stay owner-only, even with write access */}
+                <Show when={isOwner()}>
+                  <button
+                    onClick={() => { setMoreOpen(false); setAclOpen(v => !v); }}
+                    class="w-full flex items-center gap-2 px-3 py-2 text-sm text-txt
+                           hover:bg-overlay transition-colors text-left"
+                  >
+                    <MdOutlineLock size={15} />
+                    <span>{t("photos.acl_privacy")}</span>
+                  </button>
+                </Show>
                 <button
                   onClick={handleNsfwToggle}
                   disabled={nsfwSaving()}

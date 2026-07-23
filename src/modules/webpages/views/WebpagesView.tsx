@@ -1,5 +1,5 @@
 import { createEffect, Show, For } from 'solid-js';
-import { useParams, A, useNavigate } from '@solidjs/router';
+import { useParams, A } from '@solidjs/router';
 import { useAuth } from '@/shared/store/auth-store';
 import { pages, loading, loadWebpages, removePage } from '../store';
 import type { WebPage } from '../api';
@@ -133,16 +133,11 @@ export default function WebpagesView() {
   const { t }    = useI18n();
   const params   = useParams<{ nick: string }>();
   const auth     = useAuth();
-  const navigate = useNavigate();
 
   const nick = () => params.nick || auth()?.nick || '';
 
   createEffect(() => {
     if ((auth as any).loading || !nick()) return;
-    if (auth()?.nick !== nick()) {
-      navigate(`/page/${nick()}/home`, { replace: true });
-      return;
-    }
     loadWebpages(nick());
   });
 
@@ -150,7 +145,7 @@ export default function WebpagesView() {
     const page = pages().find((p) => p.iid === iid);
     const label = page?.title || t('webpages.untitled');
     if (!confirm(`Delete "${label}"?`)) return;
-    await removePage(iid);
+    await removePage(iid, nick());
   }
 
   return (

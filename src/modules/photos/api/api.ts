@@ -27,12 +27,30 @@ export async function fetchPhotoSummary(nick: string, start = 0): Promise<Photo[
   return data as Photo[];
 }
 
+// Same as fetchPhotoSummary, but also surfaces whether the viewer holds
+// write_storage on this channel (any observer with the ACL grant, not just
+// the owner) — used to gate edit UI (upload, create album, etc).
+export async function fetchPhotoSummaryMeta(nick: string, start = 0): Promise<{ photos: Photo[]; canWrite: boolean }> {
+  const res = await apiFetch(`/spa/photos/${nick}?start=${start}`);
+  if (!res.ok) throw await res.json();
+  const { data, meta } = await res.json();
+  return { photos: data as Photo[], canWrite: !!meta?.can_write };
+}
+
 // fetchAlbums — album list with thumbs
 export async function fetchAlbums(nick: string): Promise<Album[]> {
   const res = await apiFetch(`/spa/photos/${nick}/albums`);
   if (!res.ok) throw await res.json();
   const { data } = await res.json();
   return data as Album[];
+}
+
+// Same as fetchAlbums, but also surfaces write_storage (see fetchPhotoSummaryMeta).
+export async function fetchAlbumsMeta(nick: string): Promise<{ albums: Album[]; canWrite: boolean }> {
+  const res = await apiFetch(`/spa/photos/${nick}/albums`);
+  if (!res.ok) throw await res.json();
+  const { data, meta } = await res.json();
+  return { albums: data as Album[], canWrite: !!meta?.can_write };
 }
 
 // createAlbum — POST /spa/photos/:nick/albums
@@ -59,11 +77,11 @@ export async function fetchPhotoAlbum(
   nick: string,
   albumHash: string,
   start = 0,
-): Promise<{ photos: Photo[]; album_name: string }> {
+): Promise<{ photos: Photo[]; album_name: string; canWrite: boolean }> {
   const res = await apiFetch(`/spa/photos/${nick}/album/${albumHash}?start=${start}`);
   if (!res.ok) throw await res.json();
   const { data, meta } = await res.json();
-  return { photos: data as Photo[], album_name: meta?.album_name ?? '' };
+  return { photos: data as Photo[], album_name: meta?.album_name ?? '', canWrite: !!meta?.can_write };
 }
 
 
@@ -111,6 +129,7 @@ export interface PhotoDetail {
   item_mid:        string | null;
   item_uuid:       string | null;
   comments:        PhotoComment[];
+  can_write:       boolean;
 }
 
 // ── Fetch ─────────────────────────────────────────────────────────────────────

@@ -151,6 +151,7 @@ export default function WebpageComposer(props: Props) {
         credentials: "include",
         body: JSON.stringify({
           action:    "update",
+          nick:      props.nick,
           uuid:      props.initial!.uuid,
           title:     meta.title    ?? "",
           summary:   meta.summary  ?? "",
@@ -173,6 +174,7 @@ export default function WebpageComposer(props: Props) {
         credentials: "include",
         body: JSON.stringify({
           action:    "create",
+          nick:      props.nick,
           title:     meta.title    ?? "",
           summary:   meta.summary  ?? "",
           body:      withFileAttachments(body),

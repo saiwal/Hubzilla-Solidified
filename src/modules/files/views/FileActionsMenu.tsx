@@ -20,7 +20,9 @@ interface Props {
   item: FileMeta;
   nick: string;
   onAction: (action: FileAction, item: FileMeta) => void;
-  /** Owner-only actions (Permissions, Rename, Move/Copy, Categories, Delete) hide for anyone browsing someone else's cloud. */
+  /** write_storage grant — gates Rename/Move-Copy/Categories/Delete for any observer holding it, not just the owner. */
+  canWrite: boolean;
+  /** True ownership — ACL/Permissions changes stay owner-only regardless of write_storage. */
   isOwner: boolean;
   deleting?: boolean;
   triggerClass?: string;
@@ -76,8 +78,11 @@ const FileActionsMenu: Component<Props> = (props) => {
             style={{ top: `${anchor()!.top}px`, right: `${anchor()!.right}px` }}
           >
             <MenuItem icon={<MdOutlineInfo size={14} />} label={t("files_mod.info") as string} onClick={() => act("info")} />
+            {/* ACL changes stay owner-only, even with write_storage access */}
             <Show when={props.isOwner}>
               <MenuItem icon={<MdFillLock size={14} />} label={t("files_mod.menu_permissions") as string} onClick={() => act("permissions")} />
+            </Show>
+            <Show when={props.canWrite}>
               <MenuItem icon={<MdOutlineDrive_file_rename_outline size={14} />} label={t("files_mod.rename") as string} onClick={() => act("rename")} />
               <MenuItem icon={<MdOutlineDrive_file_move size={14} />} label={t("files_mod.move_or_copy") as string} onClick={() => act("moveCopy")} />
               <MenuItem icon={<MdOutlineLabel size={14} />} label={t("files_mod.categories") as string} onClick={() => act("categories")} />
@@ -91,7 +96,7 @@ const FileActionsMenu: Component<Props> = (props) => {
               <MdOutlineDownload size={14} />
               <span>{t("files_mod.download")}</span>
             </a>
-            <Show when={props.isOwner}>
+            <Show when={props.canWrite}>
               <MenuItem
                 icon={<MdOutlineDelete size={14} />}
                 label={t("files_mod.delete") as string}

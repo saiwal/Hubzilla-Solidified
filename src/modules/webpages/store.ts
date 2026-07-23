@@ -35,12 +35,12 @@ export async function loadWebpages(nick: string, force = false) {
   }
 }
 
-export async function removePage(iid: number) {
+export async function removePage(iid: number, nick: string) {
   const prev = pages();
   // Optimistic update
   setPages(prev.filter(p => p.iid !== iid));
   try {
-    await deleteWebPage(iid);
+    await deleteWebPage(iid, nick);
   } catch (e: any) {
     setPages(prev); // rollback on failure
     setError(e.message);

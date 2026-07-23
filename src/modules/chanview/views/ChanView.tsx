@@ -4,6 +4,9 @@ import { createQueryResource } from "@/shared/lib/createQueryResource";
 import { apiFetch } from "@/shared/lib/fetch";
 import { useAuth } from "@/shared/store/auth-store";
 import { addConnection } from "@/modules/directory/people/api";
+import { sanitizeHtml } from "@/shared/lib/sanitize";
+import { bbcodeToHtml } from "@/shared/lib/bbcode";
+import { oembedResolver } from "@/shared/lib/oembedResolver";
 import { fetchConnectionByAddress } from "@/modules/directory/connections/api";
 import type { Connection } from "@/modules/directory/connections/api";
 import ConnectionEditorModal from "@/shared/views/ConnectionEditorModal";
@@ -55,6 +58,16 @@ interface NetworkBadge {
   label: string;
   cls: string;
 }
+
+function renderBbcode(raw?: string): string {
+  if (!raw) return "";
+  try {
+    return sanitizeHtml(bbcodeToHtml(raw, { oembedResolver }));
+  } catch {
+    return "";
+  }
+}
+
 
 function networkBadge(network?: string): NetworkBadge | null {
   if (!network) return null;
@@ -333,7 +346,7 @@ export default function ChanView() {
                   <div
                     class="mt-4 text-sm text-txt leading-relaxed prose prose-sm dark:prose-invert max-w-none
                            prose-a:text-accent prose-a:no-underline hover:prose-a:underline"
-                    innerHTML={xdata().about}
+                    innerHTML={renderBbcode(xdata().about)}
                   />
                 </Show>
 

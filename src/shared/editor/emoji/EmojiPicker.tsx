@@ -112,7 +112,7 @@ export default function EmojiPicker(props: EmojiPickerProps) {
           {/* Search input */}
           <div class="p-2 border-b border-rim">
             <input
-              autoFocus
+              autofocus
               type="text"
               value={query()}
               onInput={(e) => setQuery(e.currentTarget.value)}

@@ -26,7 +26,7 @@ import { useAuth } from "@/shared/store/auth-store";
 import { useViewerRole } from "@/shared/store/site-config";
 import AclPicker, { entryKey, type AclMode, type AclEntry } from "@/shared/editor/components/AclPicker";
 import {
-  listFolder,
+  listFolderMeta,
   updatePermissions,
   uploadFile,
   deleteItem,
@@ -226,6 +226,7 @@ const PermissionsPanel: Component<{
 const FileRow: Component<{
   item: FileMeta;
   nick: string;
+  canWrite: boolean;
   isOwner: boolean;
   onOpen: (item: FileMeta) => void;
   onAction: (action: FileAction, item: FileMeta) => void;
@@ -270,6 +271,7 @@ const FileRow: Component<{
       <FileActionsMenu
         item={props.item}
         nick={props.nick}
+        canWrite={props.canWrite}
         isOwner={props.isOwner}
         onAction={props.onAction}
         deleting={props.deleting}
@@ -333,6 +335,7 @@ function Skeleton() {
 const ThumbnailGrid: Component<{
   files: FileMeta[];
   nick: string;
+  canWrite: boolean;
   isOwner: boolean;
   deleting: string | null;
   permItem: FileMeta | null;
@@ -392,6 +395,7 @@ const ThumbnailGrid: Component<{
               <FileActionsMenu
                 item={item}
                 nick={props.nick}
+                canWrite={props.canWrite}
                 isOwner={props.isOwner}
                 onAction={props.onAction}
                 deleting={props.deleting === item.hash}
@@ -457,14 +461,18 @@ export default function FilesView() {
   const [files, { refetch }] = createQueryResource(
     "files-folder",
     () => ({ nick: nick(), hash: current().hash }),
-    ({ nick: n, hash }) => listFolder(n, hash)
+    ({ nick: n, hash }) => listFolderMeta(n, hash)
   );
+
+  // write_storage on the channel being viewed — any observer (local or
+  // remote) with the ACL grant, not just the owner.
+  const canWrite = () => files()?.canWrite ?? false;
 
   // Local override for optimistic updates (permissions save)
   const [overrides, setOverrides] = createSignal<Map<string, FileMeta>>(new Map());
 
   const displayFiles = createMemo(() =>
-    (files() ?? []).map((f) => overrides().get(f.hash) ?? f)
+    (files()?.items ?? []).map((f) => overrides().get(f.hash) ?? f)
   );
 
   // Sorting
@@ -668,7 +676,7 @@ export default function FilesView() {
             </div>
           </Show>
 
-          <Show when={isOwner()}>
+          <Show when={canWrite()}>
             <button
               onClick={() => setShowNewFolder((v) => !v)}
               class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-rim
@@ -692,7 +700,7 @@ export default function FilesView() {
       </div>
 
       {/* ── Upload progress ── */}
-      <Show when={isOwner() && uploadPct() !== null}>
+      <Show when={canWrite() && uploadPct() !== null}>
         <div class="space-y-1">
           <p class="text-xs text-muted">{t("files_mod.uploading")} {uploadPct()}%</p>
           <div class="h-1 w-full bg-overlay rounded-full overflow-hidden">
@@ -700,12 +708,12 @@ export default function FilesView() {
           </div>
         </div>
       </Show>
-      <Show when={isOwner() && uploadErr()}>
+      <Show when={canWrite() && uploadErr()}>
         <p class="text-sm text-red-500">{uploadErr()}</p>
       </Show>
 
       {/* ── New folder form ── */}
-      <Show when={isOwner() && showNewFolder()}>
+      <Show when={canWrite() && showNewFolder()}>
         <form onSubmit={handleCreateFolder} class="flex gap-2">
           <input
             type="text"
@@ -807,6 +815,7 @@ export default function FilesView() {
                   <ThumbnailGrid
                     files={sortedFiles()}
                     nick={nick()}
+                    canWrite={canWrite()}
                     isOwner={isOwner()}
                     deleting={deleting()}
                     permItem={permItem()}
@@ -841,6 +850,7 @@ export default function FilesView() {
                       <FileRow
                         item={item}
                         nick={nick()}
+                        canWrite={canWrite()}
                         isOwner={isOwner()}
                         onOpen={(it) => it.is_dir ? navigateInto(it) : window.open(davPath(nick(), it.display_path), "_blank")}
                         onAction={handleMenuAction}

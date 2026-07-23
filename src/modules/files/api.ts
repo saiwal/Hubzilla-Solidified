@@ -38,6 +38,22 @@ export async function listFolder(nick: string, folderHash: string): Promise<File
   return json.data ?? [];
 }
 
+// Same as listFolder, but also surfaces whether the viewer holds write_storage
+// on this channel (any observer with the ACL grant, not just the owner) —
+// used to gate edit UI (upload, rename, delete, etc).
+export async function listFolderMeta(
+  nick: string,
+  folderHash: string,
+): Promise<{ items: FileMeta[]; canWrite: boolean }> {
+  const url = folderHash
+    ? `/spa/files/${nick}/folder/${encodeURIComponent(folderHash)}`
+    : `/spa/files/${nick}`;
+  const res = await apiFetch(url);
+  if (!res.ok) throw new Error(`listFolder ${res.status}`);
+  const json = await res.json();
+  return { items: json.data ?? [], canWrite: !!json.meta?.can_write };
+}
+
 /** Update ACL for a file or folder. group_allow / contact_allow are arrays of hashes. */
 export async function updatePermissions(
   nick: string,

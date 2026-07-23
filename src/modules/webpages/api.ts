@@ -75,10 +75,10 @@ export async function fetchWebPageByMid(
   return json.data as WebPageDetail;
 }
 
-export async function deleteWebPage(iid: number): Promise<void> {
+export async function deleteWebPage(iid: number, nick: string): Promise<void> {
   const res = await apiFetch('/spa/webpages', {
     method: 'POST',
-    body: JSON.stringify({ action: 'delete', iid }),
+    body: JSON.stringify({ action: 'delete', nick, iid }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => null);
