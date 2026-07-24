@@ -36,8 +36,14 @@ import {
 import { toast } from "@/shared/store/toast";
 import { helpable } from "@/shared/lib/helpable";
 void helpable;
+import { splitIntoColumns, useColumnCount } from "@/shared/lib/masonry";
 import { useI18n } from "@/i18n";
-import WidgetArrangementEditor, { widgetHelpTarget, type ResolvedEntry } from "./WidgetArrangementEditor";
+import WidgetArrangementEditor, {
+  WidgetCard,
+  WidgetPickerFooter,
+  widgetHelpTarget,
+  type ResolvedEntry,
+} from "./WidgetArrangementEditor";
 import type { WidgetSlotName } from "../types/module.types";
 
 interface SlotProps {
@@ -224,8 +230,24 @@ const Slot: Component<SlotProps> = (props) => {
   // every cell in a row up to its tallest neighbour — with widgets of very
   // different heights (a heatmap vs. a one-line quote, or a tall messages
   // panel vs. a short stats card) that reads as a grid full of dead space,
-  // not a packed layout. CSS columns avoid that: each item flows into the
-  // next slot in its column at its own height.
+  // not a packed layout.
+  //
+  // Widgets are round-robin split across N flex columns — the same
+  // left-to-right, top-to-bottom reading order the network module's
+  // MasonryView uses — rather than CSS multi-column layout, which fills one
+  // column fully before moving to the next (column-major, reads
+  // top-to-bottom-then-wrap rather than left-to-right). Global and local
+  // widgets are split independently, each keyed off its own stable array, so
+  // a global widget's column never shifts (and it never remounts) when local
+  // entries change on navigation.
+  //
+  // This split is used both browsing and editing, so the edit view previews
+  // the same layout the visitor sees. In edit mode, cards still move via a
+  // single flat order (move up/down shifts an entry's position in
+  // localEntries, which is what the round-robin split assigns columns from)
+  // — WidgetCard's index is derived with indexOf() rather than threaded
+  // positionally, since column-splitting means a column's <For> no longer
+  // sees each entry's place in the full list directly.
   //
   // header (above mainTop) and footer (below all page content) are always
   // full-width, single-column — for banner-like widgets (e.g. a horizontal
@@ -239,14 +261,24 @@ const Slot: Component<SlotProps> = (props) => {
   const hasContent = createMemo(
     () => globalWidgets().length > 0 || localEntries().length > 0 || editing(),
   );
-  const itemClass = () => (isMainTop ? "break-inside-avoid mb-4" : "");
 
-  const content = (
+  const columnCount = isMainTop
+    ? useColumnCount([{ width: 1024, count: 4 }, { width: 640, count: 2 }], 1)
+    : () => 1;
+  const columnIndexes = createMemo(() => Array.from({ length: columnCount() }, (_, i) => i));
+  const globalColumns = createMemo(() => splitIntoColumns(globalWidgets(), columnCount()));
+  const localColumns = createMemo(() => splitIntoColumns(localEntries(), columnCount()));
+
+  // Only built for isFullWidth / non-mainTop slots — kept as a function
+  // rather than a value so mainTop slots (which never call it) don't pay for
+  // constructing an unused, never-mounted reactive tree alongside the
+  // column-split render below.
+  const content = () => (
     <>
       {/* Always mounted — never torn down on module navigation */}
       <For each={globalWidgets()}>
         {(g) => (
-          <div class={itemClass()} use:helpable={widgetHelpTarget(g.widget)}>
+          <div use:helpable={widgetHelpTarget(g.widget)}>
             <g.Widget />
           </div>
         )}
@@ -260,7 +292,7 @@ const Slot: Component<SlotProps> = (props) => {
             {(entry) => {
               const Widget = getLazy(entry.widget.loader);
               return (
-                <div class={itemClass()} use:helpable={widgetHelpTarget(entry.widget)}>
+                <div use:helpable={widgetHelpTarget(entry.widget)}>
                   <Widget config={entry.config} />
                 </div>
               );
@@ -287,7 +319,6 @@ const Slot: Component<SlotProps> = (props) => {
           onAdd={addWidget}
           onSaveConfig={saveConfig}
           onReset={isCustomised() ? () => void persist(null) : undefined}
-          itemClass={itemClass()}
         />
       </Show>
     </>
@@ -298,21 +329,93 @@ const Slot: Component<SlotProps> = (props) => {
     return (
       <Show when={hasContent()}>
         <div class={`space-y-4 ${marginClass}`}>
-          {content}
+          {content()}
         </div>
       </Show>
     );
   }
 
   if (!isMainTop) {
-    return content;
+    return content();
   }
+
+  const globalColumnItems = (colIndex: number) => (
+    <For each={globalColumns()[colIndex] ?? []}>
+      {(g) => (
+        <div class="mb-4" use:helpable={widgetHelpTarget(g.widget)}>
+          <g.Widget />
+        </div>
+      )}
+    </For>
+  );
 
   return (
     <Show when={hasContent()}>
-      <div class="columns-1 sm:columns-2 lg:columns-4 gap-4 mb-4">
-        {content}
-      </div>
+      <Show
+        when={!editing()}
+        fallback={
+          <>
+            <div class="flex gap-4 items-start mb-4">
+              <For each={columnIndexes()}>
+                {(colIndex) => (
+                  <div class="flex-1 flex flex-col min-w-0">
+                    {globalColumnItems(colIndex)}
+                    <For each={localColumns()[colIndex] ?? []}>
+                      {(entry) => (
+                        <WidgetCard
+                          entry={entry}
+                          index={() => localEntries().indexOf(entry)}
+                          entriesLength={() => localEntries().length}
+                          configOpenKey={configOpenKey()}
+                          onToggleConfig={(key) => setConfigOpenKey(configOpenKey() === key ? null : key)}
+                          onMove={move}
+                          onRemove={removeAt}
+                          onSaveConfig={saveConfig}
+                          itemClass="mb-4"
+                        />
+                      )}
+                    </For>
+                  </div>
+                )}
+              </For>
+            </div>
+            <Show when={props.templateId && templateUsageCount(props.templateId) > 1}>
+              <p class="text-xs text-amber-600 bg-amber-500/10 border border-amber-500/30 rounded-lg px-2 py-1.5 mb-2">
+                {t("widgets.template_shared_notice")
+                  .replace("{{name}}", templateName(props.templateId!) ?? "")
+                  .replace("{{count}}", String(templateUsageCount(props.templateId!)))}
+              </p>
+            </Show>
+            <WidgetPickerFooter
+              availableWidgets={availableWidgets()}
+              pickerOpen={pickerOpen()}
+              onTogglePicker={() => setPickerOpen((o) => !o)}
+              onAdd={addWidget}
+              onReset={isCustomised() ? () => void persist(null) : undefined}
+            />
+          </>
+        }
+      >
+        <div class="flex gap-4 items-start mb-4">
+          <For each={columnIndexes()}>
+            {(colIndex) => (
+              <div class="flex-1 flex flex-col min-w-0">
+                {globalColumnItems(colIndex)}
+                <For each={localColumns()[colIndex] ?? []}>
+                  {(entry) => {
+                    const Widget = getLazy(entry.widget.loader);
+                    return (
+                      <div class="mb-4" use:helpable={widgetHelpTarget(entry.widget)}>
+                        <Widget config={entry.config} />
+                      </div>
+                    );
+                  }}
+                </For>
+              </div>
+            )}
+          </For>
+        </div>
+      </Show>
     </Show>
   );
 };

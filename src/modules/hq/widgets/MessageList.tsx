@@ -59,26 +59,6 @@ function getTimeGroup(dateStr: string): TimeGroup {
   return "Older";
 }
 
-// ── Type color rail ────────────────────────────────────────────────────────
-
-// Infer per-entry type from the feed's fixed type; fall back to icon string
-// hints for the combined "All" feed.
-function inferEntryType(entry: MessageEntry, feedType: FeedType): MessageType {
-  if (feedType !== "" && feedType !== "folder") return feedType;
-  const icon = entry.icon?.toLowerCase() ?? "";
-  if (icon.includes("mail") || icon.includes("envelope") || icon.includes("direct")) return "direct";
-  if (icon.includes("star")) return "starred";
-  if (icon.includes("bell") || icon.includes("notif")) return "notification";
-  return "";
-}
-
-const TYPE_RAIL: Record<MessageType, string> = {
-  "":             "hsl(220 10% 55%)",  // neutral gray
-  "direct":       "#3b82f6",           // blue-500
-  "starred":      "#f59e0b",           // amber-500
-  "notification": "#8b5cf6",           // violet-500
-};
-
 export const TYPE_ICON_PATH: Record<MessageType, string> = {
   "":
     "M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z",
@@ -100,6 +80,80 @@ export const FEED_META: Record<FeedType, { titleKey: string }> = {
   "starred":      { titleKey: "hq.msg_tab_starred" },
   "notification": { titleKey: "hq.msg_tab_notices" },
   "folder":       { titleKey: "hq.msg_tab_folders" },
+};
+
+// ── Folder view toggle ───────────────────────────────────────────────────
+//
+// List/grid preference for HqFoldersWidget's body. Lives here (not in
+// HqFoldersWidget.tsx, which is lazy-loaded) so HqMessagesWidget can render
+// the toggle buttons in its own tab-bar row without pulling the folders
+// body's chunk into the main bundle.
+
+export type ViewMode = "list" | "grid";
+const FOLDER_VIEW_MODE_KEY = "hz-hq-folder-view";
+
+export function loadFolderViewMode(): ViewMode {
+  return localStorage.getItem(FOLDER_VIEW_MODE_KEY) === "grid" ? "grid" : "list";
+}
+
+export function saveFolderViewMode(mode: ViewMode): void {
+  localStorage.setItem(FOLDER_VIEW_MODE_KEY, mode);
+}
+
+const ListIcon: Component<{ class?: string }> = (props) => (
+  <svg class={props.class} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      d="M4 6h16M4 12h16M4 18h16"
+    />
+  </svg>
+);
+
+const GridIcon: Component<{ class?: string }> = (props) => (
+  <svg class={props.class} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      stroke-width="2"
+      d="M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z"
+    />
+  </svg>
+);
+
+export const FolderViewToggle: Component<{ mode: ViewMode; onChange: (m: ViewMode) => void }> = (props) => {
+  const { t } = useI18n();
+  return (
+    <div class="flex items-center gap-0.5 bg-overlay rounded-lg p-0.5">
+      <button
+        type="button"
+        onClick={() => props.onChange("list")}
+        aria-label={t("hq.folder_view_list")}
+        aria-pressed={props.mode === "list"}
+        class="p-1 rounded-md transition-colors"
+        classList={{
+          "bg-surface text-txt shadow-sm": props.mode === "list",
+          "text-muted hover:text-txt": props.mode !== "list",
+        }}
+      >
+        <ListIcon class="w-3.5 h-3.5" />
+      </button>
+      <button
+        type="button"
+        onClick={() => props.onChange("grid")}
+        aria-label={t("hq.folder_view_grid")}
+        aria-pressed={props.mode === "grid"}
+        class="p-1 rounded-md transition-colors"
+        classList={{
+          "bg-surface text-txt shadow-sm": props.mode === "grid",
+          "text-muted hover:text-txt": props.mode !== "grid",
+        }}
+      >
+        <GridIcon class="w-3.5 h-3.5" />
+      </button>
+    </div>
+  );
 };
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -214,9 +268,6 @@ const MessageItem: Component<{
   const hasUnseenReplies = () => !locallyRead() && unseenReplyCount() > 0;
   const isAnyUnseen = () => isNewPost() || hasUnseenReplies();
 
-  const entryType = () => inferEntryType(e, props.feedType);
-  const railColor = () => TYPE_RAIL[entryType()];
-  const iconPath = () => TYPE_ICON_PATH[entryType()];
 
   function handleClick() {
     props.onOpen();
@@ -243,7 +294,6 @@ const MessageItem: Component<{
         <span
           class="absolute left-0 top-0 bottom-0 w-[3px] rounded-r-full transition-opacity duration-200"
           style={{
-            background: railColor(),
             opacity: isAnyUnseen() ? "1" : "0.3",
           }}
         />
@@ -253,23 +303,6 @@ const MessageItem: Component<{
         <div class="flex-1 min-w-0">
           <div class="flex items-baseline justify-between gap-2">
             <div class="flex items-center gap-1 min-w-0">
-              {/* Tiny type icon colored by rail */}
-              <Show when={props.feedType !== "direct"}>
-                <svg
-                  class="w-2.5 h-2.5 shrink-0 opacity-70"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  style={{ color: railColor() }}
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d={iconPath()}
-                  />
-                </svg>
-              </Show>
               <span
                 class={`text-[13px] truncate leading-snug ${
                   isAnyUnseen() ? "font-semibold text-txt" : "font-medium text-txt"
@@ -292,9 +325,6 @@ const MessageItem: Component<{
               <For each={parseFolderNames(e.info)}>
                 {(name) => (
                   <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-overlay text-[10px] text-muted font-medium">
-                    <svg class="w-2.5 h-2.5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                      <path d={FOLDER_ICON_PATH} />
-                    </svg>
                     <span class="truncate max-w-[80px]">{name}</span>
                   </span>
                 )}

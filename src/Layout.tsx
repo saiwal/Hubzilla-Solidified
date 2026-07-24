@@ -185,6 +185,17 @@ const Layout: ParentComponent = (props) => {
       { defer: true },
     ),
   );
+  // The desktop action-items panel now renders as an overlay anchored above
+  // NavUtilities (see aside markup below) rather than pushing content inline,
+  // so it must be closed explicitly on navigation or it'd stay floating over
+  // the sidebar on the next page.
+  createEffect(
+    on(
+      () => location.pathname,
+      () => setActionsOpen(false),
+      { defer: true },
+    ),
+  );
 
   const activeModuleId = createMemo(() => moduleIdForPath(location.pathname));
 
@@ -325,9 +336,10 @@ const Layout: ParentComponent = (props) => {
               <BrandBlock banner={navData()?.banner} logoUrl={navData()?.sitelogo} />
             </div>
 
-            {/* Scrollable region: primary nav + action items (incl. the channel
-                switcher) share the remaining space, so NavUtilities/leftBottom
-                below never get pushed out of view on short viewports. */}
+            {/* Scrollable region: primary nav only. Action items live outside
+                this region (below) so they always open as an overlay anchored
+                to the avatar, instead of being appended to scrollable content
+                that may already be scrolled out of view. */}
             <div class="flex-1 min-h-0 flex flex-col overflow-y-auto">
               {/* Primary nav — reorderable via drag handle while in edit-layout mode */}
               <nav aria-label="Primary" tabindex="0" class="flex flex-col gap-0.5">
@@ -356,54 +368,6 @@ const Layout: ParentComponent = (props) => {
                   )}
                 </For>
               </nav>
-
-              {/* Action items — toggled by avatar click for authenticated users.
-                  mt-auto keeps this pinned to the bottom of the scroll region
-                  when there's slack space, same as when nav itself had flex-1;
-                  it collapses to 0 (normal top-down scroll) once content
-                  overflows. */}
-              <Show when={actionsOpen() && actionItems().length > 0}>
-                <div class="mt-auto flex flex-col">
-                  <div class="my-2 h-px bg-rim" />
-                  <div
-                    use:motion={{
-                      initial: { opacity: 0, y: 8 },
-                      animate: { opacity: 1, y: 0 },
-                      transition: {
-                        duration: reducedMotion ? 0 : 0.18,
-                        easing: "ease-out",
-                      },
-                    }}
-                    class="flex flex-col gap-0.5"
-                  >
-                    <For each={actionItems()}>
-                      {(item) => (
-                        <div use:helpable={navItemHelpTarget(item)}>
-                          <Show
-                            when={channelSwitcherActive() && item.path === "/manage"}
-                            fallback={
-                              <NavItem
-                                href={item.href}
-                                label={item.label}
-                                icon={item.icon}
-                              />
-                            }
-                          >
-                            <ChannelSwitcher
-                              channels={navChannels()}
-                              currentNick={navViewer()?.nick}
-                              open={channelMenuOpen()}
-                              onToggle={() => setChannelMenuOpen((o) => !o)}
-                              label={typeof item.label === "function" ? item.label() : item.label}
-                              onNavigate={closeAll}
-                            />
-                          </Show>
-                        </div>
-                      )}
-                    </For>
-                  </div>
-                </div>
-              </Show>
             </div>
 
             <Show when={isLocalUser()}>
@@ -412,12 +376,59 @@ const Layout: ParentComponent = (props) => {
               </div>
             </Show>
 
-            <NavUtilities
-              viewer={navViewer()}
-              actions={navActions()}
-              actionsOpen={actionsOpen()}
-              onUserMenuToggle={() => setActionsOpen((o) => !o)}
-            />
+            {/* Anchor for the action-items overlay: positioned relative so the
+                panel below can pin itself to the top of NavUtilities (bottom-full)
+                and always open upward, regardless of nav scroll position. */}
+            <div class="relative">
+              <Show when={actionsOpen() && actionItems().length > 0}>
+                <div
+                  class="absolute inset-x-0 bottom-full z-30 mb-1.5 max-h-[60vh] overflow-y-auto
+                         flex flex-col gap-0.5 p-1.5
+                         bg-surface border border-rim rounded-xl shadow-xl"
+                  use:motion={{
+                    initial: { opacity: 0, y: 8 },
+                    animate: { opacity: 1, y: 0 },
+                    transition: {
+                      duration: reducedMotion ? 0 : 0.18,
+                      easing: "ease-out",
+                    },
+                  }}
+                >
+                  <For each={actionItems()}>
+                    {(item) => (
+                      <div use:helpable={navItemHelpTarget(item)}>
+                        <Show
+                          when={channelSwitcherActive() && item.path === "/manage"}
+                          fallback={
+                            <NavItem
+                              href={item.href}
+                              label={item.label}
+                              icon={item.icon}
+                            />
+                          }
+                        >
+                          <ChannelSwitcher
+                            channels={navChannels()}
+                            currentNick={navViewer()?.nick}
+                            open={channelMenuOpen()}
+                            onToggle={() => setChannelMenuOpen((o) => !o)}
+                            label={typeof item.label === "function" ? item.label() : item.label}
+                            onNavigate={closeAll}
+                          />
+                        </Show>
+                      </div>
+                    )}
+                  </For>
+                </div>
+              </Show>
+
+              <NavUtilities
+                viewer={navViewer()}
+                actions={navActions()}
+                actionsOpen={actionsOpen()}
+                onUserMenuToggle={() => setActionsOpen((o) => !o)}
+              />
+            </div>
           </aside>
 
           {/* ═══════════════════════════════════════════════════════

@@ -1,7 +1,7 @@
 import { useI18n } from "@/i18n";
 import { createQueryResource } from "@/shared/lib/createQueryResource";
 import { createMemo, createSignal, For, Show, lazy, type Component } from "solid-js";
-import { FOLDER_ICON_PATH, TYPE_ICON_PATH } from "./MessageList";
+import { FOLDER_ICON_PATH, TYPE_ICON_PATH, type ViewMode } from "./MessageList";
 
 const FolderMessagesModal = lazy(() => import("./FolderMessagesModal"));
 
@@ -26,35 +26,6 @@ async function fetchFoldersData(): Promise<FoldersData> {
   };
 }
 
-type ViewMode = "list" | "grid";
-const VIEW_MODE_KEY = "hz-hq-folder-view";
-
-function loadViewMode(): ViewMode {
-  return localStorage.getItem(VIEW_MODE_KEY) === "grid" ? "grid" : "list";
-}
-
-const ListIcon: Component<{ class?: string }> = (props) => (
-  <svg class={props.class} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="2"
-      d="M4 6h16M4 12h16M4 18h16"
-    />
-  </svg>
-);
-
-const GridIcon: Component<{ class?: string }> = (props) => (
-  <svg class={props.class} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="2"
-      d="M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z"
-    />
-  </svg>
-);
-
 const SkeletonListRow: Component = () => (
   <div class="px-3.5 py-2 flex items-center gap-2 animate-pulse">
     <div class="w-7 h-7 rounded-lg bg-overlay shrink-0" />
@@ -71,11 +42,11 @@ const SkeletonTile: Component = () => (
 
 // Embeddable folder-list panel — file-tag folders plus a pinned "Starred"
 // entry backed by the item_starred flag (a separate feed from term-based
-// folders, see Folders.php). No outer card chrome: the parent (the
-// "Folders" tab in HqMessagesWidget) owns that.
-export default function HqFoldersWidget() {
+// folders, see Folders.php). No outer card chrome and no view-mode toggle:
+// the parent (the "Folders" tab in HqMessagesWidget) owns both, rendering
+// the toggle (MessageList's FolderViewToggle) in its own tab-bar row.
+export default function HqFoldersWidget(props: { viewMode: ViewMode }) {
   const { t } = useI18n();
-  const [viewMode, setViewMode] = createSignal<ViewMode>(loadViewMode());
   const [selectedFolder, setSelectedFolder] = createSignal<FolderEntry | null>(null);
   const [foldersData] = createQueryResource("hq-folder-counts", () => true, fetchFoldersData);
 
@@ -89,11 +60,6 @@ export default function HqFoldersWidget() {
     return [starred, ...(d?.folders ?? [])];
   });
 
-  function selectViewMode(mode: ViewMode) {
-    setViewMode(mode);
-    localStorage.setItem(VIEW_MODE_KEY, mode);
-  }
-
   function openFolder(folder: FolderEntry) {
     setSelectedFolder(folder);
   }
@@ -105,45 +71,13 @@ export default function HqFoldersWidget() {
 
   return (
     <div class="flex-1 flex flex-col overflow-hidden">
-      {/* ── View toggle ── */}
-      <div class="px-3.5 pt-3 pb-2 shrink-0 flex items-center justify-end">
-        <div class="flex items-center gap-0.5 bg-overlay rounded-lg p-0.5">
-          <button
-            type="button"
-            onClick={() => selectViewMode("list")}
-            aria-label={t("hq.folder_view_list")}
-            aria-pressed={viewMode() === "list"}
-            class="p-1 rounded-md transition-colors"
-            classList={{
-              "bg-surface text-txt shadow-sm": viewMode() === "list",
-              "text-muted hover:text-txt": viewMode() !== "list",
-            }}
-          >
-            <ListIcon class="w-3.5 h-3.5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => selectViewMode("grid")}
-            aria-label={t("hq.folder_view_grid")}
-            aria-pressed={viewMode() === "grid"}
-            class="p-1 rounded-md transition-colors"
-            classList={{
-              "bg-surface text-txt shadow-sm": viewMode() === "grid",
-              "text-muted hover:text-txt": viewMode() !== "grid",
-            }}
-          >
-            <GridIcon class="w-3.5 h-3.5" />
-          </button>
-        </div>
-      </div>
-
       {/* ── Body ── */}
-      <div class="flex-1 overflow-y-auto">
+      <div class="flex-1 overflow-y-auto pt-1">
         <Show
           when={!foldersData.loading}
           fallback={
             <Show
-              when={viewMode() === "list"}
+              when={props.viewMode === "list"}
               fallback={
                 <div class="grid grid-cols-3 sm:grid-cols-4 gap-1 p-2">
                   <For each={Array(8)}>{() => <SkeletonTile />}</For>
@@ -155,7 +89,7 @@ export default function HqFoldersWidget() {
           }
         >
           <Show
-            when={viewMode() === "list"}
+            when={props.viewMode === "list"}
             fallback={
               <div class="grid grid-cols-3 sm:grid-cols-4 gap-1 p-2">
                 <For each={entries()}>

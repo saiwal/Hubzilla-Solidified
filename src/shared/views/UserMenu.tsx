@@ -45,11 +45,6 @@ const Usermenu = (props: NavUtilitiesProps) => {
                 class="w-9 h-9 rounded-lg object-cover select-none"
                 loading="lazy"
               />
-              <span
-                class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full
-                       bg-green-500 border-2 border-surface"
-                aria-hidden="true"
-              />
             </div>
             <span class="flex-1 text-sm font-medium text-txt truncate text-left">
               {props.viewer!.name}

@@ -879,7 +879,7 @@ export default function PostCard(props: {
       <div
         ref={cardRef}
         style="overflow-anchor: none"
-        class={`relative pl-2 md:pl-3 py-2 md:py-2.5 mb-1 transition-colors duration-500
+        class={`relative border-l-2 pl-2 md:pl-3 py-2 md:py-2.5 mb-1 transition-colors duration-500
                ${props.highlighted ? "border-accent bg-accent/5" :  "border-rim/60"}`}
       >
         <Show when={isPinned()}>
@@ -892,9 +892,6 @@ export default function PostCard(props: {
         </Show>
         {/* Single-line author header */}
         <div class="flex items-center gap-2 min-w-0">
-          <Show when={isUnseen()}>
-            <span class="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
-          </Show>
           <AuthorPopover
             name={props.post.authorName}
             avatar={props.post.authorAvatar}
