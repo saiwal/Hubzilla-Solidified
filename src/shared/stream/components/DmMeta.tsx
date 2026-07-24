@@ -38,3 +38,14 @@ export function DmRecipients(props: { recipients?: string; class?: string }) {
     </Show>
   );
 }
+
+export function DmRecipientsPC(props: { recipients?: string; class?: string }) {
+  const { t } = useI18n();
+  return (
+    <Show when={props.recipients}>
+      <div class={props.class ?? "text-sm text-muted truncate"}>
+        {t("post.dm_to")}: {props.recipients}
+      </div>
+    </Show>
+  );
+}

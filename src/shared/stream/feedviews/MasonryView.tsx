@@ -20,7 +20,7 @@ import { parseEventData } from "@/shared/lib/activity.mapper";
 import { markItemSeen } from "@/shared/lib/markSeen";
 import { MdOutlineSchedule, MdOutlineTimer, MdFillPush_pin, MdOutlineReply } from "solid-icons/md";
 import { useAuth } from "@/shared/store/auth-store";
-import { isDirectMessage as isDM, DmBadge, DmRecipients, DM_ACCENT_CLASS } from "@/shared/stream/components/DmMeta";
+import { isDirectMessage as isDM, DmBadge, DmRecipients } from "@/shared/stream/components/DmMeta";
 function useColumnCount(): () => number {
   const getCount = () => {
     const w = window.innerWidth;
@@ -122,8 +122,7 @@ function MasonryCard(props: {
         ref={cardRef}
         onClick={() => props.onOpenModal()}
         class={
-          "relative mb-3 bg-surface border border-rim rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer" +
-          (isDirectMessage() ? DM_ACCENT_CLASS : isFlatReply() ? " border-l-2 border-l-accent/50 bg-accent-muted/5" : "")
+          "relative mb-3 bg-surface border border-rim rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer" 
         }
       >
         <div class="absolute top-2.5 right-2.5 z-10 flex items-center gap-1">

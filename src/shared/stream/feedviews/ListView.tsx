@@ -14,7 +14,7 @@ import CommentComposer from "@/shared/editor/composers/CommentComposer";
 import { useAuth } from "@/shared/store/auth-store";
 import { useListBehavior } from "@/shared/store/list-behavior";
 import { MdOutlineSchedule, MdOutlineTimer, MdFillPush_pin, MdOutlineReply } from "solid-icons/md";
-import { isDirectMessage as isDM, DmBadge, DmRecipients, DM_ACCENT_CLASS } from "@/shared/stream/components/DmMeta";
+import { isDirectMessage as isDM, DmBadge, DmRecipients } from "@/shared/stream/components/DmMeta";
 
 const PostDetailModal = lazy(() => import("@/shared/views/PostDetailModal"));
 
@@ -296,9 +296,8 @@ function ListRow(props: {
     <div
       ref={rowRef}
       class={
-        "group flex items-stretch border-b border-rim last:border-0 hover:bg-overlay transition-colors" +
-        (isDirectMessage() ? DM_ACCENT_CLASS : isFlatReply() ? " border-l-2 border-l-accent/50 bg-accent-muted/5" : "")
-      }
+        "group flex items-stretch border-b border-rim last:border-0 hover:bg-overlay transition-colors" 
+			}
     >
       <VoteGutter post={p} handlers={props.handlers} />
 

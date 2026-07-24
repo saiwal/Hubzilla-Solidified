@@ -59,7 +59,7 @@ import {
 } from "solid-icons/md";
 import { useI18n } from "@/i18n";
 import { BiRegularLinkExternal, BiSolidShareAlt } from "solid-icons/bi";
-import { isDirectMessage as isDM, DmBadge, DmRecipients, DM_ACCENT_CLASS } from "./DmMeta";
+import { isDirectMessage as isDM, DmBadge, DmRecipientsPC, DmRecipients } from "./DmMeta";
 const CommentComposer = lazy(
   () => import("@/shared/editor/composers/CommentComposer"),
 );
@@ -879,8 +879,8 @@ export default function PostCard(props: {
       <div
         ref={cardRef}
         style="overflow-anchor: none"
-        class={`relative border-l-2 pl-2 md:pl-3 py-2 md:py-2.5 mb-1 transition-colors duration-500
-               ${props.highlighted ? "border-accent bg-accent/5" : isDirectMessage() ? "border-violet-500/60 bg-violet-500/[0.04]" : "border-rim/60"}`}
+        class={`relative pl-2 md:pl-3 py-2 md:py-2.5 mb-1 transition-colors duration-500
+               ${props.highlighted ? "border-accent bg-accent/5" :  "border-rim/60"}`}
       >
         <Show when={isPinned()}>
           <span
@@ -1501,8 +1501,7 @@ export default function PostCard(props: {
       class={
         (props.seamless
           ? "relative bg-surface p-3 md:p-5"
-          : "relative bg-surface border border-rim rounded-2xl p-3 md:p-5 mb-4 shadow-sm hover:shadow-md transition-shadow duration-200") +
-        (isDirectMessage() ? DM_ACCENT_CLASS : isFlatReply() ? " border-l-2 border-l-accent/50 bg-accent-muted/5" : "")
+          : "relative bg-surface border border-rim rounded-2xl p-3 md:p-5 mb-4 shadow-sm hover:shadow-md transition-shadow duration-200")
       }
     >
       {/* Header */}
@@ -1555,7 +1554,7 @@ export default function PostCard(props: {
               </div>
             </Show>
           </div>
-          <DmRecipients recipients={isDirectMessage() ? props.post.recipients : undefined} />
+          <DmRecipientsPC recipients={isDirectMessage() ? props.post.recipients : undefined} />
           <div class="flex items-center gap-1.5">
             <Show when={editedAt()}>
               {(edited) => (

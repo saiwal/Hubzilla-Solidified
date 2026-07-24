@@ -58,7 +58,7 @@ registerModule({
       label: () => useI18n().t("widgets.site_announcements"),
       loader: () => import("./widgets/SiteAnnouncementsWidget"),
       slot: "mainTop",
-      defaultModules: [],
+      defaultModules: ["hq"],
       contexts: ["hq"],
       visitorVisible: false,
     },
