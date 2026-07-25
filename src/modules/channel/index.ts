@@ -98,7 +98,7 @@ registerModule({
       loader: () => import("./widgets/ContactCardWidget"),
       slot: "right",
       defaultModules: [],
-      contexts: ["channel", "profile", "hq", "webpages"],
+      contexts: "any",
     },
     {
       // Opt-in GitHub-style posting activity graph — picker only, no default

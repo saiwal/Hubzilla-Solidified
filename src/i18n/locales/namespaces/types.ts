@@ -1900,6 +1900,8 @@ export type RawDictionary = {
     saving:           string;
     load_failed:      string;
     load_more:        string;
+    show_more:        string;
+		show_less:        string;
   };
   manage: {
     channels:         string;

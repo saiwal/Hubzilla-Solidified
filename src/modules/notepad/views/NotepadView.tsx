@@ -1,5 +1,6 @@
-import { createEffect, createSignal, Show, For } from "solid-js";
+import { createEffect, createSignal, onMount, Show, For } from "solid-js";
 import { MdOutlineEdit_note } from "solid-icons/md";
+import { FiChevronDown, FiChevronUp } from "solid-icons/fi";
 import { useAuth } from "@/shared/store/auth-store";
 import { useViewerRole } from "@/shared/store/site-config";
 import { useI18n } from "@/i18n";
@@ -35,14 +36,55 @@ function NoteCard(props: {
 }) {
   const { t } = useI18n();
 
+  let bodyRef: HTMLDivElement | undefined;
+  const [expanded, setExpanded] = createSignal(false);
+  const [overflowing, setOverflowing] = createSignal(false);
+
+  const checkOverflow = () => {
+    if (!bodyRef) return;
+    // scrollHeight vs clientHeight only tells us something when clamped
+    setOverflowing(bodyRef.scrollHeight > bodyRef.clientHeight + 1);
+  };
+
+  onMount(() => {
+    checkOverflow();
+    // content may reflow after images/fonts load
+    const ro = new ResizeObserver(() => checkOverflow());
+    if (bodyRef) ro.observe(bodyRef);
+    return () => ro.disconnect();
+  });
+
+  createEffect(() => {
+    // re-check whenever the note body changes (e.g. after edit)
+    props.note.body;
+    if (!expanded()) queueMicrotask(checkOverflow);
+  });
+
   return (
     <div class="bg-surface border border-rim rounded-xl p-4 space-y-3 group hover:border-rim-strong transition-colors">
       <div
-        class="prose prose-sm dark:prose-invert max-w-none text-txt leading-relaxed
+        ref={bodyRef}
+        class={`prose prose-sm dark:prose-invert max-w-none text-txt leading-relaxed
                [&_a]:text-accent [&_a]:no-underline [&_a:hover]:underline
-               line-clamp-6"
+               ${expanded() ? "" : "line-clamp-6"}`}
         innerHTML={renderBody(props.note.body, props.note.mimetype)}
       />
+
+      <Show when={overflowing() || expanded()}>
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          class="flex items-center gap-1 text-xs text-muted hover:text-txt transition-colors"
+        >
+          <Show
+            when={expanded()}
+            fallback={<><FiChevronDown class="text-sm" />{t("notepad.show_more")}</>}
+          >
+            <FiChevronUp class="text-sm" />
+            {t("notepad.show_less")}
+          </Show>
+        </button>
+      </Show>
+
       <div class="flex items-center justify-between text-xs text-muted">
         <span>{fmtDate(props.note.edited || props.note.created)}</span>
 

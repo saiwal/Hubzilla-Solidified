@@ -13,4 +13,7 @@ export const notepad: RawDictionary["notepad"] = {
   saving:         "Speichern…",
   load_failed:    "Notizen konnten nicht geladen werden",
   load_more:      "Mehr laden",
+	show_more:      "Mehr anzeigen",
+  show_less:      "Weniger anzeigen",
+
 };
