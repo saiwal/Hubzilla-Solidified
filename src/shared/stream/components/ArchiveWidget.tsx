@@ -28,6 +28,10 @@ export interface ArchiveYear {
   count: number;
   months: ArchiveMonth[];
 }
+export interface ArchiveDay {
+  day: number;
+  count: number;
+}
 
 // ---------------------------------------------------------------------------
 // Fetch
@@ -45,6 +49,24 @@ export async function fetchArchive(params: {
   const json = await res.json();
   const data = json.data ?? json;
   return data.archive ?? [];
+}
+
+export async function fetchArchiveDays(params: {
+  channelNick?: string;
+  type?: "articles" | "posts" | "notes";
+  year: number;
+  month: number;
+}): Promise<ArchiveDay[]> {
+  const url = new URL("/spa/stream-widgets/archive-days", window.location.origin);
+  if (params.channelNick) url.searchParams.set("channel_nick", params.channelNick);
+  if (params.type) url.searchParams.set("type", params.type);
+  url.searchParams.set("year", String(params.year));
+  url.searchParams.set("month", String(params.month));
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const json = await res.json();
+  const data = json.data ?? json;
+  return data.days ?? [];
 }
 
 // ---------------------------------------------------------------------------
@@ -74,10 +96,18 @@ export function monthRange(year: number, month: number): [string, string] {
 }
 
 /** Parse YYYY-MM-DD → { year, month } or null. */
-function parseYearMonth(s: string): { year: number; month: number } | null {
+export function parseYearMonth(s: string): { year: number; month: number } | null {
   const m = /^(\d{4})-(\d{2})/.exec(s);
   if (!m) return null;
   return { year: parseInt(m[1]), month: parseInt(m[2]) };
+}
+
+/** Returns [dbegin, dend] for a single calendar day (exclusive end = next day). */
+export function dayRange(year: number, month: number, day: number): [string, string] {
+  const dbegin = `${year}-${pad2(month)}-${pad2(day)}`;
+  const next = new Date(year, month - 1, day + 1);
+  const dend = `${next.getFullYear()}-${pad2(next.getMonth() + 1)}-${pad2(next.getDate())}`;
+  return [dbegin, dend];
 }
 
 // ---------------------------------------------------------------------------

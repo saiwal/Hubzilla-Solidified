@@ -49,11 +49,41 @@ registerModule({
       helpTarget: "articles.categories_widget",
     },
     {
+      // Opt-in alternate layout for articles.categories — picker only, no default placement
+      id: "articles.categories_cloud",
+      label: () => useI18n().t("widgets.category_cloud"),
+      loader: () => import("./widgets/ArticleCategoryCloudWidget"),
+      slot: "right",
+      defaultModules: [],
+      contexts: ["articles"],
+      helpTarget: "articles.categories_cloud_widget",
+    },
+    {
+      // Opt-in archive calendar — picker only, no default placement
+      id: "articles.archive_grid",
+      label: () => useI18n().t("widgets.archive_grid"),
+      loader: () => import("./widgets/ArticleArchiveGridWidget"),
+      slot: "right",
+      defaultModules: [],
+      contexts: ["articles"],
+      helpTarget: "articles.archive_grid_widget",
+    },
+    {
       id: "articles.tags",
       label: () => useI18n().t("widgets.article_tags"),
       loader: () => import("./widgets/ArticleTagWidget"),
       slot: "right",
       helpTarget: "articles.tags_widget",
+    },
+    {
+      // Opt-in alternate layout for articles.tags — picker only, no default placement
+      id: "articles.tags_list",
+      label: () => useI18n().t("widgets.tag_list"),
+      loader: () => import("./widgets/ArticleTagListWidget"),
+      slot: "right",
+      defaultModules: [],
+      contexts: ["articles"],
+      helpTarget: "articles.tags_list_widget",
     },
     {
       // Opt-in article showcase; place several, each configured with an article

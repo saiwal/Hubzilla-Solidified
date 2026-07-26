@@ -11,6 +11,8 @@ export interface ArticleParams extends StreamParams {
   search?: string;
   tag?: string;
   cat?: string;
+  dbegin?: string;
+  dend?: string;
 }
 
 // ── nick signal ───────────────────────────────────────────────────────────────
@@ -31,27 +33,41 @@ async function articlesFetcher(params: ArticleParams): Promise<StreamResult> {
 // ── active filters ────────────────────────────────────────────────────────────
 const [activeCategory, setActiveCategory] = createSignal<string>("");
 const [activeTag, setActiveTag] = createSignal<string>("");
-export { activeCategory, activeTag };
+const [activeDbegin, setActiveDbegin] = createSignal<string>("");
+const [activeDend, setActiveDend] = createSignal<string>("");
+export { activeCategory, activeTag, activeDbegin, activeDend };
 
 export function setArticleFilter(type: "cat" | "tag", value: string) {
   if (type === "cat") {
     const next = activeCategory() === value ? "" : value;
     setActiveCategory(next);
     setActiveTag("");
-    store.reset();
-    store.load({ cat: next, tag: "" });
   } else {
     const next = activeTag() === value ? "" : value;
     setActiveTag(next);
     setActiveCategory("");
-    store.reset();
-    store.load({ cat: "", tag: next });
   }
+  setActiveDbegin("");
+  setActiveDend("");
+  store.reset();
+  store.load({ cat: activeCategory(), tag: activeTag() });
+}
+
+export function setArticleDateFilter(dbegin: string, dend: string) {
+  const isActive = activeDbegin() === dbegin && activeDend() === dend;
+  setActiveDbegin(isActive ? "" : dbegin);
+  setActiveDend(isActive ? "" : dend);
+  setActiveCategory("");
+  setActiveTag("");
+  store.reset();
+  store.load({ dbegin: activeDbegin(), dend: activeDend() });
 }
 
 export function clearArticleFilter() {
   setActiveCategory("");
   setActiveTag("");
+  setActiveDbegin("");
+  setActiveDend("");
   store.reset();
   store.load({});
 }

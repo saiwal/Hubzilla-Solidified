@@ -1,9 +1,8 @@
 import ArchiveGridWidget from "@/shared/stream/components/ArchiveGridWidget";
 import { dayRange } from "@/shared/stream/components/ArchiveWidget";
-import { usePageNick } from "@/shared/store/site-config";
 import { useSearchParams } from "@solidjs/router";
 
-export default function ChannelArchiveGridWidget() {
+export default function NoteArchiveGridWidget() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeDbegin = () => String(searchParams.dbegin ?? "");
   const activeDend   = () => String(searchParams.dend   ?? "");
@@ -14,14 +13,13 @@ export default function ChannelArchiveGridWidget() {
     if (isActive) {
       setSearchParams({ dbegin: undefined, dend: undefined });
     } else {
-      setSearchParams({ dbegin, dend, tag: undefined, cat: undefined });
+      setSearchParams({ dbegin, dend, tag: undefined });
     }
   };
 
   return (
     <ArchiveGridWidget
-      channelNick={usePageNick()()}
-      type="posts"
+      type="notes"
       activeDbegin={activeDbegin()}
       activeDend={activeDend()}
       onDayClick={onDayClick}

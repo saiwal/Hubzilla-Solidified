@@ -37,10 +37,30 @@ registerModule({
       visitorVisible: false,
     },
     {
+      // Opt-in alternate layout for notepad.archive — picker only, no default placement
+      id: "notepad.archive_grid",
+      label: () => useI18n().t("widgets.archive_grid"),
+      loader: () => import("./widgets/NoteArchiveGridWidget"),
+      slot: "right",
+      defaultModules: [],
+      contexts: ["notepad"],
+      visitorVisible: false,
+    },
+    {
       id: "notepad.tags",
       label: () => useI18n().t("widgets.note_tags"),
       loader: () => import("./widgets/NoteTagWidget"),
       slot: "right",
+      visitorVisible: false,
+    },
+    {
+      // Opt-in alternate layout for notepad.tags — picker only, no default placement
+      id: "notepad.tags_list",
+      label: () => useI18n().t("widgets.tag_list"),
+      loader: () => import("./widgets/NoteTagListWidget"),
+      slot: "right",
+      defaultModules: [],
+      contexts: ["notepad"],
       visitorVisible: false,
     },
   ],

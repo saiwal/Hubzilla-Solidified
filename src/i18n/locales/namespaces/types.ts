@@ -342,6 +342,10 @@ export type RawDictionary = {
     show_more_tags: string;
     archive:        string;
     archive_grid:   string;
+    archive_prev_year:  string;
+    archive_prev_month: string;
+    archive_next_month: string;
+    archive_next_year:  string;
     category_cloud: string;
     tag_list:       string;
     no_archive:     string;

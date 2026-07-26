@@ -14,13 +14,15 @@ export interface ArticleSingleResponse {
 
 export async function fetchArticles(
   nick: string,
-  params: { start?: number; search?: string; tag?: string; cat?: string } = {},
+  params: { start?: number; search?: string; tag?: string; cat?: string; dbegin?: string; dend?: string } = {},
 ): Promise<ArticleListResponse> {
   const q = new URLSearchParams();
   if (params.start) q.set("start", String(params.start));
   if (params.search) q.set("search", params.search);
   if (params.tag) q.set("tag", params.tag);
   if (params.cat) q.set("cat", params.cat);
+  if (params.dbegin) q.set("dbegin", params.dbegin);
+  if (params.dend) q.set("dend", params.dend);
   const qs = q.toString();
   const res = await fetch(`/spa/articles/${nick}${qs ? `?${qs}` : ""}`);
   if (!res.ok) throw new Error("Failed to fetch articles");

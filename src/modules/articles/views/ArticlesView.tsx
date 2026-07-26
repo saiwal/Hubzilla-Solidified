@@ -14,7 +14,7 @@ import { hydrateLatex } from "@/shared/lib/hydrateLatex";
 import {
   posts, loading, hasMore,
   loadArticles, resetPosts, loadMore,
-  activeCategory, activeTag, clearArticleFilter,
+  activeCategory, activeTag, activeDbegin, clearArticleFilter,
 } from "../store";
 import type { Post } from "@/shared/types/post.types";
 import { articlePath, articleShareUrl, buildArticleShareBody } from "../lib/articleLinks";
@@ -260,7 +260,7 @@ export default function ArticlesView() {
       </div>
 
       {/* ── Active filter banner ── */}
-      <Show when={activeCategory() || activeTag()}>
+      <Show when={activeCategory() || activeTag() || activeDbegin()}>
         <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-accent/10 border border-accent/25 text-sm">
           <span class="text-muted">{t("articles.filtered_by")}</span>
           <Show when={activeCategory()}>
@@ -268,6 +268,11 @@ export default function ArticlesView() {
           </Show>
           <Show when={activeTag()}>
             <span class="font-medium text-accent">#{activeTag()}</span>
+          </Show>
+          <Show when={activeDbegin()}>
+            <span class="font-medium text-accent">
+              {new Date(activeDbegin() + "T00:00:00").toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" })}
+            </span>
           </Show>
           <button
             type="button"

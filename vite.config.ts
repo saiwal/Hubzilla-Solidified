@@ -81,7 +81,6 @@ export default defineConfig({
         { src: "src/php", dest: "../" },
         { src: "src/hooks", dest: "../" },
         { src: "src/composer.json", dest: "../" },
-        { src: "README.md", dest: "../" },
         { src: `${FFMPEG_CORE_DIR}/ffmpeg-core.js`,   dest: "ffmpeg" },
         { src: `${FFMPEG_CORE_DIR}/ffmpeg-core.wasm`, dest: "ffmpeg" },
         { src: FFMPEG_WORKER_SRC,                     dest: "ffmpeg" },
