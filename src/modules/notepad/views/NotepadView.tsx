@@ -1,5 +1,6 @@
 import { createEffect, createSignal, onMount, Show, For } from "solid-js";
-import { MdOutlineEdit_note } from "solid-icons/md";
+import { useSearchParams } from "@solidjs/router";
+import { MdOutlineEdit_note, MdFillSearch, MdFillClose } from "solid-icons/md";
 import { FiChevronDown, FiChevronUp } from "solid-icons/fi";
 import { useAuth } from "@/shared/store/auth-store";
 import { useViewerRole } from "@/shared/store/site-config";
@@ -138,6 +139,7 @@ export default function NotepadView() {
   const { t } = useI18n();
   const auth = useAuth();
   const role = useViewerRole();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [editingNote, setEditingNote] = createSignal<Note | null>(null);
   const [confirmMid, setConfirmMid] = createSignal<string | null>(null);
@@ -145,15 +147,109 @@ export default function NotepadView() {
   const nick = () => auth()?.nick || "";
   const isOwner = () => role() === "owner";
 
+  const activeTag    = () => String(searchParams.tag ?? "");
+  const activeDbegin = () => String(searchParams.dbegin ?? "");
+  const activeSearch = () => String(searchParams.search ?? "");
+  const hasFilters   = () => !!(activeTag() || activeDbegin() || activeSearch());
+
+  const [searchOpen, setSearchOpen]   = createSignal(!!activeSearch());
+  const [searchInput, setSearchInput] = createSignal(activeSearch());
+
+  const submitSearch = (e?: Event) => {
+    e?.preventDefault();
+    const q = searchInput().trim();
+    setSearchParams({ search: q || undefined });
+    if (!q) setSearchOpen(false);
+  };
+
+  const clearAllFilters = () => {
+    setSearchInput("");
+    setSearchOpen(false);
+    setSearchParams({ tag: undefined, dbegin: undefined, dend: undefined, search: undefined });
+  };
+
   createEffect(() => {
     if (!auth.loading && nick()) {
-      loadNotes(true);
+      loadNotes(true, {
+        tag:    activeTag()    || undefined,
+        dbegin: activeDbegin() || undefined,
+        dend:   String(searchParams.dend ?? "") || undefined,
+        search: activeSearch() || undefined,
+      });
     }
   });
 
   return (
     <div class="max-w-2xl mx-auto space-y-6">
-      <h1 class="text-xl font-bold text-txt">{t("notepad.title")}</h1>
+      <div class="flex items-center justify-between gap-2">
+        <h1 class="text-xl font-bold text-txt">{t("notepad.title")}</h1>
+
+        <Show
+          when={searchOpen()}
+          fallback={
+            <button
+              type="button"
+              title={t("notepad.search")}
+              onClick={() => { setSearchInput(activeSearch()); setSearchOpen(true); }}
+              class={`p-1.5 rounded-lg border transition-colors
+                ${activeSearch()
+                  ? "bg-accent text-accent-fg border-accent"
+                  : "border-rim bg-surface text-muted hover:bg-elevated hover:text-txt"}`}
+            >
+              <MdFillSearch size={15} />
+            </button>
+          }
+        >
+          <form onSubmit={submitSearch} class="flex items-center gap-1">
+            <input
+              type="search"
+              value={searchInput()}
+              onInput={(e) => setSearchInput(e.currentTarget.value)}
+              placeholder={t("notepad.search_placeholder")}
+              autofocus
+              onKeyDown={(e) => { if (e.key === "Escape") setSearchOpen(false); }}
+              class="w-40 px-2 py-1 text-sm rounded-lg border border-rim bg-surface text-txt outline-none focus:border-accent"
+            />
+            <button
+              type="submit"
+              class="p-1.5 rounded-lg border border-rim bg-elevated text-txt hover:bg-overlay transition-colors"
+            >
+              <MdFillSearch size={15} />
+            </button>
+            <button
+              type="button"
+              onClick={() => { setSearchInput(""); setSearchParams({ search: undefined }); setSearchOpen(false); }}
+              class="p-1.5 text-muted hover:text-txt transition-colors"
+            >
+              <MdFillClose size={15} />
+            </button>
+          </form>
+        </Show>
+      </div>
+
+      <Show when={hasFilters()}>
+        <div class="flex items-center gap-2 text-sm text-muted">
+          <Show when={activeSearch()}>
+            <span>"{activeSearch()}"</span>
+          </Show>
+          <Show when={activeTag()}>
+            <span>#{activeTag()}</span>
+          </Show>
+          <Show when={activeDbegin()}>
+            <span>
+              {new Date(`${activeDbegin()}T00:00:00`).toLocaleDateString(undefined, {
+                month: "long", year: "numeric",
+              })}
+            </span>
+          </Show>
+          <button
+            onClick={clearAllFilters}
+            class="text-xs text-accent hover:underline"
+          >
+            {t("notepad.clear_filter")}
+          </button>
+        </div>
+      </Show>
 
       <Show when={isOwner()}>
         <Show
@@ -199,8 +295,8 @@ export default function NotepadView() {
       <Show when={!loading() && notes().length === 0}>
         <div class="text-center py-16 space-y-3 text-muted">
           <MdOutlineEdit_note class="text-3xl text-muted mx-auto" />
-          <p class="text-sm">{t("notepad.no_notes")}</p>
-          <Show when={isOwner()}>
+          <p class="text-sm">{hasFilters() ? t("notepad.no_notes_filtered") : t("notepad.no_notes")}</p>
+          <Show when={isOwner() && !hasFilters()}>
             <p class="text-xs">{t("notepad.create_first")}</p>
           </Show>
         </div>

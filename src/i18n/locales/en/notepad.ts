@@ -15,4 +15,9 @@ export const notepad: RawDictionary["notepad"] = {
   load_more:      "Load more",
 	show_more:      "Show more",
   show_less:      "Show less",
+  clear_filter:      "Clear filter",
+  no_notes_filtered: "No notes match this filter.",
+  search:             "Search notes",
+  search_placeholder: "Search notes…",
+  quick_saved:        "Note saved.",
 };

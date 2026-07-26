@@ -35,7 +35,7 @@ export interface ArchiveYear {
 
 export async function fetchArchive(params: {
   channelNick?: string;
-  type?: "articles" | "posts";
+  type?: "articles" | "posts" | "notes";
 }): Promise<ArchiveYear[]> {
   const url = new URL("/spa/stream-widgets/archive", window.location.origin);
   if (params.channelNick) url.searchParams.set("channel_nick", params.channelNick);
@@ -106,7 +106,7 @@ function ArchiveSkeleton() {
 
 export interface ArchiveWidgetProps {
   channelNick?: string;
-  type?: "articles" | "posts";
+  type?: "articles" | "posts" | "notes";
   activeDbegin?: string;
   activeDend?: string;
   onMonthClick?: (year: number, month: number) => void;

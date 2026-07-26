@@ -15,5 +15,9 @@ export const notepad: RawDictionary["notepad"] = {
   load_more:      "Mehr laden",
 	show_more:      "Mehr anzeigen",
   show_less:      "Weniger anzeigen",
-
+  clear_filter:      "Filter zurücksetzen",
+  no_notes_filtered: "Keine Notizen entsprechen diesem Filter.",
+  search:             "Notizen durchsuchen",
+  search_placeholder: "Notizen durchsuchen…",
+  quick_saved:        "Notiz gespeichert.",
 };

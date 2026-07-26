@@ -20,8 +20,24 @@ export type NotesResponse = {
   };
 };
 
-export async function fetchNotes(start = 0, limit = 20): Promise<NotesResponse> {
-  const res = await apiFetch(`/spa/notes?start=${start}&limit=${limit}`);
+export type NoteFilters = {
+  tag?: string;
+  dbegin?: string;
+  dend?: string;
+  search?: string;
+};
+
+export async function fetchNotes(
+  start = 0,
+  limit = 20,
+  filters: NoteFilters = {},
+): Promise<NotesResponse> {
+  const params = new URLSearchParams({ start: String(start), limit: String(limit) });
+  if (filters.tag) params.set("tag", filters.tag);
+  if (filters.dbegin) params.set("dbegin", filters.dbegin);
+  if (filters.dend) params.set("dend", filters.dend);
+  if (filters.search) params.set("search", filters.search);
+  const res = await apiFetch(`/spa/notes?${params.toString()}`);
   if (!res.ok) {
     const err = await res.json().catch(() => null);
     throw new Error(err?.error?.message ?? "Failed to fetch notes");

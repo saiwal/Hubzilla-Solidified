@@ -136,6 +136,14 @@ export type RawDictionary = {
     siteinfo_approval:       string;
     siteinfo_closed:         string;
     siteinfo_load_failed:    string;
+    siteinfo_service_classes:  string;
+    siteinfo_default_badge:    string;
+    siteinfo_unlimited:        string;
+    siteinfo_photo_limit:      string;
+    siteinfo_attach_limit:     string;
+    siteinfo_total_channels:   string;
+    siteinfo_total_items:      string;
+    siteinfo_total_identities: string;
     // Online contacts
     recently_active:         string;
     loading:                 string;
@@ -348,6 +356,9 @@ export type RawDictionary = {
     popular_articles:   string;
     article_categories: string;
     article_tags:       string;
+    note_archive:       string;
+    note_tags:          string;
+    note_quick:         string;
     calendar:           string;
     shopping_cart:      string;
     item_card:          string;
@@ -1917,6 +1928,11 @@ export type RawDictionary = {
     load_more:        string;
     show_more:        string;
 		show_less:        string;
+    clear_filter:     string;
+    no_notes_filtered: string;
+    search:             string;
+    search_placeholder: string;
+    quick_saved:        string;
   };
   manage: {
     channels:         string;

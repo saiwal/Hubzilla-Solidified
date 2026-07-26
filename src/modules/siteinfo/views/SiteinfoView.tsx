@@ -9,6 +9,13 @@ export default function SiteinfoView() {
   const { t } = useI18n();
   const [info] = createQueryResource("siteinfo", fetchSiteInfo);
 
+  function formatLimit(n: number | null): string {
+    return n === null ? t("ui.siteinfo_unlimited") : humanBytes(n);
+  }
+  function formatCount(n: number | null): string {
+    return n === null ? t("ui.siteinfo_unlimited") : String(n);
+  }
+
   return (
     <Show when={!info.loading} fallback={<SiteinfoPending />}>
       <Show when={info()} fallback={<p class="text-sm text-accent">{t("ui.siteinfo_load_failed")}</p>}>
@@ -95,6 +102,33 @@ export default function SiteinfoView() {
               </div>
             </Section>
 
+            {/* Service classes */}
+            <Show when={data().service_classes.length > 0}>
+              <Section title={t("ui.siteinfo_service_classes")}>
+                <div class="space-y-3">
+                  <For each={data().service_classes}>
+                    {(cls) => (
+                      <div class="rounded-lg border border-rim p-3 space-y-2">
+                        <div class="flex items-center gap-2">
+                          <span class="text-sm font-medium text-txt">{cls.name}</span>
+                          <Show when={cls.is_default}>
+                            <Chip label={t("ui.siteinfo_default_badge")} variant="info" />
+                          </Show>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-xs text-muted">
+                          <div>{t("ui.siteinfo_photo_limit")}: {formatLimit(cls.photo_upload_limit)}</div>
+                          <div>{t("ui.siteinfo_attach_limit")}: {formatLimit(cls.attach_upload_limit)}</div>
+                          <div>{t("ui.siteinfo_total_channels")}: {formatCount(cls.total_channels)}</div>
+                          <div>{t("ui.siteinfo_total_items")}: {formatCount(cls.total_items)}</div>
+                          <div>{t("ui.siteinfo_total_identities")}: {formatCount(cls.total_identities)}</div>
+                        </div>
+                      </div>
+                    )}
+                  </For>
+                </div>
+              </Section>
+            </Show>
+
             {/* Addons + Themes side by side on wider screens */}
             <Show when={data().addons.length > 0 || data().themes.length > 0}>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -138,6 +172,13 @@ function Section(props: { title: string; children: any; compact?: boolean }) {
       {props.children}
     </section>
   );
+}
+
+function humanBytes(n: number): string {
+  if (n >= 1073741824) return `${(n / 1073741824).toFixed(1)} GB`;
+  if (n >= 1048576) return `${(n / 1048576).toFixed(1)} MB`;
+  if (n >= 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${n} B`;
 }
 
 function Chip(props: { label: string; variant?: 'info' | 'default' }) {
