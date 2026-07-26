@@ -461,8 +461,8 @@ export type RawDictionary = {
     delete_announcement:     string;
     // Storage Usage (cloud.storage_usage)
     storage_usage:     string;
-    storage_used_only: string;
     storage_used_of:   string;
+    storage_unlimited: string;
   };
   tools: {
     label:            string;
@@ -904,6 +904,19 @@ export type RawDictionary = {
     // Section titles and descriptions
     title_account:       string;
     desc_account:        string;
+    quotas_title:        string;
+    quotas_desc:         string;
+    quota_total_identities: string;
+    quota_total_channels: string;
+    quota_total_feeds:   string;
+    quota_total_items:   string;
+    quota_total_pages:   string;
+    quota_photo_upload_limit: string;
+    quota_attach_upload_limit: string;
+    quota_chatrooms:     string;
+    quota_chatters_inroom: string;
+    quota_access_tokens: string;
+    quota_minimum_feedcheck_minutes: string;
     title_display:       string;
     desc_display:        string;
     title_privacy:       string;
@@ -1245,6 +1258,7 @@ export type RawDictionary = {
     mutuals:              string;
     public_forum:         string;
     connect:              string;
+    connecting:           string;
     view_profile:         string;
     connected:            string;
     ignore:               string;
@@ -1947,6 +1961,15 @@ export type RawDictionary = {
     page_prev:        string;
     page_next:        string;
     page_label:       string;
+    col_service_class: string;
+    col_expires:      string;
+    edit:             string;
+    edit_account_title: string;
+    service_class_label: string;
+    unrestricted_label: string;
+    expires_label:    string;
+    expires_hint:     string;
+    clear_expiry:     string;
     addons_title:     string;
     addons_desc:      string;
     addons_found:     string;
@@ -1999,6 +2022,32 @@ export type RawDictionary = {
     profile_fields_desc:  string;
     fields_defined:   string;
     no_profile_fields: string;
+    service_classes_title: string;
+    service_classes_desc: string;
+    create_class:     string;
+    new_class_title:  string;
+    edit_class_title: string;
+    class_name_label: string;
+    class_name_hint:  string;
+    col_class_name:   string;
+    col_limits:       string;
+    col_accounts:     string;
+    set_default:      string;
+    unlimited_hint:   string;
+    delete_class_confirm: string;
+    no_service_classes: string;
+    unrestricted_row_label: string;
+    prop_photo_upload_limit: string;
+    prop_attach_upload_limit: string;
+    prop_total_items: string;
+    prop_total_pages: string;
+    prop_total_identities: string;
+    prop_total_channels: string;
+    prop_total_feeds: string;
+    prop_minimum_feedcheck_minutes: string;
+    prop_chatrooms:   string;
+    prop_chatters_inroom: string;
+    prop_access_tokens: string;
     security_title:   string;
     security_desc:    string;
     site_title:       string;

@@ -60,7 +60,10 @@ export default function StorageUsageWidget() {
         <p class="text-xs text-muted mt-2">
           <Show
             when={quota()!.limit}
-            fallback={t("widgets.storage_used_only", { used: humanSize(quota()!.used) })}
+            fallback={t("widgets.storage_used_of", {
+              used: humanSize(quota()!.used),
+              limit: t("widgets.storage_unlimited"),
+            })}
           >
             {t("widgets.storage_used_of", {
               used: humanSize(quota()!.used),

@@ -423,14 +423,18 @@ function AlbumGrid() {
     const album  = albumName();
     setUploadProgress({ done: 0, total: files.length });
     let failed = 0;
+    const errors = new Set<string>();
     for (let i = 0; i < files.length; i++) {
       try { await uploadNewPhoto(nick, files[i], album, folder); }
-      catch { failed++; }
+      catch (err) {
+        failed++;
+        errors.add(err instanceof Error ? err.message : t("photos.upload_failed"));
+      }
       setUploadProgress({ done: i + 1, total: files.length });
     }
     setUploadProgress(null);
     if (folder) loadAlbum(nick, folder);
-    if (failed > 0) toast.error(t("photos.upload_failed"));
+    if (failed > 0) toast.error(errors.size ? [...errors].join(" ") : t("photos.upload_failed"));
   }
 
   async function handleDeleteAlbum() {

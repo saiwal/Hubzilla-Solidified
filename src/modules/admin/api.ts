@@ -5,7 +5,7 @@ import type {
   AdminChannel, AdminSecurity, AdminFeatures, AdminAddon, AdminTheme,
   AdminQueue, AdminQueueworker, QueueworkerSettings,
   AdminProfileFields, ProfdefField, DbUpdate, AdminLogs,
-  ThemeOptions,
+  ThemeOptions, AdminServiceClass, AdminServiceClasses, ServiceClassProperties,
 } from "./types";
 
 const BASE = "/spa/admin";
@@ -119,6 +119,28 @@ export const adminAccountAction = (account_id: number, action: "block" | "unbloc
 
 export const adminPendingAction = (reg_id: number, action: "approve" | "deny") =>
   post("accounts", { reg_id, action });
+
+export const setAccountServiceClass = (account_id: number, service_class: string) =>
+  post("accounts", { account_id, action: "set_service_class", service_class });
+
+export const setAccountExpires = (account_id: number, expires: string) =>
+  post("accounts", { account_id, action: "set_expires", expires }); // "" clears it
+
+// ── Service classes ──────────────────────────────────────────────────────────
+
+export const fetchAdminServiceClasses = () => get<AdminServiceClasses>("service-classes");
+
+export const createServiceClass = (name: string, properties: ServiceClassProperties) =>
+  post<AdminServiceClass>("service-classes", { action: "create", name, properties });
+
+export const updateServiceClass = (name: string, properties: ServiceClassProperties) =>
+  post("service-classes", { action: "update", name, properties });
+
+export const deleteServiceClass = (name: string) =>
+  post("service-classes", { action: "delete", name });
+
+export const setDefaultServiceClass = (name: string) =>
+  post<{ status: string; default_service_class: string }>("service-classes", { action: "set_default", name });
 
 // ── Channels ──────────────────────────────────────────────────────────────────
 

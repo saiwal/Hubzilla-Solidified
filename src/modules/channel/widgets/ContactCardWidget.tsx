@@ -2,11 +2,13 @@
 // existing GET /spa/profile/:nick endpoint (same data ChannelView's profile
 // header uses) — no widget-specific backend needed.
 
-import { Show, For } from "solid-js";
+import { Show, For, createSignal } from "solid-js";
 import { A } from "@solidjs/router";
 import { createQueryResource } from "@/shared/lib/createQueryResource";
 import { apiFetch } from "@/shared/lib/fetch";
 import { usePageNick, useViewerRole } from "@/shared/store/site-config";
+import { connectToChannel } from "@/modules/directory/connections/api";
+import { toast } from "@/shared/store/toast";
 import { useI18n } from "@/i18n";
 import { MdFillLocation_on, MdFillPublic } from "solid-icons/md";
 
@@ -40,9 +42,26 @@ export default function ContactCardWidget() {
   const viewerRole = useViewerRole();
   const { t } = useI18n();
 
-  const [data] = createQueryResource("contact-card", () => nick(), fetchProfile);
+  const [data, { refetch }] = createQueryResource("contact-card", () => nick(), fetchProfile);
 
   const profile = () => data();
+
+  const [connecting, setConnecting] = createSignal(false);
+
+  async function handleConnect() {
+    const addr = profile()?.xchan_addr;
+    if (!addr) return;
+    setConnecting(true);
+    try {
+      await connectToChannel(addr);
+      toast.success(t("directory.connected"));
+      refetch();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Connect failed");
+    } finally {
+      setConnecting(false);
+    }
+  }
 
   return (
     <Show when={!data.loading && profile()}>
@@ -120,12 +139,13 @@ export default function ContactCardWidget() {
                 {t("ui.view_channel")}
               </a>
               <Show when={!profile()!.is_connected && profile()!.connect_url}>
-                <a
-                  href={profile()!.connect_url}
-                  class="text-xs text-accent hover:underline"
+                <button
+                  onClick={handleConnect}
+                  disabled={connecting()}
+                  class="text-xs text-accent hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {t("ui.connect")}
-                </a>
+                  {connecting() ? t("directory.connecting") : t("ui.connect")}
+                </button>
               </Show>
             </div>
           </Show>

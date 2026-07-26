@@ -255,6 +255,17 @@ export function davDirPath(nick: string, folderDisplayPath: string): string {
     : `/cloud/${nick}/`;
 }
 
+// SabreDAV error responses are a small XML doc with a <s:message> element
+// carrying the thrown exception's message (e.g. a quota-exceeded notice) —
+// always present regardless of the server's debugExceptions setting.
+function parseDavErrorMessage(xml: string): string | null {
+  const match = xml.match(/<s:message>([\s\S]*?)<\/s:message>/);
+  if (!match) return null;
+  const ta = document.createElement("textarea");
+  ta.innerHTML = match[1];
+  return ta.value.trim() || null;
+}
+
 export async function uploadFile(
   dirPath: string,
   file: File,
@@ -270,7 +281,11 @@ export async function uploadFile(
       xhr.upload.onprogress = (e) => {
         if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
       };
-    xhr.onload = () => (xhr.status < 300 ? resolve() : reject(new Error(`Upload ${xhr.status}`)));
+    xhr.onload = () => {
+      if (xhr.status < 300) { resolve(); return; }
+      const msg = parseDavErrorMessage(xhr.responseText) ?? `Upload ${xhr.status}`;
+      reject(new Error(msg));
+    };
     xhr.onerror = () => reject(new Error("Upload network error"));
     xhr.send(file);
   });

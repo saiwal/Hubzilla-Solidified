@@ -6,6 +6,7 @@ export const ADMIN_ITEMS: SubPageItem[] = [
   { path: "summary", label: "Summary" },
   { path: "site", label: "Site" },
   { path: "accounts", label: "Accounts" },
+  { path: "service-classes", label: "Service Classes" },
   { path: "channels", label: "Channels" },
   { path: "security", label: "Security" },
   { path: "features", label: "Features" },

@@ -11,6 +11,7 @@ export const directory: RawDictionary["directory"] = {
   mutuals:              "पारस्परिक",
   public_forum:         "सार्वजनिक फ़ोरम",
   connect:              "जुड़ें",
+  connecting:           "जुड़ रहे हैं…",
   view_profile:         "प्रोफ़ाइल देखें",
   connected:            "जुड़े हुए",
   ignore:               "अनदेखा करें",

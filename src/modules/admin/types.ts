@@ -114,6 +114,57 @@ export interface AdminPendingAccount {
   expired: boolean;
 }
 
+// ── Service classes ───────────────────────────────────────────────────────────
+
+export interface ServiceClassProperties {
+  photo_upload_limit?: number;
+  attach_upload_limit?: number;
+  total_items?: number;
+  total_pages?: number;
+  total_identities?: number;
+  total_channels?: number;
+  total_feeds?: number;
+  minimum_feedcheck_minutes?: number;
+  chatrooms?: number;
+  chatters_inroom?: number;
+  access_tokens?: number;
+}
+
+export interface AdminServiceClass {
+  name: string;
+  properties: ServiceClassProperties;
+  account_count: number;
+  is_default: boolean;
+}
+
+export interface AdminServiceClasses {
+  classes: AdminServiceClass[];
+  default_service_class: string;
+  unrestricted_count: number;
+}
+
+// Fixed, client-owned form metadata — not fetched from the server (labels
+// need i18n, which is frontend-only); order matches the core doc's property list.
+export interface ServiceClassPropDef {
+  key: keyof ServiceClassProperties;
+  labelKey: string; // i18n key under `admin`
+  unit: "bytes" | "count" | "minutes";
+}
+
+export const SERVICE_CLASS_PROP_DEFS: ServiceClassPropDef[] = [
+  { key: "photo_upload_limit", labelKey: "prop_photo_upload_limit", unit: "bytes" },
+  { key: "attach_upload_limit", labelKey: "prop_attach_upload_limit", unit: "bytes" },
+  { key: "total_items", labelKey: "prop_total_items", unit: "count" },
+  { key: "total_pages", labelKey: "prop_total_pages", unit: "count" },
+  { key: "total_identities", labelKey: "prop_total_identities", unit: "count" },
+  { key: "total_channels", labelKey: "prop_total_channels", unit: "count" },
+  { key: "total_feeds", labelKey: "prop_total_feeds", unit: "count" },
+  { key: "minimum_feedcheck_minutes", labelKey: "prop_minimum_feedcheck_minutes", unit: "minutes" },
+  { key: "chatrooms", labelKey: "prop_chatrooms", unit: "count" },
+  { key: "chatters_inroom", labelKey: "prop_chatters_inroom", unit: "count" },
+  { key: "access_tokens", labelKey: "prop_access_tokens", unit: "count" },
+];
+
 // ── Channels ──────────────────────────────────────────────────────────────────
 
 export interface AdminChannel {

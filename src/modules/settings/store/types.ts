@@ -47,8 +47,22 @@ export interface ChannelSettings {
 }
 
 // ── Account ──────────────────────────────────────────────────────────────────
+export type QuotaKey =
+  | "total_identities" | "total_channels" | "total_feeds" | "total_items" | "total_pages"
+  | "photo_upload_limit" | "attach_upload_limit" | "chatrooms" | "chatters_inroom"
+  | "access_tokens" | "minimum_feedcheck_minutes";
+
+export interface AccountQuota {
+  key: QuotaKey;
+  limit: number;
+  // null for keys that aren't a running total (a floor value or a per-room
+  // concurrent count) — those only ever show the configured limit.
+  usage: number | null;
+}
+
 export interface AccountSettings {
   $email: string;
+  quotas: AccountQuota[];
 }
 
 // ── Locations ────────────────────────────────────────────────────────────────

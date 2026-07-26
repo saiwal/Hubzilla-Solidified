@@ -1,7 +1,9 @@
 // modules/directory/views/DirectoryEntryModal.tsx
-import { Show, For, type Component, createEffect, on } from "solid-js";
+import { Show, For, type Component, createEffect, createSignal, on } from "solid-js";
 import { Portal } from "solid-js/web";
 import type { DirectoryEntry } from "../people/api";
+import { connectToChannel } from "../connections/api";
+import { toast } from "@/shared/store/toast";
 import { useI18n } from "@/i18n";
 import { MdFillCheck } from "solid-icons/md";
 
@@ -14,6 +16,25 @@ const DirectoryEntryModal: Component<Props> = (props) => {
   const { t } = useI18n();
   const e = () => props.entry;
 
+  const [connecting, setConnecting] = createSignal(false);
+  const [connectError, setConnectError] = createSignal("");
+  const [justConnected, setJustConnected] = createSignal(false);
+  const isConnected = () => !!e()?.is_connected || justConnected();
+
+  async function handleConnect() {
+    setConnecting(true);
+    setConnectError("");
+    try {
+      await connectToChannel(e()!.address);
+      setJustConnected(true);
+      toast.success(t("directory.connected"));
+    } catch (err) {
+      setConnectError(err instanceof Error ? err.message : "Connect failed");
+    } finally {
+      setConnecting(false);
+    }
+  }
+
   const handleBackdrop = (ev: MouseEvent) => {
     if (ev.target === ev.currentTarget) props.onClose();
   };
@@ -22,6 +43,11 @@ const DirectoryEntryModal: Component<Props> = (props) => {
   createEffect(on(() => !!e(), (visible) => {
     if (visible) requestAnimationFrame(() => closeButtonRef?.focus());
   }, { defer: true }));
+
+  createEffect(on(() => props.entry, () => {
+    setJustConnected(false);
+    setConnectError("");
+  }));
 
   return (
     <Show when={e()}>
@@ -167,20 +193,29 @@ const DirectoryEntryModal: Component<Props> = (props) => {
             </div>
 
             {/* ── Footer actions ── */}
-            <div class="flex items-center gap-2 px-5 py-4 border-t border-rim">
-              <Show
-                when={!e()!.is_connected}
-                              >
-               <a
-                  href={e()!.connect_url || `/chanview?f=&hash=${encodeURIComponent(e()!.hash)}`}
-                  target={e()!.connect_url ? "_blank" : undefined}
-                  rel="noopener noreferrer"
-                  class="flex-1 text-center px-4 py-2 rounded-lg text-sm font-semibold bg-accent text-accent-fg hover:opacity-80 transition-opacity"
+            <div class="flex items-center gap-2 px-5 py-4 border-t border-rim flex-wrap">
+              <Show when={!isConnected()}>
+                <Show
+                  when={e()!.connect_url}
+                  fallback={
+                    <a
+                      href={`/chanview?f=&hash=${encodeURIComponent(e()!.hash)}`}
+                      class="flex-1 text-center px-4 py-2 rounded-lg text-sm font-semibold bg-accent text-accent-fg hover:opacity-80 transition-opacity"
+                    >
+                      {t("directory.view_profile")}
+                    </a>
+                  }
                 >
-                  {e()!.connect_url ? t("directory.connect") : t("directory.view_profile")}
-                </a>
+                  <button
+                    onClick={handleConnect}
+                    disabled={connecting()}
+                    class="flex-1 text-center px-4 py-2 rounded-lg text-sm font-semibold bg-accent text-accent-fg hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+                  >
+                    {connecting() ? t("directory.connecting") : t("directory.connect")}
+                  </button>
+                </Show>
               </Show>
-             <Show when={e()!.is_connected || e()!.connect_url}>
+             <Show when={isConnected() || e()!.connect_url}>
                 <a
                   href={`/chanview?f=&hash=${encodeURIComponent(e()!.hash)}`}
                   class="px-4 py-2 rounded-lg text-sm font-medium border border-rim text-muted hover:bg-overlay transition-colors"
@@ -188,7 +223,7 @@ const DirectoryEntryModal: Component<Props> = (props) => {
                   {t("directory.view_profile")}
                 </a>
               </Show>
-              <Show when={e()!.ignore_url && !e()!.is_connected}>
+              <Show when={e()!.ignore_url && !isConnected()}>
                <a
                   href={e()!.ignore_url!}
                   title={t("directory.ignore")}
@@ -199,6 +234,9 @@ const DirectoryEntryModal: Component<Props> = (props) => {
                       d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
                   </svg>
                 </a>
+              </Show>
+              <Show when={connectError()}>
+                <p class="w-full text-xs text-red-600 dark:text-red-400">{connectError()}</p>
               </Show>
             </div>
           </div>

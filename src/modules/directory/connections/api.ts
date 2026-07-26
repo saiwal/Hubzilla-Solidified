@@ -104,6 +104,27 @@ export async function deleteConnection(abookId: number): Promise<void> {
   if (!res.ok) throw new Error(`delete HTTP ${res.status}`);
 }
 
+export interface NewConnection {
+  abook_id: number;
+  xchan: string;
+}
+
+// url accepts a webbie ("bob@example.com"), a channel URL, or a bare local
+// nickname. Throws with the backend's friendly message on failure — in
+// particular a service-class total_channels quota message.
+export async function connectToChannel(url: string): Promise<NewConnection> {
+  const res = await apiFetch("/spa/connections/connect", {
+    method: "POST",
+    body: JSON.stringify({ url }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body?.error?.message ?? `connect HTTP ${res.status}`);
+  }
+  const body = await res.json();
+  return body.data as NewConnection;
+}
+
 export interface Permcat {
   name: string;
   label: string;

@@ -236,7 +236,10 @@ const PostComposer: Component<ComposerProps> = (props) => {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error?.message ?? `HTTP ${res.status}`);
+      }
       const json = (await res.json().catch(() => ({}))) as {
         data?: { post?: { iid?: number } };
       };

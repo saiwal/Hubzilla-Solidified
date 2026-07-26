@@ -13,6 +13,7 @@ export const directory: RawDictionary["directory"] = {
   mutuals:              "mutuals",
   public_forum:         "Public Forum",
   connect:              "Connect",
+  connecting:           "Connecting…",
   view_profile:         "View Profile",
   connected:            "Connected",
   ignore:               "Ignore",

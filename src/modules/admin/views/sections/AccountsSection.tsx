@@ -1,7 +1,10 @@
 import { createSignal, For, Show } from "solid-js";
 import { createQueryResource } from "@/shared/lib/createQueryResource";
 import SubPageContent from "@/shared/views/SubPageContent";
-import { fetchAdminAccounts, adminAccountAction, adminPendingAction } from "../../api";
+import {
+  fetchAdminAccounts, adminAccountAction, adminPendingAction,
+  fetchAdminServiceClasses, setAccountServiceClass, setAccountExpires,
+} from "../../api";
 import type { AdminAccount } from "../../types";
 import { useI18n } from "@/i18n";
 
@@ -138,6 +141,8 @@ export default function AccountsSection() {
                     <col class="hidden sm:table-column sm:w-28" />
                     <col class="hidden md:table-column md:w-28" />
                     <col class="hidden lg:table-column lg:w-28" />
+                    <col class="hidden md:table-column md:w-28" />
+                    <col class="hidden lg:table-column lg:w-28" />
                     <col class="w-28" />
                     <col class="w-40" />
                   </colgroup>
@@ -147,6 +152,8 @@ export default function AccountsSection() {
                       <th class="px-3 py-2 text-left text-xs font-medium text-muted hidden sm:table-cell">{t("admin.col_channels")}</th>
                       <th class="px-3 py-2 text-left text-xs font-medium text-muted hidden md:table-cell">{t("admin.col_created")}</th>
                       <th class="px-3 py-2 text-left text-xs font-medium text-muted hidden lg:table-cell">Last login</th>
+                      <th class="px-3 py-2 text-left text-xs font-medium text-muted hidden md:table-cell">{t("admin.col_service_class")}</th>
+                      <th class="px-3 py-2 text-left text-xs font-medium text-muted hidden lg:table-cell">{t("admin.col_expires")}</th>
                       <th class="px-3 py-2 text-left text-xs font-medium text-muted">{t("admin.col_status")}</th>
                       <th class="px-3 py-2" />
                     </tr>
@@ -159,6 +166,8 @@ export default function AccountsSection() {
                           <td class="px-3 py-2 text-muted hidden sm:table-cell truncate">{acc.channels || "—"}</td>
                           <td class="px-3 py-2 text-muted hidden md:table-cell">{fmtDate(acc.account_created)}</td>
                           <td class="px-3 py-2 text-muted hidden lg:table-cell">{fmtDate(acc.account_lastlog)}</td>
+                          <td class="px-3 py-2 text-muted hidden md:table-cell truncate">{acc.account_service_class || "—"}</td>
+                          <td class="px-3 py-2 text-muted hidden lg:table-cell">{fmtDate(acc.account_expires)}</td>
                           <td class="px-3 py-2">
                             <Show when={Number(acc.blocked) > 0}>
                               <span class="px-1.5 py-0.5 text-xs rounded bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
@@ -167,7 +176,7 @@ export default function AccountsSection() {
                             </Show>
                           </td>
                           <td class="px-3 py-2">
-                            <AccountActions account={acc} onAct={act} />
+                            <AccountActions account={acc} onAct={act} onEdited={refetch} />
                           </td>
                         </tr>
                       )}
@@ -207,16 +216,24 @@ export default function AccountsSection() {
 function AccountActions(props: {
   account: AdminAccount;
   onAct: (id: number, action: "block" | "unblock" | "delete") => void;
+  onEdited: () => void;
 }) {
   const { t } = useI18n();
+  const [editing, setEditing] = createSignal(false);
   const isBlocked = () => Number(props.account.blocked) > 0;
   return (
-    <div class="flex items-center gap-1.5">
+    <div class="flex flex-wrap items-center gap-1.5">
       <button
         onClick={() => props.onAct(props.account.account_id, isBlocked() ? "unblock" : "block")}
         class="px-2 py-1 text-xs rounded border border-rim text-txt hover:bg-elevated transition-colors"
       >
         {isBlocked() ? t("admin.unblock") : t("admin.block")}
+      </button>
+      <button
+        onClick={() => setEditing(true)}
+        class="px-2 py-1 text-xs rounded border border-rim text-txt hover:bg-elevated transition-colors"
+      >
+        {t("admin.edit")}
       </button>
       <button
         onClick={() => props.onAct(props.account.account_id, "delete")}
@@ -225,6 +242,114 @@ function AccountActions(props: {
       >
         {t("admin.delete")}
       </button>
+      <Show when={editing()}>
+        <AccountEditModal
+          account={props.account}
+          onClose={() => setEditing(false)}
+          onSaved={() => { setEditing(false); props.onEdited(); }}
+        />
+      </Show>
+    </div>
+  );
+}
+
+function toDateInputValue(s: string): string {
+  return !s || s === "0001-01-01 00:00:00" ? "" : s.slice(0, 10);
+}
+
+function AccountEditModal(props: {
+  account: AdminAccount;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const { t } = useI18n();
+  const [classes] = createQueryResource("admin-service-classes", fetchAdminServiceClasses);
+  const [serviceClass, setServiceClass] = createSignal(props.account.account_service_class || "");
+  const [expires, setExpires] = createSignal(toDateInputValue(props.account.account_expires));
+  const [saving, setSaving] = createSignal(false);
+  const [error, setError] = createSignal("");
+
+  async function onSubmit(e: SubmitEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setError("");
+    try {
+      const origClass = props.account.account_service_class || "";
+      const origExpires = toDateInputValue(props.account.account_expires);
+      if (serviceClass() !== origClass) {
+        await setAccountServiceClass(props.account.account_id, serviceClass());
+      }
+      if (expires() !== origExpires) {
+        await setAccountExpires(props.account.account_id, expires());
+      }
+      props.onSaved();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Save failed.");
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+      <div class="w-full max-w-sm rounded-xl border border-rim bg-base shadow-xl">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-rim">
+          <h3 class="text-sm font-semibold text-txt">{t("admin.edit_account_title")}</h3>
+          <button onClick={props.onClose} class="text-muted hover:text-txt text-lg leading-none">×</button>
+        </div>
+
+        <form onSubmit={onSubmit} class="p-4 space-y-4">
+          <div class="space-y-1">
+            <label class="text-sm font-medium text-txt">{t("admin.service_class_label")}</label>
+            <select
+              value={serviceClass()}
+              onChange={(e) => setServiceClass(e.currentTarget.value)}
+              class="w-full px-3 py-1.5 text-sm rounded-lg border border-rim bg-surface text-txt
+                     focus:outline-none focus:border-accent"
+            >
+              <option value="">{t("admin.unrestricted_label")}</option>
+              <For each={classes()?.classes ?? []}>
+                {(c) => <option value={c.name}>{c.name}</option>}
+              </For>
+            </select>
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-sm font-medium text-txt">{t("admin.expires_label")}</label>
+            <div class="flex items-center gap-2">
+              <input
+                type="date"
+                value={expires()}
+                onInput={(e) => setExpires(e.currentTarget.value)}
+                class="flex-1 px-3 py-1.5 text-sm rounded-lg border border-rim bg-surface text-txt
+                       focus:outline-none focus:border-accent"
+              />
+              <Show when={expires()}>
+                <button type="button" onClick={() => setExpires("")}
+                  class="px-2 py-1.5 text-xs rounded-lg border border-rim text-muted hover:bg-elevated transition-colors">
+                  {t("admin.clear_expiry")}
+                </button>
+              </Show>
+            </div>
+            <p class="text-xs text-muted">{t("admin.expires_hint")}</p>
+          </div>
+
+          <Show when={error()}>
+            <p class="text-xs text-red-600 dark:text-red-400">{error()}</p>
+          </Show>
+
+          <div class="flex justify-end gap-2 pt-1">
+            <button type="button" onClick={props.onClose}
+              class="px-3 py-1.5 text-xs rounded-lg border border-rim text-muted hover:bg-elevated transition-colors">
+              Cancel
+            </button>
+            <button type="submit" disabled={saving()}
+              class="px-4 py-1.5 text-xs rounded-lg bg-accent text-accent-fg
+                     hover:opacity-90 disabled:opacity-50 transition-opacity">
+              {saving() ? t("admin.saving") : t("admin.save")}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
