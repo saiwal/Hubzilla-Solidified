@@ -117,7 +117,8 @@ export const CAPABILITIES: Record<string, EditorCapabilities> = {
     latexMode: "live",
     poll: false,
   },
-  // Personal note — always private, minimal toolbar
+  // Personal note — always private, minimal toolbar; read in-app only, so
+  // LaTeX renders live (KaTeX) rather than as an uploaded image.
   note: {
     toolbar: "minimal",
     title: false,
@@ -127,7 +128,7 @@ export const CAPABILITIES: Record<string, EditorCapabilities> = {
     attachments: "photos",
     aclPicker: false,
     submitOnCtrlEnter: true,
-    latexMode: "image",
+    latexMode: "live",
     poll: false,
   },
   // Chat room message input — comment toolbar, untabbed, Ctrl+Enter sends

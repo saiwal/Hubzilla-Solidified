@@ -118,12 +118,21 @@ async function fetchAuthState(): Promise<AuthState> {
   };
 }
 // Singleton resource — fetched once at boot, shared across the app
-const [authState] = createResource<AuthState>(fetchAuthState, {
+const [authState, authActions] = createResource<AuthState>(fetchAuthState, {
   // initialValue: ANONYMOUS,
 });
 
 export function useAuth() {
   return authState;
+}
+
+/** Patch a single feature flag in place — call after toggling it in Settings
+ *  so `isFeatureEnabled()` reflects the change immediately everywhere, without
+ *  waiting for a full reload to re-fetch /spa/pconfig. */
+export function setFeatureEnabled(name: string, enabled: boolean) {
+  authActions.mutate((prev) =>
+    prev ? { ...prev, features: { ...prev.features, [name]: enabled } } : prev,
+  );
 }
 
 // Convenience derived helpers

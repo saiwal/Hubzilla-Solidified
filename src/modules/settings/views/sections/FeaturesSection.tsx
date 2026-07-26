@@ -4,6 +4,7 @@ import SubPageContent from "@/shared/views/SubPageContent";
 import { apiFetch } from "@/shared/lib/fetch";
 import { toast } from "@/shared/store/toast";
 import { refetchNavData } from "@/shared/store/nav-store";
+import { setFeatureEnabled } from "@/shared/store/auth-store";
 import { useI18n } from "@/i18n";
 
 interface FeatureEntry {
@@ -66,6 +67,9 @@ export default function FeaturesSection() {
             }
           : prev,
       );
+      // Keep the app-wide auth/features state (isFeatureEnabled()) in sync too,
+      // otherwise gated UI elsewhere doesn't update until a hard reload.
+      setFeatureEnabled(name, !enabled);
       // Some feature toggles are also reflected in /spa/nav (e.g. the nav
       // "channels" entry gates on nav_channel_select) — refetch it so the
       // change shows up immediately instead of waiting on the next reload.

@@ -6,6 +6,7 @@ import { useViewerRole } from "@/shared/store/site-config";
 import { useI18n } from "@/i18n";
 import DOMPurify from "dompurify";
 import { bbcodeToHtml } from "@/shared/lib/bbcode";
+import { hydrateLatex } from "@/shared/lib/hydrateLatex";
 import NoteComposer from "@/shared/editor/composers/NoteComposer";
 import { notes, loading, hasMore, loadNotes, removeNote } from "../store";
 import type { Note } from "../api";
@@ -58,6 +59,11 @@ function NoteCard(props: {
     // re-check whenever the note body changes (e.g. after edit)
     props.note.body;
     if (!expanded()) queueMicrotask(checkOverflow);
+  });
+
+  createEffect(() => {
+    props.note.body;
+    if (bodyRef) hydrateLatex(bodyRef);
   });
 
   return (
