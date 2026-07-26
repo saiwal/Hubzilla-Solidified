@@ -15,7 +15,7 @@ const OUT_DIR = path.resolve(
 const { count, size } = await generateSW({
   swDest: path.join(OUT_DIR, 'sw.js'),
   globDirectory: OUT_DIR,
-  globPatterns: ['**/*.{js,css,woff2,png,svg,ico}'],
+  globPatterns: ['**/*.{js,css,woff2,png,svg,ico,wasm}'],
   // exclude the sw itself from precache
   globIgnores: ['sw.js'],
 
