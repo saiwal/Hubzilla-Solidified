@@ -7,6 +7,7 @@ export const auth: RawDictionary["auth"] = {
   email_placeholder:    "you@example.com या yournick",
   password:             "पासवर्ड",
   password_placeholder: "••••••••",
+  remember_me:          "मुझे याद रखें",
   signing_in:           "साइन इन हो रहा है…",
   signing_out:          "साइन आउट हो रहा है…",
   load_form_error:      "लॉगिन फ़ॉर्म लोड करने में विफल। कृपया पृष्ठ ताज़ा करें।",

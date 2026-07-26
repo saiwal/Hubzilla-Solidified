@@ -7,6 +7,7 @@ export const auth: RawDictionary["auth"] = {
   email_placeholder:    "du@beispiel.de oder deinspitzname",
   password:             "Passwort",
   password_placeholder: "••••••••",
+  remember_me:          "Angemeldet bleiben",
   signing_in:           "Anmeldung läuft…",
   signing_out:          "Abmeldung läuft…",
   load_form_error:      "Anmeldeformular konnte nicht geladen werden. Bitte lade die Seite neu.",

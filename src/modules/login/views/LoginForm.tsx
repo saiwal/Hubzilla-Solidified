@@ -15,6 +15,7 @@ export default function LoginForm(props: LoginFormProps) {
   const [token, setToken] = createSignal("");
   const [username, setUsername] = createSignal("");
   const [password, setPassword] = createSignal("");
+  const [remember, setRemember] = createSignal(false);
   const [loading, setLoading] = createSignal(false);
   const [remoteAddr, setRemoteAddr] = createSignal("");
   const [remoteLoading, setRemoteLoading] = createSignal(false);
@@ -32,7 +33,7 @@ export default function LoginForm(props: LoginFormProps) {
     setLoading(true);
 
     try {
-      const result = await submitLogin(username(), password(), token());
+      const result = await submitLogin(username(), password(), token(), remember());
       // Full reload so auth state re-initialises from scratch. An account
       // with no channel yet (e.g. signed up while auto_channel_create was
       // off) has to go through channel creation before anything else in
@@ -128,6 +129,20 @@ export default function LoginForm(props: LoginFormProps) {
                    disabled:opacity-60 transition-colors"
             placeholder={t("auth.password_placeholder")}
           />
+        </div>
+
+        <div class="flex items-center gap-2">
+          <input
+            id="login-remember"
+            type="checkbox"
+            disabled={loading()}
+            checked={remember()}
+            onChange={(e) => setRemember(e.currentTarget.checked)}
+            class="accent-accent"
+          />
+          <label class="text-sm text-txt cursor-pointer" for="login-remember">
+            {t("auth.remember_me")}
+          </label>
         </div>
 
         <button

@@ -247,6 +247,7 @@ export type RawDictionary = {
     email_placeholder: string;
     password:          string;
     password_placeholder: string;
+    remember_me:       string;
     signing_in:        string;
     signing_out:       string;
     load_form_error:   string;

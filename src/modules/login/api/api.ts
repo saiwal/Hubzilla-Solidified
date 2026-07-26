@@ -9,12 +9,13 @@ export async function submitLogin(
   username: string,
   password: string,
   token: string,
+  remember: boolean,
 ): Promise<{ nick: string }> {
   const res = await fetch("/spa/login", {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password, token }),
+    body: JSON.stringify({ username, password, token, remember }),
   });
 
   const json = await res.json();
