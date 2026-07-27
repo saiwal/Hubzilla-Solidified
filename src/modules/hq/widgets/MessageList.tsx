@@ -325,7 +325,7 @@ const MessageItem: Component<{
               <For each={parseFolderNames(e.info)}>
                 {(name) => (
                   <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-overlay text-[10px] text-muted font-medium">
-                    <span class="truncate max-w-[80px]">{name}</span>
+                    <span class="truncate max-w-[200px]">{name}</span>
                   </span>
                 )}
               </For>
