@@ -4,6 +4,8 @@ import { createComposerStore } from "../store/createComposerStore";
 import RichEditor from "../core/RichEditor";
 import { CAPABILITIES } from "../types/editor.types";
 import { useAuth, currentNick } from "@/shared/store/auth-store";
+import { useNavViewer } from "@/shared/store/nav-store";
+import { MdOutlinePerson } from "solid-icons/md";
 import { useI18n } from "@/i18n";
 import { useMentionEmojiWiring } from "@/shared/editor/mention/useMentionEmojiWiring";
 import MentionEmojiPopups from "@/shared/editor/mention/MentionEmojiPopups";
@@ -22,6 +24,7 @@ interface Props {
 export default function CommentComposer(props: Props) {
   const { t } = useI18n();
   const auth = useAuth();
+  const viewer = useNavViewer();
   const caps = CAPABILITIES.comment;
 
   const scope = `comment:${props.parentUuid ?? "new"}`;
@@ -75,9 +78,21 @@ export default function CommentComposer(props: Props) {
     <div class="mt-3 space-y-2">
       <div class="flex gap-2 items-start">
         <Show when={auth()?.nick}>
-          <div class="w-7 h-7 rounded-full bg-accent-muted text-accent flex items-center justify-center text-xs font-semibold shrink-0 mt-0.5">
-            {auth()!.nick[0].toUpperCase()}
-          </div>
+          <Show
+            when={viewer()?.avatar}
+            fallback={
+              <div class="w-7 h-7 rounded-full bg-accent-muted text-accent flex items-center justify-center shrink-0 mt-0.5">
+                <MdOutlinePerson class="w-4 h-4" />
+              </div>
+            }
+          >
+            <img
+              src={viewer()!.avatar}
+              alt={viewer()!.name}
+              class="w-7 h-7 rounded-full object-cover shrink-0 mt-0.5 select-none"
+              loading="lazy"
+            />
+          </Show>
         </Show>
 
         <div ref={wiring.wrapperRef} class="flex-1 min-w-0">

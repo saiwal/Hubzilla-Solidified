@@ -1,14 +1,15 @@
 import { createSignal, createEffect, onCleanup, Show, For, type JSX } from "solid-js";
-import { MdOutlineLink } from "solid-icons/md";
+import { MdOutlineLink, MdOutlinePerson } from "solid-icons/md";
 import { toast } from "@/shared/store/toast";
 import { useAuth } from "@/shared/store/auth-store";
+import { useNavViewer } from "@/shared/store/nav-store";
 import { motion } from "solid-motionone";
 import PostComposer from "@/shared/editor/composers/PostComposer";
 import AclPicker, { entryKey, type AclMode, type AclEntry } from "@/shared/editor/components/AclPicker";
 import { storageGet, storageSet, storageDel } from "@/shared/lib/storage";
 import { getCsrfToken } from "@/shared/lib/csrf";
-import { useMention, getTextareaMentionQuery } from "@/shared/editor/mention/useMention";
-import MentionPopup from "@/shared/editor/mention/MentionPopup";
+import { useMentionEmojiWiring } from "@/shared/editor/mention/useMentionEmojiWiring";
+import MentionEmojiPopups from "@/shared/editor/mention/MentionEmojiPopups";
 import { useI18n } from "@/i18n";
 void motion;
 
@@ -39,16 +40,22 @@ export default function HqComposerSlot() {
 function HqComposer() {
   const { t } = useI18n();
   const auth = useAuth();
+  const viewer = useNavViewer();
   const [body, setBody] = createSignal("");
   const [aclMode, setAclMode] = createSignal<AclMode>("connections");
   const [allowKeys, setAllowKeys] = createSignal<Set<string>>(new Set<string>());
   const [denyKeys, setDenyKeys] = createSignal<Set<string>>(new Set<string>());
   const [submitting, setSubmitting] = createSignal(false);
   const [fullOpen, setFullOpen] = createSignal(false);
+  const [expanded, setExpanded] = createSignal(false);
 
   // Load draft on mount
   storageGet<{ body?: string; aclMode?: string }>(DRAFT_KEY, {}).then((d) => {
-    if (d.body && !body()) { setBody(d.body); requestAnimationFrame(() => autoResize()); }
+    if (d.body && !body()) {
+      setBody(d.body);
+      setExpanded(true);
+      requestAnimationFrame(() => autoResize());
+    }
     if (d.aclMode) setAclMode((d.aclMode as AclMode) ?? "connections");
   });
 
@@ -63,26 +70,15 @@ function HqComposer() {
 
   let taRef!: HTMLTextAreaElement;
 
-  // ── Mention autocomplete ──────────────────────────────────────────────────
-  const mention = useMention();
-
-  createEffect(() => {
-    void body();
-    const q = getTextareaMentionQuery(taRef);
-    if (q !== null) {
-      mention.openWithQuery(q, taRef.getBoundingClientRect());
-    } else {
-      mention.close();
-    }
+  // ── Mention + emoji autocomplete ──────────────────────────────────────────
+  const wiring = useMentionEmojiWiring({
+    body,
+    setBody,
+    mimetype: () => "text/bbcode",
   });
 
   function onKeyDown(e: KeyboardEvent) {
-    if (!mention.open()) return;
-    const consumed = mention.onKeyDown(e);
-    if (consumed && (e.key === "Enter" || e.key === "Tab")) {
-      const entry = mention.filtered()[mention.activeIdx()];
-      if (entry) mention.insertTextarea(entry, taRef, setBody);
-    }
+    wiring.onKeyDown(e);
   }
 
   window.addEventListener("keydown", onKeyDown);
@@ -98,6 +94,7 @@ function HqComposer() {
   }
 
   function autoResize() {
+    if (!expanded()) return;
     taRef.style.height = "auto";
     taRef.style.height = Math.min(taRef.scrollHeight, 480) + "px";
   }
@@ -192,6 +189,7 @@ function HqComposer() {
     setAclMode("connections");
     if (taRef) taRef.style.height = "auto";
     storageDel(DRAFT_KEY);
+    setExpanded(false);
   }
 
   const toolbar = [
@@ -207,112 +205,124 @@ function HqComposer() {
   return (
     <div class="bg-surface border border-rim rounded-2xl p-3.5 shadow-sm flex flex-col">
 
-      {/* Header */}
-      <div class="mb-2.5">
-        <span class="text-xs font-medium uppercase tracking-wider text-muted">
-          {t("hq.post_composer")}
-        </span>
-      </div>
+      {/* Header — hidden while compact */}
+      <Show when={expanded()}>
+        <div class="mb-2.5">
+          <span class="text-xs font-medium uppercase tracking-wider text-muted">
+            {t("hq.post_composer")}
+          </span>
+        </div>
+      </Show>
 
-      {/* Body area — grows to fill card height */}
-      <div class="flex gap-2.5 flex-1 min-h-[84px]">
+      {/* Body area — single line when compact, grows to fill card height when expanded */}
+      <div
+        ref={wiring.wrapperRef}
+        class={"flex gap-2.5 " + (expanded() ? "flex-1 min-h-[84px] items-start" : "items-center")}
+      >
         <Show when={auth()?.nick}>
-          <div class="w-7 h-7 rounded-full bg-accent-muted text-accent flex items-center
-                      justify-center text-sm font-bold shrink-0 mt-0.5 select-none">
-            {auth()!.nick[0].toUpperCase()}
-          </div>
+          <Show
+            when={viewer()?.avatar}
+            fallback={
+              <div class="w-7 h-7 rounded-full bg-accent-muted text-accent flex items-center
+                          justify-center shrink-0 mt-0.5 select-none">
+                <MdOutlinePerson class="w-4 h-4" />
+              </div>
+            }
+          >
+            <img
+              src={viewer()!.avatar}
+              alt={viewer()!.name}
+              class="w-7 h-7 rounded-full object-cover shrink-0 mt-0.5 select-none"
+              loading="lazy"
+            />
+          </Show>
         </Show>
         <textarea
           ref={taRef!}
           placeholder={t("editor.write_placeholder")}
           value={body()}
+          onFocus={() => setExpanded(true)}
           onInput={(e) => { setBody(e.currentTarget.value); autoResize(); }}
-          rows={3}
+          rows={expanded() ? 3 : 1}
           class="flex-1 resize-none bg-transparent text-sm text-txt placeholder:text-muted
                  focus:outline-none leading-relaxed overflow-hidden w-full"
         />
       </div>
 
       {/* Toolbar row */}
-      <div class="flex items-center gap-0.5 mt-1.5 pt-1.5 border-t border-rim">
-        <For each={toolbar}>
-          {(btn) => (
+      <Show when={expanded()}>
+        <div class="flex items-center gap-0.5 mt-1.5 pt-1.5 border-t border-rim">
+          <For each={toolbar}>
+            {(btn) => (
+              <button
+                type="button"
+                title={btn.title()}
+                onMouseDown={(e) => { e.preventDefault(); btn.action(); }}
+                class={`w-7 h-7 flex items-center justify-center rounded text-xs text-muted
+                        hover:bg-elevated hover:text-txt transition-colors ${btn.cls}`}
+              >
+                {btn.label}
+              </button>
+            )}
+          </For>
+
+          {/* Reset */}
+          <Show when={body().trim()}>
             <button
               type="button"
-              title={btn.title()}
-              onMouseDown={(e) => { e.preventDefault(); btn.action(); }}
-              class={`w-7 h-7 flex items-center justify-center rounded text-xs text-muted
-                      hover:bg-elevated hover:text-txt transition-colors ${btn.cls}`}
+              title={t("editor.clear_composer")}
+              onClick={resetComposer}
+              class="ml-auto w-7 h-7 flex items-center justify-center rounded text-muted
+                     hover:bg-elevated hover:text-red-500 transition-colors"
             >
-              {btn.label}
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
-          )}
-        </For>
+          </Show>
 
-        {/* Reset */}
-        <Show when={body().trim()}>
+          {/* Open full composer */}
           <button
             type="button"
-            title={t("editor.clear_composer")}
-            onClick={resetComposer}
-            class="ml-auto w-7 h-7 flex items-center justify-center rounded text-muted
-                   hover:bg-elevated hover:text-red-500 transition-colors"
+            title={t("editor.open_full_composer")}
+            onClick={() => setFullOpen(true)}
+            class="w-7 h-7 flex items-center justify-center rounded text-muted
+                   hover:bg-elevated hover:text-txt transition-colors"
+            classList={{ "ml-auto": !body().trim() }}
           >
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M6 18L18 6M6 6l12 12" />
+                d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
             </svg>
           </button>
-        </Show>
+        </div>
 
-        {/* Open full composer */}
-        <button
-          type="button"
-          title={t("editor.open_full_composer")}
-          onClick={() => setFullOpen(true)}
-          class="w-7 h-7 flex items-center justify-center rounded text-muted
-                 hover:bg-elevated hover:text-txt transition-colors"
-          classList={{ "ml-auto": !body().trim() }}
-        >
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
-          </svg>
-        </button>
-      </div>
+        {/* ACL + submit row */}
+        <div class="flex items-center gap-1 mt-1.5 flex-wrap">
+          <AclPicker
+            mode={aclMode()}
+            onModeChange={setAclMode}
+            allowEntries={allowKeys()}
+            denyEntries={denyKeys()}
+            onToggle={toggleEntry}
+            onClear={() => { setAllowKeys(new Set<string>()); setDenyKeys(new Set<string>()); }}
+          />
 
-      {/* ACL + submit row */}
-      <div class="flex items-center gap-1 mt-1.5 flex-wrap">
-        <AclPicker
-          mode={aclMode()}
-          onModeChange={setAclMode}
-          allowEntries={allowKeys()}
-          denyEntries={denyKeys()}
-          onToggle={toggleEntry}
-          onClear={() => { setAllowKeys(new Set<string>()); setDenyKeys(new Set<string>()); }}
-        />
-
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={submitting() || !body().trim()}
-          class="ml-auto px-4 py-1 rounded-lg text-xs font-semibold bg-accent text-accent-fg
-                 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
-        >
-          {submitting() ? t("editor.posting") : t("editor.post_btn")}
-        </button>
-      </div>
-
-      {/* Mention popup */}
-      <Show when={mention.open() && mention.rect() !== null}>
-        <MentionPopup
-          query={mention.query()!}
-          entries={mention.filtered()}
-          anchorRect={mention.rect()!}
-          activeIdx={mention.activeIdx()}
-          onSelect={(entry) => mention.insertTextarea(entry, taRef, setBody)}
-        />
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={submitting() || !body().trim()}
+            class="ml-auto px-4 py-1 rounded-lg text-xs font-semibold bg-accent text-accent-fg
+                   hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
+          >
+            {submitting() ? t("editor.posting") : t("editor.post_btn")}
+          </button>
+        </div>
       </Show>
+
+      {/* Mention + emoji popups */}
+      <MentionEmojiPopups wiring={wiring} />
 
       {/* Full composer modal — remounts on open so initialBody/initialAclMode capture current state */}
       <Show when={fullOpen()}>
