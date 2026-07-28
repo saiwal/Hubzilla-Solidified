@@ -4,6 +4,7 @@ import { createComposerStore } from "../store/createComposerStore";
 import RichEditor from "../core/RichEditor";
 import { CAPABILITIES } from "../types/editor.types";
 import { apiFetch } from "@/shared/lib/fetch";
+import SourceToggleButton from "../components/SourceToggleButton";
 
 interface Props {
   nick: string;
@@ -75,6 +76,13 @@ export default function NoteComposer(props: Props) {
         placeholder={t("notepad.placeholder")}
         minHeight="120px"
       />
+
+      <div class="flex justify-end">
+        <SourceToggleButton
+          tab={store.tab()}
+          onToggle={() => store.setTab(store.tab() === "wysiwyg" ? "source" : "wysiwyg")}
+        />
+      </div>
 
       <div class="flex items-center gap-2 justify-end">
         <Show when={props.onCancel}>

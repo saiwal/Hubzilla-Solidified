@@ -64,6 +64,7 @@ const CommentComposer = lazy(
   () => import("@/shared/editor/composers/CommentComposer"),
 );
 import RichEditor from "@/shared/editor/core/RichEditor";
+import SourceToggleButton from "@/shared/editor/components/SourceToggleButton";
 import { CAPABILITIES } from "@/shared/editor/types/editor.types";
 import type { EditorTab } from "@/shared/editor/types/editor.types";
 const PostComposer = lazy(
@@ -154,6 +155,12 @@ function InlineEditForm(props: {
         onCtrlEnter={props.onSave}
         minHeight={props.minHeight}
       />
+      <div class="flex justify-end">
+        <SourceToggleButton
+          tab={props.tab}
+          onToggle={() => props.onTabChange(props.tab === "wysiwyg" ? "source" : "wysiwyg")}
+        />
+      </div>
       <Show when={props.error}>
         <div class="text-xs text-red-500">{props.error}</div>
       </Show>

@@ -50,6 +50,8 @@ import { getCsrfToken } from "@/shared/lib/csrf";
 import { isEncryptedBody } from "@/shared/lib/postCrypto";
 import { useEncrypt } from "../useEncrypt";
 import EncryptPanel from "../components/EncryptPanel";
+import { underlineFieldClass } from "../lib/fieldStyles";
+import { countWords } from "../lib/textStats";
 void helpable;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -256,6 +258,9 @@ const PostComposer: Component<ComposerProps> = (props) => {
     { initialBody: props.initialBody },
   );
 
+  const wordCount = () => countWords(store.body());
+  const charCount = () => store.body().length;
+
   // ── Encrypt ─────────────────────────────────────────────────────────────────
   const enc = useEncrypt(() => store.body(), store.setBody);
 
@@ -375,48 +380,51 @@ const PostComposer: Component<ComposerProps> = (props) => {
               </div>
             </header>
 
-            {/* ── Meta fields (title) ── */}
-            <Show when={caps.title}>
-              <div class="flex gap-2 px-4 pt-3 pb-2 border-b border-rim shrink-0">
+            {/* ── Meta fields (title, summary, category) — styled to match ArticleComposer ── */}
+            <div class="px-4 pt-4 pb-3 space-y-4 shrink-0">
+              <Show when={caps.title}>
                 <input
                   type="text"
                   placeholder={t("editor.title_placeholder")}
                   value={store.title()}
                   onInput={(e) => store.setTitle(e.currentTarget.value)}
-                  class="flex-1 min-w-0 bg-transparent text-sm font-medium text-txt
-                         placeholder:text-muted outline-none"
+                  class={`w-full px-0 py-2 text-lg font-bold text-txt placeholder:text-muted ${underlineFieldClass}`}
                 />
-              </div>
-            </Show>
+              </Show>
 
-            {/* ── Summary ── */}
-            <Show when={caps.summary && !props.parentId}>
-              <div class="px-4 py-2 border-b border-rim shrink-0">
+              <Show when={caps.summary && !props.parentId}>
                 <SummaryField
                   value={store.summary}
                   onInput={store.setSummary}
                   placeholder={t("editor.post_summary_placeholder")}
-                  class="w-full bg-transparent text-sm text-txt placeholder:text-muted outline-none resize-none"
+                  class={`w-full px-0 py-1.5 text-sm text-txt placeholder:text-muted resize-none ${underlineFieldClass}`}
                 />
-              </div>
-            </Show>
+              </Show>
 
-            {/* ── Category ── */}
-            <Show when={caps.category && !props.parentId}>
-              <CategoryTagsField
-                tags={categoryTags.categoryTags}
-                pending={categoryTags.pendingCategory}
-                onPendingInput={categoryTags.setPendingCategory}
-                onKeyDown={categoryTags.onCategoryKeyDown}
-                onRemove={categoryTags.removeCategoryTag}
-                onBlur={() => {
-                  if (categoryTags.pendingCategory().trim()) {
-                    categoryTags.addCategoryTag(categoryTags.pendingCategory());
-                  }
-                }}
-                placeholder={t("editor.category_placeholder")}
-              />
-            </Show>
+              <Show when={caps.category && !props.parentId}>
+                <CategoryTagsField
+                  tags={categoryTags.categoryTags}
+                  pending={categoryTags.pendingCategory}
+                  onPendingInput={categoryTags.setPendingCategory}
+                  onKeyDown={categoryTags.onCategoryKeyDown}
+                  onRemove={categoryTags.removeCategoryTag}
+                  onBlur={() => {
+                    if (categoryTags.pendingCategory().trim()) {
+                      categoryTags.addCategoryTag(categoryTags.pendingCategory());
+                    }
+                  }}
+                  placeholder={t("editor.category_placeholder")}
+                  showLabel
+                  hideLabel
+                />
+              </Show>
+
+              <div class="flex items-center justify-end gap-2">
+                <span class="text-xs text-muted">{t("editor.words_count", { count: wordCount() })}</span>
+                <span class="text-xs text-muted">·</span>
+                <span class="text-xs text-muted">{t("editor.chars_count", { count: charCount() })}</span>
+              </div>
+            </div>
 
             {/* ── Drafts panel ── */}
             <Show when={draftsOpen()}>
@@ -452,6 +460,8 @@ const PostComposer: Component<ComposerProps> = (props) => {
                 onAltChange={(att) => {
                   store.setBody(patchInsertedAlt(store.body(), att, store.mimetype()));
                 }}
+                tab={store.tab()}
+                onToggleTab={() => store.setTab(store.tab() === "wysiwyg" ? "source" : "wysiwyg")}
               />
             </div>
 
@@ -511,7 +521,9 @@ const PostComposer: Component<ComposerProps> = (props) => {
             </Show>
 
             {/* ── Footer ── */}
-            <footer class="flex flex-wrap items-center gap-2 px-3.5 py-2.5 border-t border-rim bg-elevated shrink-0">
+            <footer class="flex flex-col gap-2 px-3.5 py-2.5 border-t border-rim bg-elevated shrink-0">
+            {/* ── Options row ── */}
+            <div class="flex flex-wrap items-center gap-2">
               {/* ACL Picker — hidden for visitors posting to another channel's wall */}
               <Show
                 when={!props.hideAcl}
@@ -618,27 +630,14 @@ const PostComposer: Component<ComposerProps> = (props) => {
                   </ToggleButton>
                 </Show>
               </Show>
+            </div>
 
-              {/* Character count + draft controls + reset + submit */}
-              <div class="flex items-center gap-3 ml-auto shrink-0">
-                <span class="font-mono text-xs tabular-nums text-muted">
-                  {store.body().length}
-                </span>
-                <Show when={store.savedDrafts().length > 0}>
-                  <button
-                    type="button"
-                    title={t("editor.saved_drafts")}
-                    onClick={() => setDraftsOpen((o) => !o)}
-                    class={
-                      "px-2 py-1 rounded-md text-xs transition-colors " +
-                      (draftsOpen()
-                        ? "bg-elevated text-txt"
-                        : "text-muted hover:text-txt hover:bg-elevated")
-                    }
-                  >
-                    {t("editor.drafts_btn", { count: store.savedDrafts().length })}
-                  </button>
-                </Show>
+            {/* ── Action row: discard/save-draft/drafts on the left, char-count/clear/submit on the right ── */}
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="flex items-center gap-2">
+                <SecondaryButton onClick={props.onClose}>
+                  {t("editor.discard")}
+                </SecondaryButton>
                 <Show when={store.body().trim()}>
                   <SecondaryButton onClick={() => void store.saveAsDraft()}>
                     <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -647,12 +646,30 @@ const PostComposer: Component<ComposerProps> = (props) => {
                     </svg>
                     {t("editor.save_draft")}
                   </SecondaryButton>
-                  <IconButton title={t("editor.clear_composer")} onClick={resetAll} variant="danger">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </IconButton>
                 </Show>
+                <Show when={store.savedDrafts().length > 0}>
+                  <button
+                    type="button"
+                    title={t("editor.saved_drafts")}
+                    onClick={() => setDraftsOpen((o) => !o)}
+                    class={
+                      "px-2 py-1 rounded-md text-xs transition-colors " +
+                      (draftsOpen()
+                        ? "bg-overlay text-txt"
+                        : "text-muted hover:text-txt hover:bg-overlay")
+                    }
+                  >
+                    {t("editor.drafts_btn", { count: store.savedDrafts().length })}
+                  </button>
+                </Show>
+              </div>
+
+              <div class="flex items-center gap-3 ml-auto shrink-0">
+                <IconButton title={t("editor.clear_composer")} onClick={resetAll} variant="danger">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </IconButton>
                 <PrimarySubmitButton
                   disabled={store.submitting() || attach.uploading()}
                   onClick={() => void store.submit()}
@@ -660,6 +677,7 @@ const PostComposer: Component<ComposerProps> = (props) => {
                   {store.submitting() ? t("editor.posting") : t("editor.post_btn")}
                 </PrimarySubmitButton>
               </div>
+            </div>
             </footer>
 
           </div>

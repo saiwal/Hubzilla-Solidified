@@ -34,10 +34,10 @@ export const editor = {
   slug_label:             "Slug",
   slug_placeholder:       "url-slug",
   generate_slug:          "Slug aus Titel generieren",
-  category_label:         "Kategorien",
   category_field_placeholder: "Kategorien (optional, z. B. Technik, Persönliches)",
   format_label:           "Format",
   words_count:            "{{count}} Wörter",
+  chars_count:            "{{count}} Zeichen",
   start_writing:          "Beginne zu schreiben…",
 
   // EditorToolbar
@@ -49,8 +49,10 @@ export const editor = {
   link:             "Link",
   bullet_list:      "Aufzählungsliste",
   numbered_list:    "Nummerierte Liste",
+  lettered_list:    "Liste mit Buchstaben (a. b. c.)",
+  list_toolbar_title: "Liste",
   heading:          "Überschrift",
-  heading_label:    "Überschrift…",
+  paragraph_label:  "Absatz",
   blockquote:       "Zitat",
   code_block:       "Codeblock",
   clear_formatting: "Formatierung entfernen",
@@ -126,11 +128,6 @@ export const editor = {
   no_album_photos:    "Keine Fotos in diesem Album",
   photo_count:        "{{count}} Fotos",
 
-  // HqComposer toolbar
-  hq_bold:    "Fett",
-  hq_italic:  "Kursiv",
-  hq_underline: "Unterstrichen",
-  hq_link:    "Link",
   open_full_composer: "Vollständigen Editor öffnen",
 
   // CameraCapture

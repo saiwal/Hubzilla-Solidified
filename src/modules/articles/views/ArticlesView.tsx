@@ -208,6 +208,7 @@ function ArticleModal(props: {
               resetPosts();
               loadArticles(props.nick);
             }}
+            onCancel={props.onClose}
           />
         </div>
       </div>

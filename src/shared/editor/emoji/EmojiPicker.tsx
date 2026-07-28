@@ -4,12 +4,13 @@
  */
 
 import { createSignal, createMemo, For, Show, onMount, onCleanup, createEffect } from "solid-js";
+import { MdOutlineEmoji_emotions } from "solid-icons/md";
 import { getEmojiMap, type EmojiEntry } from "@/shared/store/emoji-store";
 import { useI18n } from "@/i18n";
 
 export interface EmojiPickerProps {
   onSelect: (entry: EmojiEntry) => void;
-  /** Override the trigger button's icon/label (defaults to a plain smiley glyph). */
+  /** Override the trigger button's icon/label (defaults to a solid-icons smiley). */
   triggerIcon?: any;
   /** Override the trigger button's classes (defaults to the EditorToolbar Btn style). */
   triggerClass?: string;
@@ -100,7 +101,7 @@ export default function EmojiPicker(props: EmojiPickerProps) {
         onClick={() => setOpen((o) => !o)}
         class={triggerClass()}
       >
-        {props.triggerIcon ?? <span class="text-xs">☺</span>}
+        {props.triggerIcon ?? <MdOutlineEmoji_emotions class="w-4 h-4" />}
       </button>
 
       <Show when={open()}>

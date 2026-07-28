@@ -10,6 +10,8 @@ import type { Attachment, AttachmentStore } from "./types";
 import type { FileMeta } from "@/modules/files/api";
 import type { Photo } from "@/modules/photos/api/api";
 import { useI18n } from "@/i18n";
+import SourceToggleButton from "../components/SourceToggleButton";
+import type { EditorTab } from "../types/editor.types";
 
 // Lazy-load the picker — only fetched when user clicks "Browse existing"
 const FilePickerModal = lazy(() => import("./picker/FilePickerModal"));
@@ -27,6 +29,10 @@ interface Props {
   /** Called after an attachment's alt text changes (att carries the new value) —
    *  lets the composer patch an already-inserted copy in the body. */
   onAltChange?: (att: Attachment) => void;
+  /** Current RichEditor tab — pass together with onToggleTab to render the
+   *  wysiwyg/source toggle button at the right of this bar's action row. */
+  tab?: EditorTab;
+  onToggleTab?: () => void;
 }
 
 const AttachmentBar: Component<Props> = (props) => {
@@ -137,10 +143,15 @@ const AttachmentBar: Component<Props> = (props) => {
           <span class="text-xs text-accent ml-1">{t("editor.drop_files")}</span>
         </Show>
 
-        {/* Upload in-progress indicator */}
-        <Show when={props.store.uploading()}>
-          <span class="text-xs text-muted ml-auto animate-pulse">{t("editor.uploading")}</span>
-        </Show>
+        {/* Upload in-progress indicator + wysiwyg/source toggle — bottom-right */}
+        <div class="ml-auto flex items-center gap-2">
+          <Show when={props.store.uploading()}>
+            <span class="text-xs text-muted animate-pulse">{t("editor.uploading")}</span>
+          </Show>
+          <Show when={props.tab && props.onToggleTab}>
+            <SourceToggleButton tab={props.tab!} onToggle={props.onToggleTab!} />
+          </Show>
+        </div>
       </div>
 
       {/* Attachment chips */}

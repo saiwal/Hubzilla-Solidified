@@ -5,6 +5,8 @@ import { useAuth } from "@/shared/store/auth-store";
 import { useNavViewer } from "@/shared/store/nav-store";
 import { motion } from "solid-motionone";
 import PostComposer from "@/shared/editor/composers/PostComposer";
+import { sourceToHtml } from "@/shared/editor/core/sourceToHtml";
+import { htmlToSource } from "@/shared/editor/core/htmlToSource";
 import AclPicker, { entryKey, type AclMode, type AclEntry } from "@/shared/editor/components/AclPicker";
 import { storageGet, storageSet, storageDel } from "@/shared/lib/storage";
 import { getCsrfToken } from "@/shared/lib/csrf";
@@ -14,19 +16,7 @@ import { useI18n } from "@/i18n";
 void motion;
 
 const DRAFT_KEY = "hz_hq_draft";
-
-function insertBb(
-  ta: HTMLTextAreaElement,
-  open: string,
-  close: string,
-  placeholder = "…",
-): { value: string; cursor: number } {
-  const s = ta.selectionStart;
-  const e = ta.selectionEnd;
-  const sel = ta.value.slice(s, e) || placeholder;
-  const value = ta.value.slice(0, s) + open + sel + close + ta.value.slice(e);
-  return { value, cursor: s + open.length + sel.length + close.length };
-}
+const MIME = "text/bbcode";
 
 export default function HqComposerSlot() {
   const auth = useAuth();
@@ -54,7 +44,6 @@ function HqComposer() {
     if (d.body && !body()) {
       setBody(d.body);
       setExpanded(true);
-      requestAnimationFrame(() => autoResize());
     }
     if (d.aclMode) setAclMode((d.aclMode as AclMode) ?? "connections");
   });
@@ -68,13 +57,88 @@ function HqComposer() {
   });
   onCleanup(() => clearTimeout(draftTimer));
 
-  let taRef!: HTMLTextAreaElement;
+  // ── WYSIWYG surface ─────────────────────────────────────────────────────
+  // A bare contenteditable (no toolbar/tab chrome of its own — this is a
+  // compact quick-post bar, not the full composer). `domSig` is the source
+  // string the DOM currently reflects; only re-seed the div when body()
+  // changed for a reason other than us echoing the DOM back (draft load,
+  // reset, mention/emoji insert), same pattern as RichEditor.
+  let editorEl: HTMLDivElement | undefined;
+  let domSig: string | null = null;
+
+  const seedEditor = (el: HTMLDivElement) => {
+    editorEl = el;
+    el.innerHTML = sourceToHtml(body(), MIME);
+    domSig = body();
+  };
+
+  createEffect(() => {
+    const b = body();
+    if (editorEl && b !== domSig) {
+      editorEl.innerHTML = sourceToHtml(b, MIME);
+      domSig = b;
+      const active = document.activeElement;
+      if (editorEl.contains(active) || active === document.body || active === null) {
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.selectNodeContents(editorEl);
+        range.collapse(false);
+        sel?.removeAllRanges();
+        sel?.addRange(range);
+      }
+    }
+  });
+
+  function onEditorInput() {
+    if (!editorEl) return;
+    const next = htmlToSource(editorEl.innerHTML, MIME);
+    domSig = next;
+    setBody(next);
+  }
+
+  // Round-trips typed bbcode (links, [b]/[i]/…) into rendered markup once
+  // focus leaves the editor — mirrors RichEditor's onEditorBlur.
+  function onEditorBlur() {
+    if (!editorEl) return;
+    const next = htmlToSource(editorEl.innerHTML, MIME);
+    editorEl.innerHTML = sourceToHtml(next, MIME);
+    domSig = next;
+  }
+
+  function exec(cmd: string) {
+    if (!editorEl) return;
+    editorEl.focus();
+    document.execCommand(cmd, false);
+  }
+
+  function insertLink() {
+    if (!editorEl) return;
+    const sel = window.getSelection();
+    let savedRange: Range | null = null;
+    if (sel && sel.rangeCount > 0) savedRange = sel.getRangeAt(0).cloneRange();
+    const hasText = savedRange && !savedRange.collapsed;
+    const url = window.prompt("URL:", "https://");
+    if (!url) return;
+    editorEl.focus();
+    if (savedRange) { sel!.removeAllRanges(); sel!.addRange(savedRange); }
+    if (hasText) {
+      document.execCommand("createLink", false, url);
+    } else {
+      const a = document.createElement("a");
+      a.href = url;
+      a.textContent = url;
+      const tmp = document.createElement("div");
+      tmp.appendChild(a);
+      document.execCommand("insertHTML", false, tmp.innerHTML);
+    }
+    onEditorInput();
+  }
 
   // ── Mention + emoji autocomplete ──────────────────────────────────────────
   const wiring = useMentionEmojiWiring({
     body,
     setBody,
-    mimetype: () => "text/bbcode",
+    mimetype: () => MIME,
   });
 
   function onKeyDown(e: KeyboardEvent) {
@@ -84,19 +148,9 @@ function HqComposer() {
   window.addEventListener("keydown", onKeyDown);
   onCleanup(() => window.removeEventListener("keydown", onKeyDown));
 
-  function wrapBb(open: string, close: string, placeholder = "…") {
-    const { value, cursor } = insertBb(taRef, open, close, placeholder);
-    setBody(value);
-    requestAnimationFrame(() => {
-      taRef.focus();
-      taRef.setSelectionRange(cursor, cursor);
-    });
-  }
-
-  function autoResize() {
-    if (!expanded()) return;
-    taRef.style.height = "auto";
-    taRef.style.height = Math.min(taRef.scrollHeight, 480) + "px";
+  function expandAndFocus() {
+    setExpanded(true);
+    requestAnimationFrame(() => editorEl?.focus());
   }
 
   function toggleEntry(entry: AclEntry, list: "allow" | "deny") {
@@ -187,19 +241,15 @@ function HqComposer() {
     setAllowKeys(new Set<string>());
     setDenyKeys(new Set<string>());
     setAclMode("connections");
-    if (taRef) taRef.style.height = "auto";
     storageDel(DRAFT_KEY);
     setExpanded(false);
   }
 
   const toolbar = [
-    { title: () => t("editor.hq_bold"),    label: "B",  cls: "font-bold", action: () => wrapBb("[b]", "[/b]") },
-    { title: () => t("editor.hq_italic"),  label: "I",  cls: "italic",    action: () => wrapBb("[i]", "[/i]") },
-    { title: () => t("editor.hq_underline"), label: "U", cls: "underline", action: () => wrapBb("[u]", "[/u]") },
-    { title: () => t("editor.hq_link"),    label: <MdOutlineLink class="w-4 h-4" /> as JSX.Element, cls: "",          action: () => {
-      const url = window.prompt("URL:", "https://");
-      if (url) wrapBb(`[url=${url}]`, "[/url]", "Link text");
-    }},
+    { title: () => t("editor.bold"),      label: "B", cls: "font-bold", action: () => exec("bold") },
+    { title: () => t("editor.italic"),    label: "I", cls: "italic",    action: () => exec("italic") },
+    { title: () => t("editor.underline"), label: "U", cls: "underline", action: () => exec("underline") },
+    { title: () => t("editor.link"),      label: <MdOutlineLink class="w-4 h-4" /> as JSX.Element, cls: "", action: insertLink },
   ];
 
   return (
@@ -237,16 +287,34 @@ function HqComposer() {
             />
           </Show>
         </Show>
-        <textarea
-          ref={taRef!}
-          placeholder={t("editor.write_placeholder")}
-          value={body()}
-          onFocus={() => setExpanded(true)}
-          onInput={(e) => { setBody(e.currentTarget.value); autoResize(); }}
-          rows={expanded() ? 3 : 1}
-          class="flex-1 resize-none bg-transparent text-sm text-txt placeholder:text-muted
-                 focus:outline-none leading-relaxed overflow-hidden w-full"
-        />
+
+        <Show
+          when={expanded()}
+          fallback={
+            <button
+              type="button"
+              onClick={expandAndFocus}
+              class="flex-1 text-left bg-transparent text-sm text-muted
+                     focus:outline-none truncate"
+            >
+              {t("editor.write_placeholder")}
+            </button>
+          }
+        >
+          <div
+            ref={seedEditor}
+            contenteditable
+            dir="ltr"
+            onInput={onEditorInput}
+            onBlur={onEditorBlur}
+            data-placeholder={t("editor.write_placeholder")}
+            style={{ "min-height": "60px", "max-height": "480px" }}
+            class="flex-1 min-w-0 overflow-y-auto bg-transparent text-sm text-txt
+                   focus:outline-none leading-relaxed
+                   empty:before:content-[attr(data-placeholder)]
+                   empty:before:text-muted empty:before:pointer-events-none"
+          />
+        </Show>
       </div>
 
       {/* Toolbar row */}

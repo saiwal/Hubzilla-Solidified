@@ -24,6 +24,8 @@ interface Props {
   onPasteFiles?: (files: File[]) => void;
   placeholder?: string;
   minHeight?: string;
+  /** Let the user drag-resize the editing surface vertically. */
+  resizable?: boolean;
 }
 
 export default function RichEditor(props: Props) {
@@ -233,28 +235,8 @@ export default function RichEditor(props: Props) {
   };
 
   // Every composer gets the tab bar (write/source) except chat's plain input.
-  const showTabs = () => props.capabilities.toolbar !== "comment";
-
   return (
-    <div class="rich-editor border border-rim overflow-hidden bg-surface flex flex-col flex-1 min-h-0">
-      {/* ── Tab bar ──────────────────────────────────────── */}
-      <Show when={showTabs()}>
-        <div class="flex bg-elevated border-b border-rim">
-          <TabBtn
-            active={props.tab === "wysiwyg"}
-            onClick={() => props.onTabChange("wysiwyg")}
-          >
-            {t("editor.write_tab")}
-          </TabBtn>
-          <TabBtn
-            active={props.tab === "source"}
-            onClick={() => props.onTabChange("source")}
-          >
-            {t("editor.source_tab")}
-          </TabBtn>
-        </div>
-      </Show>
-
+    <div class="rich-editor flex flex-col flex-1 min-h-0 rounded-lg overflow-hidden bg-elevated">
       {/* ── Unified toolbar (wysiwyg + source tabs) ── */}
       <EditorToolbar
         level={props.capabilities.toolbar}
@@ -278,10 +260,11 @@ export default function RichEditor(props: Props) {
           onBlur={onEditorBlur}
           data-placeholder={props.placeholder ?? t("editor.write_placeholder")}
           style={{ "min-height": minH() }}
-          class="grow overflow-y-auto p-3 outline-none text-sm text-txt
+          class={`grow overflow-y-auto p-3 outline-none text-sm text-txt bg-surface
                  [&_img]:max-w-full [&_img]:h-auto
                  empty:before:content-[attr(data-placeholder)]
-                 empty:before:text-muted empty:before:pointer-events-none"
+                 empty:before:text-muted empty:before:pointer-events-none
+                 ${props.resizable ? "resize-y" : ""}`}
         />
       </Show>
 
@@ -294,7 +277,7 @@ export default function RichEditor(props: Props) {
           onKeyDown={handleKeyDown}
           onPaste={handlePaste}
           style={{ "min-height": minH() }}
-          class="grow overflow-y-auto w-full p-3 text-sm font-mono bg-surface text-txt outline-none resize-none"
+          class={`grow overflow-y-auto w-full p-3 text-sm font-mono text-txt bg-surface outline-none ${props.resizable ? "resize-y" : "resize-none"}`}
           placeholder={
             mime() === "text/markdown"
               ? t("editor.markdown_source_placeholder")
@@ -381,25 +364,5 @@ export default function RichEditor(props: Props) {
       </Show>
 
     </div>
-  );
-}
-
-function TabBtn(props: {
-  active: boolean;
-  onClick: () => void;
-  children: any;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={props.onClick}
-      class={`px-3 py-1.5 text-xs font-medium transition-colors border-b-2 ${
-        props.active
-          ? "border-accent text-accent bg-surface"
-          : "border-transparent text-muted hover:text-txt"
-      }`}
-    >
-      {props.children}
-    </button>
   );
 }

@@ -12,6 +12,7 @@ import MentionEmojiPopups from "@/shared/editor/mention/MentionEmojiPopups";
 import AttachmentBar from "../attachments/AttachmentBar";
 import { createAttachmentStore } from "../attachments/useAttachments";
 import { bbcodeToInsert, patchInsertedAlt } from "../attachments/insertHelpers";
+import SourceToggleButton from "../components/SourceToggleButton";
 
 interface Props {
   /** Parent item uuid — full-URL mids break the /spa/item/:id path (slashes). */
@@ -107,11 +108,23 @@ export default function CommentComposer(props: Props) {
             }}
             onPasteFiles={auth()?.isLocal ? (files) => attach.addUploads(files) : undefined}
             placeholder={t("editor.write_reply_ctrl")}
-            minHeight="60px"
+            minHeight="120px"
+            resizable
           />
           {/* Attachment uploads go through wall_attach/:nick — remote/OWA
-              commenters have no local nick on this server to upload against. */}
-          <Show when={auth()?.isLocal}>
+              commenters have no local nick on this server to upload against,
+              so they only get the source toggle without the rest of the bar. */}
+          <Show
+            when={auth()?.isLocal}
+            fallback={
+              <div class="flex justify-end mt-1">
+                <SourceToggleButton
+                  tab={store.tab()}
+                  onToggle={() => store.setTab(store.tab() === "wysiwyg" ? "source" : "wysiwyg")}
+                />
+              </div>
+            }
+          >
             <AttachmentBar
               store={attach}
               nick={currentNick()}
@@ -122,6 +135,8 @@ export default function CommentComposer(props: Props) {
               onAltChange={(att) => {
                 store.setBody(patchInsertedAlt(store.body(), att, "text/bbcode"));
               }}
+              tab={store.tab()}
+              onToggleTab={() => store.setTab(store.tab() === "wysiwyg" ? "source" : "wysiwyg")}
             />
           </Show>
         </div>

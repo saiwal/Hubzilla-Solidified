@@ -149,7 +149,18 @@ function nodeTobbcode(node: Node): string {
       const items = Array.from(el.querySelectorAll(":scope > li"))
         .map(li => `[*]${nodeTobbcode(li)}`)
         .join("\n");
-      return `[list=1]\n${items}\n[/list]\n`;
+      // bbcode.ts's sourceToHtml stamps [list=a]/[list=A]/[list=i]/[list=I]
+      // as list-style-type on the <ol> (see its listloweralpha/upperalpha/
+      // lowerroman/upperroman classes) — read it back the same way so a
+      // lettered/roman list round-trips instead of collapsing to [list=1].
+      const styleType = getStyle(el, "list-style-type");
+      const marker =
+        styleType === "lower-alpha" ? "a" :
+        styleType === "upper-alpha" ? "A" :
+        styleType === "lower-roman" ? "i" :
+        styleType === "upper-roman" ? "I" :
+        "1";
+      return `[list=${marker}]\n${items}\n[/list]\n`;
     }
     case "li":  return children();
 

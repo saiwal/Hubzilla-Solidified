@@ -3,6 +3,8 @@ import { useI18n } from "@/i18n";
 import RichEditor from "../core/RichEditor";
 import { CAPABILITIES } from "../types/editor.types";
 import type { MimeType, EditorTab } from "../types/editor.types";
+import { underlineFieldClass } from "../lib/fieldStyles";
+import SourceToggleButton from "../components/SourceToggleButton";
 
 interface Props {
   initialBody: string;
@@ -35,16 +37,19 @@ export default function WikiComposer(props: Props) {
         minHeight="320px"
       />
 
+      <div class="flex justify-end">
+        <SourceToggleButton tab={tab()} onToggle={() => setTab(tab() === "wysiwyg" ? "source" : "wysiwyg")} />
+      </div>
+
       <input
         type="text"
-        class="w-full bg-surface border border-rim text-txt rounded-lg px-3 py-2 text-sm
-               hover:border-rim-strong focus:outline-none focus:border-accent transition-colors"
+        class={`w-full px-0 py-1.5 text-sm text-txt ${underlineFieldClass}`}
         placeholder={t("wiki.changes_placeholder")}
         value={commitMsg()}
         onInput={(e) => setCommitMsg(e.currentTarget.value)}
       />
 
-      <div class="flex items-center gap-2 justify-end">
+      <div class="flex items-center justify-between gap-2">
         <button
           type="button"
           onClick={props.onCancel}

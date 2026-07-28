@@ -108,6 +108,7 @@ function EditModal(props: {
             close();
             props.onSaved();
           }}
+          onCancel={close}
         />
       </dialog>
     </Portal>

@@ -1,10 +1,20 @@
 import { createSignal, lazy, Show } from "solid-js";
 import type { LatexInsertMode, ToolbarLevel } from "../types/editor.types";
 import { useI18n } from "@/i18n";
-import { MdOutlineLink, MdOutlineImage } from "solid-icons/md";
+import {
+  MdOutlineLink, MdOutlineImage,
+  MdOutlineFormat_bold, MdOutlineFormat_italic, MdOutlineFormat_underlined,
+  MdOutlineFormat_strikethrough, MdOutlineHighlight,
+  MdOutlineFormat_color_text, MdOutlineFont_download, MdOutlineFormat_size,
+  MdOutlineFormat_quote, MdFillFormat_quote, MdOutlineCode, MdOutlineHorizontal_rule,
+  MdOutlineVideocam, MdOutlineAudiotrack, MdOutlineFunctions,
+  MdOutlineTable_chart, MdOutlineVisibility_off, MdOutlineFormat_clear,
+} from "solid-icons/md";
 import EmojiPicker from "../emoji/EmojiPicker";
 import type { EmojiEntry } from "@/shared/store/emoji-store";
 import { emojiEntryToImg } from "@/shared/lib/emojify";
+import ListToolDropdown from "../components/ListToolDropdown";
+import HeadingToolDropdown from "../components/HeadingToolDropdown";
 
 const LatexComposerModal = lazy(() => import("../latex/LatexComposerModal"));
 
@@ -22,7 +32,6 @@ export default function EditorToolbar(props: Props) {
   const [latexOpen, setLatexOpen] = createSignal(false);
 
   const isSource  = () => props.tab === "source";
-  const isWysiwyg = () => props.tab === "wysiwyg";
   const isComment = () => props.level === "comment";
   const isFull    = () => props.level === "full";
 
@@ -181,6 +190,34 @@ export default function EditorToolbar(props: Props) {
 
   const hr = () => isSource() ? insertSource("[hr]\n") : exec("insertHorizontalRule");
 
+  // Lettered list (a. b. c.) — insertOrderedList gives a plain decimal <ol>,
+  // so re-tag it with the same class/style bbcode.ts's sourceToHtml stamps
+  // for [list=a] (see htmlToSource's "ol" case, which reads list-style-type
+  // back to pick the bbcode marker). Re-inserted via execCommand("insertHTML")
+  // rather than mutating the <ol> directly — a direct DOM mutation wouldn't
+  // fire the "input" event RichEditor relies on to pick up the change
+  // (same reason highlight()/strike() above unwrap-and-reinsert instead of
+  // just editing the matched element in place).
+  const listAlpha = () => {
+    exec("insertOrderedList");
+    const el = props.editorRef();
+    if (!el) return;
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    const node = sel.getRangeAt(0).commonAncestorContainer;
+    const parentEl = node.nodeType === Node.TEXT_NODE ? node.parentElement : node as Element;
+    const ol = parentEl?.closest?.("ol");
+    if (!ol || !el.contains(ol)) return;
+    const r = document.createRange();
+    r.selectNode(ol);
+    sel.removeAllRanges();
+    sel.addRange(r);
+    document.execCommand(
+      "insertHTML", false,
+      `<ol class="listloweralpha" style="list-style-type: lower-alpha;">${ol.innerHTML}</ol>`,
+    );
+  };
+
   const link = () => {
     if (isSource()) {
       const u = prompt("URL:");
@@ -304,23 +341,23 @@ export default function EditorToolbar(props: Props) {
 
   return (
     <>
-    <div class="flex flex-wrap items-center gap-0.5 px-2 py-1 bg-surface border-b border-rim">
+    <div class="flex flex-wrap items-center gap-0.5 px-2 py-1">
 
       {/* ── Group 1: Inline formatting — all levels ── */}
       <Btn title={t("editor.bold")} onPress={bold}>
-        <span class="font-bold text-xs">B</span>
+        <MdOutlineFormat_bold class="w-4 h-4" />
       </Btn>
       <Btn title={t("editor.italic")} onPress={italic}>
-        <span class="italic text-xs">I</span>
+        <MdOutlineFormat_italic class="w-4 h-4" />
       </Btn>
       <Btn title={t("editor.underline")} onPress={underline}>
-        <span class="underline text-xs">U</span>
+        <MdOutlineFormat_underlined class="w-4 h-4" />
       </Btn>
       <Btn title={t("editor.strikethrough")} onPress={strike}>
-        <span class="line-through text-xs">S</span>
+        <MdOutlineFormat_strikethrough class="w-4 h-4" />
       </Btn>
       <Btn title={t("editor.highlight")} onPress={highlight}>
-        <span class="text-xs bg-yellow-300 text-yellow-900 px-0.5 rounded-sm leading-tight">H</span>
+        <MdOutlineHighlight class="w-4 h-4" />
       </Btn>
 
       {/* ── Groups 2–7: hidden for comment level ── */}
@@ -329,70 +366,59 @@ export default function EditorToolbar(props: Props) {
           {/* ── Group 2: Text appearance ── */}
           <Sep />
           <Btn title="Text color [color=X]" onPress={color}>
-            <span class="text-xs font-bold" style="color:#e74c3c;">A</span>
+            <MdOutlineFormat_color_text class="w-4 h-4" />
           </Btn>
           <Btn title="Font family [font=X]" onPress={font}>
-            <span class="text-xs" style="font-family:serif;">F</span>
+            <MdOutlineFont_download class="w-4 h-4" />
           </Btn>
           <Btn title="Font size [size=X]" onPress={size}>
-            <span class="text-xs">Sz</span>
+            <MdOutlineFormat_size class="w-4 h-4" />
           </Btn>
 
           {/* ── Group 3: Block elements ── */}
           <Sep />
-          {/* Heading selector — wysiwyg + full only (no BBCode heading tag support) */}
-          <Show when={isFull() && isWysiwyg()}>
-            <select
-              title={t("editor.heading")}
-              onMouseDown={(e) => e.stopPropagation()}
-              onChange={(e) => {
-                const val = e.currentTarget.value;
-                const el  = props.editorRef();
+          {/* Heading selector — full only; disabled (not hidden) in source
+              mode since bbcode has no heading tag, so the toolbar's button
+              set stays constant across the write/source toggle. */}
+          <Show when={isFull()}>
+            <HeadingToolDropdown
+              disabled={isSource()}
+              onSelect={(val) => {
+                const el = props.editorRef();
                 if (!el) return;
                 el.focus();
                 document.execCommand("formatBlock", false, val);
-                e.currentTarget.value = "p";
               }}
-              class="text-xs rounded px-1 py-0.5 bg-surface border border-rim text-txt hover:bg-elevated transition-colors cursor-pointer"
-            >
-              <option value="p">{t("editor.heading_label")}</option>
-              <option value="h1">H1</option>
-              <option value="h2">H2</option>
-              <option value="h3">H3</option>
-              <option value="h4">H4</option>
-              <option value="h5">H5</option>
-              <option value="h6">H6</option>
-            </select>
+            />
           </Show>
           <Btn title={t("editor.blockquote")} onPress={quote}>
-            <span class="text-xs">❝</span>
+            <MdOutlineFormat_quote class="w-4 h-4" />
           </Btn>
           <Show when={isFull()}>
             <>
               <Btn title="Quote with author [quote=Author]" onPress={quoteAuthor}>
-                <span class="text-xs">❝A</span>
+                <MdFillFormat_quote class="w-4 h-4" />
               </Btn>
               <Btn title={t("editor.code_block")} onPress={code}>
-                <span class="text-xs font-mono">{"</>"}</span>
+                <MdOutlineCode class="w-4 h-4" />
               </Btn>
             </>
           </Show>
           <Btn title="Horizontal rule [hr]" onPress={hr}>
-            <span class="text-xs font-bold">—</span>
+            <MdOutlineHorizontal_rule class="w-4 h-4" />
           </Btn>
 
-          {/* ── Group 4: Lists — wysiwyg only (no BBCode list tag support) ── */}
-          <Show when={isWysiwyg()}>
-            <>
-              <Sep />
-              <Btn title={t("editor.bullet_list")} onPress={() => exec("insertUnorderedList")}>
-                <span class="text-xs">• –</span>
-              </Btn>
-              <Btn title={t("editor.numbered_list")} onPress={() => exec("insertOrderedList")}>
-                <span class="text-xs">1.</span>
-              </Btn>
-            </>
-          </Show>
+          {/* ── Group 4: Lists — grouped in one dropdown; disabled (not
+              hidden) in source mode to keep the toolbar layout constant. ── */}
+          <Sep />
+          <ListToolDropdown
+            disabled={isSource()}
+            onSelect={(kind) => {
+              if (kind === "bullet") exec("insertUnorderedList");
+              else if (kind === "number") exec("insertOrderedList");
+              else listAlpha();
+            }}
+          />
 
           {/* ── Group 5: Insert ── */}
           <Sep />
@@ -403,13 +429,13 @@ export default function EditorToolbar(props: Props) {
             <MdOutlineImage class="w-4 h-4" />
           </Btn>
           <Btn title="Video [video]" onPress={video}>
-            <span class="text-xs">▶</span>
+            <MdOutlineVideocam class="w-4 h-4" />
           </Btn>
           <Btn title="Audio [audio]" onPress={audio}>
-            <span class="text-xs">♪</span>
+            <MdOutlineAudiotrack class="w-4 h-4" />
           </Btn>
           <Btn title={t("editor.latex_toolbar_title")} onPress={() => setLatexOpen(true)}>
-            <span class="text-xs font-serif italic">∑</span>
+            <MdOutlineFunctions class="w-4 h-4" />
           </Btn>
           <EmojiPicker onSelect={insertEmoji} />
 
@@ -418,23 +444,25 @@ export default function EditorToolbar(props: Props) {
             <>
               <Sep />
               <Btn title="Insert table [table]" onPress={table}>
-                <span class="text-xs">⊞</span>
+                <MdOutlineTable_chart class="w-4 h-4" />
               </Btn>
               <Btn title="Spoiler [spoiler]" onPress={spoiler}>
-                <span class="text-xs">◢</span>
+                <MdOutlineVisibility_off class="w-4 h-4" />
               </Btn>
             </>
           </Show>
 
-          {/* ── Group 7: Utility — full + wysiwyg only, pushed right ── */}
-          <Show when={isFull() && isWysiwyg()}>
+          {/* ── Group 7: Utility — full only, pushed right; disabled (not
+              hidden) in source mode since it acts on the WYSIWYG DOM. ── */}
+          <Show when={isFull()}>
             <>
               <span class="flex-1" />
               <Btn
                 title={t("editor.clear_formatting")}
                 onPress={() => { exec("formatBlock", "p"); exec("removeFormat"); }}
+                disabled={isSource()}
               >
-                <span class="text-xs">✕</span>
+                <MdOutlineFormat_clear class="w-4 h-4" />
               </Btn>
             </>
           </Show>
@@ -456,16 +484,22 @@ function Sep() {
   return <span class="w-px h-4 bg-rim mx-0.5 self-center" />;
 }
 
-function Btn(props: { title: string; onPress: () => void; children: any }) {
+function Btn(props: { title: string; onPress: () => void; children: any; disabled?: boolean }) {
   return (
     <button
       type="button"
       title={props.title}
+      disabled={props.disabled}
       onMouseDown={(e) => {
         e.preventDefault();
-        props.onPress();
+        if (!props.disabled) props.onPress();
       }}
-      class="px-1.5 py-0.5 rounded text-txt hover:bg-elevated transition-colors"
+      class={
+        "px-1.5 py-0.5 rounded transition-colors " +
+        (props.disabled
+          ? "text-muted/40 cursor-not-allowed"
+          : "text-txt hover:bg-elevated")
+      }
     >
       {props.children}
     </button>

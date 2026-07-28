@@ -50,6 +50,7 @@ export default function ArticleComposerModal(props: {
             nick={props.nick}
             initial={props.initial}
             onSaved={props.onSaved}
+            onCancel={props.onClose}
           />
         </div>
       </div>

@@ -20,7 +20,7 @@ import { entryKey } from "../components/AclPicker";
 import RecipientField from "../components/RecipientField";
 import { useMentionEmojiWiring } from "../mention/useMentionEmojiWiring";
 import MentionEmojiPopups from "../mention/MentionEmojiPopups";
-import { PrimarySubmitButton, ToggleButton, IconButton } from "../components/buttons";
+import { PrimarySubmitButton, SecondaryButton, ToggleButton, IconButton } from "../components/buttons";
 import { helpable } from "@/shared/lib/helpable";
 import AttachmentBar from "../attachments/AttachmentBar";
 import { createAttachmentStore } from "../attachments/useAttachments";
@@ -241,6 +241,8 @@ const DMComposer: Component<DMComposerProps> = (props) => {
                 onAltChange={(att) => {
                   store.setBody(patchInsertedAlt(store.body(), att, store.mimetype()));
                 }}
+                tab={store.tab()}
+                onToggleTab={() => store.setTab(store.tab() === "wysiwyg" ? "source" : "wysiwyg")}
               />
             </div>
 
@@ -250,44 +252,67 @@ const DMComposer: Component<DMComposerProps> = (props) => {
             </Show>
 
             {/* ── Footer ── */}
-            <footer class="flex flex-wrap items-center gap-2 px-3.5 py-2.5 border-t border-rim bg-elevated shrink-0">
-              {/* Encrypt toggle — gated behind Settings → Features → Content Encryption */}
-              <Show when={isFeatureEnabled("content_encrypt")}>
-                <Show
-                  when={!isEncryptedBody(store.body())}
-                  fallback={
-                    <span class="hidden sm:flex items-center gap-1 px-2 py-1 rounded-md text-xs border bg-yellow-500/10 text-yellow-500 border-yellow-500/30">
-                      🔒 {t("editor.encrypt_badge")}
-                    </span>
-                  }
-                >
-                  <ToggleButton
-                    active={enc.open()}
-                    onClick={() => enc.setOpen((o) => !o)}
-                    title={t("editor.encrypt_toggle")}
+            <footer class="flex flex-col gap-2 px-3.5 py-2.5 border-t border-rim bg-elevated shrink-0">
+              {/* Options row: encrypt */}
+              <div class="flex flex-wrap items-center gap-2">
+                <Show when={isFeatureEnabled("content_encrypt")}>
+                  <Show
+                    when={!isEncryptedBody(store.body())}
+                    fallback={
+                      <span class="hidden sm:flex items-center gap-1 px-2 py-1 rounded-md text-xs border bg-yellow-500/10 text-yellow-500 border-yellow-500/30">
+                        🔒 {t("editor.encrypt_badge")}
+                      </span>
+                    }
                   >
-                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                    </svg>
-                    {t("editor.encrypt_toggle")}
-                  </ToggleButton>
+                    <ToggleButton
+                      active={enc.open()}
+                      onClick={() => enc.setOpen((o) => !o)}
+                      title={t("editor.encrypt_toggle")}
+                    >
+                      <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                      </svg>
+                      {t("editor.encrypt_toggle")}
+                    </ToggleButton>
+                  </Show>
                 </Show>
-              </Show>
+              </div>
 
-              <div class="ml-auto">
-                <PrimarySubmitButton
-                  disabled={
-                    store.submitting() ||
-                    attach.uploading() ||
-                    recipients().length === 0 ||
-                    unpermittedRecipients().length > 0 ||
-                    !store.body().trim()
-                  }
-                  onClick={() => void store.submit()}
-                >
-                  {store.submitting() ? t("editor.sending_dm") : t("editor.send_btn")}
-                </PrimarySubmitButton>
+              {/* Action row: discard on the left, clear/send on the right */}
+              <div class="flex flex-wrap items-center gap-2">
+                <SecondaryButton onClick={props.onClose}>
+                  {t("editor.discard")}
+                </SecondaryButton>
+
+                <div class="flex items-center gap-2 ml-auto">
+                  <IconButton
+                    title={t("editor.clear_composer")}
+                    variant="danger"
+                    onClick={() => {
+                      store.reset();
+                      attach.clear();
+                      setRecipients([]);
+                      enc.reset();
+                    }}
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </IconButton>
+                  <PrimarySubmitButton
+                    disabled={
+                      store.submitting() ||
+                      attach.uploading() ||
+                      recipients().length === 0 ||
+                      unpermittedRecipients().length > 0 ||
+                      !store.body().trim()
+                    }
+                    onClick={() => void store.submit()}
+                  >
+                    {store.submitting() ? t("editor.sending_dm") : t("editor.send_btn")}
+                  </PrimarySubmitButton>
+                </div>
               </div>
             </footer>
           </div>

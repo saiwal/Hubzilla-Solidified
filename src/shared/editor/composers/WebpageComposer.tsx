@@ -7,6 +7,7 @@ import { setCurrentPageTemplateId } from "@/modules/webpages/store";
 import { editingWidgets, setEditingWidgets } from "@/shared/store/widget-layout";
 import { MdFillAdd, MdOutlineEdit, MdFillCheck } from "solid-icons/md";
 import { createComposerStore } from "../store/createComposerStore";
+import { DraftsList } from "../components/DraftsList";
 import RichEditor from "../core/RichEditor";
 import { CAPABILITIES } from "../types/editor.types";
 import { getCsrfToken } from "@/shared/lib/csrf";
@@ -23,8 +24,10 @@ import { useMentionEmojiWiring } from "../mention/useMentionEmojiWiring";
 import MentionEmojiPopups from "../mention/MentionEmojiPopups";
 import SlugField from "../components/SlugField";
 import SummaryField from "../components/SummaryField";
-import { PrimarySubmitButton, SecondaryButton, ToggleButton } from "../components/buttons";
+import { PrimarySubmitButton, SecondaryButton, ToggleButton, IconButton } from "../components/buttons";
 import { slugify } from "../lib/slugify";
+import { underlineFieldClass } from "../lib/fieldStyles";
+import { countWords } from "../lib/textStats";
 
 interface Props {
   profileUid: number;
@@ -58,6 +61,7 @@ export default function WebpageComposer(props: Props) {
     : "webpage:new";
 
   const attach = createAttachmentStore(props.nick, scope);
+  const [draftsOpen, setDraftsOpen] = createSignal(false);
 
   // ── ACL state — initialize from existing page data when editing ──────────────
   const initialAclMode = (): AclMode => {
@@ -201,6 +205,9 @@ export default function WebpageComposer(props: Props) {
     props.onSaved?.();
   }, scope, { initialBody: props.initial?.body });
 
+  const wordCount = () => countWords(store.body());
+  const charCount = () => store.body().length;
+
   const enc = useEncrypt(() => store.body(), store.setBody);
 
   if (props.initial) {
@@ -235,9 +242,7 @@ export default function WebpageComposer(props: Props) {
         placeholder={t("webpages.title_placeholder")}
         value={store.title()}
         onInput={(e) => onTitleChange(e.currentTarget.value)}
-        class="w-full px-0 py-2 text-2xl font-bold bg-transparent text-txt
-               placeholder:text-muted border-0 border-b border-rim outline-none
-               focus:border-accent transition-colors"
+        class={`w-full px-0 py-2 text-lg font-bold text-txt placeholder:text-muted ${underlineFieldClass}`}
       />
 
       {/* Summary */}
@@ -246,15 +251,13 @@ export default function WebpageComposer(props: Props) {
           value={store.summary}
           onInput={store.setSummary}
           placeholder={t("editor.article_summary_placeholder")}
-          class="w-full px-0 py-1.5 text-sm bg-transparent text-txt
-                 placeholder:text-muted border-0 border-b border-rim outline-none
-                 focus:border-accent transition-colors resize-none"
+          class={`w-full px-0 py-1.5 text-sm text-txt placeholder:text-muted resize-none ${underlineFieldClass}`}
         />
       </Show>
 
       {/* Slug */}
       <Show when={caps.slug}>
-        <SlugField value={store.slug} onInput={store.setSlug} title={store.title} />
+        <SlugField value={store.slug} onInput={store.setSlug} title={store.title} hideLabel />
       </Show>
 
       {/* Page layout template assignment — choose, or create a new one inline */}
@@ -326,6 +329,12 @@ export default function WebpageComposer(props: Props) {
         </Show>
       </div>
 
+      <div class="flex items-center justify-end gap-2">
+        <span class="text-xs text-muted">{t("editor.words_count", { count: wordCount() })}</span>
+        <span class="text-xs text-muted">·</span>
+        <span class="text-xs text-muted">{t("editor.chars_count", { count: charCount() })}</span>
+      </div>
+
       {/* Editor */}
       <div ref={wiring.wrapperRef}>
         <RichEditor
@@ -345,6 +354,8 @@ export default function WebpageComposer(props: Props) {
           onInsert={(bbcode) => {
             store.setBody(store.body() + "\n" + bbcodeToInsert(bbcode, store.mimetype()));
           }}
+          tab={store.tab()}
+          onToggleTab={() => store.setTab(store.tab() === "wysiwyg" ? "source" : "wysiwyg")}
         />
       </div>
 
@@ -355,21 +366,18 @@ export default function WebpageComposer(props: Props) {
         <EncryptPanel enc={enc} />
       </Show>
 
-      {/* Actions */}
-      <div class="flex flex-wrap items-center gap-3 border-t border-rim pt-4">
-        <SecondaryButton
-          onClick={() => {
-            store.reset();
-            attach.clear();
-            acl.reset();
-            enc.reset();
-            props.onCancel?.();
-          }}
-        >
-          {isEditing() ? t("editor.cancel_btn") : t("editor.discard")}
-        </SecondaryButton>
+      {/* Drafts panel */}
+      <Show when={draftsOpen()}>
+        <DraftsList
+          drafts={store.savedDrafts()}
+          onLoad={(d) => { store.loadSavedDraft(d); setDraftsOpen(false); }}
+          onDelete={(id) => void store.deleteSavedDraft(id)}
+          onClose={() => setDraftsOpen(false)}
+        />
+      </Show>
 
-        {/* ACL picker */}
+      {/* Options row: ACL + encrypt */}
+      <div class="flex flex-wrap items-center gap-3 border-t border-rim pt-4">
         <Show when={caps.aclPicker}>
           <AclPicker
             mode={acl.mode()}
@@ -381,7 +389,6 @@ export default function WebpageComposer(props: Props) {
           />
         </Show>
 
-        {/* Encrypt toggle */}
         <Show when={isFeatureEnabled("content_encrypt")}>
           <Show
             when={!isEncryptedBody(store.body())}
@@ -404,8 +411,62 @@ export default function WebpageComposer(props: Props) {
             </ToggleButton>
           </Show>
         </Show>
+      </div>
 
-        <div class="ml-auto">
+      {/* Action row: discard/save-draft/drafts on the left, clear/submit on the right */}
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="flex gap-2 items-center">
+          <SecondaryButton
+            onClick={() => {
+              store.reset();
+              attach.clear();
+              acl.reset();
+              enc.reset();
+              props.onCancel?.();
+            }}
+          >
+            {isEditing() ? t("editor.cancel_btn") : t("editor.discard")}
+          </SecondaryButton>
+          <Show when={store.body().trim()}>
+            <SecondaryButton onClick={() => void store.saveAsDraft()}>
+              <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 3v5H9V3m0 14h6" />
+              </svg>
+              {t("editor.save_draft")}
+            </SecondaryButton>
+          </Show>
+          <Show when={store.savedDrafts().length > 0}>
+            <button
+              type="button"
+              onClick={() => setDraftsOpen((o) => !o)}
+              class={
+                "px-2.5 py-1.5 rounded-lg border text-xs transition-colors " +
+                (draftsOpen()
+                  ? "border-rim bg-elevated text-txt"
+                  : "border-rim text-muted hover:text-txt hover:bg-elevated")
+              }
+            >
+              {t("editor.drafts_btn", { count: store.savedDrafts().length })}
+            </button>
+          </Show>
+        </div>
+
+        <div class="flex items-center gap-2 ml-auto">
+          <IconButton
+            title={t("editor.clear_composer")}
+            variant="danger"
+            onClick={() => {
+              store.reset();
+              attach.clear();
+              acl.reset();
+              enc.reset();
+            }}
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </IconButton>
           <PrimarySubmitButton
             disabled={store.submitting() || attach.uploading() || !store.body().trim() || !store.title().trim()}
             onClick={() => void store.submit()}

@@ -21,8 +21,10 @@ import { useCategoryTags } from "../components/useCategoryTags";
 import CategoryTagsField from "../components/CategoryTagsField";
 import SlugField from "../components/SlugField";
 import SummaryField from "../components/SummaryField";
-import { PrimarySubmitButton, SecondaryButton, ToggleButton } from "../components/buttons";
+import { PrimarySubmitButton, SecondaryButton, ToggleButton, IconButton } from "../components/buttons";
 import { slugify } from "../lib/slugify";
+import { underlineFieldClass } from "../lib/fieldStyles";
+import { countWords } from "../lib/textStats";
 
 interface Props {
   profileUid: number;
@@ -43,6 +45,8 @@ interface Props {
     deny_gid?: string[];
   };
   onSaved?: () => void;
+  /** Close the composer without saving — wired to the left-side Discard button. */
+  onCancel?: () => void;
 }
 
 export default function ArticleComposer(props: Props) {
@@ -177,10 +181,12 @@ export default function ArticleComposer(props: Props) {
   window.addEventListener("keydown", wiring.onKeyDown);
   onCleanup(() => window.removeEventListener("keydown", wiring.onKeyDown));
 
+  const charCount = () => store.body().length;
+
   const onBodyChange = (v: string) => {
     store.setBody(v);
     const text = v.replace(/<[^>]*>/g, " ");
-    setWordCount(text.trim().split(/\s+/).filter(Boolean).length);
+    setWordCount(countWords(text));
   };
 
   const onTitleChange = (v: string) => {
@@ -198,9 +204,7 @@ export default function ArticleComposer(props: Props) {
         placeholder={t("editor.article_title_placeholder")}
         value={store.title()}
         onInput={(e) => onTitleChange(e.currentTarget.value)}
-        class="w-full px-0 py-2 text-2xl font-bold bg-transparent text-txt
-               placeholder:text-muted border-0 border-b border-rim outline-none
-               focus:border-accent transition-colors"
+        class={`w-full px-0 py-2 text-lg font-bold text-txt placeholder:text-muted ${underlineFieldClass}`}
       />
 
       {/* Summary */}
@@ -209,38 +213,38 @@ export default function ArticleComposer(props: Props) {
           value={store.summary}
           onInput={store.setSummary}
           placeholder={t("editor.article_summary_placeholder")}
-          class="w-full px-0 py-1.5 text-sm bg-transparent text-txt
-                 placeholder:text-muted border-0 border-b border-rim outline-none
-                 focus:border-accent transition-colors resize-none"
+          class={`w-full px-0 py-1.5 text-sm text-txt placeholder:text-muted resize-none ${underlineFieldClass}`}
         />
       </Show>
 
-      {/* Slug + Category row */}
-      <div class="flex gap-3">
-        <Show when={caps.slug}>
-          <SlugField value={store.slug} onInput={store.setSlug} title={store.title} />
-        </Show>
-        <Show when={caps.category}>
-          <CategoryTagsField
-            tags={categoryTags.categoryTags}
-            pending={categoryTags.pendingCategory}
-            onPendingInput={categoryTags.setPendingCategory}
-            onKeyDown={categoryTags.onCategoryKeyDown}
-            onRemove={categoryTags.removeCategoryTag}
-            onBlur={() => {
-              if (categoryTags.pendingCategory().trim()) {
-                categoryTags.addCategoryTag(categoryTags.pendingCategory());
-              }
-            }}
-            placeholder={t("editor.category_field_placeholder")}
-            showLabel
-            label={t("editor.category_label")}
-          />
-        </Show>
-      </div>
+      {/* Slug — its own line */}
+      <Show when={caps.slug}>
+        <SlugField value={store.slug} onInput={store.setSlug} title={store.title} hideLabel />
+      </Show>
 
-      <div class="flex items-center justify-end">
+      {/* Category — its own line */}
+      <Show when={caps.category}>
+        <CategoryTagsField
+          tags={categoryTags.categoryTags}
+          pending={categoryTags.pendingCategory}
+          onPendingInput={categoryTags.setPendingCategory}
+          onKeyDown={categoryTags.onCategoryKeyDown}
+          onRemove={categoryTags.removeCategoryTag}
+          onBlur={() => {
+            if (categoryTags.pendingCategory().trim()) {
+              categoryTags.addCategoryTag(categoryTags.pendingCategory());
+            }
+          }}
+          placeholder={t("editor.category_field_placeholder")}
+          showLabel
+          hideLabel
+        />
+      </Show>
+
+      <div class="flex items-center justify-end gap-2">
         <span class="text-xs text-muted">{t("editor.words_count", { count: wordCount() })}</span>
+        <span class="text-xs text-muted">·</span>
+        <span class="text-xs text-muted">{t("editor.chars_count", { count: charCount() })}</span>
       </div>
 
       {/* Editor */}
@@ -262,6 +266,8 @@ export default function ArticleComposer(props: Props) {
           onInsert={(bbcode) => {
             store.setBody(store.body() + "\n" + bbcodeToInsert(bbcode, store.mimetype()));
           }}
+          tab={store.tab()}
+          onToggleTab={() => store.setTab(store.tab() === "wysiwyg" ? "source" : "wysiwyg")}
         />
       </div>
 
@@ -282,19 +288,47 @@ export default function ArticleComposer(props: Props) {
         />
       </Show>
 
-      {/* Actions */}
+      {/* Options row: ACL + encrypt */}
       <div class="flex flex-wrap items-center gap-3 border-t border-rim pt-4">
-        {/* Left: discard + draft controls */}
-        <div class="flex gap-2 items-center">
-          <SecondaryButton
-            onClick={() => {
-              store.reset();
-              attach.clear();
-              acl.reset();
-              categoryTags.setPendingCategory("");
-              enc.reset();
-            }}
+        <Show when={caps.aclPicker}>
+          <AclPicker
+            mode={acl.mode()}
+            onModeChange={acl.setMode}
+            allowEntries={acl.allowEntries()}
+            denyEntries={acl.denyEntries()}
+            onToggle={acl.toggleEntry}
+            onClear={acl.clearEntries}
+          />
+        </Show>
+
+        <Show when={isFeatureEnabled("content_encrypt")}>
+          <Show
+            when={!isEncryptedBody(store.body())}
+            fallback={
+              <span class="flex items-center gap-1 px-2 py-1 rounded-md text-xs border bg-yellow-500/10 text-yellow-500 border-yellow-500/30">
+                🔒 {t("editor.encrypt_badge")}
+              </span>
+            }
           >
+            <ToggleButton
+              active={enc.open()}
+              onClick={() => enc.setOpen((o) => !o)}
+              title={t("editor.encrypt_toggle")}
+            >
+              <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+              </svg>
+              {t("editor.encrypt_toggle")}
+            </ToggleButton>
+          </Show>
+        </Show>
+      </div>
+
+      {/* Action row: discard/save-draft/drafts on the left, clear/submit on the right */}
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="flex gap-2 items-center">
+          <SecondaryButton onClick={() => props.onCancel?.()}>
             {isEditing() ? t("editor.cancel_btn") : t("editor.discard")}
           </SecondaryButton>
           <Show when={store.body().trim()}>
@@ -322,44 +356,22 @@ export default function ArticleComposer(props: Props) {
           </Show>
         </div>
 
-        {/* Centre: ACL picker */}
-        <Show when={caps.aclPicker}>
-          <AclPicker
-            mode={acl.mode()}
-            onModeChange={acl.setMode}
-            allowEntries={acl.allowEntries()}
-            denyEntries={acl.denyEntries()}
-            onToggle={acl.toggleEntry}
-            onClear={acl.clearEntries}
-          />
-        </Show>
-
-        {/* Encrypt toggle */}
-        <Show when={isFeatureEnabled("content_encrypt")}>
-          <Show
-            when={!isEncryptedBody(store.body())}
-            fallback={
-              <span class="flex items-center gap-1 px-2 py-1 rounded-md text-xs border bg-yellow-500/10 text-yellow-500 border-yellow-500/30">
-                🔒 {t("editor.encrypt_badge")}
-              </span>
-            }
+        <div class="flex items-center gap-2 ml-auto">
+          <IconButton
+            title={t("editor.clear_composer")}
+            variant="danger"
+            onClick={() => {
+              store.reset();
+              attach.clear();
+              acl.reset();
+              categoryTags.setPendingCategory("");
+              enc.reset();
+            }}
           >
-            <ToggleButton
-              active={enc.open()}
-              onClick={() => enc.setOpen((o) => !o)}
-              title={t("editor.encrypt_toggle")}
-            >
-              <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-              </svg>
-              {t("editor.encrypt_toggle")}
-            </ToggleButton>
-          </Show>
-        </Show>
-
-        {/* Right: publish */}
-        <div class="ml-auto">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </IconButton>
           <PrimarySubmitButton
             disabled={
               store.submitting() ||

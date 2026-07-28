@@ -36,10 +36,10 @@ export const editor: RawDictionary["editor"] = {
   slug_label:             "स्लग",
   slug_placeholder:       "url-slug",
   generate_slug:          "शीर्षक से स्लग बनाएँ",
-  category_label:         "श्रेणियाँ",
   category_field_placeholder: "श्रेणियाँ (वैकल्पिक, जैसे: तकनीक, व्यक्तिगत)",
   format_label:           "प्रारूप",
   words_count:            "{{count}} शब्द",
+  chars_count:            "{{count}} अक्षर",
   start_writing:          "लिखना शुरू करें…",
   // EditorToolbar
   bold:             "बोल्ड (Ctrl+B)",
@@ -50,8 +50,10 @@ export const editor: RawDictionary["editor"] = {
   link:             "लिंक",
   bullet_list:      "बुलेट सूची",
   numbered_list:    "क्रमांकित सूची",
+  lettered_list:    "अक्षर सूची (a. b. c.)",
+  list_toolbar_title: "सूची",
   heading:          "शीर्षक",
-  heading_label:    "शीर्षक…",
+  paragraph_label:  "पैराग्राफ",
   blockquote:       "उद्धरण",
   code_block:       "कोड ब्लॉक",
   clear_formatting: "फ़ॉर्मेटिंग हटाएँ",
@@ -117,11 +119,6 @@ export const editor: RawDictionary["editor"] = {
   no_albums:          "कोई एल्बम नहीं मिला",
   no_album_photos:    "इस एल्बम में कोई फ़ोटो नहीं",
   photo_count:        "{{count}} फ़ोटो",
-  // HqComposer toolbar
-  hq_bold:    "बोल्ड",
-  hq_italic:  "इटैलिक",
-  hq_underline: "रेखांकित",
-  hq_link:    "लिंक",
   open_full_composer: "पूरा कंपोज़र खोलें",
 
   // CameraCapture

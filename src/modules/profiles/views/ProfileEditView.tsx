@@ -9,6 +9,7 @@ import { Section, Toggle, inputClass } from "@/modules/settings/store/FormHelper
 import PhotosPicker from "@/shared/editor/attachments/picker/PhotosPicker";
 import { currentNick } from "@/shared/store/auth-store";
 import RichEditor from "@/shared/editor/core/RichEditor";
+import SourceToggleButton from "@/shared/editor/components/SourceToggleButton";
 import { CAPABILITIES } from "@/shared/editor/types/editor.types";
 import type { EditorTab } from "@/shared/editor/types/editor.types";
 
@@ -355,6 +356,12 @@ export default function ProfileEditView() {
                   placeholder={t("profiles.about_hint")}
                   minHeight="140px"
                 />
+                <div class="flex justify-end mt-1.5">
+                  <SourceToggleButton
+                    tab={aboutTab()}
+                    onToggle={() => setAboutTab(aboutTab() === "wysiwyg" ? "source" : "wysiwyg")}
+                  />
+                </div>
               </Field>
               <Field label={t("profiles.keywords")} hint={t("profiles.keywords_hint")}>
                 <input type="text" name="keywords" value={p().keywords ?? ""} class={inputClass} />

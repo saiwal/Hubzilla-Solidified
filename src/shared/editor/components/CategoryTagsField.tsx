@@ -15,9 +15,11 @@ export interface CategoryTagsFieldProps {
   onRemove: (tag: string) => void;
   onBlur: () => void;
   placeholder: string;
-  /** Article/Webpage's labelled, bordered-box look vs Post's plain inline row. Default false (Post's style). */
+  /** Article/Webpage's underline row vs Post's plain inline row. Default false (Post's style). */
   showLabel?: boolean;
   label?: string;
+  /** Suppress the label text above the field even when showLabel is set — the placeholder already names the field. */
+  hideLabel?: boolean;
 }
 
 const CategoryTagsField: Component<CategoryTagsFieldProps> = (props) => {
@@ -71,10 +73,12 @@ const CategoryTagsField: Component<CategoryTagsFieldProps> = (props) => {
       }
     >
       <div class="flex-1 min-w-0">
-        <label class="block text-xs text-muted mb-1">{props.label}</label>
+        <Show when={!props.hideLabel}>
+          <label class="block text-xs text-muted mb-1">{props.label}</label>
+        </Show>
         <div
-          class="flex flex-wrap items-center gap-1.5 px-2 py-1.5 rounded border border-rim bg-surface
-                 hover:border-rim-strong focus-within:border-rim-strong transition-colors"
+          class="flex flex-wrap items-center gap-1.5 px-0 py-1.5 bg-transparent
+                 border-0 border-b border-rim focus-within:border-accent transition-colors"
         >
           {chips()}
           {input()}

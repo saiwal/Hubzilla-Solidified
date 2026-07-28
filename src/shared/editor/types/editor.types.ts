@@ -103,10 +103,10 @@ export const CAPABILITIES: Record<string, EditorCapabilities> = {
     latexMode: "live",
     poll: false,
   },
-  // Wiki page — plain source editing, no ACL, no attachments; live LaTeX,
-  // same reasoning as webpage above.
+  // Wiki page — full toolbar (uniform with the other composers), no ACL,
+  // no attachments; live LaTeX, same reasoning as webpage above.
   wiki: {
-    toolbar: "minimal",
+    toolbar: "full",
     title: false,
     summary: false,
     slug: false,
@@ -117,10 +117,11 @@ export const CAPABILITIES: Record<string, EditorCapabilities> = {
     latexMode: "live",
     poll: false,
   },
-  // Personal note — always private, minimal toolbar; read in-app only, so
-  // LaTeX renders live (KaTeX) rather than as an uploaded image.
+  // Personal note — always private, full toolbar (uniform with the other
+  // composers); read in-app only, so LaTeX renders live (KaTeX) rather than
+  // as an uploaded image.
   note: {
-    toolbar: "minimal",
+    toolbar: "full",
     title: false,
     summary: false,
     slug: false,

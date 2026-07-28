@@ -657,10 +657,10 @@ export type RawDictionary = {
     slug_label:             string;
     slug_placeholder:       string;
     generate_slug:          string;
-    category_label:         string;
     category_field_placeholder: string;
     format_label:           string;
     words_count:            string;
+    chars_count:            string;
     start_writing:          string;
     // EditorToolbar
     bold:             string;
@@ -671,8 +671,10 @@ export type RawDictionary = {
     link:             string;
     bullet_list:      string;
     numbered_list:    string;
+    lettered_list:    string;
+    list_toolbar_title: string;
     heading:          string;
-    heading_label:    string;
+    paragraph_label:  string;
     blockquote:       string;
     code_block:       string;
     clear_formatting: string;
@@ -738,11 +740,6 @@ export type RawDictionary = {
     no_albums:          string;
     no_album_photos:    string;
     photo_count:        string;
-    // HqComposer toolbar
-    hq_bold:    string;
-    hq_italic:  string;
-    hq_underline: string;
-    hq_link:    string;
     open_full_composer: string;
     // CameraCapture
     cam_title:        string;
