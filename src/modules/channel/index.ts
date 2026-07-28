@@ -24,6 +24,17 @@ registerModule({
     context: "all",
   },
   widgets: [
+		{
+      // Opt-in vCard-style summary — picker only, no default placement.
+      // Also placeable on /hq: usePageNick() falls back to the viewer's own
+      // nick there, so it shows the owner's own card on their dashboard.
+      id: "channel.contact_card",
+      label: () => useI18n().t("widgets.contact_card"),
+      loader: () => import("./widgets/ContactCardWidget"),
+      slot: "right",
+      defaultModules: ["articles", "photos", "cloud", "cal", "webpages", "wiki", "cart"],
+      contexts: "any",
+    },
     {
       id: "channel.connections",
       label: () => useI18n().t("widgets.connections"),
@@ -89,17 +100,7 @@ registerModule({
       contexts: ["channel", "profile", "webpages"],
       helpTarget: "channel.archive_grid_widget",
     },
-    {
-      // Opt-in vCard-style summary — picker only, no default placement.
-      // Also placeable on /hq: usePageNick() falls back to the viewer's own
-      // nick there, so it shows the owner's own card on their dashboard.
-      id: "channel.contact_card",
-      label: () => useI18n().t("widgets.contact_card"),
-      loader: () => import("./widgets/ContactCardWidget"),
-      slot: "right",
-      defaultModules: [],
-      contexts: "any",
-    },
+
     {
       // Opt-in GitHub-style posting activity graph — picker only, no default
       // placement. Also placeable on /hq (see channel.contact_card above).

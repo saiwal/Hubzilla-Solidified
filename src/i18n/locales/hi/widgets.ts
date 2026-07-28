@@ -143,8 +143,7 @@ export const widgets: RawDictionary["widgets"] = {
   cfg_announcement_body:   "संदेश",
   post_announcement:       "पोस्ट करें",
   delete_announcement:     "हटाएँ",
-  // Storage Usage (cloud.storage_usage)
-  storage_usage:     "संग्रहण उपयोग",
-  storage_used_of:   "{{limit}} में से {{used}} उपयोग हुआ",
-  storage_unlimited: "असीमित",
+  // Usage Quotas (hq.usage_quotas)
+  usage_quotas:          "उपयोग और कोटा",
+  usage_quotas_view_all: "सभी उपयोग और सीमाएं देखें",
 };

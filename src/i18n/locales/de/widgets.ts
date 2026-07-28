@@ -143,8 +143,7 @@ export const widgets: RawDictionary["widgets"] = {
   cfg_announcement_body:   "Nachricht",
   post_announcement:       "Veröffentlichen",
   delete_announcement:     "Löschen",
-  // Storage Usage (cloud.storage_usage)
-  storage_usage:     "Speichernutzung",
-  storage_used_of:   "{{used}} von {{limit}} verwendet",
-  storage_unlimited: "Unbegrenzt",
+  // Usage Quotas (hq.usage_quotas)
+  usage_quotas:          "Nutzung & Kontingente",
+  usage_quotas_view_all: "Alle Nutzungen & Limits anzeigen",
 };

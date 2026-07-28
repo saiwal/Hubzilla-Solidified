@@ -18,25 +18,7 @@ registerModule({
 		context: "all",
   },
   slots: {},
-  widgets: [
-    {
-      // Opt-in quota bar — picker only, no default placement
-      id: "cloud.storage_usage",
-      label: () => useI18n().t("widgets.storage_usage"),
-      loader: () => import("./widgets/StorageUsageWidget"),
-      slot: ["mainTop"],
-      defaultModules: ["hq"],
-      contexts: ["hq"],
-    },
-		{
-      id: "cloud.storage_usage_right",
-      label: () => useI18n().t("widgets.storage_usage"),
-      loader: () => import("./widgets/StorageUsageWidget"),
-      slot: ["right"],
-      defaultModules: [],
-      contexts: ["hq"],
-    },
-  ],
+  widgets: [],
   permissions: [],
   appName: "Files",
 });

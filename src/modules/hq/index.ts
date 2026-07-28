@@ -46,6 +46,16 @@ registerModule({
       contexts: "any",
       helpTarget: "hq.post_composer",
     },
+		{
+      id: "hq.composer_header",
+      label: () => useI18n().t("hq.post_composer"),
+      loader: () => import("./widgets/HqComposer"),
+      slot: "header",
+      defaultModules: ["network"],
+      contexts: "any",
+      helpTarget: "hq.post_composer",
+    },
+
     {
       id: "hq.drafts",
       label: () => useI18n().t("hq.drafts"),
@@ -105,6 +115,24 @@ registerModule({
       defaultModules: [],
       contexts: ["hq"],
       helpTarget: "hq.messages_widget",
+    },
+    // Account resource usage (storage, channels, connections, etc.) at a
+    // glance — full detail lives on the Account settings page.
+    {
+      id: "hq.usage_quotas",
+      label: () => useI18n().t("widgets.usage_quotas"),
+      loader: () => import("./widgets/UsageQuotasWidget"),
+      slot: "mainTop",
+      defaultModules: [],
+      contexts: ["hq"],
+    },
+    {
+      id: "hq.usage_quotas_right",
+      label: () => useI18n().t("widgets.usage_quotas"),
+      loader: () => import("./widgets/UsageQuotasWidget"),
+      slot: "right",
+      defaultModules: ["hq"],
+      contexts: ["hq"],
     },
   ],
   permissions: [],

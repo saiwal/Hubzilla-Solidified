@@ -474,10 +474,9 @@ export type RawDictionary = {
     cfg_announcement_body:   string;
     post_announcement:       string;
     delete_announcement:     string;
-    // Storage Usage (cloud.storage_usage)
-    storage_usage:     string;
-    storage_used_of:   string;
-    storage_unlimited: string;
+    // Usage Quotas (hq.usage_quotas)
+    usage_quotas:          string;
+    usage_quotas_view_all: string;
   };
   tools: {
     label:            string;

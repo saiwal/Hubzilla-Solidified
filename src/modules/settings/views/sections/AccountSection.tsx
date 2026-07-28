@@ -2,21 +2,9 @@ import { For, Show } from "solid-js";
 import SubPageContent from "@/shared/views/SubPageContent";
 import { fetchAccountSettings } from "../../api/api";
 import { useSectionForm } from "../../store/useSectionForm";
-import type { AccountQuota, QuotaKey } from "../../store/types";
+import type { AccountQuota } from "../../store/types";
+import { formatQuotaValue, quotaPercent } from "@/shared/lib/quota-format";
 import { useI18n } from "@/i18n";
-
-const BYTE_KEYS: readonly QuotaKey[] = ["photo_upload_limit", "attach_upload_limit"];
-
-function humanBytes(n: number): string {
-  if (n >= 1073741824) return `${(n / 1073741824).toFixed(1)} GB`;
-  if (n >= 1048576) return `${(n / 1048576).toFixed(1)} MB`;
-  if (n >= 1024) return `${(n / 1024).toFixed(1)} KB`;
-  return `${n} B`;
-}
-
-function formatQuotaValue(key: QuotaKey, n: number): string {
-  return BYTE_KEYS.includes(key) ? humanBytes(n) : String(n);
-}
 
 export default function AccountSection() {
   const { t } = useI18n();
@@ -72,11 +60,7 @@ export default function AccountSection() {
 function QuotaRow(props: { quota: AccountQuota }) {
   const { t } = useI18n();
   const label = () => t(`settings.quota_${props.quota.key}` as any);
-  const pct = () => {
-    const { usage, limit } = props.quota;
-    if (usage === null || !limit) return null;
-    return Math.min(100, Math.round((usage / limit) * 100));
-  };
+  const pct = () => quotaPercent(props.quota);
 
   return (
     <div class="space-y-1">
