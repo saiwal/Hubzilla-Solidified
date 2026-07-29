@@ -2275,4 +2275,47 @@ export type RawDictionary = {
     mark_all_seen:  string;
     new:            string;
   };
+  // Display names for Hubzilla system apps (Settings › Integrations, New Channel
+  // wizard). Keyed by a slugified canonical .apd name (see appLabel() in
+  // shared/lib/app-labels.ts) — deliberately independent of PHP core's gettext
+  // catalog, which has no coverage for languages like Hindi.
+  apps: {
+    affinity_tool:          string;
+    bookmarks:              string;
+    report_bug:             string;
+    calendar:               string;
+    carddav:                string;
+    channel:                string;
+    chatrooms:              string;
+    connections:            string;
+    default_permissions:    string;
+    directory:              string;
+    privacy_groups:         string;
+    help:                   string;
+    hq:                     string;
+    invite:                 string;
+    language:               string;
+    network:                string;
+    notes:                  string;
+    oauth2_apps_manager:    string;
+    oauth_apps_manager:     string;
+    pdl_editor:             string;
+    contact_roles:          string;
+    photos:                 string;
+    post:                   string;
+    remote_diagnostics:     string;
+    public_stream:          string;
+    random_channel:         string;
+    search:                 string;
+    channel_sources:        string;
+    files:                  string;
+    suggest_channels:       string;
+    guest_access:           string;
+    channel_export:         string;
+    webpages:               string;
+    wiki:                   string;
+    articles:               string;
+    cart:                   string;
+    nsfw:                   string;
+  };
 };

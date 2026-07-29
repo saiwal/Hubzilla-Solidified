@@ -94,6 +94,8 @@ export interface NavApiResponse {
   has_public_stream: boolean;
   /** All installed app names for the local user — empty for visitors/anon */
   installed_apps: string[];
+  /** Effective classic-Hubzilla language for this request (2-letter code, e.g. "de") */
+  language: string;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -213,5 +215,6 @@ export async function fetchNavApi(channelNick?: string): Promise<NavApiResponse>
     channel_tabs:     raw.channel_tabs ?? [],
     has_public_stream: raw.has_public_stream ?? false,
     installed_apps:   raw.installed_apps ?? [],
+    language:         raw.language ?? "",
   };
 }

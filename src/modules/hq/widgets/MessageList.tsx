@@ -324,7 +324,7 @@ const MessageItem: Component<{
             <div class="flex flex-wrap gap-1 mt-0.5">
               <For each={parseFolderNames(e.info)}>
                 {(name) => (
-                  <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-overlay text-[10px] text-muted font-medium">
+                  <span class="inline-flex items-center gap-1 py-0.5 rounded-md italic text-[10px] text-muted font-medium">
                     <span class="truncate max-w-[200px]">{name}</span>
                   </span>
                 )}

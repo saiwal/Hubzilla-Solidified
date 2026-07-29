@@ -1,7 +1,6 @@
 import { createContext, useContext, createMemo, createSignal, createResource, createEffect } from "solid-js";
 import type { ParentComponent } from "solid-js";
 import * as i18n from "@solid-primitives/i18n";
-import { storageSet } from "@/shared/lib/storage";
 import { dict as enDict } from "./locales/en/index";
 import { localeRegistry } from "./locales/index";
 import type { Locale, RawDictionary } from "./locales/index";
@@ -22,12 +21,37 @@ type I18nCtx = {
 
 const I18nContext = createContext<I18nCtx>();
 const FALLBACK: Locale = "en";
+const LOCALE_STORAGE_KEY = "hz-locale";
 
 function getInitialLocale(): Locale {
   try {
-    const saved = localStorage.getItem("hz-locale");
+    const saved = localStorage.getItem(LOCALE_STORAGE_KEY);
     if (saved && saved in localeRegistry) return saved as Locale;
   } catch {}
+  return FALLBACK;
+}
+
+/** True once a locale has been explicitly set (manually, or synced from classic Hubzilla). */
+export function hasStoredLocalePreference(): boolean {
+  try {
+    return localStorage.getItem(LOCALE_STORAGE_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Maps a classic-Hubzilla language code (from App::$language — e.g. "de",
+ * "pt-br") to one of the SPA's implemented locales, falling back to English
+ * when there's no match (e.g. a language classic supports via core gettext
+ * but the SPA hasn't added an `apps`/i18n namespace for yet).
+ */
+export function resolveSupportedLocale(code: string | null | undefined): Locale {
+  if (!code) return FALLBACK;
+  const lc = code.toLowerCase();
+  if (lc in localeRegistry) return lc as Locale;
+  const base = lc.split(/[-_]/)[0];
+  if (base in localeRegistry) return base as Locale;
   return FALLBACK;
 }
 
@@ -63,7 +87,9 @@ export const I18nProvider: ParentComponent = (props) => {
   });
 
   const setLocale = (l: Locale) => {
-    storageSet("hz-locale", l);
+    try {
+      localStorage.setItem(LOCALE_STORAGE_KEY, l);
+    } catch {}
     setLocaleSignal(l);
   };
 

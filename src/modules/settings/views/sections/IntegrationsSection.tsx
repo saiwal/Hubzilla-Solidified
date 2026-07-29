@@ -13,6 +13,7 @@ import {
 } from "solid-icons/md";
 import { refetchNavData } from "@/shared/store/nav-store";
 import { useI18n } from "@/i18n";
+import { appLabel } from "@/shared/lib/app-labels";
 import NsfwConfigModal from "./NsfwConfigModal";
 
 interface AppEntry {
@@ -47,6 +48,7 @@ async function appAction(name: string, action: AppAction): Promise<void> {
 }
 
 function AppIcon(props: { app: AppEntry }) {
+  const { t } = useI18n();
   const biIcon = () => {
     const photo = props.app.photo;
     if (photo.startsWith("icon:")) return photo.slice(5);
@@ -66,7 +68,7 @@ function AppIcon(props: { app: AppEntry }) {
     >
       <img
         src={props.app.photo}
-        alt={props.app.name}
+        alt={appLabel(props.app.name, t)}
         class="w-9 h-9 rounded-lg object-cover shrink-0 bg-elevated"
       />
     </Show>
@@ -92,7 +94,11 @@ export default function IntegrationsSection() {
     return list.filter((app) => {
       if (filter() === "installed" && !app.installed) return false;
       if (filter() === "available" && app.installed) return false;
-      if (q && !app.name.toLowerCase().includes(q) && !app.description.toLowerCase().includes(q))
+      if (
+        q &&
+        !appLabel(app.name, t).toLowerCase().includes(q) &&
+        !app.description.toLowerCase().includes(q)
+      )
         return false;
       return true;
     });
@@ -172,7 +178,7 @@ export default function IntegrationsSection() {
                   <AppIcon app={app} />
 
                   <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-txt leading-snug">{app.name}</p>
+                    <p class="text-sm font-medium text-txt leading-snug">{appLabel(app.name, t)}</p>
                     <Show when={app.description}>
                       <p class="text-xs text-muted truncate">{app.description}</p>
                     </Show>

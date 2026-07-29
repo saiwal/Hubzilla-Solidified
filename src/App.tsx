@@ -3,10 +3,10 @@ import { Router, Route, useNavigate, useLocation } from "@solidjs/router";
 import { QueryClientProvider } from "@tanstack/solid-query";
 import Layout from "./Layout";
 import { getRoutes } from "./router";
-import { I18nProvider } from "./i18n";
+import { I18nProvider, useI18n, hasStoredLocalePreference, resolveSupportedLocale } from "./i18n";
 import NotFound from "@/shared/views/NotFound";
 import { getModule, isModuleActive } from "@/shared/lib/module-registry";
-import { useInstalledApps } from "@/shared/store/nav-store";
+import { useInstalledApps, useNavData } from "@/shared/store/nav-store";
 import { useAuth } from "@/shared/store/auth-store";
 import { queryClient } from "@/shared/lib/query-client";
 
@@ -58,10 +58,28 @@ const AuthGuard: ParentComponent = (props) => {
   return <Show when={loggedIn() !== false}>{props.children}</Show>;
 };
 
+// One-time seed: if the user has never picked a language in the SPA itself,
+// adopt whatever classic Hubzilla is currently using for this session
+// (App::$language, from /spa/nav) instead of always defaulting to English.
+// Once set, this becomes an explicit preference and stops re-syncing.
+const LocaleSync: Component = () => {
+  const navData = useNavData();
+  const { setLocale } = useI18n();
+
+  createEffect(() => {
+    const data = navData();
+    if (!data || hasStoredLocalePreference()) return;
+    setLocale(resolveSupportedLocale(data.language));
+  });
+
+  return null;
+};
+
 export default function App() {
   return (
   <QueryClientProvider client={queryClient}>
   <I18nProvider>
+    <LocaleSync />
     <Router>
       <Route path="/" component={Layout}>
         <Route path="/" component={() => <Redirect to="/hq" />} />
