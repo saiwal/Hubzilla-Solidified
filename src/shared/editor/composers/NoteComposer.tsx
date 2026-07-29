@@ -16,6 +16,8 @@ interface Props {
   };
   onSaved?: () => void;
   onCancel?: () => void;
+  /** Plain textarea, no toolbar/source-toggle (used by the sidebar quick-note widget) */
+  minimal?: boolean;
 }
 
 export default function NoteComposer(props: Props) {
@@ -65,24 +67,43 @@ export default function NoteComposer(props: Props) {
 
   return (
     <div class="space-y-3">
-      <RichEditor
-        body={store.body()}
-        onInput={store.setBody}
-        capabilities={caps}
-        tab={store.tab()}
-        onTabChange={store.setTab}
-        mimetype={store.mimetype()}
-        onCtrlEnter={() => void store.submit()}
-        placeholder={t("notepad.placeholder")}
-        minHeight="120px"
-      />
-
-      <div class="flex justify-end">
-        <SourceToggleButton
+      <Show
+        when={!props.minimal}
+        fallback={
+          <textarea
+            value={store.body()}
+            onInput={(e) => store.setBody(e.currentTarget.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                void store.submit();
+              }
+            }}
+            placeholder={t("notepad.placeholder")}
+            class="w-full min-h-[120px] p-3 text-sm rounded-lg border border-rim bg-elevated text-txt
+                   outline-none focus:border-accent/50 resize-y"
+          />
+        }
+      >
+        <RichEditor
+          body={store.body()}
+          onInput={store.setBody}
+          capabilities={caps}
           tab={store.tab()}
-          onToggle={() => store.setTab(store.tab() === "wysiwyg" ? "source" : "wysiwyg")}
+          onTabChange={store.setTab}
+          mimetype={store.mimetype()}
+          onCtrlEnter={() => void store.submit()}
+          placeholder={t("notepad.placeholder")}
+          minHeight="120px"
         />
-      </div>
+
+        <div class="flex justify-end mt-3">
+          <SourceToggleButton
+            tab={store.tab()}
+            onToggle={() => store.setTab(store.tab() === "wysiwyg" ? "source" : "wysiwyg")}
+          />
+        </div>
+      </Show>
 
       <div class="flex items-center gap-2 justify-end">
         <Show when={props.onCancel}>

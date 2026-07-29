@@ -27,6 +27,7 @@ export default function QuickNoteWidget() {
       <div class="px-3.5 pb-3.5">
         <NoteComposer
           nick={auth()?.nick || ""}
+          minimal
           onSaved={() => toast.success(t("notepad.quick_saved"))}
         />
       </div>

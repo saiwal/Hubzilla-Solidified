@@ -108,6 +108,10 @@ export const widgets: RawDictionary["widgets"] = {
   empty_slot:    "No widgets on this page.",
   none_to_add:   "No more widgets available for this page.",
   save_failed:   "Couldn't save the widget layout.",
+  slot_header:   "Header",
+  slot_maintop:  "Top of page",
+  slot_right:    "Sidebar",
+  slot_footer:   "Footer",
   // Layout template editing (Slot.tsx, when templateId is set)
   template_shared_notice: "This layout (\"{{name}}\") is used by {{count}} pages — changes apply everywhere it's used.",
   // World clock (blocks.clock, mode "world")

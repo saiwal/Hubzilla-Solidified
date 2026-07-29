@@ -439,6 +439,10 @@ export type RawDictionary = {
     empty_slot:    string;
     none_to_add:   string;
     save_failed:   string;
+    slot_header:   string;
+    slot_maintop:  string;
+    slot_right:    string;
+    slot_footer:   string;
     // Layout template editing (Slot.tsx, when templateId is set)
     template_shared_notice: string;
     // World clock (blocks.clock, mode "world")

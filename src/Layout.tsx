@@ -28,12 +28,9 @@ import { useViewerRole, useSubjectNick } from "./shared/store/site-config";
 import { useChannelTheme } from "./shared/lib/useChannelTheme";
 import HelpOverlay from "./shared/views/HelpOverlay";
 import {
-  MdFillClose,
   MdFillChevron_right,
   MdFillMore_horiz,
   MdFillApps,
-  MdFillCheck,
-  MdOutlineEdit,
 } from "solid-icons/md";
 import {
   editingWidgets,
@@ -153,7 +150,7 @@ const Layout: ParentComponent = (props) => {
   let morePanelRef!: HTMLDivElement;
   let moreButtonRef!: HTMLButtonElement;
   let panelButtonRef!: HTMLButtonElement;
-  let rightCloseRef!: HTMLButtonElement;
+  let rightPanelRef!: HTMLElement;
   const [showScrollTop, setShowScrollTop] = createSignal(false);
   const onMainScroll = () => setShowScrollTop(mainRef.scrollTop > 300);
 
@@ -165,7 +162,7 @@ const Layout: ParentComponent = (props) => {
   });
   createEffect(() => {
     if (rightOpen() && !isXl())
-      requestAnimationFrame(() => rightCloseRef?.focus());
+      requestAnimationFrame(() => rightPanelRef?.focus());
   });
   createEffect(
     on(
@@ -521,64 +518,19 @@ const Layout: ParentComponent = (props) => {
           ═══════════════════════════════════════════════════════ */}
           <aside
             id="right-sidebar"
+            ref={rightPanelRef}
             aria-label="Sidebar panel"
             aria-hidden={!isXl() && !rightOpen()}
             tabindex="0"
             class={`
-              fixed inset-y-0 right-0 z-40 w-72 shrink-0 p-4 pb-20 lg:pb-4 overflow-y-auto space-y-4
+              fixed inset-y-0 right-0 z-40 w-72 shrink-0 p-4 pb-20 lg:pb-4 overflow-y-auto
+              flex flex-col gap-4
               bg-surface border-l border-rim
               transform transition-transform duration-300 ease-in-out
               xl:relative xl:translate-x-0 xl:block
               ${rightOpen() ? "translate-x-0" : "translate-x-full"}
             `}
           >
-            {/* Header: always shown on your own pages (hosts the widget-edit
-                toggle); otherwise only on the mobile drawer */}
-            <div
-              class={`flex items-center justify-between mb-2 ${isOwner() ? "" : "xl:hidden"}`}
-            >
-              <span class="text-[10px] font-semibold uppercase tracking-widest text-muted">
-                {t("layout.panel")}
-              </span>
-              <div class="flex items-center gap-1">
-                <Show when={isOwner()}>
-                  <button
-                    onClick={() => setEditingWidgets(!editingWidgets())}
-                    aria-pressed={editingWidgets()}
-                    aria-label={
-                      editingWidgets()
-                        ? t("widgets.done_editing")
-                        : t("widgets.edit_layout")
-                    }
-                    title={
-                      editingWidgets()
-                        ? t("widgets.done_editing")
-                        : t("widgets.edit_layout")
-                    }
-                    class={`p-1 rounded-lg transition ${
-                      editingWidgets()
-                        ? "bg-accent text-accent-fg"
-                        : "text-muted hover:text-txt hover:bg-elevated"
-                    }`}
-                  >
-                    <Show
-                      when={editingWidgets()}
-                      fallback={<MdOutlineEdit size={16} />}
-                    >
-                      <MdFillCheck size={16} />
-                    </Show>
-                  </button>
-                </Show>
-                <button
-                  ref={rightCloseRef}
-                  onClick={() => setRightOpen(false)}
-                  aria-label="Close sidebar"
-                  class="p-1 rounded-lg hover:bg-elevated transition xl:hidden"
-                >
-                  <MdFillClose size={18} />
-                </button>
-              </div>
-            </div>
             <Slot
               name="right"
               moduleId={activeModuleId()}

@@ -41,6 +41,7 @@ import { useI18n } from "@/i18n";
 import WidgetArrangementEditor, {
   WidgetCard,
   WidgetPickerFooter,
+  SlotRegionBox,
   widgetHelpTarget,
   type ResolvedEntry,
 } from "./WidgetArrangementEditor";
@@ -149,6 +150,18 @@ const Slot: Component<SlotProps> = (props) => {
   // slot is templated, editing still applies here directly (same pencil,
   // same in-place UI as any module) — it just saves to the template.
   const editing = () => props.editable === true && editingWidgets() && isPageOwner();
+
+  // Region label shown around the slot's boundary while editing — only the
+  // slots that are ever actually editable need one.
+  const slotLabel = () => {
+    switch (props.name) {
+      case "header": return t("widgets.slot_header");
+      case "mainTop": return t("widgets.slot_maintop");
+      case "right": return t("widgets.slot_right");
+      case "footer": return t("widgets.slot_footer");
+      default: return "";
+    }
+  };
 
   const persist = async (entries: LayoutEntry[] | null) => {
     const ok = props.templateId
@@ -278,7 +291,7 @@ const Slot: Component<SlotProps> = (props) => {
       {/* Always mounted — never torn down on module navigation */}
       <For each={globalWidgets()}>
         {(g) => (
-          <div use:helpable={widgetHelpTarget(g.widget)}>
+          <div class="empty:hidden" use:helpable={widgetHelpTarget(g.widget)}>
             <g.Widget />
           </div>
         )}
@@ -292,7 +305,7 @@ const Slot: Component<SlotProps> = (props) => {
             {(entry) => {
               const Widget = getLazy(entry.widget.loader);
               return (
-                <div use:helpable={widgetHelpTarget(entry.widget)}>
+                <div class="empty:hidden" use:helpable={widgetHelpTarget(entry.widget)}>
                   <Widget config={entry.config} />
                 </div>
               );
@@ -328,15 +341,26 @@ const Slot: Component<SlotProps> = (props) => {
     const marginClass = props.name === "footer" ? "mt-3" : "mb-4";
     return (
       <Show when={hasContent()}>
-        <div class={`space-y-4 ${marginClass}`}>
-          {content()}
+        <div class={marginClass}>
+          <Show
+            when={editing()}
+            fallback={<div class="flex flex-col gap-4">{content()}</div>}
+          >
+            <SlotRegionBox label={slotLabel()}>
+              <div class="flex flex-col gap-4">{content()}</div>
+            </SlotRegionBox>
+          </Show>
         </div>
       </Show>
     );
   }
 
   if (!isMainTop) {
-    return content();
+    return (
+      <Show when={editing()} fallback={content()}>
+        <SlotRegionBox label={slotLabel()}>{content()}</SlotRegionBox>
+      </Show>
+    );
   }
 
   const globalColumnItems = (colIndex: number) => (
@@ -354,7 +378,7 @@ const Slot: Component<SlotProps> = (props) => {
       <Show
         when={!editing()}
         fallback={
-          <>
+          <SlotRegionBox label={slotLabel()}>
             <div class="flex gap-4 items-start mb-4">
               <For each={columnIndexes()}>
                 {(colIndex) => (
@@ -393,7 +417,7 @@ const Slot: Component<SlotProps> = (props) => {
               onAdd={addWidget}
               onReset={isCustomised() ? () => void persist(null) : undefined}
             />
-          </>
+          </SlotRegionBox>
         }
       >
         <div class="flex gap-4 items-start mb-4">

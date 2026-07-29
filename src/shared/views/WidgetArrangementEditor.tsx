@@ -1,4 +1,4 @@
-import { type Component, type Accessor, For, Show } from "solid-js";
+import { type Component, type Accessor, type JSX, For, Show } from "solid-js";
 import { getLazy, type RegisteredWidget } from "@/shared/lib/module-registry";
 import { helpable } from "@/shared/lib/helpable";
 void helpable;
@@ -32,6 +32,23 @@ export function widgetHelpTarget(w: RegisteredWidget): string {
 const editButtonClass =
   "p-1 rounded-md text-muted hover:text-txt hover:bg-elevated transition-colors " +
   "disabled:opacity-30 disabled:pointer-events-none";
+
+// Labeled boundary drawn around an entire slot region while in edit mode, so
+// adjacent regions (e.g. header vs. mainTop, both in the same column) stay
+// visually distinguishable even when empty or holding a single widget.
+// Deliberately a neutral dashed border, not the accent one WidgetCard uses —
+// the two must never look interchangeable, since one means "this is a
+// movable widget" and the other means "this is a slot boundary."
+export const SlotRegionBox: Component<{ label: string; children: JSX.Element }> = (props) => (
+  <div>
+    <p class="text-[10px] font-semibold uppercase tracking-widest text-muted mb-1.5">
+      {props.label}
+    </p>
+    <div class="rounded-xl border border-dashed border-rim p-2">
+      {props.children}
+    </div>
+  </div>
+);
 
 interface WidgetCardProps {
   entry: ResolvedEntry;
