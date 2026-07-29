@@ -42,22 +42,4 @@ registerModule({
     hidden: true,
   },
   slots: {},
-  widgets: [
-    {
-      // HQ's right sidebar only (not global) — editable inline by admins.
-      // Module-scoped entries render in Slot.tsx after the slot's global
-      // widgets (chat.pinnedRooms, shared.notifications), so this lands
-      // below Notifications there without needing an explicit order field.
-      // Self-hides via the widget's own <Show> when there's nothing to
-      // show, same as chat.pinnedRooms — no mainTop margin gap since it's
-      // not placed in mainTop's masonry columns.
-      id: "admin.site_announcements",
-      label: () => useI18n().t("widgets.site_announcements"),
-      loader: () => import("./widgets/SiteAnnouncementsWidget"),
-      slot: "right",
-      defaultModules: ["hq"],
-      contexts: ["hq"],
-      visitorVisible: false,
-    },
-  ],
 });

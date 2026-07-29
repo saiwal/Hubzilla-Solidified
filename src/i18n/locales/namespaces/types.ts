@@ -467,7 +467,7 @@ export type RawDictionary = {
     activity_heatmap:       string;
     activity_heatmap_empty: string;
     activity_heatmap_total: string;
-    // Site Announcements (admin.site_announcements)
+    // Site Announcements (notify.notifications announcements toggle)
     site_announcements:      string;
     no_announcements:        string;
     cfg_announcement_title:  string;

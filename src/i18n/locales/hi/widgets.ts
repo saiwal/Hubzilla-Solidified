@@ -136,7 +136,7 @@ export const widgets: RawDictionary["widgets"] = {
   activity_heatmap:       "गतिविधि",
   activity_heatmap_empty: "अभी तक कोई गतिविधि नहीं।",
   activity_heatmap_total: "पिछले वर्ष में {{count}} पोस्ट",
-  // Site Announcements (admin.site_announcements)
+  // Site Announcements (notify.notifications announcements toggle)
   site_announcements:      "साइट घोषणाएँ",
   no_announcements:        "कोई घोषणा नहीं।",
   cfg_announcement_title:  "शीर्षक",

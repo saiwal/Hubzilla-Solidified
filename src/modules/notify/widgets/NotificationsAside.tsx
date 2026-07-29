@@ -11,6 +11,7 @@ import {
 } from "solid-js";
 import { useI18n } from "@/i18n";
 import { useAuth, updateInterval } from "@/shared/store/auth-store";
+import { useIsAdmin } from "@/shared/store/site-config";
 import {
   MdFillNotifications,
   MdFillClose,
@@ -28,11 +29,13 @@ import {
   MdFillWifi_off,
   MdFillCircle,
   MdOutlineCampaign,
+  MdOutlineAnnouncement,
 } from "solid-icons/md";
 import DOMPurify from "dompurify";
 import { setNotifCount } from "@/shared/lib/notificationCount";
 import { markNotifySeen, markItemSeen } from "@/shared/lib/markSeen";
 import { showDesktopNotification } from "@/shared/lib/desktopNotify";
+import { apiFetch } from "@/shared/lib/fetch";
 import { createQueryResource } from "@/shared/lib/createQueryResource";
 const PostDetailModal = lazy(() => import("@/shared/views/PostDetailModal"));
 
@@ -169,6 +172,38 @@ async function fetchNotices(): Promise<HqNoticeEntry[]> {
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data: { offset: number; entries: HqNoticeEntry[] } = await res.json();
   return data.entries;
+}
+
+interface Announcement {
+  id: string;
+  title: string;
+  body: string;
+  created: string;
+}
+
+async function fetchAnnouncements(): Promise<Announcement[]> {
+  const res = await apiFetch("/spa/announcements");
+  if (!res.ok) return [];
+  const json = await res.json();
+  return (json.data ?? []) as Announcement[];
+}
+
+const ANNOUNCEMENTS_SEEN_KEY = "hz-announcements-seen";
+
+function getLastSeenAnnouncementId(): string | null {
+  try {
+    return localStorage.getItem(ANNOUNCEMENTS_SEEN_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function setLastSeenAnnouncementId(id: string): void {
+  try {
+    localStorage.setItem(ANNOUNCEMENTS_SEEN_KEY, id);
+  } catch {
+    /* ignore */
+  }
 }
 
 // ── Normalise ─────────────────────────────────────────────────────────────────
@@ -606,6 +641,116 @@ function NoticesSection(props: {
   );
 }
 
+// ── AnnouncementsSection ──────────────────────────────────────────────────────
+
+function AnnouncementsSection(props: {
+  list: Announcement[];
+  loading: boolean;
+  isAdmin: boolean;
+  onCreate: (title: string, body: string) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+}) {
+  const { t, locale } = useI18n();
+  const [title, setTitle] = createSignal("");
+  const [body, setBody] = createSignal("");
+  const [posting, setPosting] = createSignal(false);
+
+  const post = async () => {
+    if (!title().trim() && !body().trim()) return;
+    setPosting(true);
+    try {
+      await props.onCreate(title().trim(), body().trim());
+      setTitle("");
+      setBody("");
+    } finally {
+      setPosting(false);
+    }
+  };
+
+  const fmtDate = (iso: string) => {
+    const d = new Date(iso);
+    return isNaN(d.getTime()) ? "" : d.toLocaleDateString(locale());
+  };
+
+  return (
+    <div class="border border-rim rounded-xl overflow-hidden">
+      <div class="px-1 py-1 space-y-0.5 bg-elevated">
+        <Show when={props.loading}>
+          <div class="space-y-1 px-2 py-1">
+            <For each={[1, 2, 3]}>
+              {() => <div class="h-8 rounded bg-surface animate-pulse" />}
+            </For>
+          </div>
+        </Show>
+        <Show when={!props.loading}>
+          <Show
+            when={props.list.length > 0}
+            fallback={
+              <p class="text-[11px] text-muted text-center py-3">
+                {t("widgets.no_announcements")}
+              </p>
+            }
+          >
+            <div class="max-h-80 overflow-y-auto">
+              <For each={props.list}>
+                {(a) => (
+                  <div class="px-2 py-1.5 border-b border-rim last:border-0">
+                    <div class="flex items-start justify-between gap-2">
+                      <Show when={a.title}>
+                        <p class="text-xs font-semibold text-txt">{a.title}</p>
+                      </Show>
+                      <Show when={props.isAdmin}>
+                        <button
+                          onClick={() => props.onDelete(a.id)}
+                          class="shrink-0 text-[10px] text-muted hover:text-txt"
+                        >
+                          {t("widgets.delete_announcement")}
+                        </button>
+                      </Show>
+                    </div>
+                    <Show when={a.body}>
+                      <p class="text-xs text-muted mt-0.5 whitespace-pre-wrap">{a.body}</p>
+                    </Show>
+                    <p class="text-[10px] text-subtle mt-1">{fmtDate(a.created)}</p>
+                  </div>
+                )}
+              </For>
+            </div>
+          </Show>
+        </Show>
+      </div>
+      <Show when={props.isAdmin}>
+        <div class="border-t border-rim p-2 flex flex-col gap-1.5 bg-surface">
+          <input
+            type="text"
+            value={title()}
+            maxLength={120}
+            placeholder={t("widgets.cfg_announcement_title")}
+            onInput={(e) => setTitle(e.currentTarget.value)}
+            class="w-full bg-elevated border border-rim rounded-lg px-2 py-1.5 text-xs text-txt"
+          />
+          <textarea
+            value={body()}
+            maxLength={1000}
+            rows={2}
+            placeholder={t("widgets.cfg_announcement_body")}
+            onInput={(e) => setBody(e.currentTarget.value)}
+            class="w-full bg-elevated border border-rim rounded-lg px-2 py-1.5 text-xs text-txt resize-y"
+          />
+          <button
+            onClick={post}
+            disabled={posting() || (!title().trim() && !body().trim())}
+            class="self-end px-3 py-1.5 rounded-lg bg-accent text-accent-fg text-xs font-medium
+                   hover:brightness-110 transition-all disabled:opacity-40"
+          >
+            {t("widgets.post_announcement")}
+          </button>
+        </div>
+      </Show>
+    </div>
+  );
+}
+
 // ── Connection dot ────────────────────────────────────────────────────────────
 
 type ConnStatus = "connecting" | "live" | "polling" | "error";
@@ -636,6 +781,7 @@ function StatusDot(props: { status: ConnStatus }) {
 export default function NotificationsAside() {
   const { t } = useI18n();
   const auth = useAuth();
+  const isAdmin = useIsAdmin();
 
   const emptyBucket = (): StreamBucket => ({ count: 0, notifications: [] });
   const [buckets, setBuckets] = createSignal<Record<string, StreamBucket>>(
@@ -648,7 +794,50 @@ export default function NotificationsAside() {
   const [refreshing, setRefreshing] = createSignal(false);
   const [modalUuid, setModalUuid] = createSignal<string | null>(null);
   const [showNotices, setShowNotices] = createSignal(false);
+  const [showAnnouncements, setShowAnnouncements] = createSignal(false);
   const [openSection, setOpenSection] = createSignal<string | null>(null);
+
+  const [announcements, { refetch: refetchAnnouncements, mutate: mutateAnnouncements }] =
+    createQueryResource(
+      "site-announcements",
+      () => (booted() && auth()?.isLoggedIn ? true : null),
+      fetchAnnouncements,
+    );
+
+  const hasNewAnnouncements = createMemo(() => {
+    const list = announcements();
+    return !!list?.length && list[0].id !== getLastSeenAnnouncementId();
+  });
+
+  const toggleAnnouncements = () => {
+    setShowAnnouncements((v) => {
+      const next = !v;
+      if (next) {
+        const list = announcements();
+        if (list?.length) setLastSeenAnnouncementId(list[0].id);
+      }
+      return next;
+    });
+  };
+
+  const createAnnouncement = async (title: string, body: string) => {
+    const res = await apiFetch("/spa/announcements", {
+      method: "POST",
+      body: JSON.stringify({ action: "create", title, body }),
+    });
+    if (res.ok) {
+      const json = await res.json();
+      mutateAnnouncements(json.data as Announcement[]);
+    }
+  };
+
+  const deleteAnnouncement = async (id: string) => {
+    const res = await apiFetch("/spa/announcements", {
+      method: "POST",
+      body: JSON.stringify({ action: "delete", id }),
+    });
+    if (res.ok) refetchAnnouncements();
+  };
 
   const applyRaw = (raw: SseResponse, fromSsePush = false) => {
     const { buckets: incoming, forumKeys: fk } = normalise(raw);
@@ -956,6 +1145,22 @@ export default function NotificationsAside() {
                 <MdOutlineCampaign class="w-4 h-4" />
               </button>
             </Show>
+            <Show when={booted() && auth()?.isLoggedIn}>
+              <button
+                onClick={toggleAnnouncements}
+                title={t("widgets.site_announcements")}
+                class="relative p-1 rounded transition-colors"
+                classList={{
+                  "text-accent bg-accent-muted": showAnnouncements(),
+                  "text-subtle hover:text-txt hover:bg-elevated": !showAnnouncements(),
+                }}
+              >
+                <MdOutlineAnnouncement class="w-4 h-4" />
+                <Show when={!showAnnouncements() && hasNewAnnouncements()}>
+                  <span class="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-accent" />
+                </Show>
+              </button>
+            </Show>
             <Show when={booted() && hasAnyCount()}>
               <button
                 onClick={markAllRead}
@@ -981,6 +1186,16 @@ export default function NotificationsAside() {
 
         <Show when={showNotices()}>
           <NoticesSection open={showNotices()} onOpenModal={setModalUuid} />
+        </Show>
+
+        <Show when={showAnnouncements()}>
+          <AnnouncementsSection
+            list={announcements() ?? []}
+            loading={announcements.loading}
+            isAdmin={isAdmin()}
+            onCreate={createAnnouncement}
+            onDelete={deleteAnnouncement}
+          />
         </Show>
 
         <Show when={!auth.loading && !auth()?.isLoggedIn}>

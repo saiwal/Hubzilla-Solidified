@@ -136,7 +136,7 @@ export const widgets: RawDictionary["widgets"] = {
   activity_heatmap:       "Aktivität",
   activity_heatmap_empty: "Noch keine Aktivität.",
   activity_heatmap_total: "{{count}} Beiträge im letzten Jahr",
-  // Site Announcements (admin.site_announcements)
+  // Site Announcements (notify.notifications announcements toggle)
   site_announcements:      "Seitenankündigungen",
   no_announcements:        "Keine Ankündigungen.",
   cfg_announcement_title:  "Titel",
