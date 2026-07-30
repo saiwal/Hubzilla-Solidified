@@ -63,4 +63,12 @@ export const wiki: RawDictionary["wiki"] = {
   format_plain:     "Plain text",
   public_label:     "Public",
   restricted_label: "Restricted",
+  // DraftsWidget
+  drafts:           "Wiki drafts",
+  no_drafts:        "No draft pages",
+  empty_draft:      "Empty draft",
+  delete_draft:     "Delete draft",
+  refresh_drafts:   "Refresh",
+  untitled:         "(untitled)",
+  draft_label:      "Wiki page",
 };

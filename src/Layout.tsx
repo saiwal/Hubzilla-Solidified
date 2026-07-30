@@ -527,7 +527,7 @@ const Layout: ParentComponent = (props) => {
               flex flex-col gap-4
               bg-surface border-l border-rim
               transform transition-transform duration-300 ease-in-out
-              xl:relative xl:translate-x-0 xl:block
+              xl:relative xl:translate-x-0 xl:flex
               ${rightOpen() ? "translate-x-0" : "translate-x-full"}
             `}
           >

@@ -20,4 +20,15 @@ export const notepad: RawDictionary["notepad"] = {
   search:             "नोट खोजें",
   search_placeholder: "नोट खोजें…",
   quick_saved:        "नोट सहेजा गया।",
+  new_note:           "नया नोट",
+  edit_note:          "नोट संपादित करें",
+  // DraftsWidget
+  drafts:             "नोट ड्राफ्ट",
+  no_drafts_widget:   "कोई नोट ड्राफ्ट नहीं",
+  refresh_drafts:     "ताज़ा करें",
+  delete_draft:       "ड्राफ्ट हटाएँ",
+  empty_draft:        "खाली ड्राफ्ट",
+  untitled:           "(शीर्षक रहित)",
+  draft_new:          "नया",
+  draft_edit:         "संपादित करें",
 };

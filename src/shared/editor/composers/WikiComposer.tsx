@@ -1,4 +1,4 @@
-import { createSignal } from "solid-js";
+import { createSignal, Show } from "solid-js";
 import { useI18n } from "@/i18n";
 import RichEditor from "../core/RichEditor";
 import { CAPABILITIES } from "../types/editor.types";
@@ -12,6 +12,7 @@ interface Props {
   saving: boolean;
   onSave: (body: string, commitMsg: string) => void;
   onCancel: () => void;
+  onSaveDraft?: (body: string) => void;
 }
 
 export default function WikiComposer(props: Props) {
@@ -50,13 +51,24 @@ export default function WikiComposer(props: Props) {
       />
 
       <div class="flex items-center justify-between gap-2">
-        <button
-          type="button"
-          onClick={props.onCancel}
-          class="text-sm border border-rim text-muted hover:bg-elevated px-3 py-1.5 rounded-lg transition-colors"
-        >
-          {t("wiki.cancel_edit")}
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={props.onCancel}
+            class="text-sm border border-rim text-muted hover:bg-elevated px-3 py-1.5 rounded-lg transition-colors"
+          >
+            {t("wiki.cancel_edit")}
+          </button>
+          <Show when={props.onSaveDraft && body().trim()}>
+            <button
+              type="button"
+              onClick={() => props.onSaveDraft!(body())}
+              class="text-sm border border-rim text-muted hover:bg-elevated px-3 py-1.5 rounded-lg transition-colors"
+            >
+              {t("editor.save_draft")}
+            </button>
+          </Show>
+        </div>
         <button
           type="button"
           onClick={() => props.onSave(body(), commitMsg())}

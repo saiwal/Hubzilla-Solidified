@@ -9,13 +9,16 @@ import { useI18n } from "@/i18n";
 import DOMPurify from "dompurify";
 import { MdOutlineList } from "solid-icons/md";
 import { hydrateLatex } from "@/shared/lib/hydrateLatex";
+import { storageGet, storageDel } from "@/shared/lib/storage";
+import { saveServerDraft, deleteServerDraft } from "@/shared/editor/api/drafts";
+import type { SavedDraft } from "@/shared/editor/store/createComposerStore";
 import {
   pageData, pageLoading, pageNotFound, editMode, draftContent, canWrite,
   pages, currentWiki, pagesLoading,
   historyData, historyLoading, showHistory,
   previewRevision, previewHtml, previewLoading,
   loadPage, loadWikiPages, loadHistory, toggleEditMode, toggleHistory, resetPage,
-  loadRevisionPreview, closePreview,
+  loadRevisionPreview, closePreview, enterEditModeWithContent,
 } from "../store";
 import { savePage, deletePage, revertPage, renamePage } from "../api";
 
@@ -166,6 +169,7 @@ export default function WikiPageView() {
 
   const [saving, setSaving]         = createSignal(false);
   const [deleting, setDeleting]     = createSignal(false);
+  const [loadedDraftId, setLoadedDraftId] = createSignal<string | null>(null);
   const [confirmDel, setConfirmDel] = createSignal(false);
   const [reverting, setReverting]   = createSignal<number | null>(null);
   const [renaming, setRenaming]     = createSignal(false);
@@ -204,6 +208,21 @@ export default function WikiPageView() {
     }
   });
 
+  // Restore a draft saved from the HQ DraftsWidget straight into edit mode.
+  // Scope is `wiki:<wikiName>:<pageName>` — both already URL-path-safe params,
+  // so no extra encode/decode is needed to round-trip them.
+  createEffect(() => {
+    const { nick, wikiName, pageName } = params;
+    if (pageLoading() || !nick || !wikiName || !pageName) return;
+    const scope = `wiki:${wikiName}:${pageName}`;
+    void storageGet<SavedDraft | null>(`pending-draft:${scope}`, null).then(async (pending) => {
+      if (!pending) return;
+      await storageDel(`pending-draft:${scope}`);
+      setLoadedDraftId(pending.id);
+      enterEditModeWithContent(pending.body);
+    });
+  });
+
   onCleanup(() => resetPage());
 
   async function handleSave(body: string, commitMsg: string) {
@@ -215,6 +234,11 @@ export default function WikiPageView() {
         params.pageName,
         { content: body, commit_msg: commitMsg, mime_type: pageData()?.page.mime_type },
       );
+      const draftId = loadedDraftId();
+      if (draftId) {
+        setLoadedDraftId(null);
+        void deleteServerDraft(draftId);
+      }
       toggleEditMode();
       loadPage(params.nick, params.wikiName, params.pageName);
       loadWikiPages(params.nick, params.wikiName);
@@ -222,6 +246,29 @@ export default function WikiPageView() {
       toast.error(e.message ?? t("wiki.error_saving"));
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleSaveDraft(body: string) {
+    const now = Date.now();
+    const scope = `wiki:${params.wikiName}:${params.pageName}`;
+    const serverMid = await saveServerDraft(
+      {
+        id: "",
+        created: now,
+        updated: now,
+        preview: "",
+        body,
+        title: decodeURIComponent(params.pageName),
+        summary: "",
+        slug: "",
+        category: "",
+        mimetype: (pageData()?.page.mime_type ?? "text/bbcode") as SavedDraft["mimetype"],
+      },
+      scope,
+    );
+    if (!serverMid) {
+      toast.error(t("wiki.error_saving"));
     }
   }
 
@@ -406,10 +453,11 @@ export default function WikiPageView() {
           <Show when={canWrite() && editMode()}>
             <p class="text-muted text-xs mb-2">{t("wiki.page_new_hint")}</p>
             <WikiComposer
-              initialBody=""
+              initialBody={draftContent()}
               mimeType={currentWiki()?.mime_type ?? "text/bbcode"}
               saving={saving()}
               onSave={handleSave}
+              onSaveDraft={handleSaveDraft}
               onCancel={() => navigate(`/wiki/${params.nick}/${params.wikiName}/Home`, { replace: true })}
             />
           </Show>
@@ -571,6 +619,7 @@ export default function WikiPageView() {
               mimeType={pageData()?.page.mime_type ?? "text/bbcode"}
               saving={saving()}
               onSave={handleSave}
+              onSaveDraft={handleSaveDraft}
               onCancel={toggleEditMode}
             />
           </Show>

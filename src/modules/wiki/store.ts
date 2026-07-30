@@ -99,6 +99,13 @@ export function updateDraft(v: string): void {
   setDraftContent(v);
 }
 
+// Restores a saved draft (from the HQ DraftsWidget) straight into edit mode,
+// bypassing toggleEditMode()'s default of seeding from the live page content.
+export function enterEditModeWithContent(content: string): void {
+  setDraftContent(content);
+  setEditMode(true);
+}
+
 export async function loadPage(
   nick: string,
   wikiUrlName: string,

@@ -20,4 +20,15 @@ export const notepad: RawDictionary["notepad"] = {
   search:             "Notizen durchsuchen",
   search_placeholder: "Notizen durchsuchen…",
   quick_saved:        "Notiz gespeichert.",
+  new_note:           "Neue Notiz",
+  edit_note:          "Notiz bearbeiten",
+  // DraftsWidget
+  drafts:             "Notizentwürfe",
+  no_drafts_widget:   "Keine Notizentwürfe",
+  refresh_drafts:     "Aktualisieren",
+  delete_draft:       "Entwurf löschen",
+  empty_draft:        "Leerer Entwurf",
+  untitled:           "(unbenannt)",
+  draft_new:          "Neu",
+  draft_edit:         "Bearbeiten",
 };

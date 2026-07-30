@@ -62,4 +62,12 @@ export const wiki: RawDictionary["wiki"] = {
   format_plain:     "सादा पाठ",
   public_label:     "सार्वजनिक",
   restricted_label: "प्रतिबंधित",
+  // DraftsWidget
+  drafts:           "विकी ड्राफ्ट",
+  no_drafts:        "कोई पेज ड्राफ्ट नहीं",
+  empty_draft:      "खाली ड्राफ्ट",
+  delete_draft:     "ड्राफ्ट हटाएँ",
+  refresh_drafts:   "ताज़ा करें",
+  untitled:         "(शीर्षक रहित)",
+  draft_label:      "विकी पेज",
 };

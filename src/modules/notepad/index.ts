@@ -37,6 +37,13 @@ registerModule({
       visitorVisible: false,
     },
     {
+      id: "notepad.drafts",
+      label: () => useI18n().t("widgets.note_drafts"),
+      loader: () => import("./widgets/NoteDraftsWidget"),
+      slot: "right",
+      visitorVisible: false,
+    },
+    {
       // Opt-in alternate layout for notepad.archive — picker only, no default placement
       id: "notepad.archive_grid",
       label: () => useI18n().t("widgets.archive_grid"),

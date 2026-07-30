@@ -357,10 +357,13 @@ export type RawDictionary = {
     stream_filters:     string;
     saved_searches:     string;
     article_drafts:     string;
+    webpage_drafts:     string;
+    wiki_drafts:        string;
     popular_articles:   string;
     article_categories: string;
     article_tags:       string;
     note_archive:       string;
+    note_drafts:        string;
     note_tags:          string;
     note_quick:         string;
     calendar:           string;
@@ -1442,9 +1445,11 @@ export type RawDictionary = {
     draft_webpage:        string;
     draft_wiki:           string;
     draft_event:          string;
+    draft_note:           string;
     draft_label:          string;
     just_now:             string;
     empty_draft:          string;
+    untitled_draft:       string;
     load_in_composer:     string;
     load:                 string;
     delete_draft:         string;
@@ -1852,6 +1857,14 @@ export type RawDictionary = {
     format_plain:     string;
     public_label:     string;
     restricted_label: string;
+    // DraftsWidget
+    drafts:           string;
+    no_drafts:        string;
+    empty_draft:      string;
+    delete_draft:     string;
+    refresh_drafts:   string;
+    untitled:         string;
+    draft_label:      string;
   };
   webpages: {
     title:            string;
@@ -1879,6 +1892,14 @@ export type RawDictionary = {
     edit_page_title:  string;
     title_placeholder: string;
     saving_failed:    string;
+    // DraftsWidget
+    drafts:           string;
+    no_drafts:        string;
+    empty_draft:      string;
+    delete_draft:     string;
+    refresh_drafts:   string;
+    draft_new:        string;
+    draft_edit:       string;
     // Menu manager
     manage_menus:     string;
     new_menu:         string;
@@ -1937,6 +1958,17 @@ export type RawDictionary = {
     search:             string;
     search_placeholder: string;
     quick_saved:        string;
+    new_note:           string;
+    edit_note:          string;
+    // DraftsWidget
+    drafts:             string;
+    no_drafts_widget:   string;
+    refresh_drafts:     string;
+    delete_draft:       string;
+    empty_draft:        string;
+    untitled:           string;
+    draft_new:          string;
+    draft_edit:         string;
   };
   manage: {
     channels:         string;

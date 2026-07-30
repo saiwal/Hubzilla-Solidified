@@ -22,6 +22,16 @@ registerModule({
     href: () => `/webpages/${usePageNick()()}`,
     context: 'all',
   },
+  widgets: [
+    {
+      id: "webpages.drafts",
+      label: () => useI18n().t("widgets.webpage_drafts"),
+      loader: () => import("./widgets/WebpageDraftsWidget"),
+      slot: "right",
+      visitorVisible: false,
+      helpTarget: "webpages.drafts_widget",
+    },
+  ],
   permissions: [],
   appName: "Webpages",
 });

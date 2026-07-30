@@ -28,6 +28,14 @@ export const webpages: RawDictionary["webpages"] = {
   edit_page_title:  "Seite bearbeiten",
   title_placeholder: "Seitentitel…",
   saving_failed:    "Speichern fehlgeschlagen",
+  // DraftsWidget
+  drafts:           "Webseiten-Entwürfe",
+  no_drafts:        "Keine Seitenentwürfe",
+  empty_draft:      "Leerer Entwurf",
+  delete_draft:     "Entwurf löschen",
+  refresh_drafts:   "Aktualisieren",
+  draft_new:        "Neu",
+  draft_edit:       "Bearbeiten",
   // Menu manager
   manage_menus:     "Menüs",
   new_menu:         "Neues Menü",

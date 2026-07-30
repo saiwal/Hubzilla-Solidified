@@ -117,6 +117,17 @@ export default function NoteComposer(props: Props) {
           </button>
         </Show>
 
+        <Show when={store.body().trim()}>
+          <button
+            type="button"
+            onClick={() => void store.saveAsDraft()}
+            class="px-3 py-1.5 text-sm rounded-lg border border-rim text-muted
+                   hover:bg-elevated transition-colors"
+          >
+            {t("editor.save_draft")}
+          </button>
+        </Show>
+
         <button
           type="button"
           onClick={() => void store.submit()}
