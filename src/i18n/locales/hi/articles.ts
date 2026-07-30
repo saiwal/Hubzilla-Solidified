@@ -35,4 +35,19 @@ export const articles: RawDictionary["articles"] = {
   draft_edit:       "संपादन",
   refresh_drafts:   "रीफ़्रेश करें",
   just_now:         "अभी-अभी",
+  // Language / translations
+  add_translation:       "अनुवाद जोड़ें",
+  translations_label:    "इनमें भी उपलब्ध:",
+  translation_of_note:   "इससे एक नया, अलग लेख बनेगा जो अनुवाद के रूप में जोड़ा जाएगा।",
+  translation_lang_used: "इस समूह में इस भाषा का अनुवाद पहले से मौजूद है।",
+  // Series
+  part_of_series:        "सीरीज़ “{{name}}” का भाग {{order}}",
+  view_full_series:      "पूरी सीरीज़ देखें",
+  series_index_title:    "सीरीज़",
+  series_no_series:      "अभी तक कोई सीरीज़ नहीं।",
+  series_rename:         "सीरीज़ का नाम बदलें",
+  series_rename_prompt:  "नया सीरीज़ नाम:",
+  series_reorder_hint:   "क्रम बदलने के लिए खींचें",
+  series_articles_count: "{{count}} लेख",
+  back_to_series_index:  "← सभी सीरीज़",
 };

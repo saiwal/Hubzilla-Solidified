@@ -133,6 +133,17 @@ export function mapActivityToPost(activity: any): Post {
     allowGid: activity.allow_gid ?? undefined,
     denyCid: activity.deny_cid ?? undefined,
     denyGid: activity.deny_gid ?? undefined,
+    lang: activity.lang ?? undefined,
+    series: activity.series ?? null,
+    translationGroup: activity.translation_group ?? null,
+    translations: Array.isArray(activity.translations)
+      ? activity.translations.map((tr: any) => ({
+          uuid: tr.uuid,
+          lang: tr.lang,
+          title: tr.title,
+          viewUrl: tr.view_url,
+        }))
+      : undefined,
     eventData,
     poll,
     attachments: Array.isArray(activity.attach)

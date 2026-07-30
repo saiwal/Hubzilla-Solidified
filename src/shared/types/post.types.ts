@@ -93,4 +93,15 @@ export interface Post {
   allowGid?: string[]; // ACL allow_gid, as bare privacy-group ids
   denyCid?: string[]; // ACL deny_cid, as bare xchan hashes
   denyGid?: string[]; // ACL deny_gid, as bare privacy-group ids
+  lang?: string; // content language (ISO-639-1), articles only — item.lang
+  series?: { name: string; order: number | null } | null; // article series membership, stored via iconfig
+  translationGroup?: string | null; // article translation-group id (iconfig), shared across language siblings
+  translations?: ArticleTranslation[]; // sibling language versions — populated on single-article fetch only
+}
+
+export interface ArticleTranslation {
+  uuid: string;
+  lang: string;
+  title: string;
+  viewUrl: string;
 }

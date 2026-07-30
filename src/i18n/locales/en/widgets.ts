@@ -55,6 +55,7 @@ export const widgets: RawDictionary["widgets"] = {
   pomodoro:           "Pomodoro Timer",
   link_list:          "Link List",
   article_teaser:     "Article Teaser",
+  article_series:     "Article Series",
   album_strip:        "Photo Album Strip",
   room_card:          "Chatroom Card",
   event_card:         "Event Card",

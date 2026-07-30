@@ -21,6 +21,8 @@ import { useCategoryTags } from "../components/useCategoryTags";
 import CategoryTagsField from "../components/CategoryTagsField";
 import SlugField from "../components/SlugField";
 import SummaryField from "../components/SummaryField";
+import LanguageField from "../components/LanguageField";
+import SeriesField from "../components/SeriesField";
 import { PrimarySubmitButton, SecondaryButton, ToggleButton, IconButton } from "../components/buttons";
 import { slugify } from "../lib/slugify";
 import { underlineFieldClass } from "../lib/fieldStyles";
@@ -43,7 +45,15 @@ interface Props {
     allow_gid?: string[];
     deny_cid?: string[];
     deny_gid?: string[];
+    lang?: string;
+    series?: { name: string; order: number | null } | null;
   };
+  /**
+   * Opens the composer in "add translation" mode: a blank article linked to
+   * an existing one's translation group. `excludeLangs` keeps the language
+   * dropdown from offering a language the group already has.
+   */
+  translationOf?: { uuid: string; excludeLangs: string[] };
   onSaved?: () => void;
   /** Close the composer without saving — wired to the left-side Discard button. */
   onCancel?: () => void;
@@ -93,6 +103,13 @@ export default function ArticleComposer(props: Props) {
     allowEntries: initialAllowEntries(),
     denyEntries: initialDenyEntries(),
   });
+
+  // ── Language + series — local to this composer (articles-only fields,
+  // not part of the generic createComposerStore shared with other post types) ──
+  const [lang, setLang] = createSignal(props.initial?.lang ?? "");
+  const [series, setSeries] = createSignal(props.initial?.series?.name ?? "");
+  const [seriesOrder, setSeriesOrder] =
+    createSignal<number | null>(props.initial?.series?.order ?? null);
 
   // ── Composer store ────────────────────────────────────────────────────────────
   // Append [attachment]hash,0[/attachment] BBCode for non-image files.
@@ -145,6 +162,10 @@ export default function ArticleComposer(props: Props) {
         slug:     meta.slug     ?? "",
         category: meta.category ?? "",
         mimetype: meta.mimetype ?? "text/bbcode",
+        lang:     lang(),
+        series:   series(),
+        series_order: series() ? (seriesOrder() ?? 1) : undefined,
+        translation_of: (!isEditing() && props.translationOf) ? props.translationOf.uuid : undefined,
         ...aclPayload(),
       }),
     });
@@ -221,6 +242,23 @@ export default function ArticleComposer(props: Props) {
       <Show when={caps.slug}>
         <SlugField value={store.slug} onInput={store.setSlug} title={store.title} hideLabel />
       </Show>
+
+      {/* Language — required */}
+      <LanguageField
+        value={lang}
+        onInput={setLang}
+        exclude={props.translationOf?.excludeLangs}
+        hideLabel
+      />
+
+      {/* Series — optional */}
+      <SeriesField
+        name={series}
+        onNameInput={setSeries}
+        order={seriesOrder}
+        onOrderInput={setSeriesOrder}
+        hideLabel
+      />
 
       {/* Category — its own line */}
       <Show when={caps.category}>
@@ -377,7 +415,8 @@ export default function ArticleComposer(props: Props) {
               store.submitting() ||
               attach.uploading() ||
               !store.body().trim() ||
-              !store.title().trim()
+              !store.title().trim() ||
+              !lang()
             }
             onClick={() => void store.submit()}
           >

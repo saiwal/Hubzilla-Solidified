@@ -18,7 +18,10 @@ export default function ArticleComposerModal(props: {
     slug: string;
     category: string;
     body: string;
+    lang?: string;
+    series?: { name: string; order: number | null } | null;
   };
+  translationOf?: { uuid: string; excludeLangs: string[] };
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -49,6 +52,7 @@ export default function ArticleComposerModal(props: {
             profileUid={props.uid}
             nick={props.nick}
             initial={props.initial}
+            translationOf={props.translationOf}
             onSaved={props.onSaved}
             onCancel={props.onClose}
           />

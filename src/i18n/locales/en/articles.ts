@@ -38,4 +38,19 @@ export const articles: RawDictionary["articles"] = {
   draft_edit:       "Edit",
   refresh_drafts:   "Refresh",
   just_now:         "Just now",
+  // Language / translations
+  add_translation:       "Add translation",
+  translations_label:    "Also available in:",
+  translation_of_note:   "This will create a new, separate article linked as a translation.",
+  translation_lang_used: "This language already has a translation in this group.",
+  // Series
+  part_of_series:        "Part {{order}} of series “{{name}}”",
+  view_full_series:      "View full series",
+  series_index_title:    "Series",
+  series_no_series:      "No series yet.",
+  series_rename:         "Rename series",
+  series_rename_prompt:  "New series name:",
+  series_reorder_hint:   "Drag to reorder",
+  series_articles_count: "{{count}} articles",
+  back_to_series_index:  "← All series",
 };

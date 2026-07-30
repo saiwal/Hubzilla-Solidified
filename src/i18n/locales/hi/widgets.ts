@@ -55,6 +55,7 @@ export const widgets: RawDictionary["widgets"] = {
   pomodoro:           "पोमोडोरो टाइमर",
   link_list:          "लिंक सूची",
   article_teaser:     "लेख झलक",
+  article_series:     "लेख सीरीज़",
   album_strip:        "फ़ोटो एल्बम स्ट्रिप",
   room_card:          "चैटरूम कार्ड",
   event_card:         "इवेंट कार्ड",

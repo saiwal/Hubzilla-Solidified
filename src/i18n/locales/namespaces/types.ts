@@ -386,6 +386,7 @@ export type RawDictionary = {
     pomodoro:           string;
     link_list:          string;
     article_teaser:     string;
+    article_series:     string;
     album_strip:        string;
     room_card:          string;
     event_card:         string;
@@ -664,6 +665,12 @@ export type RawDictionary = {
     slug_placeholder:       string;
     generate_slug:          string;
     category_field_placeholder: string;
+    language_label:         string;
+    language_placeholder:   string;
+    series_label:           string;
+    series_placeholder:     string;
+    series_order_label:     string;
+    series_order_placeholder: string;
     format_label:           string;
     words_count:            string;
     chars_count:            string;
@@ -1624,6 +1631,21 @@ export type RawDictionary = {
     draft_edit:       string;
     refresh_drafts:   string;
     just_now:         string;
+    // Language / translations
+    add_translation:       string;
+    translations_label:    string;
+    translation_of_note:   string;
+    translation_lang_used: string;
+    // Series
+    part_of_series:        string;
+    view_full_series:      string;
+    series_index_title:    string;
+    series_no_series:      string;
+    series_rename:         string;
+    series_rename_prompt:  string;
+    series_reorder_hint:   string;
+    series_articles_count: string;
+    back_to_series_index:  string;
   };
   calendar: {
     loading:          string;

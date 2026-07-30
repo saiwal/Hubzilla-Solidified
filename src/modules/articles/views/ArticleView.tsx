@@ -11,8 +11,10 @@ import { Portal } from "solid-js/web";
 import { fetchArticle, deleteArticle } from "../api";
 import { articlePath, articleShareUrl, buildArticleShareBody } from "../lib/articleLinks";
 import ArticleComposer from "@/shared/editor/composers/ArticleComposer";
+import ArticleComposerModal from "@/shared/editor/composers/ArticleComposerModal";
 import CommentComposer from "@/shared/editor/composers/CommentComposer";
 import PostComposer from "@/shared/editor/composers/PostComposer";
+import { languageLabel } from "@/shared/lib/languages";
 import DOMPurify from "dompurify";
 import { hydrateLatex } from "@/shared/lib/hydrateLatex";
 import { useToc } from "@/shared/lib/useToc";
@@ -27,6 +29,7 @@ import {
   MdFillChat,
   MdOutlineShare,
   MdOutlineContent_copy,
+  MdOutlineTranslate,
 } from "solid-icons/md";
 import { apiToggleLike, apiToggleDislike, apiDeleteItem, apiEditItem } from "@/shared/lib/item-api";
 import { bbcodeToHtml } from "@/shared/lib/bbcode";
@@ -54,6 +57,8 @@ function EditModal(props: {
     allow_gid?: string[];
     deny_cid?: string[];
     deny_gid?: string[];
+    lang?: string;
+    series?: { name: string; order: number | null } | null;
   };
   nick: string;
   profileUid: number;
@@ -103,6 +108,8 @@ function EditModal(props: {
             allow_gid:     props.article.allow_gid,
             deny_cid:      props.article.deny_cid,
             deny_gid:      props.article.deny_gid,
+            lang:          props.article.lang,
+            series:        props.article.series,
           }}
           onSaved={() => {
             close();
@@ -193,6 +200,7 @@ export default function ArticleView() {
   // editing / deleting state
   const [editing, setEditing] = createSignal(false);
   const [confirmDelete, setConfirmDelete] = createSignal(false);
+  const [translating, setTranslating] = createSignal(false);
 
   // Reaction state — optimistic local copy initialised from fetched article
   const [reactions, setReactions] = createSignal({
@@ -427,6 +435,8 @@ export default function ArticleView() {
                     allow_gid:     d().article.allowGid,
                     deny_cid:      d().article.denyCid,
                     deny_gid:      d().article.denyGid,
+                    lang:          d().article.lang,
+                    series:        d().article.series,
                   }}
                   nick={nick()}
                   profileUid={auth()!.uid}
@@ -435,13 +445,38 @@ export default function ArticleView() {
                 />
               </Show>
 
+              {/* Add-translation modal */}
+              <Show when={translating()}>
+                <ArticleComposerModal
+                  uid={auth()!.uid}
+                  nick={nick()}
+                  heading={t("articles.add_translation")}
+                  translationOf={{
+                    uuid: d().article.uuid,
+                    excludeLangs: [
+                      d().article.lang,
+                      ...(d().article.translations ?? []).map((tr) => tr.lang),
+                    ].filter((l): l is string => !!l),
+                  }}
+                  onSaved={() => { setTranslating(false); refetch(); }}
+                  onClose={() => setTranslating(false)}
+                />
+              </Show>
+
               {/* Normal view */}
               <Show when={!editing()}>
                 {/* Header */}
                 <header class="space-y-2 border-b border-rim pb-4">
-                  <h1 class="text-3xl font-bold leading-tight text-txt">
-                    {d().article.title || "(Untitled)"}
-                  </h1>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <h1 class="text-3xl font-bold leading-tight text-txt">
+                      {d().article.title || "(Untitled)"}
+                    </h1>
+                    <Show when={d().article.lang}>
+                      <span class="px-1.5 py-0.5 rounded text-xs font-medium bg-elevated text-muted uppercase">
+                        {languageLabel(d().article.lang!)}
+                      </span>
+                    </Show>
+                  </div>
 
                   <Show when={d().article.summary}>
                     <p class="text-lg text-muted italic leading-snug">
@@ -459,6 +494,37 @@ export default function ArticleView() {
                       {d().article.authorName}
                     </a>
                   </p>
+
+                  {/* Series membership */}
+                  <Show when={d().article.series}>
+                    <p class="text-sm text-muted">
+                      {t("articles.part_of_series", {
+                        order: String(d().article.series!.order ?? "?"),
+                        name: d().article.series!.name,
+                      })}
+                      {" — "}
+                      <A
+                        href={`/articles/${nick()}/series/${encodeURIComponent(d().article.series!.name)}`}
+                        class="hover:underline text-txt"
+                      >
+                        {t("articles.view_full_series")}
+                      </A>
+                    </p>
+                  </Show>
+
+                  {/* Translations switcher */}
+                  <Show when={(d().article.translations ?? []).length > 0}>
+                    <p class="text-sm text-muted flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <span>{t("articles.translations_label")}</span>
+                      <For each={d().article.translations ?? []}>
+                        {(tr) => (
+                          <a href={tr.viewUrl} class="px-1.5 py-0.5 rounded bg-elevated text-txt hover:underline text-xs uppercase">
+                            {languageLabel(tr.lang)}
+                          </a>
+                        )}
+                      </For>
+                    </p>
+                  </Show>
                 </header>
 
                 {/* Body */}
@@ -539,6 +605,15 @@ export default function ArticleView() {
 
                   {/* Owner actions */}
                   <Show when={isOwner()}>
+                    <button
+                      type="button"
+                      onClick={() => { setConfirmDelete(false); setEditing(false); setTranslating(true); }}
+                      title={t("articles.add_translation")}
+                      class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium
+                             transition-colors hover:bg-overlay text-muted hover:text-txt"
+                    >
+                      <MdOutlineTranslate size={17} />
+                    </button>
                     <button
                       type="button"
                       onClick={() => { setConfirmDelete(false); setEditing(true); }}

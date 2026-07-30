@@ -10,6 +10,16 @@ registerModule({
       path: "/articles/:nick",
       component: () => import("./views/ArticlesView"),
     },
+    // Series routes register before the :uuid catch-all so the literal
+    // "series" segment isn't swallowed by it.
+    {
+      path: "/articles/:nick/series",
+      component: () => import("./views/SeriesIndexView"),
+    },
+    {
+      path: "/articles/:nick/series/:name",
+      component: () => import("./views/SeriesView"),
+    },
     {
       path: "/articles/:nick/:uuid",
       component: () => import("./views/ArticleView"),
@@ -96,6 +106,16 @@ registerModule({
       multiInstance: true,
       configComponent: () => import("./widgets/ArticleTeaserConfig"),
       helpTarget: "articles.teaser_widget",
+    },
+    {
+      // Opt-in series index — picker only, no default placement
+      id: "articles.series",
+      label: () => useI18n().t("widgets.article_series"),
+      loader: () => import("./widgets/ArticleSeriesWidget"),
+      slot: "right",
+      defaultModules: [],
+      contexts: ["articles"],
+      helpTarget: "articles.series_widget",
     },
   ],
   permissions: [],
