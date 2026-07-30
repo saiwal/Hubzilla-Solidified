@@ -23,6 +23,7 @@ import { createDragReorder } from "./shared/lib/useDragReorder";
 import { commitNavOrder } from "./shared/store/nav-order";
 import type { NavItemDef } from "./shared/types/module.types";
 import Slot from "./shared/views/Slot";
+import SiteCredits from "./shared/views/SiteCredits";
 import RemoteAuthBanner from "./shared/views/RemoteAuthBanner";
 import { useViewerRole, useSubjectNick } from "./shared/store/site-config";
 import { useChannelTheme } from "./shared/lib/useChannelTheme";
@@ -481,9 +482,6 @@ const Layout: ParentComponent = (props) => {
                 </ErrorBoundary>
               </div>
 
-              <div class="mt-auto">
-                <Slot name="footer" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
-              </div>
               <Show when={showScrollTop()}>
                 <button
                   onClick={() =>
@@ -511,6 +509,11 @@ const Layout: ParentComponent = (props) => {
                 </button>
               </Show>
             </div>
+						<div class="mt-auto">
+                <Slot name="footer" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
+                <SiteCredits />
+              </div>
+
           </main>
 
           {/* ═══════════════════════════════════════════════════════

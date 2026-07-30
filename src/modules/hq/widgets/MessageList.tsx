@@ -59,6 +59,14 @@ function getTimeGroup(dateStr: string): TimeGroup {
   return "Older";
 }
 
+// Unseen top-level post, or unseen replies to a seen one — ignores the
+// per-item "locallyRead" click state, which only matters for rendering.
+function isEntryUnseen(e: MessageEntry): boolean {
+  if (e.unseen_class === "primary") return true;
+  const n = Number(e.unseen_count);
+  return Number.isFinite(n) && n > 0;
+}
+
 export const TYPE_ICON_PATH: Record<MessageType, string> = {
   "":
     "M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z",
@@ -264,9 +272,8 @@ const MessageItem: Component<{
     const n = Number(e.unseen_count);
     return Number.isFinite(n) ? n : 0;
   };
-  const isNewPost = () => !locallyRead() && e.unseen_class === "primary";
   const hasUnseenReplies = () => !locallyRead() && unseenReplyCount() > 0;
-  const isAnyUnseen = () => isNewPost() || hasUnseenReplies();
+  const isAnyUnseen = () => !locallyRead() && isEntryUnseen(e);
 
 
   function handleClick() {
@@ -406,16 +413,30 @@ export const MessageList: Component<{
   let resetController: AbortController | null = null;
   let loadMoreActive = false;
 
-  // Group entries by time band in stable order
-  const groupedEntries = createMemo(() => {
+  function bucketByTime(list: MessageEntry[]): { label: string; items: MessageEntry[] }[] {
     const buckets: Partial<Record<TimeGroup, MessageEntry[]>> = {};
-    for (const entry of entries()) {
+    for (const entry of list) {
       const g = getTimeGroup(entry.created);
       (buckets[g] ??= []).push(entry);
     }
     return TIME_GROUPS
       .filter((g) => buckets[g]?.length)
       .map((g) => ({ label: g, items: buckets[g]! }));
+  }
+
+  // Group entries by time band in stable order — except for direct-message
+  // threads, where unread ones are pulled into their own group on top so a
+  // new DM doesn't get buried under older-but-still-"Today" threads.
+  const groupedEntries = createMemo(() => {
+    const all = entries();
+    if (props.type !== "direct") return bucketByTime(all);
+
+    const unread = all.filter(isEntryUnseen);
+    const rest = all.filter((e) => !isEntryUnseen(e));
+    const groups: { label: string; items: MessageEntry[] }[] = [];
+    if (unread.length) groups.push({ label: "Unread", items: unread });
+    groups.push(...bucketByTime(rest));
+    return groups;
   });
 
   async function loadPage(reset = false) {

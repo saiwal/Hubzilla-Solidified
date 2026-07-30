@@ -44,7 +44,7 @@ export const SlotRegionBox: Component<{ label: string; children: JSX.Element }> 
     <p class="text-[10px] font-semibold uppercase tracking-widest text-muted mb-1.5">
       {props.label}
     </p>
-    <div class="rounded-xl border border-dashed border-rim p-2">
+    <div class="rounded-xl border border-dashed border-rim p-2 bg-accent-muted flex flex-col gap-4">
       {props.children}
     </div>
   </div>
@@ -174,8 +174,7 @@ export const WidgetPickerFooter: Component<WidgetPickerFooterProps> = (props) =>
         onClick={props.onTogglePicker}
         aria-expanded={props.pickerOpen}
         class="w-full flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-xl
-               border border-dashed border-rim text-xs font-medium text-muted
-               hover:text-txt hover:bg-elevated transition-colors"
+               border border-dashed border-rim rounded-lg bg-violet-500/15 text-violet-600 dark:text-violet-400 hover:opacity-90 transition-opacity text-xs font-medium"
       >
         <MdFillAdd size={14} />
         {t("widgets.add_widget")}

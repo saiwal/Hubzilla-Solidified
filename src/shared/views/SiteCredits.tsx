@@ -1,7 +1,7 @@
 // Site credits strip — copyright + "Powered by Hubzilla" + active theme name.
-// Global, footer-only: always on, on every page, not user-removable (same
-// convention as the always-mounted shared.notifications / chat.pinnedRooms
-// widgets, just in a different slot).
+// Permanent, global, footer-only: rendered directly by Layout.tsx below the
+// footer slot on every page, not part of the widget/slot system and not
+// user-removable.
 
 import { Show } from "solid-js";
 import { createQueryResource } from "@/shared/lib/createQueryResource";
@@ -10,7 +10,7 @@ import { THEMES } from "@/shared/types/theme.types";
 import { useTheme } from "@/shared/lib/useTheme";
 import { useI18n } from "@/i18n";
 
-export default function CreditsWidget() {
+export default function SiteCredits() {
   const { t } = useI18n();
   const { theme } = useTheme();
   const [info] = createQueryResource("siteinfo", fetchSiteInfo);

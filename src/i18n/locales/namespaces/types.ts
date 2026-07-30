@@ -420,7 +420,6 @@ export type RawDictionary = {
     menu_tree:          string;
     cfg_menu:           string;
     cfg_no_menus:       string;
-    credits:            string;
     credits_theme:      string;
     cfg_album:          string;
     cfg_room:           string;

@@ -4,10 +4,12 @@ import { fetchSiteInfo } from "../api";
 import { bbcode } from "@/shared/lib/bbcode";
 import DOMPurify from "dompurify";
 import { useI18n } from "@/i18n";
+import { useNavData } from "@/shared/store/nav-store";
 
 export default function SiteinfoView() {
   const { t } = useI18n();
   const [info] = createQueryResource("siteinfo", fetchSiteInfo);
+  const navData = useNavData();
 
   function formatLimit(n: number | null): string {
     return n === null ? t("ui.siteinfo_unlimited") : humanBytes(n);
@@ -25,10 +27,12 @@ export default function SiteinfoView() {
             {/* Header card */}
             <div class="rounded-xl border border-rim bg-surface p-6">
               <div class="flex items-start gap-4">
-                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-accent to-accent-txt
-                            flex items-center justify-center text-accent-fg text-lg font-bold shrink-0">
-                  {data().site_name.charAt(0).toUpperCase()}
-                </div>
+									<img
+										src={navData()?.sitelogo || import.meta.env.BASE_URL + "hubzilla.svg"}
+										alt=""
+										aria-hidden="true"
+										class="h-20 w-20 shrink-0 rounded object-contain me-4"
+									/>
                 <div class="min-w-0">
                   <h1 class="text-xl font-bold text-txt truncate">
                     {data().site_name}

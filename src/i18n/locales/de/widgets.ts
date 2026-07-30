@@ -89,7 +89,6 @@ export const widgets: RawDictionary["widgets"] = {
   menu_tree:          "Menüliste",
   cfg_menu:           "Menü",
   cfg_no_menus:       "Noch keine Menüs — erstelle eines unter Webseiten → Menüs.",
-  credits:            "Credits",
   credits_theme:      "Theme",
   cfg_album:          "Album",
   cfg_room:           "Chatroom",
