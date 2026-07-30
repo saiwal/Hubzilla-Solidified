@@ -46,6 +46,8 @@ export const auth: RawDictionary["auth"] = {
   register_closed:          "इस हब पर पंजीकरण अभी बंद है।",
   register_approval_note:   "इस हब पर पंजीकरण के लिए व्यवस्थापक की स्वीकृति आवश्यक है।",
   register_invite_required: "इस हब पर पंजीकरण केवल आमंत्रण द्वारा है।",
+  register_affiliated_hub_note: "यदि आप चाहें तो किसी अन्य संबद्ध हब पर पंजीकरण कर सकते हैं।",
+  register_browse_hubs:     "हब निर्देशिका ब्राउज़ करें",
   register_check_email_title: "अपना ईमेल जांचें",
   register_check_email_desc:  "हमने आपके ईमेल पते पर एक सत्यापन लिंक भेजा है। अपना पंजीकरण पूरा करने के लिए लिंक पर क्लिक करें।",
   register_verify_btn:        "सत्यापन पूरा करें",

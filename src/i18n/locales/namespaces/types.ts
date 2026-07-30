@@ -294,6 +294,8 @@ export type RawDictionary = {
     register_closed:          string;
     register_approval_note:   string;
     register_invite_required: string;
+    register_affiliated_hub_note: string;
+    register_browse_hubs:     string;
     register_check_email_title: string;
     register_check_email_desc:  string;
     register_verify_btn:        string;

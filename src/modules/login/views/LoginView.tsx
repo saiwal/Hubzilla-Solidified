@@ -14,7 +14,7 @@ export default function LoginView() {
   const [searchParams] = useSearchParams();
 
   return (
-    <div class="min-h-[60vh] flex items-center justify-center">
+    <div class="min-h-[60vh] flex items-center justify-center py-8">
       <LoginForm dest={safeNext(searchParams.next)} />
     </div>
   );

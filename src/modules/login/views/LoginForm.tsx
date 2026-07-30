@@ -3,6 +3,7 @@ import { A } from "@solidjs/router";
 import { fetchLoginToken, submitLogin, submitRmagic } from "../api/api";
 import { toast } from "@/shared/store/toast";
 import { useI18n } from "@/i18n";
+import { useNavData } from "@/shared/store/nav-store";
 
 interface LoginFormProps {
   // Path on this site to land on after login. Defaults to /hq for local
@@ -12,6 +13,7 @@ interface LoginFormProps {
 
 export default function LoginForm(props: LoginFormProps) {
   const { t } = useI18n();
+  const navData = useNavData();
   const [token, setToken] = createSignal("");
   const [username, setUsername] = createSignal("");
   const [password, setPassword] = createSignal("");
@@ -70,16 +72,15 @@ export default function LoginForm(props: LoginFormProps) {
   };
 
   return (
-    <div class="w-full max-w-md bg-surface border border-rim rounded-2xl p-8 shadow-sm">
+    <div class="w-full max-w-lg bg-surface border border-rim rounded-2xl p-8 shadow-sm">
       {/* Brand */}
-      <div class="mb-8 text-center">
-        <div
-          class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-txt mb-4
-                 text-[11px] font-bold text-base select-none"
-          style="color: var(--color-surface)"
-        >
-          Hz
-        </div>
+      <div class="mb-6 text-center">
+        <img
+          src={navData()?.sitelogo || import.meta.env.BASE_URL + "hubzilla.svg"}
+          alt=""
+          aria-hidden="true"
+          class="inline-block w-20 h-20 rounded-xl object-contain mb-4"
+        />
         <h1 class="text-2xl font-bold text-txt">{t("auth.sign_in")}</h1>
         <p class="text-sm text-muted mt-1">{t("auth.continue_to")}</p>
       </div>

@@ -4,9 +4,11 @@ import { createQueryResource } from "@/shared/lib/createQueryResource";
 import { fetchRegisterConfig, submitRegister } from "../api/api";
 import { toast } from "@/shared/store/toast";
 import { useI18n } from "@/i18n";
+import { useNavData } from "@/shared/store/nav-store";
 
 export default function RegisterView() {
   const { t } = useI18n();
+  const navData = useNavData();
 
   const [config] = createQueryResource("register-config", fetchRegisterConfig);
 
@@ -69,17 +71,16 @@ export default function RegisterView() {
 
   return (
     <div class="min-h-[60vh] flex items-center justify-center py-8">
-      <div class="w-full max-w-md bg-surface border border-rim rounded-2xl p-8 shadow-sm">
+      <div class="w-full max-w-lg bg-surface border border-rim rounded-2xl p-8 shadow-sm">
 
         {/* Brand */}
         <div class="mb-6 text-center">
-          <div
-            class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-txt mb-4
-                   text-[11px] font-bold select-none"
-            style="color: var(--color-surface)"
-          >
-            Hz
-          </div>
+          <img
+            src={navData()?.sitelogo || import.meta.env.BASE_URL + "hubzilla.svg"}
+            alt=""
+            aria-hidden="true"
+            class="inline-block w-20 h-20 rounded-xl object-contain mb-4"
+          />
           <h1 class="text-2xl font-bold text-txt">{t("auth.register_title")}</h1>
           <p class="text-sm text-muted mt-1">{t("auth.register_subtitle")}</p>
         </div>
@@ -100,7 +101,15 @@ export default function RegisterView() {
 
               {/* Registration closed */}
               <Match when={cfg().closed}>
-                <p class="text-sm text-muted text-center">{t("auth.register_closed")}</p>
+                <div class="text-center space-y-2">
+                  <p class="text-sm text-muted">{t("auth.register_closed")}</p>
+                  <p class="text-sm text-muted">
+                    {t("auth.register_affiliated_hub_note")}{" "}
+                    <A href="/directory/hubs" class="text-accent hover:underline font-medium">
+                      {t("auth.register_browse_hubs")}
+                    </A>
+                  </p>
+                </div>
               </Match>
 
               {/* Email sent */}
@@ -136,7 +145,11 @@ export default function RegisterView() {
                   {/* Policy / invite notes */}
                   <Show when={cfg().policy === 1}>
                     <p class="text-xs text-muted bg-elevated rounded-lg px-3 py-2">
-                      {t("auth.register_approval_note")}
+                      {t("auth.register_approval_note")}{" "}
+                      {t("auth.register_affiliated_hub_note")}{" "}
+                      <A href="/directory/hubs" class="text-accent hover:underline font-medium">
+                        {t("auth.register_browse_hubs")}
+                      </A>
                     </p>
                   </Show>
                   <Show when={cfg().invite_only}>

@@ -46,6 +46,8 @@ export const auth: RawDictionary["auth"] = {
   register_closed:          "Registration is currently closed on this hub.",
   register_approval_note:   "Registration on this hub requires admin approval.",
   register_invite_required: "Registration on this hub is by invitation only.",
+  register_affiliated_hub_note: "Register at another affiliated hub if preferred.",
+  register_browse_hubs:     "Browse the hubs directory",
   register_check_email_title: "Check your email",
   register_check_email_desc:  "We sent a verification link to your email address. Click the link to complete your registration.",
   register_verify_btn:        "Complete verification",
