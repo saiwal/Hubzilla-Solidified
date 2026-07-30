@@ -1,6 +1,6 @@
-# Hubzilla — User Guide
+# Hubzilla *Solidified* — User Guide
 
-Welcome to Hubzilla. This guide explains how to use every part of the interface.
+Welcome to Hubzilla *Solidified*. This guide explains how to use every part of the interface.
 
 ## Contents
 
