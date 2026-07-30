@@ -3,7 +3,7 @@ import { createQueryResource } from "@/shared/lib/createQueryResource";
 import SubPageContent from "@/shared/views/SubPageContent";
 import {
   fetchAdminAccounts, adminAccountAction, adminPendingAction,
-  fetchAdminServiceClasses, setAccountServiceClass, setAccountExpires,
+  fetchAdminServiceClasses, setAccountServiceClass, setAccountExpires, setAccountPassword,
 } from "../../api";
 import type { AdminAccount } from "../../types";
 import { useI18n } from "@/i18n";
@@ -266,13 +266,31 @@ function AccountEditModal(props: {
   const [classes] = createQueryResource("admin-service-classes", fetchAdminServiceClasses);
   const [serviceClass, setServiceClass] = createSignal(props.account.account_service_class || "");
   const [expires, setExpires] = createSignal(toDateInputValue(props.account.account_expires));
+  const [newPassword, setNewPassword] = createSignal("");
+  const [confirmPassword, setConfirmPassword] = createSignal("");
+  const [showPassword, setShowPassword] = createSignal(false);
   const [saving, setSaving] = createSignal(false);
   const [error, setError] = createSignal("");
 
+  function generatePassword() {
+    const bytes = new Uint8Array(12);
+    crypto.getRandomValues(bytes);
+    const pw = btoa(String.fromCharCode(...bytes)).replace(/[+/=]/g, "").slice(0, 14);
+    setNewPassword(pw);
+    setConfirmPassword(pw);
+    setShowPassword(true);
+  }
+
   async function onSubmit(e: SubmitEvent) {
     e.preventDefault();
-    setSaving(true);
     setError("");
+
+    if (newPassword() && newPassword() !== confirmPassword()) {
+      setError(t("admin.password_mismatch"));
+      return;
+    }
+
+    setSaving(true);
     try {
       const origClass = props.account.account_service_class || "";
       const origExpires = toDateInputValue(props.account.account_expires);
@@ -281,6 +299,9 @@ function AccountEditModal(props: {
       }
       if (expires() !== origExpires) {
         await setAccountExpires(props.account.account_id, expires());
+      }
+      if (newPassword()) {
+        await setAccountPassword(props.account.account_id, newPassword());
       }
       props.onSaved();
     } catch (err: unknown) {
@@ -331,6 +352,41 @@ function AccountEditModal(props: {
               </Show>
             </div>
             <p class="text-xs text-muted">{t("admin.expires_hint")}</p>
+          </div>
+
+          <div class="space-y-1 pt-1 border-t border-rim">
+            <label class="text-sm font-medium text-txt block pt-3">{t("admin.reset_password_label")}</label>
+            <p class="text-xs text-muted">{t("admin.reset_password_hint")}</p>
+            <div class="flex items-center gap-2">
+              <input
+                type={showPassword() ? "text" : "password"}
+                value={newPassword()}
+                onInput={(e) => setNewPassword(e.currentTarget.value)}
+                placeholder={t("admin.new_password_label")}
+                autocomplete="new-password"
+                class="flex-1 px-3 py-1.5 text-sm rounded-lg border border-rim bg-surface text-txt
+                       focus:outline-none focus:border-accent"
+              />
+              <button type="button" onClick={() => setShowPassword((v) => !v)}
+                class="px-2 py-1.5 text-xs rounded-lg border border-rim text-muted hover:bg-elevated transition-colors">
+                {showPassword() ? t("admin.hide_password") : t("admin.show_password")}
+              </button>
+            </div>
+            <Show when={newPassword()}>
+              <input
+                type={showPassword() ? "text" : "password"}
+                value={confirmPassword()}
+                onInput={(e) => setConfirmPassword(e.currentTarget.value)}
+                placeholder={t("admin.confirm_password_label")}
+                autocomplete="new-password"
+                class="w-full px-3 py-1.5 text-sm rounded-lg border border-rim bg-surface text-txt
+                       focus:outline-none focus:border-accent"
+              />
+            </Show>
+            <button type="button" onClick={generatePassword}
+              class="px-2 py-1.5 text-xs rounded-lg border border-rim text-muted hover:bg-elevated transition-colors">
+              {t("admin.generate_password")}
+            </button>
           </div>
 
           <Show when={error()}>

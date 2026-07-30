@@ -2022,6 +2022,14 @@ export type RawDictionary = {
     expires_label:    string;
     expires_hint:     string;
     clear_expiry:     string;
+    reset_password_label: string;
+    reset_password_hint: string;
+    new_password_label: string;
+    confirm_password_label: string;
+    password_mismatch: string;
+    generate_password: string;
+    show_password:    string;
+    hide_password:    string;
     addons_title:     string;
     addons_desc:      string;
     addons_found:     string;

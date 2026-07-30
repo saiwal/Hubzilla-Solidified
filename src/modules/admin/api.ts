@@ -126,6 +126,9 @@ export const setAccountServiceClass = (account_id: number, service_class: string
 export const setAccountExpires = (account_id: number, expires: string) =>
   post("accounts", { account_id, action: "set_expires", expires }); // "" clears it
 
+export const setAccountPassword = (account_id: number, new_password: string) =>
+  post("accounts", { account_id, action: "set_password", new_password });
+
 // ── Service classes ──────────────────────────────────────────────────────────
 
 export const fetchAdminServiceClasses = () => get<AdminServiceClasses>("service-classes");
