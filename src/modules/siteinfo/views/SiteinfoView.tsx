@@ -37,11 +37,6 @@ export default function SiteinfoView() {
                   <h1 class="text-xl font-bold text-txt truncate">
                     {data().site_name}
                   </h1>
-                  <Show when={data().version}>
-                    <p class="text-xs text-muted mt-0.5 font-mono">
-                      v{data().version}
-                    </p>
-                  </Show>
                   <div class="mt-2">
                     <RegistrationBadge policy={data().registration} />
                   </div>
