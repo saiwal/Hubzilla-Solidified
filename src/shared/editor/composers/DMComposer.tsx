@@ -180,13 +180,13 @@ const DMComposer: Component<DMComposerProps> = (props) => {
         >
           <div
             class="flex flex-col bg-surface border border-rim shadow-2xl text-txt
-                   overflow-hidden w-full max-w-2xl h-[80vh] rounded-xl"
+                   w-full max-w-2xl h-[80vh] rounded-xl"
             role="dialog"
             aria-modal="true"
             aria-label={t("editor.dm_new_message")}
           >
             {/* ── Header ── */}
-            <header class="flex items-center justify-between px-4 py-3 border-b border-rim shrink-0">
+            <header class="flex items-center justify-between px-4 py-3 border-b border-rim shrink-0 rounded-t-xl">
               <span class="text-xs font-semibold tracking-widest uppercase text-muted select-none">
                 {t("editor.dm_new_message")}
               </span>
@@ -197,8 +197,15 @@ const DMComposer: Component<DMComposerProps> = (props) => {
               </IconButton>
             </header>
 
+            {/* ── Scrollable body: To: field + editor + optional panels.
+                 Header/footer stay pinned; this is the only region that
+                 scrolls when everything doesn't fit, so the editor's own
+                 toolbar+text box always renders at its natural/self-capped
+                 size instead of being squeezed and clipped. ── */}
+            <div class="flex-1 overflow-y-auto min-h-0">
+
             {/* ── To: field ── */}
-            <div class="px-4 pt-3 pb-2 border-b border-rim shrink-0">
+            <div class="px-4 pt-3 pb-2 border-b border-rim">
               <RecipientField
                 entries={recipients}
                 onAdd={addRecipient}
@@ -217,8 +224,11 @@ const DMComposer: Component<DMComposerProps> = (props) => {
               </Show>
             </div>
 
-            {/* ── Editor area (flex-1) ── */}
-            <div ref={wiring.wrapperRef} class="flex-1 overflow-hidden min-h-0 flex flex-col">
+            {/* ── Editor area — sticky so the toolbar+text box stays pinned
+                 to the top of the scrolling body instead of scrolling out
+                 of view underneath the header once the To: field/recipients
+                 push it down. ── */}
+            <div ref={wiring.wrapperRef} class="flex flex-col sticky top-0 z-10 bg-surface">
               <RichEditor
                 body={store.body()}
                 onInput={store.setBody}
@@ -251,8 +261,10 @@ const DMComposer: Component<DMComposerProps> = (props) => {
               <EncryptPanel enc={enc} />
             </Show>
 
+            </div>
+
             {/* ── Footer ── */}
-            <footer class="flex flex-col gap-2 px-3.5 py-2.5 border-t border-rim bg-elevated shrink-0">
+            <footer class="flex flex-col gap-2 px-3.5 py-2.5 border-t border-rim bg-elevated shrink-0 rounded-b-xl">
               {/* Options row: encrypt */}
               <div class="flex flex-wrap items-center gap-2">
                 <Show when={isFeatureEnabled("content_encrypt")}>

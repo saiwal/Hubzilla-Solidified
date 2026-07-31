@@ -341,7 +341,7 @@ export default function EditorToolbar(props: Props) {
 
   return (
     <>
-    <div class="flex flex-wrap items-center gap-0.5 px-2 py-2">
+    <div class="flex flex-wrap items-center gap-0.5 px-2 py-2 shrink-0">
 
       {/* ── Group 1: Inline formatting — all levels ── */}
       <Btn title={t("editor.bold")} onPress={bold}>

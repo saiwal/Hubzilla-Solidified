@@ -79,10 +79,10 @@ function EditModal(props: {
       <dialog
         ref={dialogRef}
         onClick={(e) => { if (e.target === dialogRef) close(); }}
-        class="m-auto w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-xl
-               bg-base border border-rim shadow-xl p-0 backdrop:bg-black/50"
+        class="m-auto w-full max-w-3xl max-h-[90vh] flex flex-col rounded-xl
+               bg-base border border-rim shadow-xl p-0 overflow-clip backdrop:bg-black/50"
       >
-        <div class="flex items-center justify-between px-4 py-3 border-b border-rim sticky top-0 bg-base z-10">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-rim bg-base shrink-0">
           <h2 class="text-sm font-semibold text-txt">{t("articles.edit_article")}</h2>
           <button
             type="button"
@@ -92,31 +92,33 @@ function EditModal(props: {
             ✕
           </button>
         </div>
-        <ArticleComposer
-          profileUid={props.profileUid}
-          nick={props.nick}
-          initial={{
-            uuid:          props.article.uuid,
-            iid:           props.article.iid,
-            title:         props.article.title,
-            summary:       props.article.summary ?? "",
-            slug:          props.article.slug    ?? "",
-            category:      props.article.category ?? "",
-            body:          props.article.body,
-            public_policy: props.article.public_policy,
-            allow_cid:     props.article.allow_cid,
-            allow_gid:     props.article.allow_gid,
-            deny_cid:      props.article.deny_cid,
-            deny_gid:      props.article.deny_gid,
-            lang:          props.article.lang,
-            series:        props.article.series,
-          }}
-          onSaved={() => {
-            close();
-            props.onSaved();
-          }}
-          onCancel={close}
-        />
+        <div class="flex-1 overflow-y-auto">
+          <ArticleComposer
+            profileUid={props.profileUid}
+            nick={props.nick}
+            initial={{
+              uuid:          props.article.uuid,
+              iid:           props.article.iid,
+              title:         props.article.title,
+              summary:       props.article.summary ?? "",
+              slug:          props.article.slug    ?? "",
+              category:      props.article.category ?? "",
+              body:          props.article.body,
+              public_policy: props.article.public_policy,
+              allow_cid:     props.article.allow_cid,
+              allow_gid:     props.article.allow_gid,
+              deny_cid:      props.article.deny_cid,
+              deny_gid:      props.article.deny_gid,
+              lang:          props.article.lang,
+              series:        props.article.series,
+            }}
+            onSaved={() => {
+              close();
+              props.onSaved();
+            }}
+            onCancel={close}
+          />
+        </div>
       </dialog>
     </Portal>
   );

@@ -80,8 +80,8 @@ export default function NoteComposer(props: Props) {
               }
             }}
             placeholder={t("notepad.placeholder")}
-            class="w-full min-h-[120px] p-3 text-sm rounded-lg border border-rim bg-elevated text-txt
-                   outline-none focus:border-accent/50 resize-y"
+            class="w-full min-h-[120px] max-h-[50vh] p-3 text-sm rounded-lg border border-rim bg-elevated text-txt
+                   outline-none focus:border-accent/50 resize-y overflow-y-auto"
           />
         }
       >

@@ -34,11 +34,11 @@ export default function ArticleComposerModal(props: {
   return (
     <Portal mount={document.body}>
       <div
-        class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto py-8 px-4 bg-black/50"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
         onClick={(e) => { if (e.target === e.currentTarget) props.onClose(); }}
       >
-        <div class="relative w-full max-w-3xl rounded-xl bg-base border border-rim shadow-xl">
-          <div class="flex items-center justify-between px-4 py-3 border-b border-rim bg-base rounded-t-xl">
+        <div class="relative w-full max-w-3xl max-h-[90vh] flex flex-col rounded-xl bg-base border border-rim shadow-xl overflow-clip">
+          <div class="flex items-center justify-between px-4 py-3 border-b border-rim bg-base shrink-0">
             <h2 class="text-sm font-semibold text-txt">{props.heading}</h2>
             <button
               type="button"
@@ -48,14 +48,16 @@ export default function ArticleComposerModal(props: {
               <BiRegularX class="w-5 h-5" />
             </button>
           </div>
-          <ArticleComposer
-            profileUid={props.uid}
-            nick={props.nick}
-            initial={props.initial}
-            translationOf={props.translationOf}
-            onSaved={props.onSaved}
-            onCancel={props.onClose}
-          />
+          <div class="flex-1 overflow-y-auto">
+            <ArticleComposer
+              profileUid={props.uid}
+              nick={props.nick}
+              initial={props.initial}
+              translationOf={props.translationOf}
+              onSaved={props.onSaved}
+              onCancel={props.onClose}
+            />
+          </div>
         </div>
       </div>
     </Portal>

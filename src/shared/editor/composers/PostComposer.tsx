@@ -322,7 +322,7 @@ const PostComposer: Component<ComposerProps> = (props) => {
           <div
             class={
               "flex flex-col bg-surface border border-rim " +
-              "shadow-2xl text-txt overflow-hidden " +
+              "shadow-2xl text-txt " +
               (fullscreen()
                 ? "fixed inset-0 w-full rounded-none"
                 : "w-full max-w-2xl h-[90vh] rounded-xl")
@@ -332,7 +332,12 @@ const PostComposer: Component<ComposerProps> = (props) => {
             aria-label={t("editor.composer_label")}
           >
             {/* ── Header ── */}
-            <header class="flex items-center justify-between px-4 py-3 border-b border-rim shrink-0">
+            <header
+              class={
+                "flex items-center justify-between px-4 py-3 border-b border-rim shrink-0 " +
+                (fullscreen() ? "" : "rounded-t-xl")
+              }
+            >
               <span class="text-xs font-semibold tracking-widest uppercase text-muted select-none">
                 {props.parentId ? t("editor.reply_header") : t("editor.new_post")}
               </span>
@@ -380,8 +385,15 @@ const PostComposer: Component<ComposerProps> = (props) => {
               </div>
             </header>
 
+            {/* ── Scrollable body: meta fields + editor + optional panels.
+                 Header/footer stay pinned; this is the only region that
+                 scrolls when everything doesn't fit, so the editor's own
+                 toolbar+text box always renders at its natural/self-capped
+                 size instead of being squeezed and clipped. ── */}
+            <div class="flex-1 overflow-y-auto min-h-0">
+
             {/* ── Meta fields (title, summary, category) — styled to match ArticleComposer ── */}
-            <div class="px-4 pt-4 pb-3 space-y-4 shrink-0">
+            <div class="px-4 pt-4 pb-3 space-y-4">
               <Show when={caps.title}>
                 <input
                   type="text"
@@ -436,8 +448,11 @@ const PostComposer: Component<ComposerProps> = (props) => {
               />
             </Show>
 
-            {/* ── Editor area (flex-1) ── */}
-            <div ref={wiring.wrapperRef} class="flex-1 overflow-hidden min-h-0 flex flex-col">
+            {/* ── Editor area — sticky so the toolbar+text box stays pinned
+                 to the top of the scrolling body instead of scrolling out
+                 of view underneath the header once the meta fields/drafts
+                 panel push it down. ── */}
+            <div ref={wiring.wrapperRef} class="flex flex-col sticky top-0 z-10 bg-surface">
               <RichEditor
                 body={store.body()}
                 onInput={store.setBody}
@@ -520,8 +535,15 @@ const PostComposer: Component<ComposerProps> = (props) => {
               <EncryptPanel enc={enc} />
             </Show>
 
+            </div>
+
             {/* ── Footer ── */}
-            <footer class="flex flex-col gap-2 px-3.5 py-2.5 border-t border-rim bg-elevated shrink-0">
+            <footer
+              class={
+                "flex flex-col gap-2 px-3.5 py-2.5 border-t border-rim bg-elevated shrink-0 " +
+                (fullscreen() ? "" : "rounded-b-xl")
+              }
+            >
             {/* ── Options row ── */}
             <div class="flex flex-wrap items-center gap-2">
               {/* ACL Picker — hidden for visitors posting to another channel's wall */}

@@ -24,6 +24,8 @@ interface Props {
   onPasteFiles?: (files: File[]) => void;
   placeholder?: string;
   minHeight?: string;
+  /** Caps the editing surface's growth — it scrolls internally past this. */
+  maxHeight?: string;
   /** Let the user drag-resize the editing surface vertically. */
   resizable?: boolean;
 }
@@ -45,7 +47,13 @@ export default function RichEditor(props: Props) {
   const sig = () => `${mime()} ${props.body}`;
   const minH = () =>
     props.minHeight ??
-    (props.capabilities.toolbar === "comment" ? "60px" : "140px");
+    (props.capabilities.toolbar === "comment" ? "130px" : "140px");
+  // A ceiling so the surface scrolls internally instead of growing forever —
+  // in px/vh (never %) so it self-caps even when nothing above it in the DOM
+  // gives it a bounded height to grow against (e.g. plain page-flow composers).
+  const maxH = () =>
+    props.maxHeight ??
+    (props.capabilities.toolbar === "comment" ? "260px" : "50vh");
 
   // Seed the WYSIWYG surface whenever it (re)mounts. The <Show> around the
   // surface destroys the div on every tab switch, so this must run per mount
@@ -236,7 +244,7 @@ export default function RichEditor(props: Props) {
 
   // Every composer gets the tab bar (write/source) except chat's plain input.
   return (
-    <div class="rich-editor flex flex-col flex-1 min-h-0 rounded-lg overflow-hidden bg-elevated">
+    <div class="rich-editor flex flex-col flex-1 min-h-0 rounded-lg overflow-clip bg-elevated">
       {/* ── Unified toolbar (wysiwyg + source tabs) ── */}
       <EditorToolbar
         level={props.capabilities.toolbar}
@@ -259,7 +267,7 @@ export default function RichEditor(props: Props) {
           onClick={onEditorClick}
           onBlur={onEditorBlur}
           data-placeholder={props.placeholder ?? t("editor.write_placeholder")}
-          style={{ "min-height": minH() }}
+          style={{ "min-height": minH(), "max-height": maxH() }}
           class={`grow overflow-y-auto p-3 outline-none text-sm text-txt bg-surface
                  [&_img]:max-w-full [&_img]:h-auto
                  empty:before:content-[attr(data-placeholder)]
@@ -276,7 +284,7 @@ export default function RichEditor(props: Props) {
           onInput={onTextareaInput}
           onKeyDown={handleKeyDown}
           onPaste={handlePaste}
-          style={{ "min-height": minH() }}
+          style={{ "min-height": minH(), "max-height": maxH() }}
           class={`grow overflow-y-auto w-full p-3 text-sm font-mono text-txt bg-surface outline-none ${props.resizable ? "resize-y" : "resize-none"}`}
           placeholder={
             mime() === "text/markdown"

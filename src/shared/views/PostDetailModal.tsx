@@ -301,7 +301,7 @@ const PostDetailModal: Component<PostDetailModalProps> = (props) => {
           aria-labelledby="post-modal-title"
           tabindex="-1"
           class="relative w-full max-w-full lg:max-w-[50%] max-h-[90svh] flex flex-col
-                 bg-base rounded-2xl shadow-2xl overflow-hidden focus:outline-none"
+                 bg-base rounded-2xl shadow-2xl overflow-clip focus:outline-none"
         >
           {/* Header */}
           <div class="flex items-center justify-between px-5 py-3 shrink-0 border-b border-rim bg-surface">

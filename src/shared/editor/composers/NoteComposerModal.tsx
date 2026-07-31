@@ -26,11 +26,11 @@ export default function NoteComposerModal(props: {
   return (
     <Portal mount={document.body}>
       <div
-        class="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto py-8 px-4 bg-black/50"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
         onClick={(e) => { if (e.target === e.currentTarget) props.onClose(); }}
       >
-        <div class="relative w-full max-w-2xl rounded-xl bg-base border border-rim shadow-xl">
-          <div class="flex items-center justify-between px-4 py-3 border-b border-rim bg-base rounded-t-xl">
+        <div class="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-xl bg-base border border-rim shadow-xl overflow-clip">
+          <div class="flex items-center justify-between px-4 py-3 border-b border-rim bg-base shrink-0">
             <h2 class="text-sm font-semibold text-txt">{props.heading}</h2>
             <button
               type="button"
@@ -40,7 +40,7 @@ export default function NoteComposerModal(props: {
               <BiRegularX class="w-5 h-5" />
             </button>
           </div>
-          <div class="p-4">
+          <div class="flex-1 overflow-y-auto p-4">
             <NoteComposer
               nick={props.nick}
               initial={props.initial}
