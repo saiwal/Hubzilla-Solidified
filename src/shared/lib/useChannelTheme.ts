@@ -74,12 +74,15 @@ export function useChannelTheme(channelNick: () => string) {
     }
 
     // Apply the channel's typography (CSS only — do not overwrite user's localStorage)
-    const fontSize = (VALID_SIZES.has(spa.font_size ?? "") ? spa.font_size : "medium") as FontSize;
-    const fontFamily = (VALID_FAMILIES.has(spa.font_family ?? "") ? spa.font_family : "system") as FontFamily;
-    applyTypographyCSS(fontSize, fontFamily);
+    if (VALID_SIZES.has(spa.font_size ?? "") || VALID_FAMILIES.has(spa.font_family ?? "")) {
+      const fontSize = (VALID_SIZES.has(spa.font_size ?? "") ? spa.font_size : "medium") as FontSize;
+      const fontFamily = (VALID_FAMILIES.has(spa.font_family ?? "") ? spa.font_family : "system") as FontFamily;
+      applyTypographyCSS(fontSize, fontFamily);
+    }
 
     // Apply the channel's corner radius (CSS only — do not overwrite user's localStorage)
-    const cornerRadius = (VALID_RADII.has(spa.corner_radius ?? "") ? spa.corner_radius : "default") as CornerRadius;
-    applyCornerRadiusCSS(cornerRadius);
+    if (VALID_RADII.has(spa.corner_radius ?? "")) {
+      applyCornerRadiusCSS(spa.corner_radius as CornerRadius);
+    }
   });
 }

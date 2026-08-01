@@ -15,4 +15,8 @@ export const help: RawDictionary["help"] = {
   navigation:     "नेविगेशन",
   page_not_found: "पृष्ठ नहीं मिला।",
   back:           "← वापस",
+  // Search
+  search_placeholder: "दस्तावेज़ खोजें…",
+  results_for:    'खोज परिणाम "{{query}}"',
+  no_results:     "कोई परिणाम नहीं मिला।",
 };

@@ -197,6 +197,9 @@ export type RawDictionary = {
     navigation:     string;
     page_not_found: string;
     back:           string;
+    search_placeholder: string;
+    results_for:    string;
+    no_results:     string;
   };
   connection: {
     close:          string;
@@ -1608,6 +1611,8 @@ export type RawDictionary = {
     load_more:        string;
     all_loaded:       string;
     untitled:         string;
+    search:             string;
+    search_placeholder: string;
     all_articles:     string;
     edit_article:     string;
     delete_article:   string;

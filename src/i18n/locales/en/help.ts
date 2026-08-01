@@ -16,4 +16,8 @@ export const help: RawDictionary["help"] = {
   navigation:     "Navigation",
   page_not_found: "Page not found.",
   back:           "← Back",
+  // Search
+  search_placeholder: "Search docs…",
+  results_for:    'Results for "{{query}}"',
+  no_results:     "No results found.",
 };

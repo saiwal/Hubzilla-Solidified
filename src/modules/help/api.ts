@@ -42,3 +42,24 @@ export async function fetchTopic(section: string, lang: string, topic: string): 
   const json = await res.json();
   return (json.data ?? json) as TopicResponse;
 }
+
+export interface HelpSearchResult {
+  path: string;
+  title: string;
+  snippet: string;
+}
+
+export interface HelpSearchResponse {
+  results: HelpSearchResult[];
+  query: string;
+  section: string;
+  lang: string;
+}
+
+export async function fetchHelpSearch(section: string, lang: string, q: string): Promise<HelpSearchResponse> {
+  const res  = await apiFetch(
+    `/spa/help/search?section=${section}&lang=${encodeURIComponent(lang)}&q=${encodeURIComponent(q)}`
+  );
+  const json = await res.json();
+  return (json.data ?? json) as HelpSearchResponse;
+}

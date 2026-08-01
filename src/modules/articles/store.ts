@@ -35,7 +35,8 @@ const [activeCategory, setActiveCategory] = createSignal<string>("");
 const [activeTag, setActiveTag] = createSignal<string>("");
 const [activeDbegin, setActiveDbegin] = createSignal<string>("");
 const [activeDend, setActiveDend] = createSignal<string>("");
-export { activeCategory, activeTag, activeDbegin, activeDend };
+const [activeSearch, setActiveSearch] = createSignal<string>("");
+export { activeCategory, activeTag, activeDbegin, activeDend, activeSearch };
 
 export function setArticleFilter(type: "cat" | "tag", value: string) {
   if (type === "cat") {
@@ -49,6 +50,7 @@ export function setArticleFilter(type: "cat" | "tag", value: string) {
   }
   setActiveDbegin("");
   setActiveDend("");
+  setActiveSearch("");
   store.reset();
   store.load({ cat: activeCategory(), tag: activeTag() });
 }
@@ -59,8 +61,20 @@ export function setArticleDateFilter(dbegin: string, dend: string) {
   setActiveDend(isActive ? "" : dend);
   setActiveCategory("");
   setActiveTag("");
+  setActiveSearch("");
   store.reset();
   store.load({ dbegin: activeDbegin(), dend: activeDend() });
+}
+
+export function setArticleSearch(value: string) {
+  const next = value.trim();
+  setActiveSearch(next);
+  setActiveCategory("");
+  setActiveTag("");
+  setActiveDbegin("");
+  setActiveDend("");
+  store.reset();
+  store.load({ search: next || undefined });
 }
 
 export function clearArticleFilter() {
@@ -68,6 +82,7 @@ export function clearArticleFilter() {
   setActiveTag("");
   setActiveDbegin("");
   setActiveDend("");
+  setActiveSearch("");
   store.reset();
   store.load({});
 }

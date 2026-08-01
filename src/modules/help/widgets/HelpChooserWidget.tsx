@@ -1,11 +1,32 @@
 // src/modules/help/widgets/HelpChooserWidget.tsx
-import { useLocation, A } from "@solidjs/router";
+import { createSignal, Show } from "solid-js";
+import { useLocation, useNavigate, useSearchParams, A } from "@solidjs/router";
+import { MdFillSearch, MdFillClose } from "solid-icons/md";
 import { useI18n } from "@/i18n";
 
 export default function HelpChooserWidget() {
   const { t } = useI18n();
   const location = useLocation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const section = () => location.pathname.split("/").filter(Boolean)[1] || "user";
+
+  const currentQuery = () => {
+    const v = searchParams.q;
+    return v ? String(Array.isArray(v) ? v[0] : v) : "";
+  };
+  const [query, setQuery] = createSignal(currentQuery());
+
+  const submitSearch = (e: Event) => {
+    e.preventDefault();
+    const q = query().trim();
+    if (q) navigate(`/help/${section()}?q=${encodeURIComponent(q)}`);
+  };
+
+  const clearSearch = () => {
+    setQuery("");
+    navigate(`/help/${section()}`);
+  };
 
   const sections = [
     { id: "user", label: () => t("help.section_user") },
@@ -14,7 +35,7 @@ export default function HelpChooserWidget() {
   ] as const;
 
   return (
-    <div class="bg-surface border border-rim rounded-2xl shadow-sm p-3">
+    <div class="bg-surface border border-rim rounded-2xl shadow-sm p-3 flex items-center gap-3 flex-wrap">
       <div class="flex gap-1 p-1 bg-elevated rounded-lg w-fit">
         {sections.map((s) => (
           <A
@@ -30,6 +51,31 @@ export default function HelpChooserWidget() {
           </A>
         ))}
       </div>
+
+      <form onSubmit={submitSearch} class="flex items-center gap-1 ml-auto">
+        <input
+          type="search"
+          value={query()}
+          onInput={(e) => setQuery(e.currentTarget.value)}
+          placeholder={t("help.search_placeholder")}
+          class="w-40 px-2 py-1 text-sm rounded-lg border border-rim bg-surface text-txt outline-none focus:border-accent"
+        />
+        <button
+          type="submit"
+          class="p-1.5 rounded-lg border border-rim bg-elevated text-txt hover:bg-overlay transition-colors"
+        >
+          <MdFillSearch size={15} />
+        </button>
+        <Show when={currentQuery()}>
+          <button
+            type="button"
+            onClick={clearSearch}
+            class="p-1.5 text-muted hover:text-txt transition-colors"
+          >
+            <MdFillClose size={15} />
+          </button>
+        </Show>
+      </form>
     </div>
   );
 }

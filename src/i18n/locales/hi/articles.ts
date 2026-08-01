@@ -9,6 +9,8 @@ export const articles: RawDictionary["articles"] = {
   load_more:        "और लोड करें",
   all_loaded:       "सभी लेख लोड हो गए",
   untitled:         "(शीर्षक रहित)",
+  search:             "खोजें",
+  search_placeholder: "लेख खोजें…",
   all_articles:     "← सभी लेख",
   edit_article:     "लेख संपादित करें",
   delete_article:   "लेख हटाएँ",

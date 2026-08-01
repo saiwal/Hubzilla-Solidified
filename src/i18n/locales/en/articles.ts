@@ -9,6 +9,8 @@ export const articles: RawDictionary["articles"] = {
   load_more:        "Load more",
   all_loaded:       "All articles loaded",
   untitled:         "(Untitled)",
+  search:             "Search",
+  search_placeholder: "Search articles…",
   // ArticleView
   all_articles:     "← All articles",
   edit_article:     "Edit article",

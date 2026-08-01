@@ -1,6 +1,6 @@
 // src/modules/articles/views/ArticlesView.tsx
 import { createEffect, createSignal, Show, For, Index } from "solid-js";
-import { MdOutlineArticle, MdOutlineShare, MdOutlineContent_copy } from "solid-icons/md";
+import { MdOutlineArticle, MdOutlineShare, MdOutlineContent_copy, MdFillSearch, MdFillClose } from "solid-icons/md";
 import { useParams, useNavigate, useSearchParams } from "@solidjs/router";
 import { useI18n } from "@/i18n";
 import { toast } from "@/shared/store/toast";
@@ -14,7 +14,8 @@ import { hydrateLatex } from "@/shared/lib/hydrateLatex";
 import {
   posts, loading, hasMore,
   loadArticles, resetPosts, loadMore,
-  activeCategory, activeTag, activeDbegin, clearArticleFilter,
+  activeCategory, activeTag, activeDbegin, activeSearch,
+  setArticleSearch, clearArticleFilter,
 } from "../store";
 import type { Post } from "@/shared/types/post.types";
 import { articlePath, articleShareUrl, buildArticleShareBody } from "../lib/articleLinks";
@@ -201,7 +202,22 @@ export default function ArticlesView() {
   const [open, setOpen] = createSignal(false);
   const [sharePost, setSharePost] = createSignal<Post | null>(null);
   const [searchParams] = useSearchParams();
+  const [searchOpen, setSearchOpen] = createSignal(!!activeSearch());
+  const [searchInput, setSearchInput] = createSignal(activeSearch());
   let initialized = false;
+
+  const submitSearch = (e?: Event) => {
+    e?.preventDefault();
+    const q = searchInput().trim();
+    setArticleSearch(q);
+    if (!q) setSearchOpen(false);
+  };
+
+  const clearAllFilters = () => {
+    setSearchInput("");
+    setSearchOpen(false);
+    clearArticleFilter();
+  };
 
   createEffect(() => {
     if (auth.loading) return;
@@ -219,27 +235,74 @@ export default function ArticlesView() {
   return (
     <div class="space-y-6 max-w-2xl mx-auto ">
       {/* ── Header row ── */}
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between gap-2">
         <h1 class="text-xl font-bold text-txt">{t("articles.title")}</h1>
 
-        <Show when={role() === "owner"}>
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            class="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium
-                   rounded-lg bg-accent text-accent-fg hover:opacity-90
-                   transition-opacity"
+        <div class="flex items-center gap-1.5">
+          <Show
+            when={searchOpen()}
+            fallback={
+              <button
+                type="button"
+                title={t("articles.search")}
+                onClick={() => { setSearchInput(activeSearch()); setSearchOpen(true); }}
+                class={`p-1.5 rounded-lg border transition-colors
+                  ${activeSearch()
+                    ? "bg-accent text-accent-fg border-accent"
+                    : "border-rim bg-surface text-muted hover:bg-elevated hover:text-txt"}`}
+              >
+                <MdFillSearch size={15} />
+              </button>
+            }
           >
-            <BiRegularEdit class="w-4 h-4" />
-            {t("articles.new_article")}
-          </button>
-        </Show>
+            <form onSubmit={submitSearch} class="flex items-center gap-1">
+              <input
+                type="search"
+                value={searchInput()}
+                onInput={(e) => setSearchInput(e.currentTarget.value)}
+                placeholder={t("articles.search_placeholder")}
+                autofocus
+                onKeyDown={(e) => { if (e.key === "Escape") setSearchOpen(false); }}
+                class="w-36 px-2 py-1 text-sm rounded-lg border border-rim bg-surface text-txt outline-none focus:border-accent"
+              />
+              <button
+                type="submit"
+                class="p-1.5 rounded-lg border border-rim bg-elevated text-txt hover:bg-overlay transition-colors"
+              >
+                <MdFillSearch size={15} />
+              </button>
+              <button
+                type="button"
+                onClick={() => setSearchOpen(false)}
+                class="p-1.5 text-muted hover:text-txt transition-colors"
+              >
+                <MdFillClose size={15} />
+              </button>
+            </form>
+          </Show>
+
+          <Show when={role() === "owner"}>
+            <button
+              type="button"
+              onClick={() => setOpen(true)}
+              class="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium
+                     rounded-lg bg-accent text-accent-fg hover:opacity-90
+                     transition-opacity"
+            >
+              <BiRegularEdit class="w-4 h-4" />
+              {t("articles.new_article")}
+            </button>
+          </Show>
+        </div>
       </div>
 
       {/* ── Active filter banner ── */}
-      <Show when={activeCategory() || activeTag() || activeDbegin()}>
+      <Show when={activeCategory() || activeTag() || activeDbegin() || activeSearch()}>
         <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-accent/10 border border-accent/25 text-sm">
           <span class="text-muted">{t("articles.filtered_by")}</span>
+          <Show when={activeSearch()}>
+            <span class="font-medium text-accent">"{activeSearch()}"</span>
+          </Show>
           <Show when={activeCategory()}>
             <span class="font-medium text-accent">{activeCategory()}</span>
           </Show>
@@ -253,7 +316,7 @@ export default function ArticlesView() {
           </Show>
           <button
             type="button"
-            onClick={clearArticleFilter}
+            onClick={clearAllFilters}
             class="ml-auto text-xs text-muted hover:text-txt transition-colors"
           >
             {t("articles.clear")}
