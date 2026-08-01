@@ -436,9 +436,9 @@ const Layout: ParentComponent = (props) => {
             id="main-content"
             ref={mainRef}
             onScroll={onMainScroll}
-            class="flex-1 overflow-y-auto p-4 lg:p-6 pb-16 lg:pb-6 relative"
+            class="flex-1 overflow-y-auto p-4 lg:p-6 pb-16 lg:pb-6 relative flex flex-col"
           >
-            <div class="flex flex-col min-h-full">
+            <div class="flex flex-col flex-1">
               <span class="sr-only" aria-live="polite" aria-atomic="true">
                 {notifCount() > 0
                   ? `${notifCount()} notification${notifCount() === 1 ? "" : "s"}`
