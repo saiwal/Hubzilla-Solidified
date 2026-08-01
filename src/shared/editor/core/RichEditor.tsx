@@ -28,6 +28,12 @@ interface Props {
   maxHeight?: string;
   /** Let the user drag-resize the editing surface vertically. */
   resizable?: boolean;
+  /**
+   * Stretches the surface to fill its ancestor's height instead of capping
+   * at maxHeight — for modals that give RichEditor a real bounded height to
+   * grow into. Has no effect if no ancestor in the flex chain is bounded.
+   */
+  fill?: boolean;
 }
 
 export default function RichEditor(props: Props) {
@@ -47,13 +53,17 @@ export default function RichEditor(props: Props) {
   const sig = () => `${mime()} ${props.body}`;
   const minH = () =>
     props.minHeight ??
-    (props.capabilities.toolbar === "comment" ? "130px" : "140px");
+    (props.capabilities.toolbar === "comment" ? "130px" : "150px");
   // A ceiling so the surface scrolls internally instead of growing forever —
   // in px/vh (never %) so it self-caps even when nothing above it in the DOM
   // gives it a bounded height to grow against (e.g. plain page-flow composers).
+  // In fill mode there's no ceiling here at all — the surface instead grows
+  // via flex-1 to whatever bounded height its ancestor provides.
   const maxH = () =>
-    props.maxHeight ??
-    (props.capabilities.toolbar === "comment" ? "260px" : "50vh");
+    props.fill
+      ? undefined
+      : props.maxHeight ?? (props.capabilities.toolbar === "comment" ? "260px" : "50vh");
+  const surfaceGrowClass = () => (props.fill ? "flex-1 min-h-0" : "grow");
 
   // Seed the WYSIWYG surface whenever it (re)mounts. The <Show> around the
   // surface destroys the div on every tab switch, so this must run per mount
@@ -243,18 +253,26 @@ export default function RichEditor(props: Props) {
   };
 
   // Every composer gets the tab bar (write/source) except chat's plain input.
+  //
+  // This wrapper needs an explicit floor — NOT min-h-0 (0), and not the
+  // default `auto` either. Two failure modes, both seen in practice:
+  //  - With min-height:0, flex-shrink can compress this box below what its
+  //    children (toolbar + the surface's own min-height) actually need. It
+  //    doesn't clip (no overflow-clip here — see below), so the toolbar
+  //    still renders at full size... but the NEXT SIBLING (AttachmentBar)
+  //    is positioned by this box's shrunk nominal size, not its overflowed
+  //    content — so the two visually overlap.
+  //  - With `auto` (content-based sizing, the flex default when overflow is
+  //    visible), a long typed post makes the *surface's* natural content
+  //    height count toward this wrapper's own minimum, ballooning it (and
+  //    everything above it) instead of leaving the surface bounded to
+  //    scroll internally.
+  // 300px is a generous, hand-picked ceiling for "toolbar (even wrapped to
+  // multiple rows on a narrow modal) + the surface's 150px floor" — a real,
+  // content-independent constant, not a computed one. If a future toolbar
+  // change makes it wrap further than this, bump the number.
   return (
-    <div class="rich-editor flex flex-col flex-1 min-h-0 rounded-lg overflow-clip bg-elevated">
-      {/* ── Unified toolbar (wysiwyg + source tabs) ── */}
-      <EditorToolbar
-        level={props.capabilities.toolbar}
-        latexMode={props.capabilities.latexMode}
-        tab={props.tab}
-        editorRef={() => editorRef}
-        textareaRef={() => textareaRef}
-        onSourceChange={(v) => { props.onInput(v); }}
-      />
-
+    <div class="rich-editor flex flex-col flex-1 min-h-[300px]">
       {/* ── WYSIWYG surface ───────────────────────────────── */}
       <Show when={props.tab === "wysiwyg"}>
         <div
@@ -268,7 +286,7 @@ export default function RichEditor(props: Props) {
           onBlur={onEditorBlur}
           data-placeholder={props.placeholder ?? t("editor.write_placeholder")}
           style={{ "min-height": minH(), "max-height": maxH() }}
-          class={`grow overflow-y-auto p-3 outline-none text-sm text-txt bg-surface
+          class={`${surfaceGrowClass()} overflow-y-auto rounded-t-lg p-3 outline-none text-sm text-txt bg-elevated
                  [&_img]:max-w-full [&_img]:h-auto
                  empty:before:content-[attr(data-placeholder)]
                  empty:before:text-muted empty:before:pointer-events-none
@@ -285,7 +303,7 @@ export default function RichEditor(props: Props) {
           onKeyDown={handleKeyDown}
           onPaste={handlePaste}
           style={{ "min-height": minH(), "max-height": maxH() }}
-          class={`grow overflow-y-auto w-full p-3 text-sm font-mono text-txt bg-surface outline-none ${props.resizable ? "resize-y" : "resize-none"}`}
+          class={`${surfaceGrowClass()} overflow-y-auto rounded-t-lg w-full p-3 text-sm font-mono text-txt bg-elevated outline-none ${props.resizable ? "resize-y" : "resize-none"}`}
           placeholder={
             mime() === "text/markdown"
               ? t("editor.markdown_source_placeholder")
@@ -295,6 +313,18 @@ export default function RichEditor(props: Props) {
           }
         />
       </Show>
+
+      {/* ── Unified toolbar (wysiwyg + source tabs) — docked at the bottom
+           of the surface so it stays visible while the surface above it
+           scrolls internally past long content. ── */}
+      <EditorToolbar
+        level={props.capabilities.toolbar}
+        latexMode={props.capabilities.latexMode}
+        tab={props.tab}
+        editorRef={() => editorRef}
+        textareaRef={() => textareaRef}
+        onSourceChange={(v) => { props.onInput(v); }}
+      />
 
       {/* ── Image resize popup ───────────────────────────── */}
       <Show when={imgSel()}>

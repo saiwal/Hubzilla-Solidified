@@ -14,6 +14,7 @@ import { createSignal, createEffect, on, onCleanup, Show, For, type Component } 
 import { Portal } from "solid-js/web";
 import { createComposerStore } from "../store/createComposerStore";
 import RichEditor from "../core/RichEditor";
+import ComposerModal from "../components/ComposerModal";
 import { CAPABILITIES } from "../types/editor.types";
 import { fetchConnections, type AclEntry } from "@/modules/network/api";
 import { entryKey } from "../components/AclPicker";
@@ -21,7 +22,6 @@ import RecipientField from "../components/RecipientField";
 import { useMentionEmojiWiring } from "../mention/useMentionEmojiWiring";
 import MentionEmojiPopups from "../mention/MentionEmojiPopups";
 import { PrimarySubmitButton, SecondaryButton, ToggleButton, IconButton } from "../components/buttons";
-import { helpable } from "@/shared/lib/helpable";
 import AttachmentBar from "../attachments/AttachmentBar";
 import { createAttachmentStore } from "../attachments/useAttachments";
 import { currentNick } from "@/shared/store/auth-store";
@@ -32,7 +32,6 @@ import { getCsrfToken } from "@/shared/lib/csrf";
 import { isEncryptedBody } from "@/shared/lib/postCrypto";
 import { useEncrypt } from "../useEncrypt";
 import EncryptPanel from "../components/EncryptPanel";
-void helpable;
 
 export interface DMComposerProps {
   open: boolean;
@@ -170,103 +169,15 @@ const DMComposer: Component<DMComposerProps> = (props) => {
 
   return (
     <Show when={props.open}>
-      <Portal mount={document.body}>
-        <div
-          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60"
-          use:helpable="shared/dm-composer"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) props.onClose();
-          }}
-        >
-          <div
-            class="flex flex-col bg-surface border border-rim shadow-2xl text-txt
-                   w-full max-w-2xl h-[80vh] rounded-xl"
-            role="dialog"
-            aria-modal="true"
-            aria-label={t("editor.dm_new_message")}
-          >
-            {/* ── Header ── */}
-            <header class="flex items-center justify-between px-4 py-3 border-b border-rim shrink-0 rounded-t-xl">
-              <span class="text-xs font-semibold tracking-widest uppercase text-muted select-none">
-                {t("editor.dm_new_message")}
-              </span>
-              <IconButton title={t("editor.close_esc")} onClick={props.onClose}>
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M18 6 6 18M6 6l12 12" />
-                </svg>
-              </IconButton>
-            </header>
-
-            {/* ── Scrollable body: To: field + editor + optional panels.
-                 Header/footer stay pinned; this is the only region that
-                 scrolls when everything doesn't fit, so the editor's own
-                 toolbar+text box always renders at its natural/self-capped
-                 size instead of being squeezed and clipped. ── */}
-            <div class="flex-1 overflow-y-auto min-h-0">
-
-            {/* ── To: field ── */}
-            <div class="px-4 pt-3 pb-2 border-b border-rim">
-              <RecipientField
-                entries={recipients}
-                onAdd={addRecipient}
-                onRemove={removeRecipient}
-              />
-              <Show when={unpermittedRecipients().length > 0}>
-                <ul class="mt-1.5 space-y-0.5">
-                  <For each={unpermittedRecipients()}>
-                    {(r) => (
-                      <li class="text-xs text-red-500">
-                        {t("editor.dm_recipient_not_permitted", { name: r.name })}
-                      </li>
-                    )}
-                  </For>
-                </ul>
-              </Show>
-            </div>
-
-            {/* ── Editor area — sticky so the toolbar+text box stays pinned
-                 to the top of the scrolling body instead of scrolling out
-                 of view underneath the header once the To: field/recipients
-                 push it down. ── */}
-            <div ref={wiring.wrapperRef} class="flex flex-col sticky top-0 z-10 bg-surface">
-              <RichEditor
-                body={store.body()}
-                onInput={store.setBody}
-                capabilities={caps}
-                tab={store.tab()}
-                onTabChange={store.setTab}
-                mimetype={store.mimetype()}
-                onCtrlEnter={() => { if (!wiring.mention.open()) void store.submit(); }}
-                onPasteFiles={(files) => attach.addUploads(files)}
-                placeholder={t("editor.write_placeholder")}
-                minHeight="160px"
-              />
-              <AttachmentBar
-                store={attach}
-                nick={currentNick()}
-                accept="both"
-                onInsert={(bbcode) => {
-                  store.setBody(store.body() + "\n" + bbcodeToInsert(bbcode, store.mimetype()));
-                }}
-                onAltChange={(att) => {
-                  store.setBody(patchInsertedAlt(store.body(), att, store.mimetype()));
-                }}
-                tab={store.tab()}
-                onToggleTab={() => store.setTab(store.tab() === "wysiwyg" ? "source" : "wysiwyg")}
-              />
-            </div>
-
-            {/* ── Encrypt panel ── */}
-            <Show when={enc.open()}>
-              <EncryptPanel enc={enc} />
-            </Show>
-
-            </div>
-
-            {/* ── Footer ── */}
-            <footer class="flex flex-col gap-2 px-3.5 py-2.5 border-t border-rim bg-elevated shrink-0 rounded-b-xl">
-              {/* Options row: encrypt */}
-              <div class="flex flex-wrap items-center gap-2">
+      <ComposerModal
+        title={t("editor.dm_new_message")}
+        onClose={props.onClose}
+        helpTarget="shared/dm-composer"
+        manageEscape={false}
+        footer={
+          <>
+            {/* Options row: encrypt */}
+            <div class="flex flex-wrap items-center gap-2">
                 <Show when={isFeatureEnabled("content_encrypt")}>
                   <Show
                     when={!isEncryptedBody(store.body())}
@@ -326,10 +237,77 @@ const DMComposer: Component<DMComposerProps> = (props) => {
                   </PrimarySubmitButton>
                 </div>
               </div>
-            </footer>
-          </div>
+          </>
+        }
+      >
+        {/* Single flex-col root for all body content — mirrors ArticleComposer's
+            structure exactly (one flex-1 min-h-0 wrapper containing the
+            shrink-0/flex-1/shrink-0 groups), rather than passing them as
+            separate top-level children of ComposerModal's body. */}
+        <div class="flex flex-col flex-1 min-h-0">
+        {/* ── To: field ── */}
+        <div class="px-4 pt-3 pb-2 border-b border-rim shrink-0">
+          <RecipientField
+            entries={recipients}
+            onAdd={addRecipient}
+            onRemove={removeRecipient}
+          />
+          <Show when={unpermittedRecipients().length > 0}>
+            <ul class="mt-1.5 space-y-0.5">
+              <For each={unpermittedRecipients()}>
+                {(r) => (
+                  <li class="text-xs text-red-500">
+                    {t("editor.dm_recipient_not_permitted", { name: r.name })}
+                  </li>
+                )}
+              </For>
+            </ul>
+          </Show>
         </div>
 
+        {/* ── Editor area — fills the remaining modal height; the surface
+             inside RichEditor scrolls internally past long text while the
+             bottom-docked toolbar stays put. ── */}
+        {/* min-h-[360px] (not min-h-0): a real floor covering RichEditor's own
+            300px floor plus AttachmentBar's row — see RichEditor.tsx's
+            wrapper comment for why min-h-0/auto both fail here. */}
+        <div ref={wiring.wrapperRef} class="flex flex-col flex-1 min-h-[360px]">
+          <RichEditor
+            body={store.body()}
+            onInput={store.setBody}
+            capabilities={caps}
+            tab={store.tab()}
+            onTabChange={store.setTab}
+            mimetype={store.mimetype()}
+            onCtrlEnter={() => { if (!wiring.mention.open()) void store.submit(); }}
+            onPasteFiles={(files) => attach.addUploads(files)}
+            placeholder={t("editor.write_placeholder")}
+            minHeight="150px"
+            fill
+          />
+          <AttachmentBar
+            store={attach}
+            nick={currentNick()}
+            accept="both"
+            onInsert={(bbcode) => {
+              store.setBody(store.body() + "\n" + bbcodeToInsert(bbcode, store.mimetype()));
+            }}
+            onAltChange={(att) => {
+              store.setBody(patchInsertedAlt(store.body(), att, store.mimetype()));
+            }}
+            tab={store.tab()}
+            onToggleTab={() => store.setTab(store.tab() === "wysiwyg" ? "source" : "wysiwyg")}
+          />
+        </div>
+
+        {/* ── Encrypt panel ── */}
+        <Show when={enc.open()}>
+          <EncryptPanel enc={enc} />
+        </Show>
+        </div>
+      </ComposerModal>
+
+      <Portal mount={document.body}>
         <MentionEmojiPopups wiring={wiring} />
       </Portal>
     </Show>

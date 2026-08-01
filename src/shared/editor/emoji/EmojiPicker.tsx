@@ -20,8 +20,8 @@ export default function EmojiPicker(props: EmojiPickerProps) {
   const { t } = useI18n();
   const [open, setOpen] = createSignal(false);
   const [query, setQuery] = createSignal("");
-  const [panelStyle, setPanelStyle] = createSignal<{ top: string; left: string; right?: string }>({
-    top: "auto",
+  const [panelStyle, setPanelStyle] = createSignal<{ bottom: string; left: string; right?: string }>({
+    bottom: "auto",
     left: "auto",
   });
 
@@ -40,27 +40,30 @@ export default function EmojiPicker(props: EmojiPickerProps) {
     props.triggerClass ??
     `px-1.5 py-0.5 rounded text-txt hover:bg-elevated transition-colors ${open() ? "bg-elevated" : ""}`;
 
-  // Calculate panel position to avoid right edge overflow
+  // Opens above-left of the trigger — the toolbar (and this button with it)
+  // sits at the bottom of the editor, so opening downward (the old
+  // behavior) pushed the panel past the modal/page edge instead of into the
+  // editor's own space above.
   const updatePanelPosition = () => {
     if (!triggerRef) return;
     const triggerRect = triggerRef.getBoundingClientRect();
     const panelWidth = 256; // w-64 = 16rem = 256px
     const viewportWidth = window.innerWidth;
-    const gap = 4; // mt-1 equivalent in px
-    
-    const top = triggerRect.bottom + gap;
+    const gap = 4; // mb-1 equivalent in px
+
+    const bottom = window.innerHeight - triggerRect.top + gap;
     let left = triggerRect.left;
     let right: string | undefined;
-    
+
     // If picker would overflow right edge, anchor to right instead
     if (left + panelWidth > viewportWidth - 8) {
       // Subtract from right edge with 8px padding
       right = `${8}px`;
       left = NaN as any;
     }
-    
+
     setPanelStyle({
-      top: `${top}px`,
+      bottom: `${bottom}px`,
       left: isNaN(left as any) ? "auto" : `${left}px`,
       right: right,
     });

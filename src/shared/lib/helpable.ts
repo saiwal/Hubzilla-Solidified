@@ -1,14 +1,19 @@
 // src/shared/lib/helpable.ts
 import { useHelpMode } from "@/shared/store/help-mode";
 
-export function helpable(el: HTMLElement, accessor: () => string) {
+export function helpable(el: HTMLElement, accessor: () => string | undefined) {
   const { helpMode, pick } = useHelpMode();
 
   const onClick = (e: MouseEvent) => {
     if (!helpMode()) return;
+    // An empty/undefined target (e.g. an optional helpTarget prop a caller
+    // didn't set) means this element opted out — let the click behave
+    // normally instead of swallowing it for a no-op pick().
+    const target = accessor();
+    if (!target) return;
     e.preventDefault();
     e.stopPropagation();
-    pick(accessor());
+    pick(target);
   };
 
   const onMouseEnter = () => {

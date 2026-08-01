@@ -1,14 +1,14 @@
 // src/modules/articles/views/ArticlesView.tsx
-import { createEffect, createSignal, onMount, onCleanup, Show, For, Index } from "solid-js";
+import { createEffect, createSignal, Show, For, Index } from "solid-js";
 import { MdOutlineArticle, MdOutlineShare, MdOutlineContent_copy } from "solid-icons/md";
 import { useParams, useNavigate, useSearchParams } from "@solidjs/router";
 import { useI18n } from "@/i18n";
-import { Portal } from "solid-js/web";
 import { toast } from "@/shared/store/toast";
 import { useAuth } from "@/shared/store/auth-store";
 import { useViewerRole } from "@/shared/store/site-config";
-import { BiRegularEdit, BiRegularX, BiRegularCheck } from "solid-icons/bi";
+import { BiRegularEdit, BiRegularCheck } from "solid-icons/bi";
 import ArticleComposer from "@/shared/editor/composers/ArticleComposer";
+import ComposerModal from "@/shared/editor/components/ComposerModal";
 import PostComposer from "@/shared/editor/composers/PostComposer";
 import { hydrateLatex } from "@/shared/lib/hydrateLatex";
 import {
@@ -175,46 +175,20 @@ function ArticleModal(props: {
   onClose: () => void;
 }) {
   const { t } = useI18n();
-  onMount(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") props.onClose(); };
-    document.addEventListener("keydown", onKey);
-    onCleanup(() => document.removeEventListener("keydown", onKey));
-  });
 
   return (
-    <Portal mount={document.body}>
-      {/* Backdrop */}
-      <div
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
-        onClick={(e) => { if (e.target === e.currentTarget) props.onClose(); }}
-      >
-        {/* Panel */}
-        <div class="relative w-full max-w-3xl max-h-[90vh] flex flex-col rounded-xl bg-base border border-rim shadow-xl overflow-clip">
-          <div class="flex items-center justify-between px-4 py-3 border-b border-rim bg-base shrink-0">
-            <h2 class="text-sm font-semibold text-txt">{t("articles.new_article")}</h2>
-            <button
-              type="button"
-              onClick={props.onClose}
-              class="p-1 rounded text-muted hover:bg-elevated transition-colors"
-            >
-              <BiRegularX class="w-5 h-5" />
-            </button>
-          </div>
-          <div class="flex-1 overflow-y-auto">
-            <ArticleComposer
-              profileUid={props.uid}
-              nick={props.nick}
-              onSaved={() => {
-                props.onClose();
-                resetPosts();
-                loadArticles(props.nick);
-              }}
-              onCancel={props.onClose}
-            />
-          </div>
-        </div>
-      </div>
-    </Portal>
+    <ComposerModal title={t("articles.new_article")} onClose={props.onClose} widthClass="max-w-3xl">
+      <ArticleComposer
+        profileUid={props.uid}
+        nick={props.nick}
+        onSaved={() => {
+          props.onClose();
+          resetPosts();
+          loadArticles(props.nick);
+        }}
+        onCancel={props.onClose}
+      />
+    </ComposerModal>
   );
 }
 

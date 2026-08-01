@@ -18,6 +18,9 @@ interface Props {
   onCancel?: () => void;
   /** Plain textarea, no toolbar/source-toggle (used by the sidebar quick-note widget) */
   minimal?: boolean;
+  /** Stretches to fill an ancestor with a bounded height (e.g. ComposerModal)
+   *  instead of the default auto-grow-then-cap layout used inline. */
+  fill?: boolean;
 }
 
 export default function NoteComposer(props: Props) {
@@ -66,7 +69,7 @@ export default function NoteComposer(props: Props) {
   }
 
   return (
-    <div class="space-y-3">
+    <div class={props.fill ? "flex flex-col flex-1 min-h-0 gap-3 p-4" : "space-y-3"}>
       <Show
         when={!props.minimal}
         fallback={
@@ -85,27 +88,34 @@ export default function NoteComposer(props: Props) {
           />
         }
       >
-        <RichEditor
-          body={store.body()}
-          onInput={store.setBody}
-          capabilities={caps}
-          tab={store.tab()}
-          onTabChange={store.setTab}
-          mimetype={store.mimetype()}
-          onCtrlEnter={() => void store.submit()}
-          placeholder={t("notepad.placeholder")}
-          minHeight="120px"
-        />
-
-        <div class="flex justify-end mt-3">
-          <SourceToggleButton
+        {/* min-h-[340px] (not min-h-0): a real floor covering RichEditor's
+            own 300px floor plus the source-toggle row below it — see
+            RichEditor.tsx's wrapper comment for why min-h-0/auto both fail
+            here. */}
+        <div class={props.fill ? "flex-1 min-h-[340px] flex flex-col" : undefined}>
+          <RichEditor
+            body={store.body()}
+            onInput={store.setBody}
+            capabilities={caps}
             tab={store.tab()}
-            onToggle={() => store.setTab(store.tab() === "wysiwyg" ? "source" : "wysiwyg")}
+            onTabChange={store.setTab}
+            mimetype={store.mimetype()}
+            onCtrlEnter={() => void store.submit()}
+            placeholder={t("notepad.placeholder")}
+            minHeight={props.fill ? "150px" : "120px"}
+            fill={props.fill}
           />
+
+          <div class="flex justify-end mt-3">
+            <SourceToggleButton
+              tab={store.tab()}
+              onToggle={() => store.setTab(store.tab() === "wysiwyg" ? "source" : "wysiwyg")}
+            />
+          </div>
         </div>
       </Show>
 
-      <div class="flex items-center gap-2 justify-end">
+      <div class="flex items-center gap-2 justify-end shrink-0">
         <Show when={props.onCancel}>
           <button
             type="button"

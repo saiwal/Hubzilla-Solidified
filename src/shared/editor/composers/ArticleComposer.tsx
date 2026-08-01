@@ -218,75 +218,83 @@ export default function ArticleComposer(props: Props) {
   };
 
   return (
-    <div class="max-w-3xl mx-auto space-y-4 py-6 px-4">
-      {/* Title */}
-      <input
-        type="text"
-        placeholder={t("editor.article_title_placeholder")}
-        value={store.title()}
-        onInput={(e) => onTitleChange(e.currentTarget.value)}
-        class={`w-full px-0 py-2 text-lg font-bold text-txt placeholder:text-muted ${underlineFieldClass}`}
-      />
-
-      {/* Summary */}
-      <Show when={caps.summary}>
-        <SummaryField
-          value={store.summary}
-          onInput={store.setSummary}
-          placeholder={t("editor.article_summary_placeholder")}
-          class={`w-full px-0 py-1.5 text-sm text-txt placeholder:text-muted resize-none ${underlineFieldClass}`}
+    <div class="flex flex-col flex-1 min-h-0 max-w-3xl mx-auto gap-4 py-6 px-4">
+      {/* Meta fields — fixed height, above the editor */}
+      <div class="shrink-0 space-y-4">
+        {/* Title */}
+        <input
+          type="text"
+          placeholder={t("editor.article_title_placeholder")}
+          value={store.title()}
+          onInput={(e) => onTitleChange(e.currentTarget.value)}
+          class={`w-full px-0 py-2 text-lg font-bold text-txt placeholder:text-muted ${underlineFieldClass}`}
         />
-      </Show>
 
-      {/* Slug — its own line */}
-      <Show when={caps.slug}>
-        <SlugField value={store.slug} onInput={store.setSlug} title={store.title} hideLabel />
-      </Show>
+        {/* Summary */}
+        <Show when={caps.summary}>
+          <SummaryField
+            value={store.summary}
+            onInput={store.setSummary}
+            placeholder={t("editor.article_summary_placeholder")}
+            class={`w-full px-0 py-1.5 text-sm text-txt placeholder:text-muted resize-none ${underlineFieldClass}`}
+          />
+        </Show>
 
-      {/* Language — required */}
-      <LanguageField
-        value={lang}
-        onInput={setLang}
-        exclude={props.translationOf?.excludeLangs}
-        hideLabel
-      />
+        {/* Slug — its own line */}
+        <Show when={caps.slug}>
+          <SlugField value={store.slug} onInput={store.setSlug} title={store.title} hideLabel />
+        </Show>
 
-      {/* Series — optional */}
-      <SeriesField
-        name={series}
-        onNameInput={setSeries}
-        order={seriesOrder}
-        onOrderInput={setSeriesOrder}
-        hideLabel
-      />
-
-      {/* Category — its own line */}
-      <Show when={caps.category}>
-        <CategoryTagsField
-          tags={categoryTags.categoryTags}
-          pending={categoryTags.pendingCategory}
-          onPendingInput={categoryTags.setPendingCategory}
-          onKeyDown={categoryTags.onCategoryKeyDown}
-          onRemove={categoryTags.removeCategoryTag}
-          onBlur={() => {
-            if (categoryTags.pendingCategory().trim()) {
-              categoryTags.addCategoryTag(categoryTags.pendingCategory());
-            }
-          }}
-          placeholder={t("editor.category_field_placeholder")}
-          showLabel
+        {/* Language — required */}
+        <LanguageField
+          value={lang}
+          onInput={setLang}
+          exclude={props.translationOf?.excludeLangs}
           hideLabel
         />
-      </Show>
 
-      <div class="flex items-center justify-end gap-2">
-        <span class="text-xs text-muted">{t("editor.words_count", { count: wordCount() })}</span>
-        <span class="text-xs text-muted">·</span>
-        <span class="text-xs text-muted">{t("editor.chars_count", { count: charCount() })}</span>
+        {/* Series — optional */}
+        <SeriesField
+          name={series}
+          onNameInput={setSeries}
+          order={seriesOrder}
+          onOrderInput={setSeriesOrder}
+          hideLabel
+        />
+
+        {/* Category — its own line */}
+        <Show when={caps.category}>
+          <CategoryTagsField
+            tags={categoryTags.categoryTags}
+            pending={categoryTags.pendingCategory}
+            onPendingInput={categoryTags.setPendingCategory}
+            onKeyDown={categoryTags.onCategoryKeyDown}
+            onRemove={categoryTags.removeCategoryTag}
+            onBlur={() => {
+              if (categoryTags.pendingCategory().trim()) {
+                categoryTags.addCategoryTag(categoryTags.pendingCategory());
+              }
+            }}
+            placeholder={t("editor.category_field_placeholder")}
+            showLabel
+            hideLabel
+          />
+        </Show>
+
+        <div class="flex items-center justify-end gap-2">
+          <span class="text-xs text-muted">{t("editor.words_count", { count: wordCount() })}</span>
+          <span class="text-xs text-muted">·</span>
+          <span class="text-xs text-muted">{t("editor.chars_count", { count: charCount() })}</span>
+        </div>
       </div>
 
-      {/* Editor */}
-      <div ref={wiring.wrapperRef}>
+      {/* Editor — fills the remaining space; the surface inside RichEditor
+           scrolls internally past long text while the bottom-docked toolbar
+           stays put. */}
+      {/* min-h-[360px] (not min-h-0): a real floor covering RichEditor's own
+          300px floor plus AttachmentBar's row — see RichEditor.tsx's
+          wrapper comment for why min-h-0/auto both fail here. */}
+      <div ref={wiring.wrapperRef} class="flex-1 min-h-[360px] flex flex-col">
         <RichEditor
           body={store.body()}
           onInput={onBodyChange}
@@ -295,7 +303,8 @@ export default function ArticleComposer(props: Props) {
           onTabChange={store.setTab}
           mimetype={store.mimetype()}
           placeholder={t("editor.start_writing")}
-          minHeight="400px"
+          minHeight="150px"
+          fill
         />
         <AttachmentBar
           store={attach}
@@ -309,123 +318,126 @@ export default function ArticleComposer(props: Props) {
         />
       </div>
 
-      {/* Encrypt panel */}
-      <Show when={enc.open()}>
-        <EncryptPanel enc={enc} />
-      </Show>
+      {/* Trailing panels + action rows — fixed height, below the editor */}
+      <div class="shrink-0 space-y-4">
+        {/* Encrypt panel */}
+        <Show when={enc.open()}>
+          <EncryptPanel enc={enc} />
+        </Show>
 
-      <MentionEmojiPopups wiring={wiring} />
+        <MentionEmojiPopups wiring={wiring} />
 
-      {/* Drafts panel */}
-      <Show when={draftsOpen()}>
-        <DraftsList
-          drafts={store.savedDrafts()}
-          onLoad={(d) => { store.loadSavedDraft(d); setDraftsOpen(false); }}
-          onDelete={(id) => void store.deleteSavedDraft(id)}
-          onClose={() => setDraftsOpen(false)}
-        />
-      </Show>
-
-      {/* Options row: ACL + encrypt */}
-      <div class="flex flex-wrap items-center gap-3 border-t border-rim pt-4">
-        <Show when={caps.aclPicker}>
-          <AclPicker
-            mode={acl.mode()}
-            onModeChange={acl.setMode}
-            allowEntries={acl.allowEntries()}
-            denyEntries={acl.denyEntries()}
-            onToggle={acl.toggleEntry}
-            onClear={acl.clearEntries}
+        {/* Drafts panel */}
+        <Show when={draftsOpen()}>
+          <DraftsList
+            drafts={store.savedDrafts()}
+            onLoad={(d) => { store.loadSavedDraft(d); setDraftsOpen(false); }}
+            onDelete={(id) => void store.deleteSavedDraft(id)}
+            onClose={() => setDraftsOpen(false)}
           />
         </Show>
 
-        <Show when={isFeatureEnabled("content_encrypt")}>
-          <Show
-            when={!isEncryptedBody(store.body())}
-            fallback={
-              <span class="flex items-center gap-1 px-2 py-1 rounded-md text-xs border bg-yellow-500/10 text-yellow-500 border-yellow-500/30">
-                🔒 {t("editor.encrypt_badge")}
-              </span>
-            }
-          >
-            <ToggleButton
-              active={enc.open()}
-              onClick={() => enc.setOpen((o) => !o)}
-              title={t("editor.encrypt_toggle")}
-            >
-              <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-              </svg>
-              {t("editor.encrypt_toggle")}
-            </ToggleButton>
+        {/* Options row: ACL + encrypt */}
+        <div class="flex flex-wrap items-center gap-3 border-t border-rim pt-4">
+          <Show when={caps.aclPicker}>
+            <AclPicker
+              mode={acl.mode()}
+              onModeChange={acl.setMode}
+              allowEntries={acl.allowEntries()}
+              denyEntries={acl.denyEntries()}
+              onToggle={acl.toggleEntry}
+              onClear={acl.clearEntries}
+            />
           </Show>
-        </Show>
-      </div>
 
-      {/* Action row: discard/save-draft/drafts on the left, clear/submit on the right */}
-      <div class="flex flex-wrap items-center gap-3">
-        <div class="flex gap-2 items-center">
-          <SecondaryButton onClick={() => props.onCancel?.()}>
-            {isEditing() ? t("editor.cancel_btn") : t("editor.discard")}
-          </SecondaryButton>
-          <Show when={store.body().trim()}>
-            <SecondaryButton onClick={() => void store.saveAsDraft()}>
-              <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 3v5H9V3m0 14h6" />
-              </svg>
-              {t("editor.save_draft")}
-            </SecondaryButton>
-          </Show>
-          <Show when={store.savedDrafts().length > 0}>
-            <button
-              type="button"
-              onClick={() => setDraftsOpen((o) => !o)}
-              class={
-                "px-2.5 py-1.5 rounded-lg border text-xs transition-colors " +
-                (draftsOpen()
-                  ? "border-rim bg-elevated text-txt"
-                  : "border-rim text-muted hover:text-txt hover:bg-elevated")
+          <Show when={isFeatureEnabled("content_encrypt")}>
+            <Show
+              when={!isEncryptedBody(store.body())}
+              fallback={
+                <span class="flex items-center gap-1 px-2 py-1 rounded-md text-xs border bg-yellow-500/10 text-yellow-500 border-yellow-500/30">
+                  🔒 {t("editor.encrypt_badge")}
+                </span>
               }
             >
-              {t("editor.drafts_btn", { count: store.savedDrafts().length })}
-            </button>
+              <ToggleButton
+                active={enc.open()}
+                onClick={() => enc.setOpen((o) => !o)}
+                title={t("editor.encrypt_toggle")}
+              >
+                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                </svg>
+                {t("editor.encrypt_toggle")}
+              </ToggleButton>
+            </Show>
           </Show>
         </div>
 
-        <div class="flex items-center gap-2 ml-auto">
-          <IconButton
-            title={t("editor.clear_composer")}
-            variant="danger"
-            onClick={() => {
-              store.reset();
-              attach.clear();
-              acl.reset();
-              categoryTags.setPendingCategory("");
-              enc.reset();
-            }}
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </IconButton>
-          <PrimarySubmitButton
-            disabled={
-              store.submitting() ||
-              attach.uploading() ||
-              !store.body().trim() ||
-              !store.title().trim() ||
-              !lang()
-            }
-            onClick={() => void store.submit()}
-          >
-            {store.submitting()
-              ? t("editor.saving")
-              : isEditing()
-                ? t("editor.save_changes")
-                : t("editor.publish_btn")}
-          </PrimarySubmitButton>
+        {/* Action row: discard/save-draft/drafts on the left, clear/submit on the right */}
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="flex gap-2 items-center">
+            <SecondaryButton onClick={() => props.onCancel?.()}>
+              {isEditing() ? t("editor.cancel_btn") : t("editor.discard")}
+            </SecondaryButton>
+            <Show when={store.body().trim()}>
+              <SecondaryButton onClick={() => void store.saveAsDraft()}>
+                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 3v5H9V3m0 14h6" />
+                </svg>
+                {t("editor.save_draft")}
+              </SecondaryButton>
+            </Show>
+            <Show when={store.savedDrafts().length > 0}>
+              <button
+                type="button"
+                onClick={() => setDraftsOpen((o) => !o)}
+                class={
+                  "px-2.5 py-1.5 rounded-lg border text-xs transition-colors " +
+                  (draftsOpen()
+                    ? "border-rim bg-elevated text-txt"
+                    : "border-rim text-muted hover:text-txt hover:bg-elevated")
+                }
+              >
+                {t("editor.drafts_btn", { count: store.savedDrafts().length })}
+              </button>
+            </Show>
+          </div>
+
+          <div class="flex items-center gap-2 ml-auto">
+            <IconButton
+              title={t("editor.clear_composer")}
+              variant="danger"
+              onClick={() => {
+                store.reset();
+                attach.clear();
+                acl.reset();
+                categoryTags.setPendingCategory("");
+                enc.reset();
+              }}
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </IconButton>
+            <PrimarySubmitButton
+              disabled={
+                store.submitting() ||
+                attach.uploading() ||
+                !store.body().trim() ||
+                !store.title().trim() ||
+                !lang()
+              }
+              onClick={() => void store.submit()}
+            >
+              {store.submitting()
+                ? t("editor.saving")
+                : isEditing()
+                  ? t("editor.save_changes")
+                  : t("editor.publish_btn")}
+            </PrimarySubmitButton>
+          </div>
         </div>
       </div>
     </div>

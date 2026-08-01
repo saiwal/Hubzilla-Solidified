@@ -79,7 +79,7 @@ function EditModal(props: {
       <dialog
         ref={dialogRef}
         onClick={(e) => { if (e.target === dialogRef) close(); }}
-        class="m-auto w-full max-w-3xl max-h-[90vh] flex flex-col rounded-xl
+        class="m-auto w-full max-w-3xl h-[85dvh] max-h-[90vh] flex flex-col rounded-xl
                bg-base border border-rim shadow-xl p-0 overflow-clip backdrop:bg-black/50"
       >
         <div class="flex items-center justify-between px-4 py-3 border-b border-rim bg-base shrink-0">
@@ -92,7 +92,7 @@ function EditModal(props: {
             ✕
           </button>
         </div>
-        <div class="flex-1 overflow-y-auto">
+        <div class="flex-1 overflow-y-auto min-h-0 flex flex-col">
           <ArticleComposer
             profileUid={props.profileUid}
             nick={props.nick}
