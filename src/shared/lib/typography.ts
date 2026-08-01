@@ -14,7 +14,11 @@ export type FontFamily =
   | "righteous"
   | "playwrite-england"
   | "comic"
-  | "opendyslexic";
+  | "opendyslexic"
+  | "inter"
+  | "atkinson-hyperlegible"
+  | "literata"
+  | "jetbrains-mono";
 
 export const FONT_SIZES: Record<FontSize, string> = {
   small: "14px",
@@ -41,7 +45,13 @@ export const FONT_FAMILIES: Record<FontFamily, string> = {
   "playwrite-england":`"Playwrite England Joined", ${D}, cursive`,
   comic:              `"Comic Neue", "Comic Sans MS", "Comic Sans", ${D}, cursive`,
   opendyslexic:       `"OpenDyslexic", ${D}, sans-serif`,
+  inter:              `"Inter", ${D}, ui-sans-serif, sans-serif`,
+  "atkinson-hyperlegible": `"Atkinson Hyperlegible", ${D}, ui-sans-serif, sans-serif`,
+  literata:           `"Literata", ${D}, Georgia, serif`,
+  "jetbrains-mono":   `"JetBrains Mono", ${D}, ui-monospace, monospace`,
 };
+
+export const FONT_FAMILY_IDS = Object.keys(FONT_FAMILIES) as FontFamily[];
 
 /** Apply font settings to CSS only — does NOT touch localStorage. */
 export function applyTypographyCSS(size: FontSize, family: FontFamily): void {

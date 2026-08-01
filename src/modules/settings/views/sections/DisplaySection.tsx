@@ -240,6 +240,7 @@ export default function DisplaySection() {
                 <option value="monospace" selected={previewFamily() === "monospace"}>Monospace</option>
               </optgroup>
               <optgroup label={t("settings.font_group_clean")}>
+                <option value="inter"        selected={previewFamily() === "inter"}>Inter — clean &amp; modern</option>
                 <option value="nunito"       selected={previewFamily() === "nunito"}>Nunito — rounded, approachable</option>
                 <option value="saira"        selected={previewFamily() === "saira"}>Saira — condensed, versatile</option>
                 <option value="share-tech"   selected={previewFamily() === "share-tech"}>Share Tech — sharp geometric</option>
@@ -247,11 +248,13 @@ export default function DisplaySection() {
               <optgroup label={t("settings.font_group_editorial")}>
                 <option value="playfair"          selected={previewFamily() === "playfair"}>Playfair Display — elegant serif</option>
                 <option value="libre-baskerville" selected={previewFamily() === "libre-baskerville"}>Libre Baskerville — classic bookface</option>
+                <option value="literata"          selected={previewFamily() === "literata"}>Literata — serif for reading</option>
               </optgroup>
               <optgroup label={t("settings.font_group_retro")}>
-                <option value="space-mono" selected={previewFamily() === "space-mono"}>Space Mono — terminal vibes</option>
-                <option value="iosevka"    selected={previewFamily() === "iosevka"}>Iosevka — programmer's mono</option>
-                <option value="righteous"  selected={previewFamily() === "righteous"}>Righteous — bold &amp; retro</option>
+                <option value="space-mono"      selected={previewFamily() === "space-mono"}>Space Mono — terminal vibes</option>
+                <option value="iosevka"         selected={previewFamily() === "iosevka"}>Iosevka — programmer's mono</option>
+                <option value="righteous"       selected={previewFamily() === "righteous"}>Righteous — bold &amp; retro</option>
+                <option value="jetbrains-mono"  selected={previewFamily() === "jetbrains-mono"}>JetBrains Mono — for code</option>
               </optgroup>
               <optgroup label={t("settings.font_group_rounded")}>
                 <option value="comfortaa" selected={previewFamily() === "comfortaa"}>Comfortaa — rounded geometric</option>
@@ -264,6 +267,7 @@ export default function DisplaySection() {
               </optgroup>
               <optgroup label={t("settings.font_group_accessibility")}>
                 <option value="opendyslexic" selected={previewFamily() === "opendyslexic"}>OpenDyslexic — easier to read</option>
+                <option value="atkinson-hyperlegible" selected={previewFamily() === "atkinson-hyperlegible"}>Atkinson Hyperlegible — low vision</option>
               </optgroup>
             </select>
           </Field>

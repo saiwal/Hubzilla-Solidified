@@ -1,5 +1,5 @@
 import { createResource } from "solid-js";
-import { applyTypography, type FontSize, type FontFamily } from "../lib/typography";
+import { applyTypography, FONT_FAMILY_IDS, type FontSize, type FontFamily } from "../lib/typography";
 import { initBackground, type BgFit } from "../lib/background";
 import { initTheme } from "../lib/useTheme";
 import { applyCornerRadius, type CornerRadius } from "../lib/corner-radius";
@@ -57,11 +57,7 @@ async function fetchAuthState(): Promise<AuthState> {
   if (data.spa) {
     const validSizes   = new Set(["small", "medium", "large", "xl"]);
     const validFits    = new Set(["tile", "cover"]);
-    const validFamilies = new Set([
-      "system","serif","monospace","nunito","saira","share-tech",
-      "playfair","libre-baskerville","comfortaa","space-mono","iosevka",
-      "righteous","playwrite-england","comic","opendyslexic",
-    ]);
+    const validFamilies = new Set(FONT_FAMILY_IDS);
 
     const sz  = data.spa.font_size   ?? "";
     const fam = data.spa.font_family ?? "";

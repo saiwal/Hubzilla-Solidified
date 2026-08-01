@@ -2,7 +2,7 @@ import { createEffect } from "solid-js";
 import { createQueryResource } from "@/shared/lib/createQueryResource";
 import { applyBackgroundCSS, loadBackground, type BgFit } from "./background";
 import { applyTheme, applyCustomThemeColors } from "./useTheme";
-import { applyTypographyCSS, loadTypography, type FontSize, type FontFamily } from "./typography";
+import { applyTypographyCSS, loadTypography, FONT_FAMILY_IDS, type FontSize, type FontFamily } from "./typography";
 import { applyCornerRadiusCSS, loadCornerRadius, type CornerRadius } from "./corner-radius";
 import { initPageWidgetLayout } from "../store/widget-layout";
 import { initPageWidgetTemplates } from "../store/widget-templates";
@@ -12,11 +12,7 @@ const VALID_FITS    = new Set<string>(["tile", "cover"]);
 const VALID_THEMES  = new Set(THEMES.map((t) => t.id));
 const VALID_SIZES   = new Set<string>(["small", "medium", "large", "xl"]);
 const VALID_RADII   = new Set<string>(["none", "sm", "default", "lg", "xl"]);
-const VALID_FAMILIES = new Set<string>([
-  "system","serif","monospace","nunito","saira","share-tech",
-  "playfair","libre-baskerville","comfortaa","space-mono","iosevka",
-  "righteous","playwrite-england","comic","opendyslexic",
-]);
+const VALID_FAMILIES = new Set<string>(FONT_FAMILY_IDS);
 
 async function fetchChannelSpa(nick: string): Promise<Record<string, string> | null> {
   if (!nick) return null;
