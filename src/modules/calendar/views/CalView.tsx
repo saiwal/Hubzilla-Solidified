@@ -21,7 +21,13 @@ import { isoDateStr, startOfWeek, addDays } from "./calUtils";
 type ViewType = "month" | "week" | "day" | "list";
 
 function rangeForView(view: ViewType, anchor: Date): CalRange {
-  if (view === "month" || view === "list") {
+  if (view === "list") {
+    const now = new Date();
+    const oneYearOut = new Date(now);
+    oneYearOut.setFullYear(oneYearOut.getFullYear() + 1);
+    return { start: isoDateStr(now), end: isoDateStr(oneYearOut) };
+  }
+  if (view === "month") {
     return monthRange(anchor.getFullYear(), anchor.getMonth() + 1);
   }
   if (view === "week") {
@@ -62,7 +68,7 @@ export default function CalView() {
   function navigate(dir: -1 | 1) {
     setAnchor(d => {
       const nd = new Date(d);
-      if (viewType() === "month" || viewType() === "list") nd.setMonth(nd.getMonth() + dir);
+      if (viewType() === "month") nd.setMonth(nd.getMonth() + dir);
       else if (viewType() === "week") nd.setDate(nd.getDate() + dir * 7);
       else nd.setDate(nd.getDate() + dir);
       return nd;
@@ -80,6 +86,7 @@ export default function CalView() {
       const e = addDays(s, 6);
       return `${s.toLocaleDateString(undefined, { month: "short", day: "numeric" })} – ${e.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}`;
     }
+    if (v === "list") return t("calendar.upcoming_events") as string;
     return d.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
   });
 
@@ -150,28 +157,30 @@ export default function CalView() {
         </Show>
 
         {/* Navigation */}
-        <div class="flex items-center gap-1">
-          <button
-            onClick={() => navigate(-1)}
-            class="p-1.5 rounded-lg border border-rim text-muted hover:bg-elevated hover:text-txt transition-colors"
-            aria-label="Previous"
-          >
-            <MdFillChevron_left size={18} />
-          </button>
-          <button
-            onClick={() => setAnchor(new Date())}
-            class="px-2 py-1 text-xs rounded-lg border border-rim text-muted hover:bg-elevated hover:text-txt transition-colors"
-          >
-            {t("calendar.today") as string}
-          </button>
-          <button
-            onClick={() => navigate(1)}
-            class="p-1.5 rounded-lg border border-rim text-muted hover:bg-elevated hover:text-txt transition-colors"
-            aria-label="Next"
-          >
-            <MdFillChevron_right size={18} />
-          </button>
-        </div>
+        <Show when={viewType() !== "list"}>
+          <div class="flex items-center gap-1">
+            <button
+              onClick={() => navigate(-1)}
+              class="p-1.5 rounded-lg border border-rim text-muted hover:bg-elevated hover:text-txt transition-colors"
+              aria-label="Previous"
+            >
+              <MdFillChevron_left size={18} />
+            </button>
+            <button
+              onClick={() => setAnchor(new Date())}
+              class="px-2 py-1 text-xs rounded-lg border border-rim text-muted hover:bg-elevated hover:text-txt transition-colors"
+            >
+              {t("calendar.today") as string}
+            </button>
+            <button
+              onClick={() => navigate(1)}
+              class="p-1.5 rounded-lg border border-rim text-muted hover:bg-elevated hover:text-txt transition-colors"
+              aria-label="Next"
+            >
+              <MdFillChevron_right size={18} />
+            </button>
+          </div>
+        </Show>
       </div>
 
       {/* View content */}

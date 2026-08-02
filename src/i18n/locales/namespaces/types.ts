@@ -1725,6 +1725,7 @@ export type RawDictionary = {
     view_list:              string;
     today:                  string;
     no_upcoming_events:     string;
+    upcoming_events:        string;
   };
   chat: {
     chatrooms:        string;

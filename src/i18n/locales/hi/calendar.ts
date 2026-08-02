@@ -71,4 +71,5 @@ export const calendar: RawDictionary["calendar"] = {
   view_list:              "सूची",
   today:                  "आज",
   no_upcoming_events:     "इस अवधि में कोई कार्यक्रम नहीं",
+  upcoming_events:        "आगामी कार्यक्रम",
 };

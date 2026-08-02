@@ -26,6 +26,7 @@ import { useI18n } from "@/i18n";
 import { toast } from "@/shared/store/toast";
 import formatPostDate from "@/shared/lib/date";
 import DOMPurify from "dompurify";
+import { bbcodeToHtml } from "@/shared/lib/bbcode";
 import type { StreamHandlers } from "../types";
 const PostDetailModal = lazy(() => import("@/shared/views/PostDetailModal"));
 
@@ -108,7 +109,7 @@ function PopularPostRow(props: {
 
   const snippet = () => {
     const div = document.createElement("div");
-    div.innerHTML = DOMPurify.sanitize(p.body);
+    div.innerHTML = DOMPurify.sanitize(bbcodeToHtml(p.body));
     return (div.textContent ?? "").trim().slice(0, 90);
   };
 

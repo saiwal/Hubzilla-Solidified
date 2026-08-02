@@ -90,7 +90,7 @@ export default function EditorToolbar(props: Props) {
   const italic    = () => isSource() ? wrapSource("[i]", "[/i]")   : exec("italic");
   const underline = () => isSource() ? wrapSource("[u]", "[/u]")   : exec("underline");
   const highlight = () => {
-    if (isSource()) { wrapSource("[hl]", "[/hl]"); return; }
+    if (isSource()) { wrapSource("[mark]", "[/mark]"); return; }
     // hiliteColor doesn't toggle off like bold/italic/underline do natively
     // (it just re-applies the background color); unwrap manually when the
     // selection is already inside a highlighted span — same gap strike()

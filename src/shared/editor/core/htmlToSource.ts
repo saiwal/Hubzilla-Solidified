@@ -75,7 +75,7 @@ function nodeTobbcode(node: Node): string {
     case "s":
     case "strike":
     case "del":         return `[s]${children()}[/s]`;
-    case "mark":        return `[hl]${children()}[/hl]`;
+    case "mark":        return `[mark]${children()}[/mark]`;
     case "code":        return `[code]${children()}[/code]`;
     case "pre":         return `[code]${el.textContent ?? ""}[/code]`;
     case "blockquote":  return `[quote]${children()}[/quote]`;
@@ -217,7 +217,7 @@ function nodeTobbcode(node: Node): string {
       const fontSize = getStyle(el, "font-size");
       const fontFamily = getStyle(el, "font-family");
       const color = getStyle(el, "color");
-      if (bgColor && bgColor !== "transparent") result = `[hl=${bgColor}]${result}[/hl]`;
+      if (bgColor && bgColor !== "transparent") result = `[mark=${bgColor}]${result}[/mark]`;
       if (fontSize) result = `[size=${fontSize}]${result}[/size]`;
       if (fontFamily) result = `[font=${fontFamily}]${result}[/font]`;
       if (color) result = `[color=${color}]${result}[/color]`;
