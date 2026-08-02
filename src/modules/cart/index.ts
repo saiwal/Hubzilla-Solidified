@@ -18,6 +18,24 @@ registerModule({
   },
   widgets: [
     {
+      id: "cart.header",
+      label: () => useI18n().t("widgets.cart_header"),
+      loader: () => import("./widgets/CartHeaderWidget"),
+      slot: "header",
+      defaultModules: ["cart"],
+      contexts: ["cart"],
+      locked: true,
+    },
+    {
+      id: "cart.content",
+      label: () => useI18n().t("widgets.cart_content"),
+      loader: () => import("./widgets/CartContentWidget"),
+      slot: "contentTop",
+      defaultModules: ["cart"],
+      contexts: ["cart"],
+      locked: true,
+    },
+    {
       id: "cart.cart",
       label: () => useI18n().t("widgets.shopping_cart"),
       loader: () => import("./widgets/CartWidget"),

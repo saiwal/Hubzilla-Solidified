@@ -17,8 +17,26 @@ registerModule({
     href: () => `/cloud/${usePageNick()()}`,
 		context: "all",
   },
-  slots: {},
-  widgets: [],
+  widgets: [
+    {
+      id: "cloud.header",
+      label: () => useI18n().t("widgets.cloud_header"),
+      loader: () => import("./widgets/FilesHeaderWidget"),
+      slot: "header",
+      defaultModules: ["cloud"],
+      contexts: ["cloud"],
+      locked: true,
+    },
+    {
+      id: "cloud.content",
+      label: () => useI18n().t("widgets.cloud_content"),
+      loader: () => import("./widgets/FilesContentWidget"),
+      slot: "contentTop",
+      defaultModules: ["cloud"],
+      contexts: ["cloud"],
+      locked: true,
+    },
+  ],
   permissions: [],
   appName: "Files",
 });

@@ -27,6 +27,15 @@ registerModule({
       defaultModules: ["help"],
     },
     {
+      id: "help.content",
+      label: () => useI18n().t("widgets.help_content"),
+      loader: () => import("./widgets/HelpContentWidget"),
+      slot: "contentTop",
+      defaultModules: ["help"],
+      contexts: ["help"],
+      locked: true,
+    },
+    {
       id: "help.nav",
       label: () => useI18n().t("widgets.help_nav"),
       loader: () => import("./widgets/HelpNavWidget"),

@@ -16,6 +16,24 @@ registerModule({
   },
   widgets: [
     {
+      id: "network.header",
+      label: () => useI18n().t("widgets.network_header"),
+      loader: () => import("./widgets/NetworkHeaderWidget"),
+      slot: "header",
+      defaultModules: ["network"],
+      contexts: ["network"],
+      locked: true,
+    },
+    {
+      id: "network.content",
+      label: () => useI18n().t("widgets.network_content"),
+      loader: () => import("./widgets/NetworkContentWidget"),
+      slot: "contentTop",
+      defaultModules: ["network"],
+      contexts: ["network"],
+      locked: true,
+    },
+    {
       id: "network.filters",
       label: () => useI18n().t("widgets.stream_filters"),
       loader: () => import("./widgets/StreamFiltersWidget"),

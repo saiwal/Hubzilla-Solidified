@@ -176,7 +176,6 @@ const Slot: Component<SlotProps> = (props) => {
       case "right": return t("widgets.slot_right");
       case "footer": return t("widgets.slot_footer");
       case "contentTop": return t("widgets.slot_content_top");
-      case "contentBottom": return t("widgets.slot_content_bottom");
       default: return "";
     }
   };
@@ -290,8 +289,7 @@ const Slot: Component<SlotProps> = (props) => {
   // slots return the bare content and rely on their parent's spacing.
   const isGridTop = props.name === "gridTop";
   const isFullWidth =
-    props.name === "header" || props.name === "footer" ||
-    props.name === "contentTop" || props.name === "contentBottom";
+    props.name === "header" || props.name === "footer" || props.name === "contentTop";
   const hasContent = createMemo(
     () => globalWidgets().length > 0 || localEntries().length > 0 || editing(),
   );

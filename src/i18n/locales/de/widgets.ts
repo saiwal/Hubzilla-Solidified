@@ -116,7 +116,6 @@ export const widgets: RawDictionary["widgets"] = {
   slot_right:    "Seitenleiste",
   slot_footer:   "Fußbereich",
   slot_content_top:    "Über dem Inhalt",
-  slot_content_bottom: "Unter dem Inhalt",
   // Layout template editing (Slot.tsx, when templateId is set)
   template_shared_notice: "Dieses Layout (\"{{name}}\") wird von {{count}} Seite(n) verwendet – Änderungen gelten überall dort, wo es verwendet wird.",
   // World clock (blocks.clock, mode "world")
@@ -158,4 +157,55 @@ export const widgets: RawDictionary["widgets"] = {
   // Channel details card (channel.details) / post feed (channel.feed)
   channel_details: "Kanaldetails",
   channel_feed:    "Kanal-Feed",
+  // Network header (network.header) / feed (network.content)
+  network_header:  "Netzwerk-Kopfzeile",
+  network_content: "Netzwerk-Feed",
+  // Manage header (manage.header) / channel list (manage.content)
+  manage_header:  "Verwaltung-Kopfzeile",
+  manage_content: "Verwaltung-Inhalt",
+  // Profile page card (profile.content)
+  profile_content: "Profilkarte",
+  // Notepad header (notepad.header) / composer+list (notepad.content)
+  notepad_header:  "Notizen-Kopfzeile",
+  notepad_content: "Notizen-Inhalt",
+  // Siteinfo header (siteinfo.header) + per-section widgets
+  siteinfo_header:          "Seiten-Kopfzeile",
+  siteinfo_about:           "Über",
+  siteinfo_admin:           "Administrator",
+  siteinfo_federation:      "Föderation",
+  siteinfo_service_classes: "Diensteklassen",
+  siteinfo_addons:          "Addons",
+  siteinfo_themes:          "Themes",
+  // Articles header (articles.header) / list (articles.content)
+  articles_header:  "Artikel-Kopfzeile",
+  articles_content: "Artikelliste",
+  // Chat header (chat.header) / room list (chat.content)
+  chat_header:  "Chat-Kopfzeile",
+  chat_content: "Chatroom-Liste",
+  // Webpages header (webpages.header) / page list (webpages.content)
+  webpages_header:  "Webseiten-Kopfzeile",
+  webpages_content: "Webseitenliste",
+  // Pubstream header (pubstream.header) / toolbar+stream (pubstream.content)
+  pubstream_header:  "Öffentlicher-Stream-Kopfzeile",
+  pubstream_content: "Öffentlicher Stream",
+  // Calendar header (cal.header) / toolbar+view+modals (cal.content)
+  cal_header:  "Kalender-Kopfzeile",
+  cal_content: "Kalender",
+  // Files header (cloud.header) / breadcrumb+toolbar+list+modals (cloud.content)
+  cloud_header:  "Dateien-Kopfzeile",
+  cloud_content: "Dateien",
+  // Photos header (photos.header) / album+image browser (photos.content)
+  photos_header:  "Fotos-Kopfzeile",
+  photos_content: "Fotos",
+  // Wiki header (wiki.header) / wiki list (wiki.content)
+  wiki_header:  "Wiki-Kopfzeile",
+  wiki_content: "Wiki-Liste",
+  // Cart header (cart.header) / tabs+catalog+cart+orders (cart.content)
+  cart_header:  "Warenkorb-Kopfzeile",
+  cart_content: "Warenkorb",
+  // Help doc body (help.content) — help.chooser already fills the header role
+  help_content: "Hilfe-Inhalt",
+  // Bookmarks header (bookmarks.header) / folders list (bookmarks.content)
+  bookmarks_header:  "Lesezeichen-Kopfzeile",
+  bookmarks_content: "Lesezeichen",
 };

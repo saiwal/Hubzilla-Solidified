@@ -452,7 +452,6 @@ export type RawDictionary = {
     slot_right:    string;
     slot_footer:   string;
     slot_content_top:    string;
-    slot_content_bottom: string;
     // Layout template editing (Slot.tsx, when templateId is set)
     template_shared_notice: string;
     // World clock (blocks.clock, mode "world")
@@ -494,6 +493,57 @@ export type RawDictionary = {
     // Channel details card (channel.details) / post feed (channel.feed)
     channel_details: string;
     channel_feed:    string;
+    // Network header (network.header) / feed (network.content)
+    network_header:  string;
+    network_content: string;
+    // Manage header (manage.header) / channel list (manage.content)
+    manage_header:  string;
+    manage_content: string;
+    // Profile page card (profile.content)
+    profile_content: string;
+    // Notepad header (notepad.header) / composer+list (notepad.content)
+    notepad_header:  string;
+    notepad_content: string;
+    // Siteinfo header (siteinfo.header) + per-section widgets
+    siteinfo_header:          string;
+    siteinfo_about:           string;
+    siteinfo_admin:           string;
+    siteinfo_federation:      string;
+    siteinfo_service_classes: string;
+    siteinfo_addons:          string;
+    siteinfo_themes:          string;
+    // Articles header (articles.header) / list (articles.content)
+    articles_header:  string;
+    articles_content: string;
+    // Chat header (chat.header) / room list (chat.content)
+    chat_header:  string;
+    chat_content: string;
+    // Webpages header (webpages.header) / page list (webpages.content)
+    webpages_header:  string;
+    webpages_content: string;
+    // Pubstream header (pubstream.header) / toolbar+stream (pubstream.content)
+    pubstream_header:  string;
+    pubstream_content: string;
+    // Calendar header (cal.header) / toolbar+view+modals (cal.content)
+    cal_header:  string;
+    cal_content: string;
+    // Files header (cloud.header) / breadcrumb+toolbar+list+modals (cloud.content)
+    cloud_header:  string;
+    cloud_content: string;
+    // Photos header (photos.header) / album+image browser (photos.content)
+    photos_header:  string;
+    photos_content: string;
+    // Wiki header (wiki.header) / wiki list (wiki.content)
+    wiki_header:  string;
+    wiki_content: string;
+    // Cart header (cart.header) / tabs+catalog+cart+orders (cart.content)
+    cart_header:  string;
+    cart_content: string;
+    // Help doc body (help.content) — help.chooser already fills the header role
+    help_content: string;
+    // Bookmarks header (bookmarks.header) / folders list (bookmarks.content)
+    bookmarks_header:  string;
+    bookmarks_content: string;
   };
   tools: {
     label:            string;

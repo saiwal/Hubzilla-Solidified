@@ -18,6 +18,24 @@ registerModule({
   slots: {},
   widgets: [
     {
+      id: "notepad.header",
+      label: () => useI18n().t("widgets.notepad_header"),
+      loader: () => import("./widgets/NotepadHeaderWidget"),
+      slot: "header",
+      defaultModules: ["notepad"],
+      contexts: ["notepad"],
+      locked: true,
+    },
+    {
+      id: "notepad.content",
+      label: () => useI18n().t("widgets.notepad_content"),
+      loader: () => import("./widgets/NotepadContentWidget"),
+      slot: "contentTop",
+      defaultModules: ["notepad"],
+      contexts: ["notepad"],
+      locked: true,
+    },
+    {
       // Opt-in placement on any page's sidebar — jot a note without leaving
       // where you are. Not shown by default anywhere, including notepad
       // itself (which already has a full composer inline).

@@ -116,7 +116,6 @@ export const widgets: RawDictionary["widgets"] = {
   slot_right:    "साइडबार",
   slot_footer:   "फ़ुटर",
   slot_content_top:    "कंटेंट के ऊपर",
-  slot_content_bottom: "कंटेंट के नीचे",
   // Layout template editing (Slot.tsx, when templateId is set)
   template_shared_notice: "यह लेआउट (\"{{name}}\") {{count}} पेज(पेजों) पर उपयोग हो रहा है — परिवर्तन हर उस जगह लागू होंगे जहाँ इसका उपयोग होता है।",
   // World clock (blocks.clock, mode "world")
@@ -158,4 +157,55 @@ export const widgets: RawDictionary["widgets"] = {
   // Channel details card (channel.details) / post feed (channel.feed)
   channel_details: "चैनल विवरण",
   channel_feed:    "चैनल फ़ीड",
+  // Network header (network.header) / feed (network.content)
+  network_header:  "नेटवर्क हेडर",
+  network_content: "नेटवर्क फ़ीड",
+  // Manage header (manage.header) / channel list (manage.content)
+  manage_header:  "प्रबंधन हेडर",
+  manage_content: "प्रबंधन सामग्री",
+  // Profile page card (profile.content)
+  profile_content: "प्रोफ़ाइल कार्ड",
+  // Notepad header (notepad.header) / composer+list (notepad.content)
+  notepad_header:  "नोटपैड हेडर",
+  notepad_content: "नोटपैड सामग्री",
+  // Siteinfo header (siteinfo.header) + per-section widgets
+  siteinfo_header:          "साइट हेडर",
+  siteinfo_about:           "परिचय",
+  siteinfo_admin:           "प्रशासक",
+  siteinfo_federation:      "फेडरेशन",
+  siteinfo_service_classes: "सेवा श्रेणियाँ",
+  siteinfo_addons:          "एडऑन",
+  siteinfo_themes:          "थीम",
+  // Articles header (articles.header) / list (articles.content)
+  articles_header:  "लेख हेडर",
+  articles_content: "लेख सूची",
+  // Chat header (chat.header) / room list (chat.content)
+  chat_header:  "चैट हेडर",
+  chat_content: "चैटरूम सूची",
+  // Webpages header (webpages.header) / page list (webpages.content)
+  webpages_header:  "वेबपेज हेडर",
+  webpages_content: "वेबपेज सूची",
+  // Pubstream header (pubstream.header) / toolbar+stream (pubstream.content)
+  pubstream_header:  "पब्लिक स्ट्रीम हेडर",
+  pubstream_content: "पब्लिक स्ट्रीम",
+  // Calendar header (cal.header) / toolbar+view+modals (cal.content)
+  cal_header:  "कैलेंडर हेडर",
+  cal_content: "कैलेंडर",
+  // Files header (cloud.header) / breadcrumb+toolbar+list+modals (cloud.content)
+  cloud_header:  "फ़ाइलें हेडर",
+  cloud_content: "फ़ाइलें",
+  // Photos header (photos.header) / album+image browser (photos.content)
+  photos_header:  "फ़ोटो हेडर",
+  photos_content: "फ़ोटो",
+  // Wiki header (wiki.header) / wiki list (wiki.content)
+  wiki_header:  "विकी हेडर",
+  wiki_content: "विकी सूची",
+  // Cart header (cart.header) / tabs+catalog+cart+orders (cart.content)
+  cart_header:  "कार्ट हेडर",
+  cart_content: "कार्ट",
+  // Help doc body (help.content) — help.chooser already fills the header role
+  help_content: "सहायता सामग्री",
+  // Bookmarks header (bookmarks.header) / folders list (bookmarks.content)
+  bookmarks_header:  "बुकमार्क हेडर",
+  bookmarks_content: "बुकमार्क",
 };

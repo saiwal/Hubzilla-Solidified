@@ -28,6 +28,24 @@ registerModule({
   },
   widgets: [
     {
+      id: "chat.header",
+      label: () => useI18n().t("widgets.chat_header"),
+      loader: () => import("./widgets/ChatHeaderWidget"),
+      slot: "header",
+      defaultModules: ["chat"],
+      contexts: ["chat"],
+      locked: true,
+    },
+    {
+      id: "chat.content",
+      label: () => useI18n().t("widgets.chat_content"),
+      loader: () => import("./widgets/ChatContentWidget"),
+      slot: "contentTop",
+      defaultModules: ["chat"],
+      contexts: ["chat"],
+      locked: true,
+    },
+    {
       // Global — always mounted, every page (not just chat's own routes).
       id: "chat.pinnedRooms",
       label: () => useI18n().t("widgets.pinned_chat"),

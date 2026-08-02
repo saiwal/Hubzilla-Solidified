@@ -116,7 +116,6 @@ export const widgets: RawDictionary["widgets"] = {
   slot_right:    "Sidebar",
   slot_footer:   "Footer",
   slot_content_top:    "Above content",
-  slot_content_bottom: "Below content",
   // Layout template editing (Slot.tsx, when templateId is set)
   template_shared_notice: "This layout (\"{{name}}\") is used by {{count}} pages — changes apply everywhere it's used.",
   // World clock (blocks.clock, mode "world")
@@ -158,4 +157,55 @@ export const widgets: RawDictionary["widgets"] = {
   // Channel details card (channel.details) / post feed (channel.feed)
   channel_details: "Channel Details",
   channel_feed:    "Channel Feed",
+  // Network header (network.header) / feed (network.content)
+  network_header:  "Network Header",
+  network_content: "Network Feed",
+  // Manage header (manage.header) / channel list (manage.content)
+  manage_header:  "Manage Header",
+  manage_content: "Manage Content",
+  // Profile page card (profile.content)
+  profile_content: "Profile Card",
+  // Notepad header (notepad.header) / composer+list (notepad.content)
+  notepad_header:  "Notepad Header",
+  notepad_content: "Notepad Content",
+  // Siteinfo header (siteinfo.header) + per-section widgets
+  siteinfo_header:          "Site Header",
+  siteinfo_about:           "About",
+  siteinfo_admin:           "Administrator",
+  siteinfo_federation:      "Federation",
+  siteinfo_service_classes: "Service Classes",
+  siteinfo_addons:          "Addons",
+  siteinfo_themes:          "Themes",
+  // Articles header (articles.header) / list (articles.content)
+  articles_header:  "Articles Header",
+  articles_content: "Articles List",
+  // Chat header (chat.header) / room list (chat.content)
+  chat_header:  "Chat Header",
+  chat_content: "Chatroom List",
+  // Webpages header (webpages.header) / page list (webpages.content)
+  webpages_header:  "Webpages Header",
+  webpages_content: "Webpages List",
+  // Pubstream header (pubstream.header) / toolbar+stream (pubstream.content)
+  pubstream_header:  "Public Stream Header",
+  pubstream_content: "Public Stream",
+  // Calendar header (cal.header) / toolbar+view+modals (cal.content)
+  cal_header:  "Calendar Header",
+  cal_content: "Calendar",
+  // Files header (cloud.header) / breadcrumb+toolbar+list+modals (cloud.content)
+  cloud_header:  "Files Header",
+  cloud_content: "Files",
+  // Photos header (photos.header) / album+image browser (photos.content)
+  photos_header:  "Photos Header",
+  photos_content: "Photos",
+  // Wiki header (wiki.header) / wiki list (wiki.content)
+  wiki_header:  "Wiki Header",
+  wiki_content: "Wiki List",
+  // Cart header (cart.header) / tabs+catalog+cart+orders (cart.content)
+  cart_header:  "Cart Header",
+  cart_content: "Cart",
+  // Help doc body (help.content) — help.chooser already fills the header role
+  help_content: "Help Content",
+  // Bookmarks header (bookmarks.header) / folders list (bookmarks.content)
+  bookmarks_header:  "Bookmarks Header",
+  bookmarks_content: "Bookmarks",
 };

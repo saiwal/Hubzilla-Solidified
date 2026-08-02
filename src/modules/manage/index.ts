@@ -20,4 +20,24 @@ registerModule({
     },
   ],
   requiresAuth: true,
+  widgets: [
+    {
+      id: "manage.header",
+      label: () => useI18n().t("widgets.manage_header"),
+      loader: () => import("./widgets/ManageHeaderWidget"),
+      slot: "header",
+      defaultModules: ["manage"],
+      contexts: ["manage"],
+      locked: true,
+    },
+    {
+      id: "manage.content",
+      label: () => useI18n().t("widgets.manage_content"),
+      loader: () => import("./widgets/ManageContentWidget"),
+      slot: "contentTop",
+      defaultModules: ["manage"],
+      contexts: ["manage"],
+      locked: true,
+    },
+  ],
 });

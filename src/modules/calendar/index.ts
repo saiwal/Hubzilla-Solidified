@@ -20,6 +20,24 @@ registerModule({
   },
   widgets: [
     {
+      id: "cal.header",
+      label: () => useI18n().t("widgets.cal_header"),
+      loader: () => import("./widgets/CalendarHeaderWidget"),
+      slot: "header",
+      defaultModules: ["cal"],
+      contexts: ["cal"],
+      locked: true,
+    },
+    {
+      id: "cal.content",
+      label: () => useI18n().t("widgets.cal_content"),
+      loader: () => import("./widgets/CalendarContentWidget"),
+      slot: "contentTop",
+      defaultModules: ["cal"],
+      contexts: ["cal"],
+      locked: true,
+    },
+    {
       id: "cal.calendar",
       label: () => useI18n().t("widgets.calendar"),
       loader: () => import("./widgets/CdavCalendarWidget"),

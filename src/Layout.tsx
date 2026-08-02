@@ -483,8 +483,6 @@ const Layout: ParentComponent = (props) => {
                 </ErrorBoundary>
               </div>
 
-              <Slot name="contentBottom" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
-
               <Show when={showScrollTop()}>
                 <button
                   onClick={() =>

@@ -13,7 +13,6 @@ Every widget is registered with a **stable id** in a central widget registry (`m
 | `header` | Top of main content area, above `gridTop` — always full-width, single column |
 | `gridTop` | Top of main content area — masonry-packed via CSS columns, so widgets of different heights pack without grid dead space |
 | `contentTop` | Directly above the routed page content — always full-width, single column, same as `header` |
-| `contentBottom` | Directly below the routed page content — always full-width, single column, same as `header` |
 | `footer` | Bottom of main content area, below the routed page — always full-width, single column, same as `header` |
 | `rightVisitor` | Right sidebar shown to visitors |
 
@@ -162,7 +161,7 @@ const pageTemplateId = createMemo(() => getModule(activeModuleId())?.pageTemplat
 // ...
 <Slot name="right" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
 <Slot name="header" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
-// ...same for gridTop, contentTop, contentBottom, and footer
+// ...same for gridTop, contentTop, and footer
 ```
 
 Templates ride to visitors the same way a module's own layout does (see
@@ -178,11 +177,10 @@ as it loads/unloads.
 
 A template isn't confined to the sidebar — it can place widgets in every
 slot `Layout.tsx` already treats as `editable`: `right`, `header`, `gridTop`,
-`contentTop`, `contentBottom`, `footer` (`leftBottom`/`rightVisitor` are left
-out — nav-sidebar and visitor-only content, not part of an item's own
-"layout"). `Layout.tsx` computes one `pageTemplateId` from
-`ModuleDef.pageTemplate` and passes it to all six `<Slot>`s — a template
-groups per-slot lists under one named entity
+`contentTop`, `footer` (`leftBottom`/`rightVisitor` are left out — nav-sidebar
+and visitor-only content, not part of an item's own "layout"). `Layout.tsx`
+computes one `pageTemplateId` from `ModuleDef.pageTemplate` and passes it to
+all five `<Slot>`s — a template groups per-slot lists under one named entity
 (`WidgetTemplate.slots: Partial<Record<WidgetSlotName, LayoutEntry[]>>`), so
 the same assigned id applies to every region at once. Backward compatible:
 older templates only have `slots.right`, so their `header`/`gridTop`/`footer`

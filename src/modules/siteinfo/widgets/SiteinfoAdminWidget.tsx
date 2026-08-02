@@ -1,0 +1,26 @@
+import { Show } from "solid-js";
+import DOMPurify from "dompurify";
+import { bbcode } from "@/shared/lib/bbcode";
+import { useI18n } from "@/i18n";
+import { useSiteinfo, Section, Centered } from "./shared";
+
+export default function SiteinfoAdminWidget() {
+  const { t } = useI18n();
+  const info = useSiteinfo();
+
+  return (
+    <Show when={info()?.admin_about}>
+      {(about) => (
+        <Centered>
+          <Section title={t("ui.siteinfo_admin")}>
+            <div
+              class="prose prose-sm dark:prose-invert max-w-none text-txt
+                       prose-a:text-accent prose-a:no-underline hover:prose-a:underline"
+              innerHTML={DOMPurify.sanitize(bbcode(about()))}
+            />
+          </Section>
+        </Centered>
+      )}
+    </Show>
+  );
+}

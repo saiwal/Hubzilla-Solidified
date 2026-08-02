@@ -35,6 +35,24 @@ registerModule({
   },
   widgets: [
     {
+      id: "articles.header",
+      label: () => useI18n().t("widgets.articles_header"),
+      loader: () => import("./widgets/ArticlesHeaderWidget"),
+      slot: "header",
+      defaultModules: ["articles"],
+      contexts: ["articles"],
+      locked: true,
+    },
+    {
+      id: "articles.content",
+      label: () => useI18n().t("widgets.articles_content"),
+      loader: () => import("./widgets/ArticlesContentWidget"),
+      slot: "contentTop",
+      defaultModules: ["articles"],
+      contexts: ["articles"],
+      locked: true,
+    },
+    {
       id: "articles.drafts",
       label: () => useI18n().t("widgets.article_drafts"),
       loader: () => import("./widgets/ArticleDraftsWidget"),

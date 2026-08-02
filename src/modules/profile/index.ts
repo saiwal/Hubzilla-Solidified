@@ -16,5 +16,18 @@ registerModule({
   },
   // Sidebar widgets come from the channel module — its widgets list
   // "profile" in their defaultModules.
+  widgets: [
+    {
+      // No separable title/action row exists in this view — just the
+      // profile card, so unlike other modules there's no "header" widget.
+      id: "profile.content",
+      label: () => useI18n().t("widgets.profile_content"),
+      loader: () => import("./widgets/ProfileContentWidget"),
+      slot: "contentTop",
+      defaultModules: ["profile"],
+      contexts: ["profile"],
+      locked: true,
+    },
+  ],
   permissions: [],
 });

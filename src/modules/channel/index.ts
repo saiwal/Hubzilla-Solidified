@@ -37,7 +37,7 @@ registerModule({
       id: "channel.feed",
       label: () => useI18n().t("widgets.channel_feed"),
       loader: () => import("./widgets/ChannelFeedWidget"),
-      slot: "contentBottom",
+      slot: "contentTop",
       defaultModules: ["channel"],
       contexts: ["channel"],
     },

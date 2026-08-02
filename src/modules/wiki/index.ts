@@ -31,6 +31,24 @@ registerModule({
   },
   widgets: [
     {
+      id: "wiki.header",
+      label: () => useI18n().t("widgets.wiki_header"),
+      loader: () => import("./widgets/WikiHeaderWidget"),
+      slot: "header",
+      defaultModules: ["wiki"],
+      contexts: ["wiki"],
+      locked: true,
+    },
+    {
+      id: "wiki.content",
+      label: () => useI18n().t("widgets.wiki_content"),
+      loader: () => import("./widgets/WikiContentWidget"),
+      slot: "contentTop",
+      defaultModules: ["wiki"],
+      contexts: ["wiki"],
+      locked: true,
+    },
+    {
       id: "wiki.list",
       label: () => useI18n().t("widgets.wiki_list"),
       loader: () => import("./widgets/WikiListWidget"),

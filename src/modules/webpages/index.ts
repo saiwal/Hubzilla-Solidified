@@ -24,6 +24,24 @@ registerModule({
   },
   widgets: [
     {
+      id: "webpages.header",
+      label: () => useI18n().t("widgets.webpages_header"),
+      loader: () => import("./widgets/WebpagesHeaderWidget"),
+      slot: "header",
+      defaultModules: ["webpages"],
+      contexts: ["webpages"],
+      locked: true,
+    },
+    {
+      id: "webpages.content",
+      label: () => useI18n().t("widgets.webpages_content"),
+      loader: () => import("./widgets/WebpagesContentWidget"),
+      slot: "contentTop",
+      defaultModules: ["webpages"],
+      contexts: ["webpages"],
+      locked: true,
+    },
+    {
       id: "webpages.drafts",
       label: () => useI18n().t("widgets.webpage_drafts"),
       loader: () => import("./widgets/WebpageDraftsWidget"),

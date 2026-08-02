@@ -26,6 +26,24 @@ registerModule({
   },
   widgets: [
     {
+      id: "photos.header",
+      label: () => useI18n().t("widgets.photos_header"),
+      loader: () => import("./widgets/PhotosHeaderWidget"),
+      slot: "header",
+      defaultModules: ["photos"],
+      contexts: ["photos"],
+      locked: true,
+    },
+    {
+      id: "photos.content",
+      label: () => useI18n().t("widgets.photos_content"),
+      loader: () => import("./widgets/PhotosContentWidget"),
+      slot: "contentTop",
+      defaultModules: ["photos"],
+      contexts: ["photos"],
+      locked: true,
+    },
+    {
       id: "photos.albums",
       label: () => useI18n().t("widgets.photo_albums"),
       loader: () => import("./widgets/PhotosWidget"),
