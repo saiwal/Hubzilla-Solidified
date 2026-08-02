@@ -59,30 +59,27 @@ export function useChannelTheme(channelNick: () => string) {
     const bgFit = (VALID_FITS.has(spa.bg_fit ?? "") ? spa.bg_fit : "cover") as BgFit;
     applyBackgroundCSS(bgUrl, bgFit);
 
-    // Apply the channel's color scheme (CSS only — do not overwrite user's localStorage)
-    const scheme = spa.color_scheme ?? "";
-    if (VALID_THEMES.has(scheme as ThemeId)) {
-      if (scheme === "custom" && spa.custom_theme_colors) {
-        try {
-          applyCustomThemeColors(JSON.parse(spa.custom_theme_colors) as CustomThemeColors);
-        } catch {
-          applyTheme("custom");
-        }
-      } else {
-        applyTheme(scheme as ThemeId);
+    // Apply the channel's color scheme (CSS only — do not overwrite user's localStorage).
+    // Always apply, falling back to the site default when unset, so a previously
+    // viewed channel's (or the viewer's own) theme doesn't bleed through.
+    const scheme = VALID_THEMES.has((spa.color_scheme ?? "") as ThemeId) ? spa.color_scheme! : "light";
+    if (scheme === "custom" && spa.custom_theme_colors) {
+      try {
+        applyCustomThemeColors(JSON.parse(spa.custom_theme_colors) as CustomThemeColors);
+      } catch {
+        applyTheme("custom");
       }
+    } else {
+      applyTheme(scheme as ThemeId);
     }
 
     // Apply the channel's typography (CSS only — do not overwrite user's localStorage)
-    if (VALID_SIZES.has(spa.font_size ?? "") || VALID_FAMILIES.has(spa.font_family ?? "")) {
-      const fontSize = (VALID_SIZES.has(spa.font_size ?? "") ? spa.font_size : "medium") as FontSize;
-      const fontFamily = (VALID_FAMILIES.has(spa.font_family ?? "") ? spa.font_family : "system") as FontFamily;
-      applyTypographyCSS(fontSize, fontFamily);
-    }
+    const fontSize = (VALID_SIZES.has(spa.font_size ?? "") ? spa.font_size : "medium") as FontSize;
+    const fontFamily = (VALID_FAMILIES.has(spa.font_family ?? "") ? spa.font_family : "system") as FontFamily;
+    applyTypographyCSS(fontSize, fontFamily);
 
     // Apply the channel's corner radius (CSS only — do not overwrite user's localStorage)
-    if (VALID_RADII.has(spa.corner_radius ?? "")) {
-      applyCornerRadiusCSS(spa.corner_radius as CornerRadius);
-    }
+    const cornerRadius = (VALID_RADII.has(spa.corner_radius ?? "") ? spa.corner_radius : "default") as CornerRadius;
+    applyCornerRadiusCSS(cornerRadius);
   });
 }
