@@ -76,7 +76,8 @@ const PostDetailModal: Component<PostDetailModalProps> = (props) => {
 
   const { t } = useI18n();
   let dialogRef!: HTMLDivElement;
-  onMount(() => dialogRef?.focus());
+  let scrollRef!: HTMLDivElement;
+  onMount(() => scrollRef?.focus());
 
   async function loadNode(uuid: string) {
     setNodeLoading(true);
@@ -320,7 +321,9 @@ const PostDetailModal: Component<PostDetailModalProps> = (props) => {
 
           {/* Scrollable body */}
           <div
-            class="flex-1 overflow-y-auto"
+            ref={scrollRef}
+            tabindex="-1"
+            class="flex-1 overflow-y-auto focus:outline-none"
             style={{ "-webkit-overflow-scrolling": "touch" }}
             onClick={(e) => { e.stopPropagation(); handleBodyClick(e); }}
           >

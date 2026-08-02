@@ -112,9 +112,11 @@ export const widgets: RawDictionary["widgets"] = {
   none_to_add:   "No more widgets available for this page.",
   save_failed:   "Couldn't save the widget layout.",
   slot_header:   "Header",
-  slot_maintop:  "Top of page",
+  slot_gridtop:  "Top of page",
   slot_right:    "Sidebar",
   slot_footer:   "Footer",
+  slot_content_top:    "Above content",
+  slot_content_bottom: "Below content",
   // Layout template editing (Slot.tsx, when templateId is set)
   template_shared_notice: "This layout (\"{{name}}\") is used by {{count}} pages — changes apply everywhere it's used.",
   // World clock (blocks.clock, mode "world")
@@ -153,4 +155,7 @@ export const widgets: RawDictionary["widgets"] = {
   // Usage Quotas (hq.usage_quotas)
   usage_quotas:          "Usage & Quotas",
   usage_quotas_view_all: "View all usage & limits",
+  // Channel details card (channel.details) / post feed (channel.feed)
+  channel_details: "Channel Details",
+  channel_feed:    "Channel Feed",
 };

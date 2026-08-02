@@ -24,6 +24,23 @@ registerModule({
     context: "all",
   },
   widgets: [
+    {
+      id: "channel.details",
+      label: () => useI18n().t("widgets.channel_details"),
+      loader: () => import("./widgets/ChannelDetailsWidget"),
+      slot: "contentTop",
+      defaultModules: ["channel"],
+      contexts: ["channel"],
+			locked: true,
+    },
+    {
+      id: "channel.feed",
+      label: () => useI18n().t("widgets.channel_feed"),
+      loader: () => import("./widgets/ChannelFeedWidget"),
+      slot: "contentBottom",
+      defaultModules: ["channel"],
+      contexts: ["channel"],
+    },
 		{
       // Opt-in vCard-style summary — picker only, no default placement.
       // Also placeable on /hq: usePageNick() falls back to the viewer's own
@@ -107,7 +124,7 @@ registerModule({
       id: "channel.activity_heatmap",
       label: () => useI18n().t("widgets.activity_heatmap"),
       loader: () => import("./widgets/ActivityHeatmapWidget"),
-      slot: ["right", "mainTop"],
+      slot: ["right", "gridTop"],
       defaultModules: [],
       contexts: ["channel", "profile", "hq"],
     },

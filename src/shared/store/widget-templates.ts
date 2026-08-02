@@ -30,10 +30,11 @@ export interface WidgetTemplates {
   templates: Record<string, WidgetTemplate>;
 }
 
-// Regions a template can cover — the same four slots Layout.tsx marks
-// `editable` and wires a shared `pageTemplateId` to (right/header/mainTop/footer;
-// leftBottom/rightVisitor are nav-sidebar and visitor-only, out of scope).
-export const TEMPLATE_SLOTS: WidgetSlotName[] = ["right", "header", "mainTop", "footer"];
+// Regions a template can cover — the same slots Layout.tsx marks
+// `editable` and wires a shared `pageTemplateId` to (right/header/gridTop/
+// contentTop/contentBottom/footer; leftBottom/rightVisitor are nav-sidebar
+// and visitor-only, out of scope).
+export const TEMPLATE_SLOTS: WidgetSlotName[] = ["right", "header", "gridTop", "contentTop", "contentBottom", "footer"];
 
 // Reuses widget-layout's tolerant single-module-entry parser: a template's
 // `slots` field has the exact same shape as one `modules[moduleId]` entry.

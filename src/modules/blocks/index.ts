@@ -35,7 +35,7 @@ registerModule({
       id: "blocks.clock",
       label: () => useI18n().t("widgets.clock_card"),
       loader: () => import("./widgets/ClockWidget"),
-      slot: ["right", "mainTop"],
+      slot: ["right", "gridTop"],
       defaultModules: [],
       contexts: "any",
       multiInstance: true,
@@ -59,7 +59,7 @@ registerModule({
       id: "blocks.weather",
       label: () => useI18n().t("widgets.weather"),
       loader: () => import("./widgets/WeatherWidget"),
-      slot: ["right", "mainTop"],
+      slot: ["right", "gridTop"],
       defaultModules: [],
       contexts: "any",
       multiInstance: true,
@@ -69,7 +69,7 @@ registerModule({
       id: "blocks.quote",
       label: () => useI18n().t("widgets.quote_of_day"),
       loader: () => import("./widgets/QuoteWidget"),
-      slot: ["right", "mainTop", "footer"],
+      slot: ["right", "gridTop", "footer"],
       defaultModules: [],
       contexts: "any",
       multiInstance: true,
@@ -78,7 +78,7 @@ registerModule({
       id: "blocks.embed",
       label: () => useI18n().t("widgets.embed"),
       loader: () => import("./widgets/EmbedWidget"),
-      slot: ["right", "mainTop", "footer"],
+      slot: ["right", "gridTop", "footer"],
       defaultModules: [],
       contexts: "any",
       multiInstance: true,
@@ -86,7 +86,7 @@ registerModule({
     },
     {
       // Horizontal nav bar fed by a Hubzilla menu — header only (always
-      // full-width, unlike mainTop's masonry-packed banner widgets)
+      // full-width, unlike gridTop's masonry-packed banner widgets)
       id: "blocks.menu_bar",
       label: () => useI18n().t("widgets.menu_bar"),
       loader: () => import("./widgets/MenuBarWidget"),

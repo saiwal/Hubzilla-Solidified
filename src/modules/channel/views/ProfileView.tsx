@@ -1,8 +1,8 @@
 // src/modules/channel/views/ProfileView.tsx
 import { createSignal, Show, For } from "solid-js";
-import { useParams, A } from "@solidjs/router";
+import { A } from "@solidjs/router";
 import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { useViewerRole } from "@/shared/store/site-config";
+import { usePageNick, useViewerRole } from "@/shared/store/site-config";
 import { MdFillLocation_on, MdFillPublic, MdFillRss_feed } from "solid-icons/md";
 import { apiFetch } from "@/shared/lib/fetch";
 import { addConnection } from "@/modules/directory/people/api";
@@ -72,9 +72,9 @@ function renderBbcode(raw?: string): string {
 }
 
 export default function ProfileView(props: { full?: boolean }) {
-  const params = useParams<{ nick?: string }>();
+  const nick = usePageNick();
   const viewerRole = useViewerRole();
-  const [profile] = createQueryResource("channel-profile", () => params.nick ?? "", fetchProfile);
+  const [profile] = createQueryResource("channel-profile", () => nick(), fetchProfile);
 
   const isOwner = () => viewerRole() === "owner";
   const isVisitor = () => viewerRole() === "remote" || viewerRole() === "anonymous";

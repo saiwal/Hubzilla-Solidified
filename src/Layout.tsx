@@ -200,7 +200,7 @@ const Layout: ParentComponent = (props) => {
   // A module may register a reactive pageTemplate() (e.g. a webpage's
   // assigned layout template) to have its editable regions resolve from that
   // named template instead of the module-level layout. Applies uniformly to
-  // every slot already `editable` below (header/mainTop/right/footer) — a
+  // every slot already `editable` below (header/gridTop/right/footer) — a
   // template is one named arrangement spanning all of an item's regions, not
   // just the sidebar. See ModuleDef.pageTemplate / Slot's templateId.
   const pageTemplateId = createMemo(() => getModule(activeModuleId())?.pageTemplate?.() ?? undefined);
@@ -445,7 +445,8 @@ const Layout: ParentComponent = (props) => {
                   : ""}
               </span>
               <Slot name="header" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
-              <Slot name="mainTop" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
+              <Slot name="gridTop" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
+              <Slot name="contentTop" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
 
               <div class="min-w-0">
                 <ErrorBoundary
@@ -481,6 +482,8 @@ const Layout: ParentComponent = (props) => {
                   <Suspense>{props.children}</Suspense>
                 </ErrorBoundary>
               </div>
+
+              <Slot name="contentBottom" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
 
               <Show when={showScrollTop()}>
                 <button

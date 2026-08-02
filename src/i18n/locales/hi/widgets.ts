@@ -112,9 +112,11 @@ export const widgets: RawDictionary["widgets"] = {
   none_to_add:   "जोड़ने के लिए कोई और विजेट उपलब्ध नहीं।",
   save_failed:   "विजेट लेआउट सहेजा नहीं जा सका।",
   slot_header:   "हेडर",
-  slot_maintop:  "पेज का ऊपरी भाग",
+  slot_gridtop:  "पेज का ऊपरी भाग",
   slot_right:    "साइडबार",
   slot_footer:   "फ़ुटर",
+  slot_content_top:    "कंटेंट के ऊपर",
+  slot_content_bottom: "कंटेंट के नीचे",
   // Layout template editing (Slot.tsx, when templateId is set)
   template_shared_notice: "यह लेआउट (\"{{name}}\") {{count}} पेज(पेजों) पर उपयोग हो रहा है — परिवर्तन हर उस जगह लागू होंगे जहाँ इसका उपयोग होता है।",
   // World clock (blocks.clock, mode "world")
@@ -153,4 +155,7 @@ export const widgets: RawDictionary["widgets"] = {
   // Usage Quotas (hq.usage_quotas)
   usage_quotas:          "उपयोग और कोटा",
   usage_quotas_view_all: "सभी उपयोग और सीमाएं देखें",
+  // Channel details card (channel.details) / post feed (channel.feed)
+  channel_details: "चैनल विवरण",
+  channel_feed:    "चैनल फ़ीड",
 };

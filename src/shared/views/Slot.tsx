@@ -131,6 +131,22 @@ const Slot: Component<SlotProps> = (props) => {
         .map((w) => ({ widget: w, key: w.id }));
     }
 
+    // Locked widgets are essential default content — force them back in if a
+    // saved layout doesn't include them (e.g. saved before the widget
+    // existed, or before it was marked locked).
+    const present = new Set(resolved.map((e) => e.widget.id));
+    for (const w of getAllWidgets()) {
+      if (
+        w.locked && !w.global && !present.has(w.id) &&
+        widgetSlots(w).includes(props.name) &&
+        w.defaultModules.includes(moduleId) &&
+        isModuleActive(w.moduleId, apps) &&
+        visibleToViewer(w)
+      ) {
+        resolved.push({ widget: w, key: w.id });
+      }
+    }
+
     // Reuse previous entry objects when nothing about them changed
     const next = new Map<string, ResolvedEntry>();
     const out = resolved.map((e) => {
@@ -156,9 +172,11 @@ const Slot: Component<SlotProps> = (props) => {
   const slotLabel = () => {
     switch (props.name) {
       case "header": return t("widgets.slot_header");
-      case "mainTop": return t("widgets.slot_maintop");
+      case "gridTop": return t("widgets.slot_gridtop");
       case "right": return t("widgets.slot_right");
       case "footer": return t("widgets.slot_footer");
+      case "contentTop": return t("widgets.slot_content_top");
+      case "contentBottom": return t("widgets.slot_content_bottom");
       default: return "";
     }
   };
@@ -188,6 +206,7 @@ const Slot: Component<SlotProps> = (props) => {
   };
 
   const removeAt = (index: number) => {
+    if (localEntries()[index]?.widget.locked) return;
     const entries = [...currentEntries()];
     entries.splice(index, 1);
     void persist(entries);
@@ -238,7 +257,7 @@ const Slot: Component<SlotProps> = (props) => {
   // Instance key of the entry whose config panel is open (one at a time)
   const [configOpenKey, setConfigOpenKey] = createSignal<string | null>(null);
 
-  // mainTop is a banner strip, not a sidebar: lay its widgets out
+  // gridTop is a banner strip, not a sidebar: lay its widgets out
   // masonry-style instead of stacking them full-width. A CSS grid would pad
   // every cell in a row up to its tallest neighbour — with widgets of very
   // different heights (a heatmap vs. a one-line quote, or a tall messages
@@ -262,28 +281,30 @@ const Slot: Component<SlotProps> = (props) => {
   // positionally, since column-splitting means a column's <For> no longer
   // sees each entry's place in the full list directly.
   //
-  // header (above mainTop) and footer (below all page content) are always
+  // header (above gridTop) and footer (below all page content) are always
   // full-width, single-column — for banner-like widgets (e.g. a horizontal
   // nav menu) that must span the whole row rather than pack into a column.
   //
   // All three need their own margin and a conditional wrapper (the
   // surrounding <main> has no space-y, unlike the sidebar <aside>). Other
   // slots return the bare content and rely on their parent's spacing.
-  const isMainTop = props.name === "mainTop";
-  const isFullWidth = props.name === "header" || props.name === "footer";
+  const isGridTop = props.name === "gridTop";
+  const isFullWidth =
+    props.name === "header" || props.name === "footer" ||
+    props.name === "contentTop" || props.name === "contentBottom";
   const hasContent = createMemo(
     () => globalWidgets().length > 0 || localEntries().length > 0 || editing(),
   );
 
-  const columnCount = isMainTop
+  const columnCount = isGridTop
     ? useColumnCount([{ width: 1024, count: 4 }, { width: 640, count: 2 }], 1)
     : () => 1;
   const columnIndexes = createMemo(() => Array.from({ length: columnCount() }, (_, i) => i));
   const globalColumns = createMemo(() => splitIntoColumns(globalWidgets(), columnCount()));
   const localColumns = createMemo(() => splitIntoColumns(localEntries(), columnCount()));
 
-  // Only built for isFullWidth / non-mainTop slots — kept as a function
-  // rather than a value so mainTop slots (which never call it) don't pay for
+  // Only built for isFullWidth / non-gridTop slots — kept as a function
+  // rather than a value so gridTop slots (which never call it) don't pay for
   // constructing an unused, never-mounted reactive tree alongside the
   // column-split render below.
   const content = () => (
@@ -355,7 +376,7 @@ const Slot: Component<SlotProps> = (props) => {
     );
   }
 
-  if (!isMainTop) {
+  if (!isGridTop) {
     return (
       <Show when={editing()} fallback={content()}>
         <SlotRegionBox label={slotLabel()}>{content()}</SlotRegionBox>

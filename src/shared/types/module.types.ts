@@ -29,7 +29,7 @@ type SlotLoader = () => Promise<{ default: Component }>;
 
 export type ComponentLoader<P extends Record<string, any> = {}> = () => Promise<{ default: Component<P> }>;
 
-export type WidgetSlotName = "right" | "leftBottom" | "mainTop" | "rightVisitor" | "header" | "footer";
+export type WidgetSlotName = "right" | "leftBottom" | "gridTop" | "rightVisitor" | "header" | "footer" | "contentTop" | "contentBottom";
 
 /** Props every widget component is mounted with. */
 export interface WidgetProps {
@@ -58,6 +58,15 @@ export interface WidgetDef {
   contexts?: string[] | "any";
   /** Always mounted regardless of active module; never torn down on navigation. */
   global?: boolean;
+  /**
+   * true = essential default content for its module — still reorderable, but
+   * the edit-mode remove button is hidden, and `<Slot>` re-adds it if a saved
+   * layout doesn't include it (e.g. a layout saved before the widget existed
+   * or before it was marked locked). Only meaningful on a widget whose
+   * `defaultModules` already covers the module it should be locked in — it is
+   * not force-added anywhere else. Ignored on `global` widgets. Default false.
+   */
+  locked?: boolean;
   /**
    * false = only rendered for authenticated local users. Set on widgets that
    * show viewer-private data (drafts, bookmarks) so visitors to public pages
@@ -89,7 +98,7 @@ export interface WidgetDef {
 export interface SlotsDef {
   right?: SlotLoader | SlotLoader[];
   leftBottom?: SlotLoader | SlotLoader[];
-  mainTop?: SlotLoader | SlotLoader[];
+  gridTop?: SlotLoader | SlotLoader[];
   rightVisitor?: SlotLoader | SlotLoader[];
  help?: () => Promise<{ default: Component }>;
 }

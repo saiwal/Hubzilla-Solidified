@@ -448,9 +448,11 @@ export type RawDictionary = {
     none_to_add:   string;
     save_failed:   string;
     slot_header:   string;
-    slot_maintop:  string;
+    slot_gridtop:  string;
     slot_right:    string;
     slot_footer:   string;
+    slot_content_top:    string;
+    slot_content_bottom: string;
     // Layout template editing (Slot.tsx, when templateId is set)
     template_shared_notice: string;
     // World clock (blocks.clock, mode "world")
@@ -489,6 +491,9 @@ export type RawDictionary = {
     // Usage Quotas (hq.usage_quotas)
     usage_quotas:          string;
     usage_quotas_view_all: string;
+    // Channel details card (channel.details) / post feed (channel.feed)
+    channel_details: string;
+    channel_feed:    string;
   };
   tools: {
     label:            string;

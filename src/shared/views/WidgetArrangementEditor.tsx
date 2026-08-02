@@ -34,7 +34,7 @@ const editButtonClass =
   "disabled:opacity-30 disabled:pointer-events-none";
 
 // Labeled boundary drawn around an entire slot region while in edit mode, so
-// adjacent regions (e.g. header vs. mainTop, both in the same column) stay
+// adjacent regions (e.g. header vs. gridTop, both in the same column) stay
 // visually distinguishable even when empty or holding a single widget.
 // Deliberately a neutral dashed border, not the accent one WidgetCard uses —
 // the two must never look interchangeable, since one means "this is a
@@ -61,13 +61,13 @@ interface WidgetCardProps {
   onMove: (index: number, delta: number) => void;
   onRemove: (index: number) => void;
   onSaveConfig: (index: number, config: Record<string, unknown>) => void;
-  /** Applied to the card wrapper, e.g. Slot's mainTop masonry class. Defaults to none. */
+  /** Applied to the card wrapper, e.g. Slot's gridTop masonry class. Defaults to none. */
   itemClass?: string;
 }
 
 // One editable widget card: label, configure/move/remove controls, optional
 // config form, and an inert preview. Split out of WidgetArrangementEditor so
-// Slot's mainTop edit view can lay cards out across masonry columns while
+// Slot's gridTop edit view can lay cards out across masonry columns while
 // still driving them off a single flat entries list (index/entriesLength
 // stay accessors so a column-split render still reacts correctly).
 export const WidgetCard: Component<WidgetCardProps> = (props) => {
@@ -117,14 +117,16 @@ export const WidgetCard: Component<WidgetCardProps> = (props) => {
           >
             <MdFillKeyboard_arrow_down size={16} />
           </button>
-          <button
-            onClick={() => props.onRemove(props.index())}
-            aria-label={t("widgets.remove_widget")}
-            title={t("widgets.remove_widget")}
-            class={editButtonClass}
-          >
-            <MdFillClose size={14} />
-          </button>
+          <Show when={!props.entry.widget.locked}>
+            <button
+              onClick={() => props.onRemove(props.index())}
+              aria-label={t("widgets.remove_widget")}
+              title={t("widgets.remove_widget")}
+              class={editButtonClass}
+            >
+              <MdFillClose size={14} />
+            </button>
+          </Show>
         </div>
       </div>
 
@@ -233,7 +235,7 @@ interface WidgetArrangementEditorProps {
   onSaveConfig: (index: number, config: Record<string, unknown>) => void;
   /** Omit to hide the reset button entirely (e.g. templates have no "default" to revert to). */
   onReset?: () => void;
-  /** Applied to each row's wrapper, e.g. Slot's mainTop masonry class. Defaults to none. */
+  /** Applied to each row's wrapper, e.g. Slot's gridTop masonry class. Defaults to none. */
   itemClass?: string;
 }
 
@@ -241,7 +243,7 @@ interface WidgetArrangementEditorProps {
 // layout override) and the Layout Templates screen (editing a named,
 // reusable template) — same move/remove/configure/add-widget/reset chrome,
 // bound to whichever persistence the caller supplies via the callbacks. A
-// single flat column of WidgetCard + WidgetPickerFooter; Slot's mainTop
+// single flat column of WidgetCard + WidgetPickerFooter; Slot's gridTop
 // masonry edit view uses those two pieces directly instead, laid out across
 // columns.
 const WidgetArrangementEditor: Component<WidgetArrangementEditorProps> = (props) => {
