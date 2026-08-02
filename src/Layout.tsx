@@ -4,6 +4,8 @@ import {
   Show,
   createMemo,
   createEffect,
+  onMount,
+  onCleanup,
   on,
   ErrorBoundary,
   Suspense,
@@ -148,12 +150,27 @@ const Layout: ParentComponent = (props) => {
   ).matches;
 
   let mainRef!: HTMLElement;
+  let headerRef!: HTMLElement;
   let morePanelRef!: HTMLDivElement;
   let moreButtonRef!: HTMLButtonElement;
   let panelButtonRef!: HTMLButtonElement;
   let rightPanelRef!: HTMLElement;
   const [showScrollTop, setShowScrollTop] = createSignal(false);
   const onMainScroll = () => setShowScrollTop(mainRef.scrollTop > 300);
+
+  // Exposes the banner header's real height (which grows for anonymous/remote
+  // visitors via RemoteAuthBanner) as a CSS var, so viewport-fixed content
+  // like ArticleToc's TOC can offset itself instead of assuming header = 0.
+  onMount(() => {
+    const observer = new ResizeObserver(([entry]) => {
+      document.documentElement.style.setProperty(
+        "--hz-header-h",
+        `${entry.contentRect.height}px`,
+      );
+    });
+    observer.observe(headerRef);
+    onCleanup(() => observer.disconnect());
+  });
 
   createEffect(() => {
     if (moreOpen())
@@ -287,7 +304,7 @@ const Layout: ParentComponent = (props) => {
 
       <div class="flex h-full flex-col">
         {/* ── Site-level alerts (banner landmark) ── */}
-        <header>
+        <header ref={headerRef}>
           {/* ── Offline banner ── */}
           <Show when={!online()}>
             <div

@@ -128,6 +128,7 @@ export type RawDictionary = {
     siteinfo_about:          string;
     siteinfo_admin:          string;
     siteinfo_federation:     string;
+    siteinfo_blocked_sites:  string;
     siteinfo_powered_by:     string;
     siteinfo_source:         string;
     siteinfo_addons:         string;

@@ -47,7 +47,10 @@ function TocLinks(props: {
 
 function FixedToc(props: { entries: TocEntry[]; activeId: string; label: string }) {
   return (
-    <nav class="xl:fixed xl:top-24 xl:w-52" aria-label={props.label}>
+    <nav
+      class="xl:fixed xl:top-[calc(var(--hz-header-h,0px)+6rem)] xl:w-52"
+      aria-label={props.label}
+    >
       <span class="text-xs font-semibold uppercase tracking-wide text-muted">
         {props.label}
       </span>
@@ -64,7 +67,9 @@ function FloatingToc(props: { entries: TocEntry[]; activeId: string; label: stri
   const [open, setOpen] = createSignal(false);
 
   return (
-    <div class="xl:hidden fixed top-20 right-4 z-40 flex flex-col items-end">
+    <div
+      class="xl:hidden fixed top-[calc(var(--hz-header-h,0px)+5rem)] right-4 z-40 flex flex-col items-end"
+    >
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}

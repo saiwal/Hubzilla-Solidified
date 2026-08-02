@@ -33,6 +33,7 @@ export const ui: RawDictionary["ui"] = {
   siteinfo_about:         "इस साइट के बारे में",
   siteinfo_admin:         "प्रशासक",
   siteinfo_federation:    "फ़ेडरेशन",
+  siteinfo_blocked_sites: "अवरोधित साइटें",
   siteinfo_powered_by:    "Powered by",
   siteinfo_source:        "स्रोत कोड",
   siteinfo_addons:        "एड-ऑन",

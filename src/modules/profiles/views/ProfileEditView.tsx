@@ -12,6 +12,7 @@ import RichEditor from "@/shared/editor/core/RichEditor";
 import SourceToggleButton from "@/shared/editor/components/SourceToggleButton";
 import { CAPABILITIES } from "@/shared/editor/types/editor.types";
 import type { EditorTab } from "@/shared/editor/types/editor.types";
+import { isAnimatedImage } from "@/shared/lib/isAnimatedImage";
 
 // Lazy-loaded so Filerobot + React don't inflate the profile chunk
 const ImageEditor = lazy(() => import("@/shared/views/ImageEditor"));
@@ -100,9 +101,15 @@ export default function ProfileEditView() {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "image/*";
-    input.onchange = () => {
+    input.onchange = async () => {
       const file = input.files?.[0];
       if (!file) return;
+      // Animated GIF/WEBP avatars skip the crop editor: its canvas-based
+      // save step flattens animation to a single JPEG frame.
+      if (type === "avatar" && (await isAnimatedImage(file))) {
+        handleAvatarConfirm(file);
+        return;
+      }
       if (type === "avatar") setAvatarFile(file);
       else setCoverFile(file);
     };

@@ -41,6 +41,16 @@ export default function SiteinfoFederationWidget() {
                   </For>
                 </div>
               </Show>
+              <Show when={data().blocked_sites.length > 0}>
+                <p class="text-xs font-semibold text-muted uppercase tracking-wider mt-4 mb-1.5">
+                  {t("ui.siteinfo_blocked_sites")}
+                </p>
+                <div class="flex flex-wrap gap-1.5">
+                  <For each={data().blocked_sites}>
+                    {(site) => <Chip label={site} />}
+                  </For>
+                </div>
+              </Show>
             </div>
           </Section>
         </Centered>

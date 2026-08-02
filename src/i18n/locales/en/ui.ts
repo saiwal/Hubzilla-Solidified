@@ -33,6 +33,7 @@ export const ui: RawDictionary["ui"] = {
   siteinfo_about:         "About this site",
   siteinfo_admin:         "Administrator",
   siteinfo_federation:    "Federation",
+  siteinfo_blocked_sites: "Blocked sites",
   siteinfo_powered_by:    "Powered by",
   siteinfo_source:        "Source code",
   siteinfo_addons:        "Addons",

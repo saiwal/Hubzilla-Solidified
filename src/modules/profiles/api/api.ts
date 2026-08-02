@@ -105,6 +105,13 @@ export interface AvatarUploadResult {
   cover_url?: string;
 }
 
+function avatarExt(mimetype: string): string {
+  if (mimetype === "image/gif") return "gif";
+  if (mimetype === "image/webp") return "webp";
+  if (mimetype === "image/png") return "png";
+  return "jpg";
+}
+
 export function uploadPhoto(
   type: "avatar" | "cover",
   blob: Blob,
@@ -113,7 +120,8 @@ export function uploadPhoto(
   return new Promise(async (resolve, reject) => {
     const token = await getCsrfToken().catch(() => "");
     const fd = new FormData();
-    fd.append("file", blob, type === "avatar" ? "avatar.jpg" : "cover.jpg");
+    const ext = type === "avatar" ? avatarExt(blob.type) : "jpg";
+    fd.append("file", blob, `${type}.${ext}`);
 
     const xhr = new XMLHttpRequest();
     xhr.open("POST", `/spa/avatar?type=${type}`);
