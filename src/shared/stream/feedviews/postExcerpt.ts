@@ -1,0 +1,27 @@
+// src/shared/stream/feedviews/postExcerpt.ts
+// Shared text/image extraction for the card-based feed views (Newspaper,
+// Timeline, Scrapbook) — none of them render the full post body via
+// PostCard, so they each need a plain-text teaser and an optional hero image.
+import type { Post } from "@/shared/types/post.types";
+import { parseEventData } from "@/shared/lib/activity.mapper";
+
+function stripHtml(html: string): string {
+  const raw = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+  const el = document.createElement("textarea");
+  el.innerHTML = raw;
+  return el.value;
+}
+
+// Event posts embed [event-summary]/[event-description]/… bbcode tags
+// straight in the body — stripping the raw body would leak those tags as
+// literal text, so event posts tease the description instead.
+export function excerptOf(post: Pick<Post, "body" | "bodyNsfw" | "eventData">, maxLen = 200): string {
+  if (post.bodyNsfw) return "Hidden content — open to view";
+  const ev = post.eventData ?? (post.body.includes("[event-summary]") ? parseEventData(post.body) : undefined);
+  const text = stripHtml(ev ? (ev.description ?? "") : post.body);
+  return text.length > maxLen ? text.slice(0, maxLen).trimEnd() + "…" : text;
+}
+
+export function firstImageSrc(body: string): string | undefined {
+  return body.match(/<img[^>]+src="([^"]+)"/i)?.[1];
+}

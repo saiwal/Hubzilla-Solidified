@@ -31,7 +31,6 @@ registerModule({
       slot: "contentTop",
       defaultModules: ["channel"],
       contexts: ["channel"],
-			locked: true,
     },
     {
       id: "channel.feed",
@@ -39,6 +38,33 @@ registerModule({
       loader: () => import("./widgets/ChannelFeedWidget"),
       slot: "contentTop",
       defaultModules: ["channel"],
+      contexts: ["channel"],
+    },
+    {
+      // Opt-in alternate layout for channel.feed — picker only, no default placement
+      id: "channel.feed_newspaper",
+      label: () => useI18n().t("widgets.channel_feed_newspaper"),
+      loader: () => import("./widgets/ChannelNewspaperWidget"),
+      slot: "contentTop",
+      defaultModules: [],
+      contexts: ["channel"],
+    },
+    {
+      // Opt-in alternate layout for channel.feed — picker only, no default placement
+      id: "channel.feed_timeline",
+      label: () => useI18n().t("widgets.channel_feed_timeline"),
+      loader: () => import("./widgets/ChannelTimelineWidget"),
+      slot: "contentTop",
+      defaultModules: [],
+      contexts: ["channel"],
+    },
+    {
+      // Opt-in alternate layout for channel.feed — picker only, no default placement
+      id: "channel.feed_scrapbook",
+      label: () => useI18n().t("widgets.channel_feed_scrapbook"),
+      loader: () => import("./widgets/ChannelScrapbookWidget"),
+      slot: "contentTop",
+      defaultModules: [],
       contexts: ["channel"],
     },
 		{

@@ -7,7 +7,7 @@ import type { ChannelParams, ChannelStreamResult } from "./api";
 import { createActionHandlers, findNode } from "@/shared/stream/store/actions-store";
 import { apiTogglePin } from "@/shared/lib/item-api";
 import { toast } from "@/shared/store/toast";
-import type { ViewMode } from "@/shared/stream/types";
+import type { ViewMode, StreamHandlers } from "@/shared/stream/types";
 
 // ── nick signal (channel-specific) ───────────────────────────────────────────
 const [nick, setNick] = createSignal<string>("");
@@ -83,3 +83,18 @@ export async function handlePin(mid: string) {
     setPinPending(false);
   }
 }
+
+// ── shared handlers object — one instance reused by channel.feed and its
+// alternate-layout widgets (newspaper/timeline/scrapbook) ────────────────────
+export const streamHandlers: StreamHandlers = {
+  onLike:          handleLike,
+  onDislike:       handleDislike,
+  onRepeat:        handleRepeat,
+  onComment:       handleComment,
+  onLoadComments:  loadComments,
+  onStar:          handleStar,
+  onPin:           handlePin,
+  onDelete:        handleDelete,
+  onEdit:          handleEdit,
+  onRefresh:       handleRefresh,
+};

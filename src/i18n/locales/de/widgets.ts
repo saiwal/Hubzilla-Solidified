@@ -157,6 +157,9 @@ export const widgets: RawDictionary["widgets"] = {
   // Channel details card (channel.details) / post feed (channel.feed)
   channel_details: "Kanaldetails",
   channel_feed:    "Kanal-Feed",
+  channel_feed_newspaper: "Feed (Zeitung)",
+  channel_feed_timeline:  "Feed (Zeitleiste)",
+  channel_feed_scrapbook: "Feed (Sammelalbum)",
   // Network header (network.header) / feed (network.content)
   network_header:  "Netzwerk-Kopfzeile",
   network_content: "Netzwerk-Feed",

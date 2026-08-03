@@ -267,12 +267,16 @@ export default function RichEditor(props: Props) {
   //    height count toward this wrapper's own minimum, ballooning it (and
   //    everything above it) instead of leaving the surface bounded to
   //    scroll internally.
-  // 300px is a generous, hand-picked ceiling for "toolbar (even wrapped to
-  // multiple rows on a narrow modal) + the surface's 150px floor" — a real,
-  // content-independent constant, not a computed one. If a future toolbar
-  // change makes it wrap further than this, bump the number.
+  // 150px is a generous, hand-picked allowance for "toolbar, even wrapped to
+  // multiple rows on a narrow modal" — a real, content-independent constant,
+  // not a computed one. If a future toolbar change makes it wrap further
+  // than this, bump the number. Added to minH() (not a flat total) so a
+  // caller that overrides minHeight downward — e.g. CommentComposer's
+  // single-line comment box — actually gets a smaller floor instead of
+  // every composer being stuck at the same worst-case total.
+  const wrapperMinH = () => `calc(${minH()} + 150px)`;
   return (
-    <div class="rich-editor flex flex-col flex-1 min-h-[300px]">
+    <div class="rich-editor flex flex-col flex-1" style={{ "min-height": wrapperMinH() }}>
       {/* ── WYSIWYG surface ───────────────────────────────── */}
       <Show when={props.tab === "wysiwyg"}>
         <div

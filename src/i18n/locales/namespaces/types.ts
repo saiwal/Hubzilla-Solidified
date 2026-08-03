@@ -494,6 +494,10 @@ export type RawDictionary = {
     // Channel details card (channel.details) / post feed (channel.feed)
     channel_details: string;
     channel_feed:    string;
+    // Opt-in alternate layouts for channel.feed
+    channel_feed_newspaper: string;
+    channel_feed_timeline:  string;
+    channel_feed_scrapbook: string;
     // Network header (network.header) / feed (network.content)
     network_header:  string;
     network_content: string;
