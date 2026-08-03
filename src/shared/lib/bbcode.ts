@@ -251,6 +251,37 @@ function bbShareAttributes(
 }
 
 // ---------------------------------------------------------------------------
+// [event-summary]/[event-description]/[event-start]/[event-finish] block
+//
+// Core Hubzilla embeds these tags directly in an event item's body. A
+// top-level event post never reaches this renderer for display — the SPA
+// intercepts it via parseEventData()/EventCard before bbcode() output is
+// shown — but a *reshared* event ([share]…[/share] wrapping the original
+// body) has no such interception; without this, the tags leak through as
+// literal bracket text inside the share quote. Runs before [b]/[img]/[url]
+// processing below, so the raw description content still gets converted
+// normally once it's wrapped here.
+// ---------------------------------------------------------------------------
+
+function bbEventAttributes(summary: string, description: string, start: string, finish: string): string {
+  const fmtDate = (raw: string) => {
+    const d = new Date(raw.replace(" ", "T") + "Z");
+    if (isNaN(d.getTime())) return raw;
+    return d.toLocaleString(undefined, {
+      weekday: "short", year: "numeric", month: "short", day: "numeric",
+      hour: "numeric", minute: "2-digit",
+    });
+  };
+  const dateLine = finish ? `${fmtDate(start)} → ${fmtDate(finish)}` : fmtDate(start);
+
+  return `<div class="bb-event">
+  <div class="bb-event-title">${summary}</div>
+  <div class="bb-event-date">📅 ${escapeHtml(dateLine)}</div>
+  ${description ? `<div class="bb-event-desc">${description}</div>` : ""}
+</div>`;
+}
+
+// ---------------------------------------------------------------------------
 // [style] sanitiser
 // ---------------------------------------------------------------------------
 
@@ -690,6 +721,17 @@ export function bbcode(text: string, options: BbcodeOptions = {}): string {
       const display = label ? "📍" + decodeURIComponent(label) : geoUri;
       return `${pre}<a href="${escapeHtml(geoUri)}" ${target} ${relAttr}>${escapeHtml(display)}</a>`;
     }
+  );
+
+  // ------------------------------------------------------------------
+  // [event-summary]/[event-description]/[event-start]/[event-finish] — see
+  // bbEventAttributes() above. Must run before [share] below so a reshared
+  // event's tags are already converted by the time its body is captured.
+  // ------------------------------------------------------------------
+  text = text.replace(
+    /\[event-summary\]([\s\S]*?)\[\/event-summary\](?:\[event-description\]([\s\S]*?)\[\/event-description\])?\[event-start\]([\s\S]*?)\[\/event-start\](?:\[event-finish\]([\s\S]*?)\[\/event-finish\])?(?:\[event-id\][\s\S]*?\[\/event-id\])?(?:\[event-adjust\][\s\S]*?\[\/event-adjust\])?/gi,
+    (_m, summary, description, start, finish) =>
+      bbEventAttributes(summary, description ?? "", start, finish ?? "")
   );
 
   // ------------------------------------------------------------------

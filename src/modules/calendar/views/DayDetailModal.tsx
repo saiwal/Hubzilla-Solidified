@@ -8,20 +8,14 @@ import {
   MdFillDelete,
 } from "solid-icons/md";
 import DOMPurify from "dompurify";
+import { bbcodeToHtml } from "@/shared/lib/bbcode";
 import { useI18n } from "@/i18n";
 import { useAuth } from "@/shared/store/auth-store";
 import { toast } from "@/shared/store/toast";
 import type { CalEvent } from "../api";
 import { deleteEvent } from "../api";
 import EventCreatorModal from "../widgets/EventCreatorModal";
-
-function fmtTime(iso: string, allDay: boolean) {
-  if (allDay) return "All day";
-  return new Date(iso).toLocaleTimeString(undefined, {
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
+import { fmtEventRange } from "./calUtils";
 
 function fmtFullDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, {
@@ -147,11 +141,7 @@ export default function DayDetailModal(props: Props) {
                         {ev.title || t("calendar.no_title")}
                       </p>
                       <p class="text-xs text-muted mt-0.5">
-                        {fmtTime(ev.start, ev.allDay)}
-                        <Show when={!ev.nofinish && ev.end}>
-                          {" → "}
-                          {fmtTime(ev.end!, ev.allDay)}
-                        </Show>
+                        {fmtEventRange(ev)}
                       </p>
                       <Show when={ev.location}>
                         <p class="flex items-center gap-1 text-xs text-muted mt-0.5">
@@ -210,7 +200,7 @@ function EventDetailPanel(props: { event: CalEvent; onEdit: () => void; onDelete
   const [confirming, setConfirming] = createSignal(false);
   const [deleting, setDeleting] = createSignal(false);
   const sanitized = () =>
-    ev.description ? DOMPurify.sanitize(ev.description) : "";
+    ev.description ? DOMPurify.sanitize(bbcodeToHtml(ev.description)) : "";
 
   async function handleDelete() {
     setDeleting(true);
@@ -231,11 +221,7 @@ function EventDetailPanel(props: { event: CalEvent; onEdit: () => void; onDelete
         <p>{fmtFullDate(ev.start)}</p>
         <Show when={!ev.allDay}>
           <p>
-            {fmtTime(ev.start, false)}
-            <Show when={ev.end}>
-              {" → "}
-              {fmtTime(ev.end!, false)}
-            </Show>
+            {fmtEventRange(ev)}
             {ev.timezone !== "UTC" ? ` (${ev.timezone})` : ""}
           </p>
         </Show>

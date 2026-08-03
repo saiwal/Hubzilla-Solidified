@@ -8,13 +8,17 @@ import type { Post, EventData, PollData } from "@/shared/types/post.types";
 
 export function parseEventData(raw: string): EventData | undefined {
   const get = (tag: string) => {
-    const m = raw.match(new RegExp(`\\[${tag}\\]([^\\[]*?)\\[\\/${tag}\\]`));
+    // [\s\S]*? (not [^\[]*?) — description can contain nested bbcode tags
+    // (links, images, lists, …), which all start with '[' too.
+    const m = raw.match(new RegExp(`\\[${tag}\\]([\\s\\S]*?)\\[\\/${tag}\\]`));
     return m ? m[1].trim() : "";
   };
   const summary = get("event-summary");
   const start   = get("event-start");
   if (!summary || !start) return undefined;
-  return { summary, start, finish: get("event-finish"), id: get("event-id") };
+  const rawDescription = get("event-description");
+  const description = rawDescription ? sanitizeHtml(bbcodeToHtml(rawDescription)) : "";
+  return { summary, start, finish: get("event-finish"), id: get("event-id"), description };
 }
 
 // Verbs that represent actual displayable content

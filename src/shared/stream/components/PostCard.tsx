@@ -86,10 +86,14 @@ import { fetchFolders } from "@/modules/network/api";
 import EventCard from "./EventCard";
 import PollCard from "./PollCard";
 import { parseEventData } from "@/shared/lib/activity.mapper";
+import type { EventData } from "@/shared/types/post.types";
 import AttachmentList from "./AttachmentList";
 import { apiFetch } from "@/shared/lib/fetch";
 import { usePlyr } from "@/shared/lib/usePlyr";
+import { fetchEvents, type CalEvent } from "@/modules/calendar/api";
+import { toast } from "@/shared/store/toast";
 const PostDetailModal = lazy(() => import("@/shared/views/PostDetailModal"));
+const EventCreatorModal = lazy(() => import("@/modules/calendar/widgets/EventCreatorModal"));
 
 export type { StreamHandlers as PostActions };
 
@@ -230,6 +234,8 @@ export default function PostCard(props: {
   const [editTab, setEditTab] = createSignal<EditorTab>("wysiwyg");
   const [editSaving, setEditSaving] = createSignal(false);
   const [editError, setEditError] = createSignal<string | null>(null);
+  const [editingEvent, setEditingEvent] = createSignal<CalEvent | null>(null);
+  const [eventEditLoading, setEventEditLoading] = createSignal(false);
   const [refreshing, setRefreshing] = createSignal(false);
   const [following, setFollowing] = createSignal(
     props.post.viewerFollowing ?? false,
@@ -450,13 +456,22 @@ export default function PostCard(props: {
   };
 
   function startEdit() {
+    setMoreDropdownOpen(false);
+    // Event posts carry structured date/time/location in the `event` table,
+    // which the generic body/title editor below never touches — route to
+    // the calendar's real edit form instead so those fields stay in sync.
+    const evData = eventData();
+    if (evData) {
+      startEventEdit(evData);
+      return;
+    }
+
     const initialBody = props.post.rawBody ?? "";
     setEditTitle(props.post.title ?? "");
     setEditBody(initialBody);
     setEditTab("wysiwyg");
     setEditError(null);
     setIsEditing(true);
-    setMoreDropdownOpen(false);
     // Upgrade to the server's compose source, which collapses [share …]
     // blocks to compact [share=<id>] tags the editor can round-trip. Skip
     // if the user already started typing meanwhile.
@@ -467,6 +482,41 @@ export default function PostCard(props: {
         }
       })
       .catch(() => {});
+  }
+
+  // Event posts only expose the event_hash (`[event-id]`) in the feed body —
+  // the calendar edit endpoint needs the numeric event.id, so resolve it via
+  // a lookup scoped to the event's own start/finish (parsed from the same
+  // post body). fetchEvents()'s no-range default is "now → +60 days", which
+  // misses any event that already ended — asking for the event's own known
+  // window instead works for past and future events alike.
+  async function startEventEdit(evData: EventData) {
+    if (eventEditLoading()) return;
+    const nick = auth()?.nick;
+    if (!nick) return;
+    setEventEditLoading(true);
+    try {
+      const toDay = (iso: string, deltaDays: number) => {
+        const d = new Date(iso.replace(" ", "T") + "Z");
+        if (isNaN(d.getTime())) return undefined;
+        d.setUTCDate(d.getUTCDate() + deltaDays);
+        return d.toISOString().slice(0, 10);
+      };
+      const start = toDay(evData.start, -1);
+      const end = toDay(evData.finish || evData.start, 1);
+      const range = start && end ? { start, end } : undefined;
+      const events = await fetchEvents(nick, range);
+      const found = events.find((e) => e.uri === evData.id);
+      if (!found) {
+        toast.error(t("post.event_edit_unavailable"));
+        return;
+      }
+      setEditingEvent(found);
+    } catch {
+      toast.error(t("post.event_edit_failed"));
+    } finally {
+      setEventEditLoading(false);
+    }
   }
 
   function cancelEdit() {
@@ -2233,6 +2283,15 @@ export default function PostCard(props: {
         <div class="mt-3 text-sm text-muted animate-pulse">
           {t("post.loading_comments")}
         </div>
+      </Show>
+      <Show when={editingEvent()}>
+        {(ev) => (
+          <EventCreatorModal
+            event={ev()}
+            onClose={() => setEditingEvent(null)}
+            onEdited={() => setEditingEvent(null)}
+          />
+        )}
       </Show>
       <CommentThread
         comments={visibleComments()}

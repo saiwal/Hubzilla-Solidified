@@ -15,6 +15,7 @@ import { useAuth } from "@/shared/store/auth-store";
 import { useListBehavior } from "@/shared/store/list-behavior";
 import { MdOutlineSchedule, MdOutlineTimer, MdFillPush_pin, MdOutlineReply } from "solid-icons/md";
 import { isDirectMessage as isDM, DmBadge, DmRecipients } from "@/shared/stream/components/DmMeta";
+import { parseEventData } from "@/shared/lib/activity.mapper";
 
 const PostDetailModal = lazy(() => import("@/shared/views/PostDetailModal"));
 
@@ -28,6 +29,16 @@ function stripHtml(html: string): string {
   const el = document.createElement("textarea");
   el.innerHTML = raw;
   return el.value;
+}
+
+// Event posts embed [event-summary]/[event-description]/… bbcode tags
+// straight in the body — stripHtml(p.body) would leak those tags as literal
+// text into the row preview, so event rows preview the description instead.
+function rowPreview(p: ThreadNode): string {
+  if (p.bodyNsfw) return "Hidden content — open to view";
+  const ev = p.eventData ?? (p.body.includes("[event-summary]") ? parseEventData(p.body) : undefined);
+  if (ev) return ev.description ? stripHtml(ev.description).slice(0, 160) : "";
+  return stripHtml(p.body).slice(0, 160);
 }
 
 function getParticipants(thread: ThreadNode) {
@@ -251,8 +262,7 @@ function ListRow(props: {
   onOpenModal: () => void;
 }) {
   const p = props.post;
-  const preview = () =>
-    p.bodyNsfw ? "Hidden content — open to view" : stripHtml(p.body).slice(0, 160);
+  const preview = () => rowPreview(p);
   const replyCount = () =>
     p.children.length > 0
       ? countAllComments(p.children)
@@ -668,8 +678,7 @@ function InboxRow(props: {
     }
   }
 
-  const preview = () =>
-    p.bodyNsfw ? "Hidden content — open to view" : stripHtml(p.body).slice(0, 160);
+  const preview = () => rowPreview(p);
   const isUnread = () => !p.viewerLiked && replyCount() === 0;
   const isUnseen = () => p.flags.includes("unseen");
   const isPinned = () => p.pinned ?? false;

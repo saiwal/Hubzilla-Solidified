@@ -76,6 +76,8 @@ export const post: RawDictionary["post"] = {
   delivery_no_data:      "No delivery records found.",
   edited:                "Edited",
   edit:                  "Edit",
+  event_edit_unavailable: "This event can't be edited right now — try from the Calendar app instead.",
+  event_edit_failed:     "Couldn't open the event editor.",
   // expiry
   expires:               "Expires",
   expired_badge:         "Expired",

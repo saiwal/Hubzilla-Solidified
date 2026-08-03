@@ -5,6 +5,12 @@ import { createEvent, editEvent } from "../api";
 import type { CalEvent } from "../api";
 import { fetchCdavCalendars } from "../api/cdav";
 import { useI18n } from "@/i18n";
+import RichEditor from "@/shared/editor/core/RichEditor";
+import { CAPABILITIES, type EditorTab } from "@/shared/editor/types/editor.types";
+import AttachmentBar from "@/shared/editor/attachments/AttachmentBar";
+import { createAttachmentStore } from "@/shared/editor/attachments/useAttachments";
+import { bbcodeToInsert, patchInsertedAlt } from "@/shared/editor/attachments/insertHelpers";
+import { currentNick } from "@/shared/store/auth-store";
 
 interface Props {
   onClose: () => void;
@@ -53,6 +59,8 @@ export default function EventCreatorModal(props: Props) {
   const [endTime, setEndTime] = createSignal(ev?.end && !ev.allDay ? isoToTime(ev.end) : "10:00");
   const [location, setLocation] = createSignal(ev?.location ?? "");
   const [description, setDescription] = createSignal(ev?.description ?? "");
+  const [descriptionTab, setDescriptionTab] = createSignal<EditorTab>("wysiwyg");
+  const attach = createAttachmentStore(currentNick(), `event:${ev?.id ?? "new"}`);
   const [submitting, setSubmitting] = createSignal(false);
   const [selectedCalIdx, setSelectedCalIdx] = createSignal(0);
 
@@ -308,12 +316,25 @@ export default function EventCreatorModal(props: Props) {
           {/* Description */}
           <div class="flex flex-col gap-1">
             <label class="text-xs font-medium text-muted">{t("calendar.description_label")}</label>
-            <textarea
+            <RichEditor
+              body={description()}
+              onInput={setDescription}
+              capabilities={CAPABILITIES.comment}
+              tab={descriptionTab()}
+              onTabChange={setDescriptionTab}
+              onPasteFiles={(files) => attach.addUploads(files)}
               placeholder={t("calendar.optional") as string}
-              rows={3}
-              value={description()}
-              onInput={(e) => setDescription(e.currentTarget.value)}
-              class={`${inputClass} resize-none`}
+              minHeight="80px"
+              resizable
+            />
+            <AttachmentBar
+              store={attach}
+              nick={currentNick()}
+              accept="both"
+              onInsert={(bbcode) => setDescription(description() + "\n" + bbcodeToInsert(bbcode, "text/bbcode"))}
+              onAltChange={(att) => setDescription(patchInsertedAlt(description(), att, "text/bbcode"))}
+              tab={descriptionTab()}
+              onToggleTab={() => setDescriptionTab(descriptionTab() === "wysiwyg" ? "source" : "wysiwyg")}
             />
           </div>
 

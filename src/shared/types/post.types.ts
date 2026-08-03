@@ -24,6 +24,7 @@ export interface EventData {
   start: string;
   finish: string;
   id: string;
+  description: string;
 }
 
 export interface Post {

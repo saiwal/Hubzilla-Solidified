@@ -3,6 +3,7 @@ import { toast } from "@/shared/store/toast";
 import { currentNick } from "@/shared/store/auth-store";
 import { fetchEvents, type CalEvent } from "@/modules/calendar/api";
 import EventCreatorModal from "@/modules/calendar/widgets/EventCreatorModal";
+import DayDetailModal from "@/modules/calendar/views/DayDetailModal";
 import { useI18n } from "@/i18n";
 
 function next30DaysRange() {
@@ -47,6 +48,7 @@ export default function UpcomingEventsWidget() {
   const [loading, setLoading] = createSignal(false);
   const [error, setError] = createSignal<string | null>(null);
   const [showCreator, setShowCreator] = createSignal(false);
+  const [activeEvent, setActiveEvent] = createSignal<CalEvent | null>(null);
 
   async function load() {
     const nick = currentNick();
@@ -121,7 +123,11 @@ export default function UpcomingEventsWidget() {
           <For each={events()}>
             {(ev, i) => (
               <div
-                class={`px-3.5 py-2.5 flex items-center gap-2.5 hover:bg-elevated transition-colors
+                role="button"
+                tabindex="0"
+                onClick={() => setActiveEvent(ev)}
+                onKeyDown={(e) => e.key === "Enter" && setActiveEvent(ev)}
+                class={`px-3.5 py-2.5 flex items-center gap-2.5 hover:bg-elevated transition-colors cursor-pointer
                   ${i() < events().length - 1 ? "border-b border-rim" : ""}`}
               >
                 {/* Date badge — colored when from a CalDAV calendar */}
@@ -170,6 +176,21 @@ export default function UpcomingEventsWidget() {
           onClose={() => setShowCreator(false)}
           onCreated={load}
         />
+      </Show>
+
+      <Show when={activeEvent()}>
+        {(ev) => (
+          <DayDetailModal
+            date={ev().start.slice(0, 10)}
+            events={[ev()]}
+            onClose={() => setActiveEvent(null)}
+            onEventEdited={load}
+            onEventDeleted={() => {
+              setActiveEvent(null);
+              load();
+            }}
+          />
+        )}
       </Show>
     </>
   );

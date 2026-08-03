@@ -2,19 +2,12 @@ import { For, Show, createMemo, createSignal } from "solid-js";
 import { useI18n } from "@/i18n";
 import { MdFillLocation_on, MdFillOpen_in_new } from "solid-icons/md";
 import DOMPurify from "dompurify";
+import { bbcodeToHtml } from "@/shared/lib/bbcode";
 import type { CalEvent } from "../api";
-import { isoDateStr, localDay } from "./calUtils";
+import { isoDateStr, localDay, fmtEventRange } from "./calUtils";
 
 interface Props {
   events: CalEvent[];
-}
-
-function fmtTime(iso: string, allDay: boolean) {
-  if (allDay) return "All day";
-  return new Date(iso).toLocaleTimeString(undefined, {
-    hour: "numeric",
-    minute: "2-digit",
-  });
 }
 
 function fmtDateHeader(dateStr: string): string {
@@ -94,10 +87,7 @@ export default function ListView(props: Props) {
                             {ev.title || t("calendar.no_title")}
                           </p>
                           <p class="text-xs text-muted mt-0.5">
-                            {fmtTime(ev.start, ev.allDay)}
-                            <Show when={!ev.nofinish && ev.end}>
-                              {" → "}{fmtTime(ev.end!, ev.allDay)}
-                            </Show>
+                            {fmtEventRange(ev)}
                           </p>
                           <Show when={ev.location}>
                             <p class="flex items-center gap-1 text-xs text-muted mt-0.5">
@@ -126,7 +116,7 @@ export default function ListView(props: Props) {
 function EventDetailPanel(props: { event: CalEvent }) {
   const ev = props.event;
   const { t } = useI18n();
-  const sanitized = () => ev.description ? DOMPurify.sanitize(ev.description) : "";
+  const sanitized = () => ev.description ? DOMPurify.sanitize(bbcodeToHtml(ev.description)) : "";
 
   return (
     <div class="mt-1 ml-5 bg-base border border-rim/60 rounded-xl p-3.5 space-y-2">

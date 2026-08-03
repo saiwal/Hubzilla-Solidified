@@ -67,6 +67,14 @@ export default function EventCard(props: {
 
   return (
     <div class="mt-3 space-y-2.5">
+      {/* Description */}
+      <Show when={props.event.description}>
+        <div
+          class="text-sm text-txt leading-relaxed prose prose-sm max-w-none"
+          innerHTML={props.event.description}
+        />
+      </Show>
+
       {/* Dates */}
       <div class="space-y-1 text-sm">
         <div class="flex items-center gap-2 text-muted">

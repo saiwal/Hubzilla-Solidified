@@ -684,6 +684,8 @@ export type RawDictionary = {
     delivery_report: string; delivery_no_data: string;
     edited: string;
     edit: string;
+    event_edit_unavailable: string;
+    event_edit_failed: string;
     expires: string; expired_badge: string; expired_title: string;
     scheduled_badge: string; scheduled_title: string;
     dm_badge: string; dm_title: string; dm_to: string;

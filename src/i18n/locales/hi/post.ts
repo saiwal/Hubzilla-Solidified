@@ -68,6 +68,8 @@ export const post: RawDictionary["post"] = {
   delivery_no_data:      "कोई डिलीवरी रिकॉर्ड नहीं मिला।",
   edited:                "संपादित",
   edit:                  "संपादित करें",
+  event_edit_unavailable: "यह इवेंट अभी संपादित नहीं किया जा सकता — कैलेंडर ऐप से प्रयास करें।",
+  event_edit_failed:     "इवेंट संपादक नहीं खोला जा सका।",
   // expiry
   expires:               "समाप्ति",
   expired_badge:         "समाप्त",

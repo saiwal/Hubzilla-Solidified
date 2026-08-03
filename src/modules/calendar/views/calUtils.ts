@@ -59,10 +59,39 @@ export interface SpanEv {
 }
 
 /** Subtract one calendar day from a YYYY-MM-DD string using UTC arithmetic. */
-function prevDay(dateStr: string): string {
+export function prevDay(dateStr: string): string {
   const d = new Date(dateStr + "T00:00:00Z");
   d.setUTCDate(d.getUTCDate() - 1);
   return d.toISOString().slice(0, 10);
+}
+
+function fmtDayKey(dateStr: string): string {
+  return new Date(dateStr + "T00:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+function fmtClockTime(iso: string): string {
+  return new Date(iso).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+}
+
+/**
+ * Human-readable start/end label for an event row. Plain "All day" / "9:00 AM
+ * → 5:00 PM" for single-day events; includes both dates once start and end
+ * fall on different calendar days, so a multi-day event doesn't read as a
+ * same-day one.
+ */
+export function fmtEventRange(ev: CalEvent): string {
+  const startDay = ev.allDay ? ev.start.slice(0, 10) : localDay(ev.start);
+  let endDay = ev.end ? (ev.allDay ? ev.end.slice(0, 10) : localDay(ev.end)) : startDay;
+  // CalDAV all-day events use exclusive DTEND (next day) — normalize to inclusive.
+  if (ev.allDay && ev.end && endDay > startDay) endDay = prevDay(endDay);
+  const spansDays = endDay !== startDay;
+
+  if (ev.allDay) {
+    return spansDays ? `${fmtDayKey(startDay)} – ${fmtDayKey(endDay)}` : "All day";
+  }
+  if (ev.nofinish || !ev.end) return fmtClockTime(ev.start);
+  if (!spansDays) return `${fmtClockTime(ev.start)} → ${fmtClockTime(ev.end)}`;
+  return `${fmtDayKey(startDay)}, ${fmtClockTime(ev.start)} → ${fmtDayKey(endDay)}, ${fmtClockTime(ev.end)}`;
 }
 
 /**
