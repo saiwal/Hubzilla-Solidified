@@ -1,5 +1,12 @@
 import { createSignal, createEffect, onCleanup, Show, For, type JSX } from "solid-js";
-import { MdOutlineLink, MdOutlinePerson } from "solid-icons/md";
+import {
+  MdOutlineLink,
+  MdOutlinePerson,
+  MdOutlineClose,
+  MdOutlineFormat_bold,
+  MdOutlineFormat_italic,
+  MdOutlineFormat_underlined,
+} from "solid-icons/md";
 import { toast } from "@/shared/store/toast";
 import { useAuth } from "@/shared/store/auth-store";
 import { useNavViewer } from "@/shared/store/nav-store";
@@ -246,9 +253,9 @@ function HqComposer() {
   }
 
   const toolbar = [
-    { title: () => t("editor.bold"),      label: "B", cls: "font-bold", action: () => exec("bold") },
-    { title: () => t("editor.italic"),    label: "I", cls: "italic",    action: () => exec("italic") },
-    { title: () => t("editor.underline"), label: "U", cls: "underline", action: () => exec("underline") },
+    { title: () => t("editor.bold"),      label: <MdOutlineFormat_bold class="w-4 h-4" /> as JSX.Element, cls: "", action: () => exec("bold") },
+    { title: () => t("editor.italic"),    label: <MdOutlineFormat_italic class="w-4 h-4" /> as JSX.Element, cls: "", action: () => exec("italic") },
+    { title: () => t("editor.underline"), label: <MdOutlineFormat_underlined class="w-4 h-4" /> as JSX.Element, cls: "", action: () => exec("underline") },
     { title: () => t("editor.link"),      label: <MdOutlineLink class="w-4 h-4" /> as JSX.Element, cls: "", action: insertLink },
   ];
 
@@ -335,20 +342,15 @@ function HqComposer() {
           </For>
 
           {/* Reset */}
-          <Show when={body().trim()}>
-            <button
-              type="button"
-              title={t("editor.clear_composer")}
-              onClick={resetComposer}
-              class="ml-auto w-7 h-7 flex items-center justify-center rounded text-muted
-                     hover:bg-elevated hover:text-red-500 transition-colors"
-            >
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </Show>
+          <button
+            type="button"
+            title={t("editor.clear_composer")}
+            onClick={resetComposer}
+            class="ml-auto w-7 h-7 flex items-center justify-center rounded text-muted
+                   hover:bg-elevated hover:text-red-500 transition-colors"
+          >
+            <MdOutlineClose class="w-3.5 h-3.5" />
+          </button>
 
           {/* Open full composer */}
           <button
@@ -357,7 +359,6 @@ function HqComposer() {
             onClick={() => setFullOpen(true)}
             class="w-7 h-7 flex items-center justify-center rounded text-muted
                    hover:bg-elevated hover:text-txt transition-colors"
-            classList={{ "ml-auto": !body().trim() }}
           >
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
