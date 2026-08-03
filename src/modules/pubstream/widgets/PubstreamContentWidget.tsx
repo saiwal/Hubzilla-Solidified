@@ -116,7 +116,7 @@ export default function PubstreamContentWidget() {
     >
       <div>
         {/* Single toolbar row */}
-        <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-1 mb-4 max-w-5xl mx-auto">
+        <div class="grid grid-cols-2 sm:grid-cols-[1fr_auto_1fr] items-center gap-1 mb-4 max-w-5xl mx-auto">
 
           {/* Left: title + firehose badge */}
           <div class="flex items-center gap-2">
@@ -129,7 +129,9 @@ export default function PubstreamContentWidget() {
           </div>
 
           {/* Center: view switcher */}
-          <ViewSwitcher viewMode={viewMode()} onChange={changeView} />
+          <div class="order-3 sm:order-none col-span-2 sm:col-span-1 flex justify-center">
+            <ViewSwitcher viewMode={viewMode()} onChange={changeView} />
+          </div>
 
           {/* Right: collapsible tag search */}
           <div class="flex items-center justify-end gap-1">

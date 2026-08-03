@@ -309,7 +309,7 @@ export default function StreamFilters() {
     <div class="space-y-1.5 pb-4 max-w-5xl mx-auto" use:helpable="network/index.activity-filters">
 
       {/* Single row: left=refresh+order · center=ViewSwitcher · right=utility icons */}
-      <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-1 min-w-0">
+      <div class="grid grid-cols-2 sm:grid-cols-[1fr_auto_1fr] items-center gap-1 min-w-0">
 
         {/* ── Left: refresh + order ── */}
         <div class="flex items-center gap-1 min-w-0">
@@ -344,7 +344,9 @@ export default function StreamFilters() {
         </div>
 
         {/* ── Center: view switcher ── */}
-        <ViewSwitcher viewMode={viewMode()} onChange={changeView} />
+        <div class="order-3 sm:order-none col-span-2 sm:col-span-1 flex justify-center">
+          <ViewSwitcher viewMode={viewMode()} onChange={changeView} />
+        </div>
 
         {/* ── Right: utility icons ── */}
         <div class="flex items-center gap-1 justify-end min-w-0">
