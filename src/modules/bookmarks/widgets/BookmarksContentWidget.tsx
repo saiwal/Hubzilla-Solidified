@@ -40,7 +40,7 @@ export default function BookmarksContentWidget() {
   const totalCount = () => (menus() ?? []).reduce((s, m) => s + m.items.length, 0);
 
   return (
-    <div class="max-w-2xl mx-auto space-y-6">
+    <div class="max-w-3xl mx-auto space-y-6">
 
       {/* Loading skeleton */}
       <Show when={menus.loading}>

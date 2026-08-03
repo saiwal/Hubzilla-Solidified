@@ -159,7 +159,7 @@ export default function ProfileEditView() {
   }
 
   return (
-    <div class="max-w-2xl mx-auto px-4 md:px-6 py-6 space-y-6">
+    <div class="max-w-3xl mx-auto px-4 md:px-6 py-6 space-y-6">
       {/* Back link */}
       <div class="flex items-center gap-3">
         <A
@@ -528,7 +528,7 @@ function ProfilePhotoPickerModal(props: {
         class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60"
         onClick={(e) => { if (e.target === e.currentTarget) props.onClose(); }}
       >
-        <div class="flex flex-col w-full max-w-2xl h-[85vh] bg-surface border border-rim rounded-xl shadow-2xl overflow-hidden">
+        <div class="flex flex-col w-full max-w-3xl h-[85vh] bg-surface border border-rim rounded-xl shadow-2xl overflow-hidden">
           <header class="flex items-center justify-between px-4 py-3 border-b border-rim shrink-0">
             <span class="text-sm font-semibold text-txt">{t("profiles.photo_picker_title")}</span>
             <button

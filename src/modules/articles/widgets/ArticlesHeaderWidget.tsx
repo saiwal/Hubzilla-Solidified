@@ -67,7 +67,7 @@ export default function ArticlesHeaderWidget() {
 
   return (
     <Show when={isList()}>
-      <div class="space-y-4 max-w-2xl mx-auto">
+      <div class="space-y-4 max-w-5xl mx-auto">
         <div class="flex items-center justify-between gap-2">
           <h1 class="text-xl font-bold text-txt">{t("articles.title")}</h1>
 

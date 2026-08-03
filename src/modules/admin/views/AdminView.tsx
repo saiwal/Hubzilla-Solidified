@@ -46,7 +46,7 @@ export default function AdminView() {
 
 function SectionSkeleton() {
   return (
-    <div class="max-w-2xl mx-auto px-4 md:px-6 py-6 space-y-4 animate-pulse">
+    <div class="max-w-3xl mx-auto px-4 md:px-6 py-6 space-y-4 animate-pulse">
       <div class="h-5 w-40 rounded bg-elevated" />
       <div class="h-px w-full bg-rim" />
       <div class="space-y-3">

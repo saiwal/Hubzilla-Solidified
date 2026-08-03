@@ -157,7 +157,7 @@ export default function WikiContentWidget() {
 
   return (
     <Show when={isList()}>
-      <div class="space-y-4 max-w-2xl mx-auto p-4 pt-0">
+      <div class="space-y-4 max-w-3xl mx-auto p-4 pt-0">
         {/* Loading */}
         <Show when={wikisLoading()}>
           <div class="space-y-2">

@@ -14,7 +14,7 @@ export function useSiteinfo() {
 // is full-width, and without this these cards stretch edge-to-edge on
 // large screens instead of reading as a narrow, centered column.
 export function Centered(props: { children: any }) {
-  return <div class="max-w-2xl mx-auto">{props.children}</div>;
+  return <div class="max-w-3xl mx-auto">{props.children}</div>;
 }
 
 export function Section(props: { title: string; children: any; compact?: boolean }) {

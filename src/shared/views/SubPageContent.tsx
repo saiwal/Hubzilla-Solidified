@@ -23,7 +23,7 @@ interface Props {
  */
 export default function SubPageContent(props: Props) {
   return (
-    <div class={`${props.wide ? "max-w-5xl" : "max-w-2xl"} mx-auto px-4 md:px-6 py-6 space-y-6`}>
+    <div class={`${props.wide ? "max-w-5xl" : "max-w-3xl"} mx-auto px-4 md:px-6 py-6 space-y-6`}>
       {/* Page header */}
       <div class="flex items-start justify-between gap-4">
         <div class="space-y-0.5">

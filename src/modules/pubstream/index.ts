@@ -20,15 +20,6 @@ registerModule({
   },
   widgets: [
     {
-      id: "pubstream.header",
-      label: () => useI18n().t("widgets.pubstream_header"),
-      loader: () => import("./widgets/PubstreamHeaderWidget"),
-      slot: "header",
-      defaultModules: ["pubstream"],
-      contexts: ["pubstream"],
-      locked: true,
-    },
-    {
       id: "pubstream.content",
       label: () => useI18n().t("widgets.pubstream_content"),
       loader: () => import("./widgets/PubstreamContentWidget"),

@@ -35,6 +35,15 @@ const [orderDetailLoading, setOrderDetailLoading] = createSignal(false);
 const [managedCatalog, setManagedCatalog]         = createSignal<CatalogItem[]>([]);
 const [catalogManageLoading, setCatalogManageLoading] = createSignal(false);
 
+export type CartTab = 'catalog' | 'cart' | 'orders';
+const [tab, setTab] = createSignal<CartTab>('catalog');
+
+export function switchTab(next: CartTab) {
+  if (next === 'orders') loadSellerOrders();
+  setTab(next);
+  setSelectedOrder(null);
+}
+
 // ── Derived ───────────────────────────────────────────────────────────────────
 
 export const cartItems = createMemo<OrderItem[]>(() => order()?.items ?? []);
@@ -360,4 +369,5 @@ export {
   sellerOrders, ordersLoading, selectedOrder, orderDetailLoading,
   setSelectedOrder,
   managedCatalog, catalogManageLoading,
+  tab,
 };

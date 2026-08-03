@@ -116,10 +116,11 @@ export default function PubstreamContentWidget() {
     >
       <div>
         {/* Single toolbar row */}
-        <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-1 pb-2">
+        <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-1 mb-4 max-w-5xl mx-auto">
 
-          {/* Left: firehose badge */}
-          <div class="flex items-center">
+          {/* Left: title + firehose badge */}
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl font-bold shrink-0">{t("pubstream.title")}</h1>
             <Show when={meta()?.firehose}>
               <span class="text-xs text-muted border border-rim rounded-full px-2 py-0.5">
                 {t("pubstream.firehose")}

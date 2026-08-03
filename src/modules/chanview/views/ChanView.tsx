@@ -180,7 +180,7 @@ export default function ChanView() {
   const badge = () => networkBadge(x()?.network);
 
   return (
-    <div class="max-w-2xl mx-auto py-4 px-2">
+    <div class="max-w-3xl mx-auto py-4 px-2">
       {/* Back button */}
       <button
         onClick={() => history.back()}

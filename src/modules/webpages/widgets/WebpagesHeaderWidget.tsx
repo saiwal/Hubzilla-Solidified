@@ -11,7 +11,7 @@ export default function WebpagesHeaderWidget() {
 
   return (
     <Show when={isList()}>
-      <div class="max-w-3xl mx-auto px-4 md:px-6 pt-6">
+      <div class="max-w-5xl mx-auto px-4 md:px-6 pt-6">
         <div class="flex items-center justify-between gap-4">
           <h1 class="text-lg font-semibold text-txt">{t('webpages.title')}</h1>
           <div class="flex items-center gap-2">

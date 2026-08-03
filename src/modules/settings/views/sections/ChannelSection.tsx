@@ -185,7 +185,7 @@ export default function ChannelSection() {
                   class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
                   onClick={(e) => { if (e.target === e.currentTarget) setPermOpen(false); }}
                 >
-                  <div class="w-full max-w-2xl rounded-2xl bg-surface border border-rim shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+                  <div class="w-full max-w-3xl rounded-2xl bg-surface border border-rim shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
 
                     <header class="flex items-center gap-3 px-4 py-3 border-b border-rim shrink-0">
                       <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent-muted text-accent">

@@ -38,7 +38,7 @@ export default function NotifyRedirectView() {
   });
 
   return (
-    <div class="max-w-2xl mx-auto px-4 py-16 flex flex-col items-center gap-3 text-muted">
+    <div class="max-w-3xl mx-auto px-4 py-16 flex flex-col items-center gap-3 text-muted">
       <Show
         when={!notFound()}
         fallback={

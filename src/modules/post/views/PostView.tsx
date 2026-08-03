@@ -148,7 +148,7 @@ export default function PostView() {
   };
 
   return (
-    <div class="max-w-2xl mx-auto py-4 px-2">
+    <div class="max-w-3xl mx-auto py-4 px-2">
       <Show when={node.loading && !node()}>
         <div class="space-y-4 animate-pulse">
           <div class="bg-surface rounded-2xl p-5">

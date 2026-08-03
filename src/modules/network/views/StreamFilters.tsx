@@ -306,7 +306,7 @@ export default function StreamFilters() {
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div class="space-y-1.5 pb-2" use:helpable="network/index.activity-filters">
+    <div class="space-y-1.5 pb-2 max-w-5xl mx-auto" use:helpable="network/index.activity-filters">
 
       {/* Single row: left=refresh+order · center=ViewSwitcher · right=utility icons */}
       <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-1 min-w-0">

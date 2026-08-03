@@ -164,7 +164,7 @@ export default function NotepadContentWidget() {
   });
 
   return (
-    <div class="max-w-2xl mx-auto space-y-6">
+    <div class="max-w-3xl mx-auto space-y-6">
       <Show when={isOwner()}>
         <Show
           when={editingNote() === null}

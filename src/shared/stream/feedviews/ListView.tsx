@@ -888,7 +888,7 @@ export default function ListView(props: {
 
   return (
     <>
-      <div class="bg-surface rounded-xl border border-rim shadow-sm overflow-hidden">
+      <div class="bg-surface rounded-xl border border-rim shadow-sm overflow-hidden max-w-5xl mx-auto">
         <For
           each={props.posts}
           fallback={
@@ -943,7 +943,7 @@ export default function ListView(props: {
 
 export function ListPlaceholder(props: { count?: number }) {
   return (
-    <div class="bg-surface rounded-xl border border-rim shadow-sm overflow-hidden">
+    <div class="bg-surface rounded-xl border border-rim shadow-sm overflow-hidden max-w-5xl mx-auto">
       <For each={Array(props.count ?? 8).fill(0)}>
         {() => <ListRowPlaceholder />}
       </For>

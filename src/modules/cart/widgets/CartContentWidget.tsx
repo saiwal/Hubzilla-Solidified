@@ -6,7 +6,6 @@ import {
   MdFillRemove_shopping_cart,
   MdFillAdd,
   MdFillRemove,
-  MdFillStore,
   MdFillReceipt_long,
   MdFillError,
   MdFillSettings,
@@ -25,8 +24,8 @@ import { fetchAlbums, fetchPhotoAlbum } from '@/modules/photos/api/api';
 import type { Album, Photo } from '@/modules/photos/api/api';
 import { toast } from '@/shared/store/toast';
 import {
-  nick,
-  catalogWithQty, loading, cartItems, cartCount, cartSubtotal, isCheckedOut,
+  nick, tab, switchTab,
+  catalogWithQty, loading, cartItems, cartSubtotal, isCheckedOut,
   paymentConfig, paymentSettings, paymentSettingsLoading, order,
   loadCatalog, addItem, removeItem, setItemQty, checkout,
   paypalCreateOrder, paypalCapture,
@@ -34,7 +33,7 @@ import {
   cashfreeCreateOrder, cashfreeVerify,
   loadPaymentSettings, savePaymentSettings,
   sellerOrders, ordersLoading, selectedOrder, orderDetailLoading,
-  loadSellerOrders, loadSellerOrder, markOrderPaid, addOrderNote,
+  loadSellerOrder, markOrderPaid, addOrderNote,
   fulfillItem, cancelItem, setSelectedOrder,
   managedCatalog, catalogManageLoading,
   loadManagedCatalog, saveCatalogItemAction, deleteCatalogItemAction, toggleCatalogItemAction,
@@ -43,53 +42,16 @@ import type { PaymentSettings, CatalogItemInput } from '../api';
 import { useI18n } from '@/i18n';
 import { useViewerRole } from '@/shared/store/site-config';
 
-type Tab = 'catalog' | 'cart' | 'orders';
-
 export default function CartContentWidget() {
-  const { t } = useI18n();
   const pageNick = usePageNick();
-  const viewerRole = useViewerRole();
-  const isOwner = () => viewerRole() === 'owner';
-  const [tab, setTab] = createSignal<Tab>('catalog');
 
   createEffect(() => {
     const n = pageNick() ?? '';
     if (n) loadCatalog(n);
   });
 
-  const switchTab = (next: Tab) => {
-    if (next === 'orders') loadSellerOrders();
-    setTab(next);
-    setSelectedOrder(null);
-  };
-
   return (
     <div class="max-w-3xl mx-auto">
-      <div class="flex gap-1 mb-5 p-1 bg-surface border border-rim rounded-xl w-fit">
-        <TabBtn active={tab() === 'catalog'} onClick={() => switchTab('catalog')}>
-          {t('cart.catalog_tab')}
-        </TabBtn>
-        <TabBtn active={tab() === 'cart'} onClick={() => switchTab('cart')}>
-          <span class="flex items-center gap-1.5">
-            {t('cart.cart_tab')}
-            <Show when={cartCount() > 0}>
-              <span class="bg-accent text-accent-fg text-[10px] font-bold rounded-full
-                           min-w-[1.1rem] h-[1.1rem] flex items-center justify-center px-1">
-                {cartCount()}
-              </span>
-            </Show>
-          </span>
-        </TabBtn>
-        <Show when={isOwner()}>
-          <TabBtn active={tab() === 'orders'} onClick={() => switchTab('orders')}>
-            <span class="flex items-center gap-1.5">
-              <MdFillStore size={14} />
-              {t('cart.orders_tab')}
-            </span>
-          </TabBtn>
-        </Show>
-      </div>
-
       <Show when={loading()}>
         <CatalogSkeleton />
       </Show>
@@ -108,20 +70,6 @@ export default function CartContentWidget() {
         </Show>
       </Show>
     </div>
-  );
-}
-
-// ── Tab button ─────────────────────────────────────────────────────────────────
-
-function TabBtn(props: { active: boolean; onClick: () => void; children: any }) {
-  return (
-    <button
-      onClick={props.onClick}
-      class={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors
-        ${props.active ? 'bg-elevated shadow text-txt' : 'text-muted hover:text-txt'}`}
-    >
-      {props.children}
-    </button>
   );
 }
 

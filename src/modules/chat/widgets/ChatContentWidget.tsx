@@ -44,7 +44,7 @@ export default function ChatContentWidget() {
 
   return (
     <Show when={isList()}>
-      <div class="max-w-2xl mx-auto px-4 pb-6 space-y-4">
+      <div class="max-w-3xl mx-auto px-4 pb-6 space-y-4">
         {/* App not installed */}
         <Show when={!chatroomsInstalled() && !roomsLoading()}>
           <div class="bg-surface border border-rim rounded-xl p-8 text-center space-y-2">

@@ -81,7 +81,7 @@ export default function WikiHeaderWidget() {
 
   return (
     <Show when={isList()}>
-      <div class="space-y-4 max-w-2xl mx-auto p-4 pb-0">
+      <div class="space-y-4 max-w-5xl mx-auto p-4 pb-0">
         <div class="flex items-center justify-between">
           <h1 class="text-xl font-semibold text-txt">{t("wiki.wikis")}</h1>
           <Show when={canCreate()}>

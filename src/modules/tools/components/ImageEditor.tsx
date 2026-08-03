@@ -167,7 +167,7 @@ export function ImageEditor() {
       </Show>
 
       <Show when={!file()}>
-        <div class="flex flex-col gap-5 max-w-2xl w-full mx-auto">
+        <div class="flex flex-col gap-5 max-w-3xl w-full mx-auto">
 
           {/* ── Post-edit result ────────────────────────────────────────────── */}
           <Show

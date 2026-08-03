@@ -180,7 +180,7 @@ export default function ArticlesContentWidget() {
 
   return (
     <Show when={isList()}>
-      <div class="space-y-4 max-w-2xl mx-auto">
+      <div class="space-y-4 max-w-3xl mx-auto">
         <Show when={!loading()} fallback={<ArticlesListSkeleton />}>
           <Show
             when={posts().length > 0}

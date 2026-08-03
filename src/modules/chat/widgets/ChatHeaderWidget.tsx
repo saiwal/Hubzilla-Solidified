@@ -5,7 +5,6 @@ import { usePageNick } from "@/shared/store/site-config";
 import { useAuth } from "@/shared/store/auth-store";
 import { isOwner, createChatRoom } from "../store";
 import {
-  MdFillChat,
   MdFillAdd,
 } from "solid-icons/md";
 import AclPicker, { entryKey, type AclMode, type AclEntry } from "@/shared/editor/components/AclPicker";
@@ -121,10 +120,9 @@ export default function ChatHeaderWidget() {
 
   return (
     <Show when={isList()}>
-      <div class="max-w-2xl mx-auto px-4 pt-6 space-y-4">
+      <div class="max-w-5xl mx-auto space-y-4">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
-            <MdFillChat class="text-accent text-xl" />
             <h1 class="text-lg font-semibold text-txt">{t("chat.chatrooms")}</h1>
           </div>
           <Show when={isOwner()}>

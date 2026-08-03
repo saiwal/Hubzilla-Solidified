@@ -122,7 +122,7 @@ export default function GameCanvas(props: Props) {
   return (
     <iframe
       srcdoc={buildSrcdoc(props.gameId, import.meta.env.BASE_URL)}
-      style="position:absolute;inset:0;width:100%;height:100%;border:none;display:block"
+      style="width:100%;height:100vh;border:none;display:block"
       title={`Puzzle: ${props.gameId}`}
     />
   );

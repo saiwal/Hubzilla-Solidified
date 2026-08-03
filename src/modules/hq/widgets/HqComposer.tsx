@@ -253,7 +253,7 @@ function HqComposer() {
   ];
 
   return (
-    <div class="bg-surface border border-rim rounded-2xl p-3.5 shadow-sm flex flex-col">
+    <div class="bg-surface border border-rim rounded-2xl p-3.5 shadow-sm flex flex-col max-w-5xl mx-auto">
 
       {/* Header — hidden while compact */}
       <Show when={expanded()}>

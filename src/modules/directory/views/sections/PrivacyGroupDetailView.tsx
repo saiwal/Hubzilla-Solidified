@@ -159,7 +159,7 @@ const PrivacyGroupDetailView: Component<Props> = (props) => {
     <Show
       when={!detailLoading()}
       fallback={
-        <div class="max-w-2xl mx-auto px-4 md:px-6 py-6 space-y-4 animate-pulse">
+        <div class="max-w-3xl mx-auto px-4 md:px-6 py-6 space-y-4 animate-pulse">
           <div class="bg-surface border border-rim rounded-xl h-44" />
           <div class="bg-surface border border-rim rounded-xl h-72" />
         </div>

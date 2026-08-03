@@ -112,7 +112,7 @@ export default function CalendarContentWidget() {
   ];
 
   return (
-    <div class="flex flex-col gap-3 h-full min-h-0">
+    <div class="flex flex-col gap-3 h-full min-h-0 max-w-5xl mx-auto">
       {/* Toolbar */}
       <div class="flex items-center gap-2 flex-wrap">
         <h2 class="text-lg font-semibold text-txt mr-auto">{periodLabel()}</h2>
@@ -120,6 +120,32 @@ export default function CalendarContentWidget() {
           <span class="text-xs text-muted">{t("calendar.loading")}</span>
         </Show>
 
+        {/* Navigation */}
+        <Show when={viewType() !== "list"}>
+          <div class="flex items-center gap-1">
+            <button
+              onClick={() => navigate(-1)}
+              class="p-1.5 rounded-lg border border-rim text-muted hover:bg-elevated hover:text-txt transition-colors"
+              aria-label="Previous"
+            >
+              <MdFillChevron_left size={18} />
+            </button>
+            <button
+              onClick={() => setAnchor(new Date())}
+              class="px-2 py-1 text-xs rounded-lg border border-rim text-muted hover:bg-elevated hover:text-txt transition-colors"
+            >
+              {t("calendar.today") as string}
+            </button>
+            <button
+              onClick={() => navigate(1)}
+              class="p-1.5 rounded-lg border border-rim text-muted hover:bg-elevated hover:text-txt transition-colors"
+              aria-label="Next"
+            >
+              <MdFillChevron_right size={18} />
+            </button>
+          </div>
+        </Show>
+ 
         {/* View switcher */}
         <div class="flex rounded-lg border border-rim overflow-hidden shrink-0">
           {VIEWS.map(v => (
@@ -151,33 +177,7 @@ export default function CalendarContentWidget() {
             {t("calendar.new_event")}
           </button>
         </Show>
-
-        {/* Navigation */}
-        <Show when={viewType() !== "list"}>
-          <div class="flex items-center gap-1">
-            <button
-              onClick={() => navigate(-1)}
-              class="p-1.5 rounded-lg border border-rim text-muted hover:bg-elevated hover:text-txt transition-colors"
-              aria-label="Previous"
-            >
-              <MdFillChevron_left size={18} />
-            </button>
-            <button
-              onClick={() => setAnchor(new Date())}
-              class="px-2 py-1 text-xs rounded-lg border border-rim text-muted hover:bg-elevated hover:text-txt transition-colors"
-            >
-              {t("calendar.today") as string}
-            </button>
-            <button
-              onClick={() => navigate(1)}
-              class="p-1.5 rounded-lg border border-rim text-muted hover:bg-elevated hover:text-txt transition-colors"
-              aria-label="Next"
-            >
-              <MdFillChevron_right size={18} />
-            </button>
-          </div>
-        </Show>
-      </div>
+     </div>
 
       {/* View content */}
       <div class="flex-1 min-h-0 overflow-auto">

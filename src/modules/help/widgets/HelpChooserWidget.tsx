@@ -35,8 +35,10 @@ export default function HelpChooserWidget() {
   ] as const;
 
   return (
-    <div class="bg-surface border border-rim rounded-2xl shadow-sm p-3 flex items-center gap-3 flex-wrap">
-      <div class="flex gap-1 p-1 bg-elevated rounded-lg w-fit">
+    <div class="max-w-5xl mx-auto flex items-center gap-3 flex-wrap">
+      <h1 class="text-lg font-semibold text-txt">{t("nav.help")}</h1>
+
+      <div class="flex gap-1 p-1 bg-elevated rounded-lg w-fit mx-auto">
         {sections.map((s) => (
           <A
             href={`/help/${s.id}`}
@@ -52,7 +54,7 @@ export default function HelpChooserWidget() {
         ))}
       </div>
 
-      <form onSubmit={submitSearch} class="flex items-center gap-1 ml-auto">
+      <form onSubmit={submitSearch} class="flex items-center gap-1">
         <input
           type="search"
           value={query()}

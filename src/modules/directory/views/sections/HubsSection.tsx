@@ -118,7 +118,7 @@ export default function PubsitesView() {
       {/* Header */}
       <div>
         <h1 class="text-2xl font-bold text-txt">{t("directory.public_hubs")}</h1>
-        <p class="mt-1 text-sm text-muted max-w-2xl">
+        <p class="mt-1 text-sm text-muted max-w-3xl">
           {t("directory.hubs_subtext")}
         </p>
       </div>

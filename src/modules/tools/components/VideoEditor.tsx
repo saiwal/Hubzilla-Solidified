@@ -473,7 +473,7 @@ export function VideoEditor(props: VideoEditorProps = {}) {
 
   // ── Render ────────────────────────────────────────────────────────────────────
   return (
-    <div class="flex flex-col gap-5 max-w-2xl w-full mx-auto">
+    <div class="flex flex-col gap-5 max-w-3xl w-full mx-auto">
       <Show
         when={file()}
         fallback={

@@ -7,7 +7,7 @@ export default function ProfileContentWidget() {
   const nick = usePageNick();
 
   return (
-    <div class="max-w-2xl mx-auto py-4 px-2">
+    <div class="max-w-3xl mx-auto py-4 px-2">
       <ProfileView full />
       <div class="mt-3 text-center">
         <a
