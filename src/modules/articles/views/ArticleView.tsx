@@ -532,7 +532,7 @@ export default function ArticleView() {
                 {/* Body */}
                 <div
                   ref={bodyRef}
-                  class="prose dark:prose-invert max-w-none"
+                  class="prose dark:prose-invert max-w-none text-justify"
                   // eslint-disable-next-line solid/no-innerhtml
                   innerHTML={rendered()}
                 />

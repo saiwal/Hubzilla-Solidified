@@ -628,7 +628,7 @@ export default function WikiPageView() {
           <Show when={!editMode()}>
             <article
               ref={(el) => createEffect(() => { safeHtml(); hydrateLatex(el); })}
-              class="prose prose-neutral dark:prose-invert max-w-none
+              class="prose prose-neutral dark:prose-invert max-w-none text-justify
                      [&_a]:text-accent [&_a]:no-underline [&_a:hover]:underline
                      [&_pre]:bg-elevated [&_pre]:border [&_pre]:border-rim [&_pre]:rounded-xl
                      [&_blockquote]:border-l-2 [&_blockquote]:border-rim [&_blockquote]:text-muted"
@@ -666,7 +666,7 @@ export default function WikiPageView() {
                 <Show when={!previewLoading()}>
                   <article
                     ref={(el) => createEffect(() => { previewHtml(); hydrateLatex(el); })}
-                    class="prose prose-neutral dark:prose-invert max-w-none
+                    class="prose prose-neutral dark:prose-invert max-w-none text-justify
                            [&_a]:text-accent [&_a]:no-underline [&_a:hover]:underline
                            [&_pre]:bg-elevated [&_pre]:border [&_pre]:border-rim [&_pre]:rounded-xl
                            [&_blockquote]:border-l-2 [&_blockquote]:border-rim [&_blockquote]:text-muted"
