@@ -2022,6 +2022,9 @@ export type RawDictionary = {
     layout_template_label:    string;
     layout_template_default:  string;
     chrome_mode_default:      string;
+    chrome_mode_compact:      string;
+    chrome_mode_wide:         string;
+    chrome_mode_focus:        string;
     chrome_mode_zen:          string;
     chrome_mode_hint:         string;
     zen_chrome_notice:        string;

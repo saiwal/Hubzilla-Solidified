@@ -138,7 +138,7 @@ class WidgetTemplates
     {
         $id = (string) ($body['id'] ?? '');
         $chrome = $body['chrome'] ?? 'default';
-        if (!preg_match(self::ID_PATTERN, $id) || !in_array($chrome, ['default', 'zen'], true)) {
+        if (!preg_match(self::ID_PATTERN, $id) || !in_array($chrome, ['default', 'zen', 'focus', 'wide', 'compact'], true)) {
             Response::error(400, 'Invalid request');
         }
 
@@ -146,10 +146,10 @@ class WidgetTemplates
         if (!isset($doc['templates'][$id])) {
             Response::error(404, 'Template not found');
         }
-        if ($chrome === 'zen') {
-            $doc['templates'][$id]['chrome'] = 'zen';
-        } else {
+        if ($chrome === 'default') {
             unset($doc['templates'][$id]['chrome']);
+        } else {
+            $doc['templates'][$id]['chrome'] = $chrome;
         }
         self::save($uid, $doc);
 

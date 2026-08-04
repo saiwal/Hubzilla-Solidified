@@ -156,7 +156,7 @@ export default function WebpagesContentWidget() {
   const isList = useIsWebpagesList();
 
   createEffect(() => {
-    if ((auth as any).loading || !nick()) return;
+    if ((auth as any).loading || !nick() || !isList()) return;
     loadWebpages(nick());
   });
 

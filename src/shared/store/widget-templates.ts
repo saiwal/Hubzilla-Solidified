@@ -23,8 +23,13 @@ import { type LayoutEntry, entryKey, parseWidgetLayout } from "./widget-layout";
 export interface WidgetTemplate {
   name: string;
   slots: Partial<Record<WidgetSlotName, LayoutEntry[]>>;
-  /** App chrome mode for pages assigned to this template. Absent ⇒ "default". */
-  chrome?: "default" | "zen";
+  /** App chrome mode for pages assigned to this template. Absent ⇒ "default".
+   * "zen" hides all app chrome AND widget slots. "focus" hides only the
+   * nav rail/sidebars/mobile bars, keeping header/gridTop/contentTop/footer
+   * widgets visible on the page itself. "wide" hides only the right widget
+   * sidebar. "compact" hides the nav rail and mobile drawer/tab bar (a
+   * floating FAB covers opening the right sidebar on mobile there). */
+  chrome?: "default" | "zen" | "focus" | "wide" | "compact";
 }
 
 export interface WidgetTemplates {
@@ -72,7 +77,9 @@ export function parseWidgetTemplates(raw: unknown): WidgetTemplates | null {
     clean[id] = {
       name: t.name,
       slots: parseSlots(t.slots),
-      ...(t.chrome === "zen" ? { chrome: "zen" as const } : {}),
+      ...(t.chrome === "zen" || t.chrome === "focus" || t.chrome === "wide" || t.chrome === "compact"
+        ? { chrome: t.chrome }
+        : {}),
     };
   }
   return { version: 1, templates: clean };
@@ -94,7 +101,7 @@ export function templateName(templateId: string): string | null {
   return templates()?.templates[templateId]?.name ?? null;
 }
 
-export function templateChrome(templateId: string): "default" | "zen" {
+export function templateChrome(templateId: string): "default" | "zen" | "focus" | "wide" | "compact" {
   return templates()?.templates[templateId]?.chrome ?? "default";
 }
 
@@ -140,7 +147,7 @@ export function pageTemplateEntriesFor(templateId: string, slot: WidgetSlotName)
   return pageTemplates()?.templates[templateId]?.slots[slot] ?? null;
 }
 
-export function pageTemplateChrome(templateId: string): "default" | "zen" {
+export function pageTemplateChrome(templateId: string): "default" | "zen" | "focus" | "wide" | "compact" {
   return pageTemplates()?.templates[templateId]?.chrome ?? "default";
 }
 
@@ -186,7 +193,10 @@ export async function renameTemplate(id: string, name: string): Promise<boolean>
   return applyTemplatesResponse(await post({ action: "rename", id, name }));
 }
 
-export async function setTemplateChrome(id: string, chrome: "default" | "zen"): Promise<boolean> {
+export async function setTemplateChrome(
+  id: string,
+  chrome: "default" | "zen" | "focus" | "wide" | "compact",
+): Promise<boolean> {
   return applyTemplatesResponse(await post({ action: "set_chrome", id, chrome }));
 }
 

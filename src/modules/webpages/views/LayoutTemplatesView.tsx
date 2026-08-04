@@ -198,11 +198,16 @@ export default function LayoutTemplatesView() {
                     </div>
                     <select
                       value={tpl(id)?.chrome ?? "default"}
-                      onChange={(e) => void setTemplateChrome(id, e.currentTarget.value as "default" | "zen")}
+                      onChange={(e) =>
+                        void setTemplateChrome(id, e.currentTarget.value as "default" | "zen" | "focus" | "wide" | "compact")
+                      }
                       class="bg-elevated border border-rim rounded-lg px-2 py-1 text-xs text-txt shrink-0"
                       title={t("webpages.chrome_mode_hint")}
                     >
                       <option value="default">{t("webpages.chrome_mode_default")}</option>
+                      <option value="compact">{t("webpages.chrome_mode_compact")}</option>
+                      <option value="wide">{t("webpages.chrome_mode_wide")}</option>
+                      <option value="focus">{t("webpages.chrome_mode_focus")}</option>
                       <option value="zen">{t("webpages.chrome_mode_zen")}</option>
                     </select>
                     <div class="flex items-center gap-1 shrink-0">

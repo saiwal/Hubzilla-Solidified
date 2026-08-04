@@ -18,10 +18,11 @@ const [currentPageTemplateId, setCurrentPageTemplateId] = createSignal<string | 
 
 // Chrome mode of the webpage currently displayed by PageView (if any),
 // derived from that page's assigned template's `chrome` field — lets
-// Layout.tsx hide all app chrome for zen pages. Set ONLY by PageView.tsx
-// (never by the composer/template editor), so editing a zen-mode template
-// still shows full chrome. See ModuleDef.pageChrome.
-const [currentPageChrome, setCurrentPageChrome] = createSignal<"default" | "zen">("default");
+// Layout.tsx hide app chrome for zen/focus/wide/compact pages. Set ONLY by
+// PageView.tsx (never by the composer/template editor), so editing such a
+// template still shows full chrome. See ModuleDef.pageChrome.
+const [currentPageChrome, setCurrentPageChrome] =
+  createSignal<"default" | "zen" | "focus" | "wide" | "compact">("default");
 
 export {
   pages,

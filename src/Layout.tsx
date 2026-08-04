@@ -222,9 +222,27 @@ const Layout: ParentComponent = (props) => {
   // just the sidebar. See ModuleDef.pageTemplate / Slot's templateId.
   const pageTemplateId = createMemo(() => getModule(activeModuleId())?.pageTemplate?.() ?? undefined);
 
-  // "zen" hides all app chrome (nav, sidebars, widget slots, mobile bars),
-  // leaving only the routed page's own content. See ModuleDef.pageChrome.
-  const isZen = createMemo(() => getModule(activeModuleId())?.pageChrome?.() === "zen");
+  // "zen" hides all app chrome (nav, sidebars, widget slots, mobile bars).
+  // "focus" hides only the nav rail/sidebars/mobile bars, keeping the
+  // header/gridTop/contentTop/footer widget slots visible on the page.
+  // "wide" hides only the right widget sidebar (and its FAB/panel toggle
+  // controls), keeping the nav rail, mobile bars, and widget slots as-is.
+  // "compact" hides the nav rail AND the mobile drawer/bottom tab bar (so
+  // there's no in-nav way to open the right sidebar on mobile) — a
+  // dedicated floating toggle covers that instead. See ModuleDef.pageChrome.
+  const chromeMode = createMemo(() => getModule(activeModuleId())?.pageChrome?.() ?? "default");
+  // Desktop left nav rail + mobile drawer/bottom tab bar (and their backdrop).
+  const hidesNavChrome = createMemo(
+    () => chromeMode() === "zen" || chromeMode() === "focus" || chromeMode() === "compact",
+  );
+  const hidesRightSidebar = createMemo(
+    () => chromeMode() === "zen" || chromeMode() === "focus" || chromeMode() === "wide",
+  );
+  const hidesWidgetSlots = createMemo(() => chromeMode() === "zen");
+  // "compact" hides the bottom tab bar's own sidebar-panel toggle, so the FAB
+  // (normally lg-only, since the tab bar covers mobile) must also show on
+  // mobile there — it's the only remaining way to open the right sidebar.
+  const showsMobileSidebarFab = createMemo(() => chromeMode() === "compact");
 
   // Own templates' names/entries are already available at boot, but usage
   // counts (used by the "shared by N pages" notice in Slot.tsx) are
@@ -345,7 +363,7 @@ const Layout: ParentComponent = (props) => {
           {/* ═══════════════════════════════════════════════════════
               DESKTOP LEFT SIDEBAR
           ═══════════════════════════════════════════════════════ */}
-          <Show when={!isZen()}>
+          <Show when={!hidesNavChrome()}>
           <aside
             aria-label={t("layout.navigation")}
             class="hidden lg:flex flex-col w-56 shrink-0 relative z-20
@@ -467,7 +485,7 @@ const Layout: ParentComponent = (props) => {
                   ? `${notifCount()} notification${notifCount() === 1 ? "" : "s"}`
                   : ""}
               </span>
-              <Show when={!isZen()}>
+              <Show when={!hidesWidgetSlots()}>
                 <Slot name="header" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
                 <Slot name="gridTop" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
                 <Slot name="contentTop" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
@@ -535,7 +553,7 @@ const Layout: ParentComponent = (props) => {
                 </button>
               </Show>
             </div>
-						<Show when={!isZen()}>
+						<Show when={!hidesWidgetSlots()}>
                 <div class="mt-auto">
                   <Slot name="footer" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
                   <SiteCredits />
@@ -547,7 +565,7 @@ const Layout: ParentComponent = (props) => {
           {/* ═══════════════════════════════════════════════════════
               RIGHT SIDEBAR
           ═══════════════════════════════════════════════════════ */}
-          <Show when={!isZen()}>
+          <Show when={!hidesRightSidebar()}>
           <aside
             id="right-sidebar"
             ref={rightPanelRef}
@@ -575,7 +593,7 @@ const Layout: ParentComponent = (props) => {
           </aside>
           </Show>
           {/* Backdrop */}
-          <Show when={!isZen() && (rightOpen() || moreOpen())}>
+          <Show when={!hidesNavChrome() && ((!hidesRightSidebar() && rightOpen()) || moreOpen())}>
             <div
               aria-hidden="true"
               class="fixed inset-0 z-30 bg-black/25 lg:hidden"
@@ -586,7 +604,7 @@ const Layout: ParentComponent = (props) => {
           {/* ═══════════════════════════════════════════════════════
               MOBILE — "More" bottom sheet drawer
           ═══════════════════════════════════════════════════════ */}
-          <Show when={!isZen()}>
+          <Show when={!hidesNavChrome()}>
           <nav
             id="more-drawer"
             ref={morePanelRef}
@@ -768,7 +786,7 @@ const Layout: ParentComponent = (props) => {
           {/* ═══════════════════════════════════════════════════════
               MOBILE — Bottom Tab Bar
           ═══════════════════════════════════════════════════════ */}
-          <Show when={!isZen()}>
+          <Show when={!hidesNavChrome()}>
           <nav
             aria-label={t("layout.navigation")}
             class="fixed bottom-0 left-0 right-0 z-50 h-16 lg:hidden
@@ -824,6 +842,7 @@ const Layout: ParentComponent = (props) => {
             </button>
             {/* </Show> */}
 
+            <Show when={!hidesRightSidebar()}>
             <button
               ref={panelButtonRef}
               onClick={() => {
@@ -861,21 +880,24 @@ const Layout: ParentComponent = (props) => {
               </span>
               <span>{t("layout.panel")}</span>
             </button>
+            </Show>
           </nav>
           </Show>
 
-          {/* Right sidebar FAB (lg only — not xl) */}
-          <Show when={!isZen()}>
+          {/* Right sidebar FAB — normally lg-only (mobile has the bottom tab
+              bar's own panel toggle instead), but "compact" hides that tab
+              bar, so the FAB covers mobile there too. */}
+          <Show when={!hidesRightSidebar()}>
           <button
             onClick={() => setRightOpen((o) => !o)}
             aria-expanded={rightOpen()}
             aria-controls="right-sidebar"
             aria-label={rightOpen() ? "Close panel" : "Open panel"}
             use:helpable="nav.panel"
-            class="fixed bottom-6 right-6 z-50 w-10 h-10 rounded-full shadow-lg
+            class={`fixed bottom-6 right-6 z-50 w-10 h-10 rounded-full shadow-lg
                    bg-elevated border border-rim
-                   hidden lg:flex xl:hidden items-center justify-center
-                   hover:shadow-xl transition-all"
+                   ${showsMobileSidebarFab() ? "flex" : "hidden lg:flex"} xl:hidden items-center justify-center
+                   hover:shadow-xl transition-all`}
           >
             <span class="relative inline-flex">
               <Show when={!rightOpen() && notifCount() > 0}>

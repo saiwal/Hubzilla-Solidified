@@ -121,12 +121,17 @@ export interface ModuleDef {
    * widgets from the named template instead of the module-level layout.
    * Omit/return null|undefined to use the module-level layout as normal. */
   pageTemplate?: () => string | null | undefined;
-  /** Reactive accessor for the chrome mode ("default"|"zen") of the item
-   * currently shown by this module's active route (e.g. a webpage's assigned
-   * template's chrome setting). "zen" hides all app chrome (nav, sidebars,
-   * widget slots, mobile bars), leaving only the routed page's own content.
-   * Omit/return undefined (or "default") for normal chrome. */
-  pageChrome?: () => "default" | "zen" | undefined;
+  /** Reactive accessor for the chrome mode
+   * ("default"|"zen"|"focus"|"wide"|"compact") of the item currently shown
+   * by this module's active route (e.g. a webpage's assigned template's
+   * chrome setting). "zen" hides all app chrome (nav, sidebars, widget
+   * slots, mobile bars), leaving only the routed page's own content.
+   * "focus" hides only the nav rail/sidebars/mobile bars, keeping
+   * header/gridTop/contentTop/footer widgets visible on the page. "wide"
+   * hides only the right widget sidebar. "compact" hides the nav rail and
+   * mobile drawer/tab bar. Omit/return undefined (or "default") for normal
+   * chrome. */
+  pageChrome?: () => "default" | "zen" | "focus" | "wide" | "compact" | undefined;
 }
 
 export interface RouteDef {
