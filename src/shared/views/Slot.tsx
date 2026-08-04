@@ -294,9 +294,8 @@ const Slot: Component<SlotProps> = (props) => {
     () => globalWidgets().length > 0 || localEntries().length > 0 || editing(),
   );
 
-  const columnCount = isGridTop
-    ? useColumnCount([{ width: 1024, count: 4 }, { width: 640, count: 2 }], 1)
-    : () => 1;
+  const [gridEl, setGridEl] = createSignal<HTMLDivElement>();
+  const columnCount = isGridTop ? useColumnCount(gridEl, 16, 4) : () => 1;
   const columnIndexes = createMemo(() => Array.from({ length: columnCount() }, (_, i) => i));
   const globalColumns = createMemo(() => splitIntoColumns(globalWidgets(), columnCount()));
   const localColumns = createMemo(() => splitIntoColumns(localEntries(), columnCount()));
@@ -398,7 +397,7 @@ const Slot: Component<SlotProps> = (props) => {
         when={!editing()}
         fallback={
           <SlotRegionBox label={slotLabel()}>
-            <div class="flex gap-4 items-start mb-4">
+            <div class="flex gap-4 items-start mb-4" ref={setGridEl}>
               <For each={columnIndexes()}>
                 {(colIndex) => (
                   <div class="flex-1 flex flex-col min-w-0">
@@ -439,7 +438,7 @@ const Slot: Component<SlotProps> = (props) => {
           </SlotRegionBox>
         }
       >
-        <div class="flex gap-4 items-start mb-4">
+        <div class="flex gap-4 items-start mb-4" ref={setGridEl}>
           <For each={columnIndexes()}>
             {(colIndex) => (
               <div class="flex-1 flex flex-col min-w-0">

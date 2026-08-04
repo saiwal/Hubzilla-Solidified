@@ -8,6 +8,7 @@ import {
   onCleanup,
   lazy,
 } from "solid-js";
+import { splitIntoColumns, useColumnCount as useMasonryColumnCount } from "@/shared/lib/masonry";
 import type { ThreadNode } from "@/shared/lib/thread";
 import { countAllComments, isRootPost } from "@/shared/lib/thread";
 import type { StreamHandlers } from "../types";
@@ -21,26 +22,8 @@ import { markItemSeen } from "@/shared/lib/markSeen";
 import { MdOutlineSchedule, MdOutlineTimer, MdFillPush_pin, MdOutlineReply } from "solid-icons/md";
 import { useAuth } from "@/shared/store/auth-store";
 import { isDirectMessage as isDM, DmBadge, DmRecipients } from "@/shared/stream/components/DmMeta";
-function useColumnCount(): () => number {
-  const getCount = () => {
-    const w = window.innerWidth;
-    if (w >= 1024) return 3;
-    if (w >= 640) return 2;
-    return 1;
-  };
-  const [count, setCount] = createSignal(getCount());
-  onMount(() => {
-    const obs = new ResizeObserver(() => setCount(getCount()));
-    obs.observe(document.documentElement);
-    onCleanup(() => obs.disconnect());
-  });
-  return count;
-}
-
-function splitIntoColumns<T>(items: T[], n: number): T[][] {
-  const cols: T[][] = Array.from({ length: n }, () => []);
-  items.forEach((item, i) => cols[i % n].push(item));
-  return cols;
+function useColumnCount(el: () => HTMLElement | undefined): () => number {
+  return useMasonryColumnCount(el, 16, 3);
 }
 
 const COLLAPSED_MAX_PX = 200;
@@ -447,7 +430,8 @@ export default function MasonryView(props: {
   appendingCount?: number;
 }) {
   const [modalUuid, setModalUuid] = createSignal<string | null>(null);
-  const colCount = useColumnCount();
+  const [gridEl, setGridEl] = createSignal<HTMLDivElement>();
+  const colCount = useColumnCount(gridEl);
   const items = createMemo<MasonryItem[]>(() => [
     ...props.posts.map((post): MasonryItem => ({ kind: "post", post })),
     ...Array.from(
@@ -465,7 +449,7 @@ export default function MasonryView(props: {
           <p class="text-center py-16 text-muted text-sm">Nothing here yet.</p>
         }
       >
-        <div class="flex gap-3 items-start">
+        <div class="flex gap-3 items-start" ref={setGridEl}>
           <For each={columns()}>
             {(col) => (
               <div class="flex-1 flex flex-col min-w-0">
@@ -508,7 +492,8 @@ export default function MasonryView(props: {
 }
 
 export function MasonryPlaceholder(props: { count?: number }) {
-  const colCount = useColumnCount();
+  const [gridEl, setGridEl] = createSignal<HTMLDivElement>();
+  const colCount = useColumnCount(gridEl);
   const placeholders = createMemo(() =>
     Array(props.count ?? 12)
       .fill(0)
@@ -519,7 +504,7 @@ export function MasonryPlaceholder(props: { count?: number }) {
   );
 
   return (
-    <div class="flex gap-3 items-start">
+    <div class="flex gap-3 items-start" ref={setGridEl}>
       <For each={columns()}>
         {(col) => (
           <div class="flex-1 flex flex-col">
