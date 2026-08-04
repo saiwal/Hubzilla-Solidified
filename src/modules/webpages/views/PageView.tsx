@@ -1,5 +1,5 @@
 import { createEffect, onCleanup, Show } from "solid-js";
-import { useParams, A } from "@solidjs/router";
+import { useParams } from "@solidjs/router";
 import { createQueryResource } from "@/shared/lib/createQueryResource";
 import DOMPurify from "dompurify";
 import { bbcodeToHtml } from "@/shared/lib/bbcode";
@@ -7,7 +7,9 @@ import { hydrateLatex } from "@/shared/lib/hydrateLatex";
 import { useToc } from "@/shared/lib/useToc";
 import ArticleToc from "@/shared/views/ArticleToc";
 import { fetchWebPageByPagelink } from "../api";
-import { setCurrentPageTemplateId } from "../store";
+import { setCurrentPageTemplateId, setCurrentPageChrome } from "../store";
+import { templateChrome, pageTemplateChrome } from "@/shared/store/widget-templates";
+import { useViewerRole } from "@/shared/store/site-config";
 import { useI18n } from "@/i18n";
 
 // Renders a Hubzilla webpage inline in the SPA by fetching its body via the
@@ -58,6 +60,16 @@ export default function PageView() {
   createEffect(() => setCurrentPageTemplateId(detail()?.layout_template ?? null));
   onCleanup(() => setCurrentPageTemplateId(null));
 
+  // Chrome mode (see ModuleDef.pageChrome) is derived from the page's
+  // assigned template's own `chrome` field — not a separate per-page field.
+  const viewerRole = useViewerRole();
+  const isPageOwner = () => viewerRole() === "owner";
+  createEffect(() => {
+    const tid = detail()?.layout_template;
+    setCurrentPageChrome(tid ? (isPageOwner() ? templateChrome : pageTemplateChrome)(tid) : "default");
+  });
+  onCleanup(() => setCurrentPageChrome("default"));
+
   let bodyRef: HTMLDivElement | undefined;
   createEffect(() => {
     rendered();
@@ -67,18 +79,6 @@ export default function PageView() {
 
   return (
     <div class="relative max-w-5xl mx-auto space-y-4 py-4">
-      {/* Breadcrumb */}
-      <div class="flex items-center gap-2 text-sm text-muted">
-        <A
-          href={`/webpages/${nick()}`}
-          class="hover:text-txt transition-colors"
-        >
-          {t("webpages.back")}
-        </A>
-        <span>/</span>
-        <span class="font-mono text-muted">{pagelink()}</span>
-      </div>
-
       {/* Loading skeleton */}
       <Show when={detail.loading}>
         <div class="space-y-3 animate-pulse">

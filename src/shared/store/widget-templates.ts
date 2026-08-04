@@ -23,6 +23,8 @@ import { type LayoutEntry, entryKey, parseWidgetLayout } from "./widget-layout";
 export interface WidgetTemplate {
   name: string;
   slots: Partial<Record<WidgetSlotName, LayoutEntry[]>>;
+  /** App chrome mode for pages assigned to this template. Absent ⇒ "default". */
+  chrome?: "default" | "zen";
 }
 
 export interface WidgetTemplates {
@@ -67,7 +69,11 @@ export function parseWidgetTemplates(raw: unknown): WidgetTemplates | null {
     if (!tpl || typeof tpl !== "object" || Array.isArray(tpl)) continue;
     const t = tpl as Record<string, unknown>;
     if (typeof t.name !== "string") continue;
-    clean[id] = { name: t.name, slots: parseSlots(t.slots) };
+    clean[id] = {
+      name: t.name,
+      slots: parseSlots(t.slots),
+      ...(t.chrome === "zen" ? { chrome: "zen" as const } : {}),
+    };
   }
   return { version: 1, templates: clean };
 }
@@ -86,6 +92,10 @@ export function templateEntriesFor(templateId: string, slot: WidgetSlotName): La
 
 export function templateName(templateId: string): string | null {
   return templates()?.templates[templateId]?.name ?? null;
+}
+
+export function templateChrome(templateId: string): "default" | "zen" {
+  return templates()?.templates[templateId]?.chrome ?? "default";
 }
 
 // Called from auth-store with the pconfig value at boot.
@@ -130,6 +140,10 @@ export function pageTemplateEntriesFor(templateId: string, slot: WidgetSlotName)
   return pageTemplates()?.templates[templateId]?.slots[slot] ?? null;
 }
 
+export function pageTemplateChrome(templateId: string): "default" | "zen" {
+  return pageTemplates()?.templates[templateId]?.chrome ?? "default";
+}
+
 // ── Mutations — server is the source of truth; each call refetches state from
 // the response rather than optimistically guessing (templates are edited
 // from one dedicated screen, not inline like widget_layout, so the extra
@@ -170,6 +184,10 @@ export async function createTemplate(name: string): Promise<string | null> {
 
 export async function renameTemplate(id: string, name: string): Promise<boolean> {
   return applyTemplatesResponse(await post({ action: "rename", id, name }));
+}
+
+export async function setTemplateChrome(id: string, chrome: "default" | "zen"): Promise<boolean> {
+  return applyTemplatesResponse(await post({ action: "set_chrome", id, chrome }));
 }
 
 export async function deleteTemplate(id: string): Promise<boolean> {

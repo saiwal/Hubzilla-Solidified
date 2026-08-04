@@ -1,6 +1,6 @@
 import { Show, onCleanup, createSignal, createEffect, For } from "solid-js";
 import { useI18n } from "@/i18n";
-import { useTemplates, loadTemplates, createTemplate } from "@/shared/store/widget-templates";
+import { useTemplates, loadTemplates, createTemplate, templateChrome } from "@/shared/store/widget-templates";
 import { queryClient } from "@/shared/lib/query-client";
 import TemplateNameForm from "@/shared/views/TemplateNameForm";
 import { setCurrentPageTemplateId } from "@/modules/webpages/store";
@@ -309,6 +309,10 @@ export default function WebpageComposer(props: Props) {
             </Show>
           </button>
         </div>
+
+        <Show when={layoutTemplate() && templateChrome(layoutTemplate()) === "zen"}>
+          <p class="text-xs text-amber-500">{t("webpages.zen_chrome_notice")}</p>
+        </Show>
 
         <Show when={creatingTemplate()}>
           <TemplateNameForm

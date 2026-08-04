@@ -16,7 +16,23 @@ const [currentNick, setCurrentNick] = createSignal<string>('');
 // instead of the module default. See ModuleDef.pageTemplate.
 const [currentPageTemplateId, setCurrentPageTemplateId] = createSignal<string | null>(null);
 
-export { pages, loading, error, currentNick, currentPageTemplateId, setCurrentPageTemplateId };
+// Chrome mode of the webpage currently displayed by PageView (if any),
+// derived from that page's assigned template's `chrome` field — lets
+// Layout.tsx hide all app chrome for zen pages. Set ONLY by PageView.tsx
+// (never by the composer/template editor), so editing a zen-mode template
+// still shows full chrome. See ModuleDef.pageChrome.
+const [currentPageChrome, setCurrentPageChrome] = createSignal<"default" | "zen">("default");
+
+export {
+  pages,
+  loading,
+  error,
+  currentNick,
+  currentPageTemplateId,
+  setCurrentPageTemplateId,
+  currentPageChrome,
+  setCurrentPageChrome,
+};
 
 export async function loadWebpages(nick: string, force = false) {
   // Avoid wiping already-loaded data when navigating back to the same channel

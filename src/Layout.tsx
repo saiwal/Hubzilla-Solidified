@@ -222,6 +222,10 @@ const Layout: ParentComponent = (props) => {
   // just the sidebar. See ModuleDef.pageTemplate / Slot's templateId.
   const pageTemplateId = createMemo(() => getModule(activeModuleId())?.pageTemplate?.() ?? undefined);
 
+  // "zen" hides all app chrome (nav, sidebars, widget slots, mobile bars),
+  // leaving only the routed page's own content. See ModuleDef.pageChrome.
+  const isZen = createMemo(() => getModule(activeModuleId())?.pageChrome?.() === "zen");
+
   // Own templates' names/entries are already available at boot, but usage
   // counts (used by the "shared by N pages" notice in Slot.tsx) are
   // deliberately not part of the boot payload — fetch them once, centrally,
@@ -341,6 +345,7 @@ const Layout: ParentComponent = (props) => {
           {/* ═══════════════════════════════════════════════════════
               DESKTOP LEFT SIDEBAR
           ═══════════════════════════════════════════════════════ */}
+          <Show when={!isZen()}>
           <aside
             aria-label={t("layout.navigation")}
             class="hidden lg:flex flex-col w-56 shrink-0 relative z-20
@@ -445,6 +450,7 @@ const Layout: ParentComponent = (props) => {
               />
             </div>
           </aside>
+          </Show>
 
           {/* ═══════════════════════════════════════════════════════
               MAIN CONTENT
@@ -461,9 +467,11 @@ const Layout: ParentComponent = (props) => {
                   ? `${notifCount()} notification${notifCount() === 1 ? "" : "s"}`
                   : ""}
               </span>
-              <Slot name="header" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
-              <Slot name="gridTop" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
-              <Slot name="contentTop" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
+              <Show when={!isZen()}>
+                <Slot name="header" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
+                <Slot name="gridTop" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
+                <Slot name="contentTop" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
+              </Show>
 
               <div class="min-w-0">
                 <ErrorBoundary
@@ -527,16 +535,19 @@ const Layout: ParentComponent = (props) => {
                 </button>
               </Show>
             </div>
-						<div class="mt-auto">
-                <Slot name="footer" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
-                <SiteCredits />
-              </div>
+						<Show when={!isZen()}>
+                <div class="mt-auto">
+                  <Slot name="footer" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
+                  <SiteCredits />
+                </div>
+              </Show>
 
           </main>
 
           {/* ═══════════════════════════════════════════════════════
               RIGHT SIDEBAR
           ═══════════════════════════════════════════════════════ */}
+          <Show when={!isZen()}>
           <aside
             id="right-sidebar"
             ref={rightPanelRef}
@@ -562,8 +573,9 @@ const Layout: ParentComponent = (props) => {
               <Slot name="rightVisitor" moduleId={activeModuleId()} />
             </Show>
           </aside>
+          </Show>
           {/* Backdrop */}
-          <Show when={rightOpen() || moreOpen()}>
+          <Show when={!isZen() && (rightOpen() || moreOpen())}>
             <div
               aria-hidden="true"
               class="fixed inset-0 z-30 bg-black/25 lg:hidden"
@@ -574,6 +586,7 @@ const Layout: ParentComponent = (props) => {
           {/* ═══════════════════════════════════════════════════════
               MOBILE — "More" bottom sheet drawer
           ═══════════════════════════════════════════════════════ */}
+          <Show when={!isZen()}>
           <nav
             id="more-drawer"
             ref={morePanelRef}
@@ -750,10 +763,12 @@ const Layout: ParentComponent = (props) => {
               onUserMenuToggle={() => setActionsOpen((o) => !o)}
             />
           </nav>
+          </Show>
 
           {/* ═══════════════════════════════════════════════════════
               MOBILE — Bottom Tab Bar
           ═══════════════════════════════════════════════════════ */}
+          <Show when={!isZen()}>
           <nav
             aria-label={t("layout.navigation")}
             class="fixed bottom-0 left-0 right-0 z-50 h-16 lg:hidden
@@ -847,8 +862,10 @@ const Layout: ParentComponent = (props) => {
               <span>{t("layout.panel")}</span>
             </button>
           </nav>
+          </Show>
 
           {/* Right sidebar FAB (lg only — not xl) */}
+          <Show when={!isZen()}>
           <button
             onClick={() => setRightOpen((o) => !o)}
             aria-expanded={rightOpen()}
@@ -874,6 +891,7 @@ const Layout: ParentComponent = (props) => {
             </span>
             <MdFillApps size={18} />
           </button>
+          </Show>
         </div>
       </div>
     </div>

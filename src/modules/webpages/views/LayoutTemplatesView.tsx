@@ -22,6 +22,7 @@ import {
   createTemplate,
   renameTemplate,
   deleteTemplate,
+  setTemplateChrome,
   templateUsageCount,
   TEMPLATE_SLOTS,
 } from "@/shared/store/widget-templates";
@@ -123,6 +124,10 @@ export default function LayoutTemplatesView() {
           <div class="flex items-center justify-between gap-2 px-3 py-2 rounded-xl border border-accent/50 bg-accent/10 text-xs text-txt">
             <span>
               {t("webpages.editing_template_notice").replace("{{name}}", tpl(id())?.name ?? "")}
+              <Show when={tpl(id())?.chrome === "zen"}>
+                {" "}
+                <span class="text-amber-500">{t("webpages.zen_chrome_notice")}</span>
+              </Show>
             </span>
             <button
               onClick={() => editTemplate(id())}
@@ -191,6 +196,15 @@ export default function LayoutTemplatesView() {
                         </Show>
                       </span>
                     </div>
+                    <select
+                      value={tpl(id)?.chrome ?? "default"}
+                      onChange={(e) => void setTemplateChrome(id, e.currentTarget.value as "default" | "zen")}
+                      class="bg-elevated border border-rim rounded-lg px-2 py-1 text-xs text-txt shrink-0"
+                      title={t("webpages.chrome_mode_hint")}
+                    >
+                      <option value="default">{t("webpages.chrome_mode_default")}</option>
+                      <option value="zen">{t("webpages.chrome_mode_zen")}</option>
+                    </select>
                     <div class="flex items-center gap-1 shrink-0">
                       <button
                         onClick={() => editTemplate(id)}

@@ -1,11 +1,12 @@
 import { registerModule } from '@/shared/lib/module-registry';
 import { useI18n } from '@/i18n';
 import { usePageNick } from '@/shared/store/site-config';
-import { currentPageTemplateId } from './store';
+import { currentPageTemplateId, currentPageChrome } from './store';
 
 registerModule({
   id: 'webpages',
   pageTemplate: () => currentPageTemplateId() ?? undefined,
+  pageChrome: () => currentPageChrome() ?? undefined,
   routes: [
     { path: '/webpages/:nick/new',       component: () => import('./views/WebpageEditorView') },
     { path: '/webpages/:nick/menus',     component: () => import('./views/MenusView') },

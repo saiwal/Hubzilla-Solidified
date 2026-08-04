@@ -2021,6 +2021,10 @@ export type RawDictionary = {
     widgets_label:            string;
     layout_template_label:    string;
     layout_template_default:  string;
+    chrome_mode_default:      string;
+    chrome_mode_zen:          string;
+    chrome_mode_hint:         string;
+    zen_chrome_notice:        string;
     template_unused:          string;
     template_pages_label:     string;
     delete_template_in_use_confirm: string;
