@@ -265,7 +265,7 @@ const FileRow: Component<{
       {formatDate(props.item.created)}
     </span>
 
-    <div class="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0">
+    <div class="flex items-center gap-1 shrink-0">
       <FileActionsMenu
         item={props.item}
         nick={props.nick}
