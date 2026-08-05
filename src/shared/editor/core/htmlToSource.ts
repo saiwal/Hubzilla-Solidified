@@ -61,6 +61,14 @@ function nodeTobbcode(node: Node): string {
     if (shareId) return `[share=${shareId}][/share]`;
     const shareRaw = el.getAttribute("data-share-raw");
     if (shareRaw) return decodeURIComponent(shareRaw);
+    // The [crypt] decrypt button (bbcode.ts's makeCryptHtml) — read the
+    // payload straight back into bbcode, ignoring any child content, so a
+    // WYSIWYG blur/save (onEditorBlur/onEditorInput in RichEditor.tsx) can
+    // never replace the real ciphertext with the button's own placeholder
+    // text ("🔒 Encrypted content"), which is what nodeTobbcode's generic
+    // `default: children()` fallback would otherwise do.
+    const cryptPayload = el.getAttribute("data-crypt-payload");
+    if (cryptPayload !== null) return `[crypt]${cryptPayload}[/crypt]`;
   }
 
   const children = () => Array.from(el.childNodes).map(nodeTobbcode).join("");

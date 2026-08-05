@@ -186,6 +186,10 @@ export const editor: RawDictionary["editor"] = {
   encrypt_error_already:       "पोस्ट पहले से एन्क्रिप्टेड है।",
   encrypt_error_no_password:   "पासवर्ड दर्ज करें।",
   encrypt_error_mismatch:      "पासवर्ड मेल नहीं खाते।",
+  decrypt_toggle:              "संपादित करने के लिए डिक्रिप्ट करें",
+  decrypt_panel_title:         "संपादित करने के लिए डिक्रिप्ट करें",
+  decrypt_hint_prefix:         "संकेत:",
+  decrypt_error_no_password:   "पासवर्ड दर्ज करें।",
 
   // Decryption
   decrypt_passphrase:          "पासफ़्रेज़ दर्ज करें",

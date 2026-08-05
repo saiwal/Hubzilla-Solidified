@@ -2,6 +2,8 @@ import { createEffect, onCleanup, Show } from "solid-js";
 import { useParams } from "@solidjs/router";
 import { createQueryResource } from "@/shared/lib/createQueryResource";
 import { renderBody } from "@/shared/lib/renderBody";
+import { handleNsfwToggleClick } from "@/shared/lib/nsfw";
+import { handleDecryptClick } from "@/shared/lib/decrypt-click";
 import { hydrateLatex } from "@/shared/lib/hydrateLatex";
 import { useToc } from "@/shared/lib/useToc";
 import ArticleToc from "@/shared/views/ArticleToc";
@@ -61,6 +63,14 @@ export default function PageView() {
   });
   const { toc, activeId } = useToc(rendered, () => bodyRef);
 
+  // Wires up the interactive elements bbcodeToHtml() can embed in rendered()
+  // (NSFW reveal toggle, encrypted-content decrypt button) — both are inert
+  // without this, see nsfw.ts/decrypt-click.ts.
+  function onBodyClick(e: MouseEvent) {
+    if (handleNsfwToggleClick(e)) return;
+    handleDecryptClick(e);
+  }
+
   return (
     <div class="relative max-w-5xl mx-auto space-y-4 py-4">
       {/* Loading skeleton */}
@@ -91,6 +101,7 @@ export default function PageView() {
             <div
               ref={bodyRef}
               class="prose dark:prose-invert max-w-none"
+              onClick={onBodyClick}
               // eslint-disable-next-line solid/no-innerhtml
               innerHTML={rendered()}
             />

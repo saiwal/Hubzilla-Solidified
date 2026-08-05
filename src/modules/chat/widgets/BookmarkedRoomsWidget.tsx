@@ -64,7 +64,7 @@ export default function BookmarkedRoomsWidget() {
                 </button>
                 <button
                   onClick={() => void removeChatBookmark(bm.id)}
-                  class="opacity-0 group-hover:opacity-100 p-1 rounded text-muted hover:text-red-500 transition-all shrink-0"
+                  class="opacity-100 md:opacity-0 md:group-hover:opacity-100 p-1 rounded text-muted hover:text-red-500 transition-all shrink-0"
                   title={t("chat.unbookmark") as string}
                 >
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

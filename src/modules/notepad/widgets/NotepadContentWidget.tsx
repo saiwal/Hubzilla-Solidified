@@ -115,7 +115,7 @@ function NoteCard(props: {
             </span>
           }
         >
-          <span class="inline-flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <span class="inline-flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
             <button
               onClick={props.onEdit}
               class="px-2 py-0.5 rounded border border-rim text-muted hover:bg-elevated transition-colors"

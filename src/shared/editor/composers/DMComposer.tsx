@@ -10,7 +10,7 @@
  * adding group_allow would break that auto-classification.
  */
 
-import { createSignal, createEffect, on, onCleanup, Show, For, type Component } from "solid-js";
+import { createSignal, createEffect, on, onCleanup, Show, For, lazy, type Component } from "solid-js";
 import { Portal } from "solid-js/web";
 import { createComposerStore } from "../store/createComposerStore";
 import RichEditor from "../core/RichEditor";
@@ -21,7 +21,7 @@ import { entryKey } from "../components/AclPicker";
 import RecipientField from "../components/RecipientField";
 import { useMentionEmojiWiring } from "../mention/useMentionEmojiWiring";
 import MentionEmojiPopups from "../mention/MentionEmojiPopups";
-import { PrimarySubmitButton, SecondaryButton, ToggleButton, IconButton } from "../components/buttons";
+import { PrimarySubmitButton, SecondaryButton, IconButton } from "../components/buttons";
 import AttachmentBar from "../attachments/AttachmentBar";
 import { createAttachmentStore } from "../attachments/useAttachments";
 import { currentNick } from "@/shared/store/auth-store";
@@ -29,9 +29,14 @@ import { bbcodeToInsert, patchInsertedAlt } from "../attachments/insertHelpers";
 import { isFeatureEnabled } from "@/shared/store/auth-store";
 import { useI18n } from "@/i18n";
 import { getCsrfToken } from "@/shared/lib/csrf";
-import { isEncryptedBody } from "@/shared/lib/postCrypto";
 import { useEncrypt } from "../useEncrypt";
-import EncryptPanel from "../components/EncryptPanel";
+import EncryptToggle from "../components/EncryptToggle";
+// Lazy: these panels are only ever shown once a user opts into encrypting or
+// decrypting, so their code (and the libsodium-wrappers dependency it
+// eventually triggers via postCrypto.ts) shouldn't sit in every composer's
+// initial bundle.
+const EncryptPanel = lazy(() => import("../components/EncryptPanel"));
+const DecryptPanel = lazy(() => import("../components/DecryptPanel"));
 
 export interface DMComposerProps {
   open: boolean;
@@ -179,26 +184,7 @@ const DMComposer: Component<DMComposerProps> = (props) => {
             {/* Options row: encrypt */}
             <div class="flex flex-wrap items-center gap-2">
                 <Show when={isFeatureEnabled("content_encrypt")}>
-                  <Show
-                    when={!isEncryptedBody(store.body())}
-                    fallback={
-                      <span class="hidden sm:flex items-center gap-1 px-2 py-1 rounded-md text-xs border bg-yellow-500/10 text-yellow-500 border-yellow-500/30">
-                        🔒 {t("editor.encrypt_badge")}
-                      </span>
-                    }
-                  >
-                    <ToggleButton
-                      active={enc.open()}
-                      onClick={() => enc.setOpen((o) => !o)}
-                      title={t("editor.encrypt_toggle")}
-                    >
-                      <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                      </svg>
-                      {t("editor.encrypt_toggle")}
-                    </ToggleButton>
-                  </Show>
+                  <EncryptToggle enc={enc} body={store.body} />
                 </Show>
               </div>
 
@@ -303,6 +289,11 @@ const DMComposer: Component<DMComposerProps> = (props) => {
         {/* ── Encrypt panel ── */}
         <Show when={enc.open()}>
           <EncryptPanel enc={enc} />
+        </Show>
+
+        {/* ── Decrypt-to-edit panel ── */}
+        <Show when={enc.decryptOpen()}>
+          <DecryptPanel enc={enc} body={store.body} />
         </Show>
         </div>
       </ComposerModal>

@@ -1086,13 +1086,17 @@ export function bbcode(text: string, options: BbcodeOptions = {}): string {
   );
 
   // ------------------------------------------------------------------
-  // [crypt] — render a decrypt button; PostCard wires up the click handler
-  // via event delegation using the data-crypt-payload attribute.
+  // [crypt] — render a decrypt button; PostCard/PageView/HtmlBlockWidget wire
+  // up the click handler via event delegation using the data-crypt-payload
+  // attribute (see decrypt-click.ts). contenteditable="false" keeps the
+  // WYSIWYG editor from letting the placeholder text be typed into — and
+  // htmlToSource.ts reads data-crypt-payload back into [crypt]...[/crypt]
+  // verbatim regardless, the same round-trip contract as the [share] embed.
   // ------------------------------------------------------------------
   function makeCryptHtml(payload: string): string {
     // Escape payload for HTML attribute (base64 is safe but guard against edge cases)
     const safe = payload.replace(/"/g, "&quot;");
-    return `<button class="hz-decrypt-btn" data-crypt-payload="${safe}" type="button">🔒 Encrypted content</button>`;
+    return `<button class="hz-decrypt-btn" data-crypt-payload="${safe}" type="button" contenteditable="false">🔒 Encrypted content</button>`;
   }
   text = text.replace(/\[crypt\]([\s\S]*?)\[\/crypt\]/gi, (_m, payload) =>
     makeCryptHtml((payload as string).trim()),

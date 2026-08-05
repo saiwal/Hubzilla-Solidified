@@ -195,8 +195,12 @@ export const editor = {
   encrypt_error_already:       "Post is already encrypted.",
   encrypt_error_no_password:   "Enter a password.",
   encrypt_error_mismatch:      "Passwords do not match.",
+  decrypt_toggle:              "Decrypt to edit",
+  decrypt_panel_title:         "Decrypt to edit",
+  decrypt_hint_prefix:         "Hint:",
+  decrypt_error_no_password:   "Enter a password.",
 
-  // Decryption (PostCard)
+  // Decryption (PostCard, and the composer's decrypt-to-edit panel)
   decrypt_passphrase:          "Enter passphrase",
   decrypt_btn:                 "Decrypt",
   decrypt_cancel:              "Cancel",

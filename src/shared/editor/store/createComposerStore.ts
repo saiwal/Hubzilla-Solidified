@@ -2,6 +2,7 @@ import { createSignal, createEffect } from "solid-js";
 import { toast } from "@/shared/store/toast";
 import { storageGet, storageSet, storageDel } from "@/shared/lib/storage";
 import { listServerDrafts, saveServerDraft, deleteServerDraft } from "../api/drafts";
+import { isEncryptedBody } from "@/shared/lib/postCrypto";
 import type { MimeType, ComposerMeta } from "../types/editor.types";
 
 export type SubmitFn = (body: string, meta: ComposerMeta) => Promise<void>;
@@ -55,7 +56,13 @@ export function createComposerStore(
   const [mimetype, setMimetype] = createSignal<MimeType>("text/bbcode");
   const [submitting, setSubmitting] = createSignal(false);
   const [error, setError]       = createSignal<string | null>(null);
-  const [tab, setTab]           = createSignal<"wysiwyg" | "source">("wysiwyg");
+  // WYSIWYG has nothing meaningful to show for already-encrypted content —
+  // bbcodeToHtml() just renders an inert "🔒 Encrypted content" placeholder
+  // button for [crypt]...[/crypt] (see bbcode.ts) — so default straight to
+  // the Source tab, which shows the real body, whenever we're seeding one.
+  const [tab, setTab] = createSignal<"wysiwyg" | "source">(
+    options?.initialBody && isEncryptedBody(options.initialBody) ? "source" : "wysiwyg",
+  );
   const [savedDrafts, setSavedDrafts] = createSignal<SavedDraft[]>([]);
   const [loadedDraftId, setLoadedDraftId] = createSignal<string | null>(null);
   // Prevents the autosave effect from running (and deleting the draft) before
@@ -82,6 +89,7 @@ export function createComposerStore(
       setCategory(pending.category);
       setMimetype(pending.mimetype);
       setLoadedDraftId(pending.id);
+      if (isEncryptedBody(pending.body)) setTab("source");
       await storageDel(PENDING_KEY);
     } else if (!options?.initialBody) {
       // Support both the new LocalDraft shape and the old plain-string format
@@ -96,6 +104,7 @@ export function createComposerStore(
         setSlug(local.slug);
         setCategory(local.category);
         setMimetype(local.mimetype);
+        if (isEncryptedBody(local.body)) setTab("source");
       }
     }
     setInitialized(true);
@@ -203,6 +212,7 @@ export function createComposerStore(
     setCategory(draft.category);
     setMimetype(draft.mimetype);
     setLoadedDraftId(draft.id);
+    setTab(isEncryptedBody(draft.body) ? "source" : "wysiwyg");
   }
 
   async function deleteSavedDraft(id: string): Promise<void> {

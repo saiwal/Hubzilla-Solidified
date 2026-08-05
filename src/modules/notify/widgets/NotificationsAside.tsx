@@ -381,7 +381,7 @@ function NotifRow(props: {
           title="Mark read"
           class="shrink-0 mt-1.5 p-0.5 rounded text-subtle
                  hover:text-muted hover:bg-elevated transition-colors
-                 opacity-0 group-hover:opacity-100 focus:opacity-100"
+                 opacity-100 md:opacity-0 md:group-hover:opacity-100 focus:opacity-100"
         >
           <MdFillClose class="w-3.5 h-3.5" />
         </button>

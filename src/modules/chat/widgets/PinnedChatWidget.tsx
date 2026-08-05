@@ -109,7 +109,7 @@ function PinnedRoomPanel(props: { room: PinnedRoom; onUnpin: () => void }) {
         <button
           onClick={() => navigate(`/chat/${props.room.nick}/${props.room.roomId}`)}
           title="Open chatroom"
-          class="opacity-0 group-hover:opacity-100 p-1 rounded text-muted hover:text-accent transition-all shrink-0"
+          class="opacity-100 md:opacity-0 md:group-hover:opacity-100 p-1 rounded text-muted hover:text-accent transition-all shrink-0"
         >
           <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -120,7 +120,7 @@ function PinnedRoomPanel(props: { room: PinnedRoom; onUnpin: () => void }) {
         <button
           onClick={props.onUnpin}
           title={t("chat.unpin") as string}
-          class="opacity-0 group-hover:opacity-100 p-1 rounded text-muted hover:text-red-500 transition-all shrink-0"
+          class="opacity-100 md:opacity-0 md:group-hover:opacity-100 p-1 rounded text-muted hover:text-red-500 transition-all shrink-0"
         >
           <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

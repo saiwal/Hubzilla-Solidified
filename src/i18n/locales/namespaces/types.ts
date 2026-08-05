@@ -882,6 +882,10 @@ export type RawDictionary = {
     encrypt_error_already:       string;
     encrypt_error_no_password:   string;
     encrypt_error_mismatch:      string;
+    decrypt_toggle:              string;
+    decrypt_panel_title:         string;
+    decrypt_hint_prefix:         string;
+    decrypt_error_no_password:   string;
     decrypt_passphrase:          string;
     decrypt_btn:                 string;
     decrypt_cancel:              string;

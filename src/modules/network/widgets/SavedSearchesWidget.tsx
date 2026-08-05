@@ -69,7 +69,7 @@ export default function SavedSearchesWidget() {
                 <button
                   onClick={() => void removeSavedSearch(s.id)}
                   title={t("network.delete_saved_search")}
-                  class="p-1.5 rounded-lg text-muted opacity-0 group-hover:opacity-100
+                  class="p-1.5 rounded-lg text-muted opacity-100 md:opacity-0 md:group-hover:opacity-100
                          hover:text-red-500 hover:bg-elevated transition-all shrink-0"
                 >
                   <MdFillDelete size={13} />

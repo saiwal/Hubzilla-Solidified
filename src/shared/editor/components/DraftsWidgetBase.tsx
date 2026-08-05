@@ -191,7 +191,7 @@ export default function DraftsWidgetBase(props: DraftsWidgetBaseProps) {
                         type="button"
                         title={props.deleteTitle}
                         onClick={() => void deleteDraft(entry.scope, entry.draft.id)}
-                        class="p-0.5 -m-0.5 rounded text-muted/70 opacity-0 group-hover:opacity-100
+                        class="p-0.5 -m-0.5 rounded text-muted/70 opacity-100 md:opacity-0 md:group-hover:opacity-100
                                hover:text-red-500 focus-visible:opacity-100 transition-all"
                       >
                         <Show

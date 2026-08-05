@@ -112,7 +112,7 @@ export default function BookmarksContentWidget() {
                     </button>
 
                     {/* Actions */}
-                    <div class="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div class="flex items-center gap-1 shrink-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => visit(item.url)}
                         class="text-[10px] px-2 py-0.5 rounded border border-rim text-muted

@@ -111,7 +111,7 @@ export default function ChatContentWidget() {
                   <Show when={isOwner()}>
                     <button
                       onClick={() => handleDrop(room.id, room.name)}
-                      class="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-muted hover:text-red-500 hover:bg-elevated transition-all"
+                      class="opacity-100 md:opacity-0 md:group-hover:opacity-100 p-1.5 rounded-lg text-muted hover:text-red-500 hover:bg-elevated transition-all"
                       title={t("chat.delete_room") as string}
                     >
                       <MdFillDelete class="text-base" />

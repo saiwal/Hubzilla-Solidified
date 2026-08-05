@@ -66,7 +66,7 @@ export function DraftsList(props: DraftsListProps) {
                   <p class="text-[10px] text-muted/60 mt-0.5">{timeAgo(draft.updated)}</p>
                 </div>
 
-                <div class="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div class="flex items-center gap-1 shrink-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                   <button
                     type="button"
                     title={t("editor.load_draft")}

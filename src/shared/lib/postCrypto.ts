@@ -159,3 +159,8 @@ export function getPayloadHint(base64: string): string {
 export function isEncryptedBody(body: string): boolean {
   return /^\[crypt\][\s\S]+\[\/crypt\]$/.test(body.trim());
 }
+
+/** Strips the [crypt]/[/crypt] wrapper, returning the raw base64 payload (see isEncryptedBody). */
+export function extractCryptPayload(body: string): string {
+  return body.trim().replace(/^\[crypt\]/, "").replace(/\[\/crypt\]$/, "");
+}

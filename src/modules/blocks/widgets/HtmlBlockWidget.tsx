@@ -14,6 +14,8 @@ import { usePageNick } from "@/shared/store/site-config";
 import { createQueryResource } from "@/shared/lib/createQueryResource";
 import { fetchBlockByName } from "@/modules/webpages/api";
 import { renderBody } from "@/shared/lib/renderBody";
+import { handleNsfwToggleClick } from "@/shared/lib/nsfw";
+import { handleDecryptClick } from "@/shared/lib/decrypt-click";
 
 export default function HtmlBlockWidget(props: WidgetProps) {
   const { t } = useI18n();
@@ -39,6 +41,14 @@ export default function HtmlBlockWidget(props: WidgetProps) {
   const content = () => (blockName() ? blockClean() : customClean());
   const hasContent = () => (blockName() ? !!block() : !!html());
 
+  // A block preset's body can embed bbcode's NSFW reveal toggle or an
+  // encrypted-content decrypt button (see nsfw.ts/decrypt-click.ts) — both
+  // render inert without this wiring.
+  function onBodyClick(e: MouseEvent) {
+    if (handleNsfwToggleClick(e)) return;
+    handleDecryptClick(e);
+  }
+
   return (
     <Show
       when={hasContent()}
@@ -60,6 +70,7 @@ export default function HtmlBlockWidget(props: WidgetProps) {
         </Show>
         <div
           class="px-4 py-3 prose prose-sm dark:prose-invert max-w-none text-txt"
+          onClick={onBodyClick}
           innerHTML={content()}
         />
       </div>

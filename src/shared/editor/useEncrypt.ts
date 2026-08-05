@@ -1,6 +1,6 @@
 import { createSignal } from "solid-js";
 import { useI18n } from "@/i18n";
-import { encryptBody, isEncryptedBody } from "@/shared/lib/postCrypto";
+import { encryptBody, isEncryptedBody, decryptPayload, extractCryptPayload } from "@/shared/lib/postCrypto";
 
 /**
  * Shared encrypt state + logic for all composers.
@@ -15,6 +15,39 @@ export function useEncrypt(getBody: () => string, setBody: (b: string) => void) 
   const [hint, setHint]         = createSignal("");
   const [encrypting, setEncrypting] = createSignal(false);
   const [error, setError]       = createSignal("");
+
+  // ── Decrypt-to-edit — reveals the plaintext of an already-encrypted body
+  // so it can be modified, since WYSIWYG/Source can only ever show ciphertext
+  // otherwise. Re-encrypting afterward (if desired) goes through doEncrypt()
+  // above like any other new content, once the body no longer looks encrypted.
+  const [decryptOpen, setDecryptOpen] = createSignal(false);
+  const [decryptPassword, setDecryptPassword] = createSignal("");
+  const [decrypting, setDecrypting] = createSignal(false);
+  const [decryptError, setDecryptError] = createSignal("");
+
+  async function doDecrypt() {
+    const pw = decryptPassword().trim();
+    if (!pw) { setDecryptError(t("editor.decrypt_error_no_password")); return; }
+
+    setDecrypting(true);
+    setDecryptError("");
+    try {
+      const plain = await decryptPayload(extractCryptPayload(getBody()), pw);
+      setBody(plain);
+      setDecryptOpen(false);
+      setDecryptPassword("");
+    } catch (err) {
+      setDecryptError(err instanceof Error ? err.message : "Decryption failed");
+    } finally {
+      setDecrypting(false);
+    }
+  }
+
+  function resetDecrypt() {
+    setDecryptOpen(false);
+    setDecryptPassword("");
+    setDecryptError("");
+  }
 
   async function doEncrypt() {
     const body = getBody().trim();
@@ -45,6 +78,7 @@ export function useEncrypt(getBody: () => string, setBody: (b: string) => void) 
     setConfirm("");
     setHint("");
     setError("");
+    resetDecrypt();
   }
 
   return {
@@ -54,5 +88,9 @@ export function useEncrypt(getBody: () => string, setBody: (b: string) => void) 
     hint, setHint,
     encrypting, error,
     doEncrypt, reset,
+    decryptOpen, setDecryptOpen,
+    decryptPassword, setDecryptPassword,
+    decrypting, decryptError,
+    doDecrypt, resetDecrypt,
   };
 }

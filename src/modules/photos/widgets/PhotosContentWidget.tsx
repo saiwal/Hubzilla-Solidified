@@ -753,7 +753,7 @@ function AlbumGrid() {
                     }}
                     title={t("photos.share")}
                     class="absolute bottom-1.5 left-1.5 p-1 rounded-lg bg-black/50 text-white
-                           opacity-0 group-hover:opacity-100 transition-opacity"
+                           opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                   >
                     <MdOutlineShare size={16} />
                   </button>
@@ -765,7 +765,7 @@ function AlbumGrid() {
                     <button
                       onClick={() => handleDeletePhoto(photo.resource_id)}
                       class="absolute top-1.5 right-1.5 p-1 rounded-lg bg-black/50 text-white
-                             opacity-0 group-hover:opacity-100 transition-opacity"
+                             opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                     >
                       <MdFillDelete_forever size={16} />
                     </button>
@@ -1312,7 +1312,7 @@ function ImageView() {
                 <p class={`flex-1 text-sm font-medium ${d()?.title ? 'text-txt' : 'text-muted italic'}`}>
                   {d()?.title || t("photos.title_ph")}
                 </p>
-                <MdOutlineEdit size={13} class="flex-shrink-0 text-muted opacity-0 group-hover/title:opacity-100 transition-opacity" />
+                <MdOutlineEdit size={13} class="flex-shrink-0 text-muted opacity-100 md:opacity-0 md:group-hover/title:opacity-100 transition-opacity" />
               </div>
             }>
               <form onSubmit={handleTitleSave} class="mb-2 flex items-center gap-2">
@@ -1354,7 +1354,7 @@ function ImageView() {
                 <p class={`flex-1 text-sm ${d()?.description ? 'text-muted' : 'text-muted/50 italic'}`}>
                   {d()?.description || t("photos.description_ph")}
                 </p>
-                <MdOutlineEdit size={13} class="flex-shrink-0 mt-0.5 text-muted opacity-0 group-hover/desc:opacity-100 transition-opacity" />
+                <MdOutlineEdit size={13} class="flex-shrink-0 mt-0.5 text-muted opacity-100 md:opacity-0 md:group-hover/desc:opacity-100 transition-opacity" />
               </div>
             }>
               <form onSubmit={handleDescSave} class="mb-3 flex flex-col gap-2">

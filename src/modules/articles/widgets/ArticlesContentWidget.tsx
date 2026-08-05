@@ -114,7 +114,7 @@ function ArticleCard(props: { post: Post; nick: string; onOpen: () => void; onSh
           onClick={copyLink}
           title={t("articles.copy_link")}
           class={`${props.onShare ? "" : "ml-auto "}p-1 rounded-md text-muted hover:text-accent hover:bg-accent/10
-                 transition-colors opacity-0 group-hover:opacity-100`}
+                 transition-colors opacity-100 md:opacity-0 md:group-hover:opacity-100`}
         >
           <Show when={linkCopied()} fallback={<MdOutlineContent_copy size={15} />}>
             <BiRegularCheck size={15} class="text-accent" />
@@ -126,7 +126,7 @@ function ArticleCard(props: { post: Post; nick: string; onOpen: () => void; onSh
             onClick={(e) => { e.stopPropagation(); props.onShare!(); }}
             title={t("articles.share")}
             class="ml-auto p-1 rounded-md text-muted hover:text-accent hover:bg-accent/10
-                   transition-colors opacity-0 group-hover:opacity-100"
+                   transition-colors opacity-100 md:opacity-0 md:group-hover:opacity-100"
           >
             <MdOutlineShare size={15} />
           </button>

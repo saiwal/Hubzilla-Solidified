@@ -195,8 +195,12 @@ export const editor = {
   encrypt_error_already:       "Beitrag ist bereits verschlüsselt.",
   encrypt_error_no_password:   "Gib ein Passwort ein.",
   encrypt_error_mismatch:      "Passwörter stimmen nicht überein.",
+  decrypt_toggle:              "Zum Bearbeiten entschlüsseln",
+  decrypt_panel_title:         "Zum Bearbeiten entschlüsseln",
+  decrypt_hint_prefix:         "Hinweis:",
+  decrypt_error_no_password:   "Gib ein Passwort ein.",
 
-  // Decryption (PostCard)
+  // Decryption (PostCard, and the composer's decrypt-to-edit panel)
   decrypt_passphrase:          "Passphrase eingeben",
   decrypt_btn:                 "Entschlüsseln",
   decrypt_cancel:              "Abbrechen",
