@@ -388,6 +388,12 @@ export type RawDictionary = {
     cfg_title:          string;
     cfg_html:           string;
     cfg_html_hint:      string;
+    cfg_block_source:   string;
+    cfg_source_custom:  string;
+    cfg_source_block:   string;
+    cfg_select_block:   string;
+    cfg_no_blocks:      string;
+    block_load_failed:  string;
     clock_card:         string;
     pomodoro:           string;
     link_list:          string;
@@ -774,6 +780,7 @@ export type RawDictionary = {
     img_alt:                string;
     acl_public:             string;
     acl_connections:        string;
+    acl_me:                 string;
     acl_custom:             string;
     acl_legend:             string;
     acl_allowed:            string;
@@ -1800,6 +1807,7 @@ export type RawDictionary = {
     visibility_public: string;
     visibility_connections: string;
     visibility_private: string;
+    visibility_me:      string;
     public_label:     string;
     connections_label: string;
     private_label:    string;
@@ -2035,6 +2043,17 @@ export type RawDictionary = {
     edit_widgets:             string;
     editing_template_notice:  string;
     done_editing_template:    string;
+    // Block manager
+    manage_blocks:            string;
+    new_block:                string;
+    no_blocks:                string;
+    create_first_block:       string;
+    new_block_title:          string;
+    edit_block_title:         string;
+    block_title_placeholder:  string;
+    block_name_label:         string;
+    block_name_placeholder:   string;
+    col_name:                 string;
   };
   notepad: {
     title:            string;

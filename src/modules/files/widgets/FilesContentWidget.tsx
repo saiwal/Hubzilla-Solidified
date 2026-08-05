@@ -151,7 +151,7 @@ const PermissionsPanel: Component<{
       const updated = await updatePermissions(
         props.nick,
         props.item.hash,
-        { allow_cid, allow_gid, deny_cid, deny_gid },
+        { allow_cid, allow_gid, deny_cid, deny_gid, scope: m === "me" ? "private" : undefined },
         recurse()
       );
       props.onSaved(updated);

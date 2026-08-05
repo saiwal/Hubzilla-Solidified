@@ -143,8 +143,11 @@ export default function WikiContentWidget() {
         }
       }
 
-      await saveWikiAcl(nick(), wikiUrlName, { allow_cid, allow_gid, deny_cid, deny_gid });
-      const isNowPrivate = mode === "custom" && (allow_cid.length > 0 || allow_gid.length > 0 || deny_cid.length > 0 || deny_gid.length > 0);
+      await saveWikiAcl(nick(), wikiUrlName, {
+        allow_cid, allow_gid, deny_cid, deny_gid,
+        scope: mode === "me" ? "private" : undefined,
+      });
+      const isNowPrivate = mode === "me" || (mode === "custom" && (allow_cid.length > 0 || allow_gid.length > 0 || deny_cid.length > 0 || deny_gid.length > 0));
       patchWiki(wikiUrlName, { is_private: isNowPrivate });
       toast.success(t("wiki.privacy_saved"));
       setAclWikiUrl(null);

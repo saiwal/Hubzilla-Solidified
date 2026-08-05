@@ -78,6 +78,7 @@ export const editor: RawDictionary["editor"] = {
   img_alt:                "ऑल्ट टेक्स्ट",
   acl_public:             "सार्वजनिक",
   acl_connections:        "कनेक्शन",
+  acl_me:                 "केवल मेरे लिए",
   acl_custom:             "कस्टम",
   acl_search_placeholder: "कनेक्शन और समूह खोजें…",
   acl_legend:             "पंक्ति = अनुमति दें | ✕ बटन = अस्वीकार करें",

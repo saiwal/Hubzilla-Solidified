@@ -80,4 +80,15 @@ export const webpages: RawDictionary["webpages"] = {
   edit_widgets:              "Edit widgets",
   editing_template_notice:   "Editing \"{{name}}\" — arrange its widgets using the header, sidebar, and footer regions around this screen.",
   done_editing_template:     "Done",
+  // Block manager
+  manage_blocks:            "Blocks",
+  new_block:                "New block",
+  no_blocks:                "No blocks yet.",
+  create_first_block:       "Create your first block",
+  new_block_title:          "New Block",
+  edit_block_title:         "Edit Block",
+  block_title_placeholder:  "Block title…",
+  block_name_label:         "Block name",
+  block_name_placeholder:   "block-name",
+  col_name:                 "Name",
 };

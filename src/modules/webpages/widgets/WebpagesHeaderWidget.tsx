@@ -30,6 +30,13 @@ export default function WebpagesHeaderWidget() {
               {t('webpages.manage_layouts')}
             </A>
             <A
+              href={`/webpages/${nick()}/blocks`}
+              class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-rim
+                     text-txt text-sm hover:bg-elevated transition-colors"
+            >
+              {t('webpages.manage_blocks')}
+            </A>
+            <A
               href={`/webpages/${nick()}/new`}
               class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent
                      text-accent-fg text-sm hover:opacity-90 transition-opacity"

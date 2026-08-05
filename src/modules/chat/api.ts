@@ -201,7 +201,7 @@ export interface AclOptions {
   connections: AclConnection[];
 }
 
-export type RoomVisibility = 'public' | 'connections' | 'custom';
+export type RoomVisibility = 'public' | 'connections' | 'private' | 'custom';
 
 export async function fetchAclOptions(nick: string): Promise<AclOptions> {
   const res = await apiFetch(`/spa/chat/${nick}/acl-options`);

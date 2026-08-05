@@ -80,4 +80,15 @@ export const webpages: RawDictionary["webpages"] = {
   edit_widgets:              "Widgets bearbeiten",
   editing_template_notice:   "„{{name}}\" wird bearbeitet — ordne ihre Widgets über die Kopfzeilen-, Seitenleisten- und Fußzeilenbereiche rund um diesen Bildschirm an.",
   done_editing_template:     "Fertig",
+  // Block manager
+  manage_blocks:            "Blöcke",
+  new_block:                "Neuer Block",
+  no_blocks:                "Noch keine Blöcke.",
+  create_first_block:       "Ersten Block erstellen",
+  new_block_title:          "Neuer Block",
+  edit_block_title:         "Block bearbeiten",
+  block_title_placeholder:  "Blocktitel…",
+  block_name_label:         "Blockname",
+  block_name_placeholder:   "block-name",
+  col_name:                 "Name",
 };

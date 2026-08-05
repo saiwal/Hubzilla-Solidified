@@ -194,6 +194,8 @@ function HqComposer() {
       payload.scope = "public";
     } else if (mode === "connections") {
       payload.scope = "contacts";
+    } else if (mode === "me") {
+      payload.scope = "private";
     } else {
       if (allowKeys().size === 0) {
         toast.error("Select at least one connection to allow.");

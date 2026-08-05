@@ -20,17 +20,24 @@ import { useConnectionSearch } from "./useConnectionSearch";
 import { useDropdown } from "@/shared/lib/useDropdown";
 import { motion } from "solid-motionone";
 import { useI18n } from "@/i18n";
-import { MdOutlinePublic, MdFillLock, MdOutlineTune, MdFillCheck, MdOutlineGroup, MdOutlinePerson } from "solid-icons/md";
+import { MdOutlinePublic, MdFillLock, MdOutlineTune, MdFillCheck, MdOutlineGroup, MdOutlinePerson, MdFillPerson } from "solid-icons/md";
 void motion;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type AclMode = "public" | "connections" | "custom";
+export type AclMode = "public" | "connections" | "me" | "custom";
 export type { AclEntry };
 
 // Key format: "{type}:{xid}" — e.g. "c:abc123..." or "g:d7ac40c2-..."
 export function entryKey(e: AclEntry): string {
   return `${e.type}:${e.xid}`;
+}
+
+// "me" is the picker's user-facing wording; every backend ACL resolver
+// speaks of it as scope/visibility "private" (allow_cid = the owner's own
+// channel hash, resolved server-side since the client doesn't know it).
+export function aclModeToScope(mode: AclMode): "public" | "connections" | "private" | "custom" {
+  return mode === "me" ? "private" : mode;
 }
 
 export interface AclPickerProps {
@@ -137,6 +144,7 @@ const AclPicker: Component<AclPickerProps> = (props) => {
   const modes: { mode: AclMode; icon: () => JSX.Element; label: () => string }[] = [
     { mode: "public",      icon: () => <MdOutlinePublic class="w-3.5 h-3.5" />, label: () => t("editor.acl_public") },
     { mode: "connections", icon: () => <MdFillLock class="w-3.5 h-3.5" />,      label: () => t("editor.acl_connections") },
+    { mode: "me",          icon: () => <MdFillPerson class="w-3.5 h-3.5" />,    label: () => t("editor.acl_me") },
     { mode: "custom",      icon: () => <MdOutlineTune class="w-3.5 h-3.5" />,   label: () => `${t("editor.acl_custom")}${totalSelected() > 0 ? ` (${totalSelected()})` : ""}` },
   ];
 

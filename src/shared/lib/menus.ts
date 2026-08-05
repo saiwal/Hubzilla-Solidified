@@ -116,7 +116,7 @@ export interface MenuItemInput {
   zid: boolean;
   newwin: boolean;
   /** Omit to leave an existing item's ACL untouched. */
-  scope?: "public" | "connections" | "custom";
+  scope?: "public" | "connections" | "private" | "custom";
   contact_allow?: string[];
   group_allow?: string[];
   contact_deny?: string[];

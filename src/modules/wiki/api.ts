@@ -97,6 +97,7 @@ export async function createWiki(
     allow_gid?: string[];
     deny_cid?: string[];
     deny_gid?: string[];
+    scope?: "private";
   },
 ): Promise<{ success: boolean; resource_id: string; url_name: string }> {
   const res = await apiFetch(wikiUrl(nick), {
@@ -218,7 +219,11 @@ export async function fetchWikiAcl(nick: string, wikiUrlName: string): Promise<W
   return json.data as WikiAclData;
 }
 
-export async function saveWikiAcl(nick: string, wikiUrlName: string, acl: WikiAclData): Promise<void> {
+export async function saveWikiAcl(
+  nick: string,
+  wikiUrlName: string,
+  acl: WikiAclData & { scope?: "private" },
+): Promise<void> {
   const res = await apiFetch(wikiUrl(nick, wikiUrlName, "acl"), {
     method: "POST",
     body: JSON.stringify(acl),

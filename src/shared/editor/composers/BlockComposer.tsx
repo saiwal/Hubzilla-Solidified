@@ -1,16 +1,11 @@
-import { Show, onCleanup, createSignal, createEffect, For } from "solid-js";
+import { Show, onCleanup, createSignal } from "solid-js";
 import { useI18n } from "@/i18n";
-import { useTemplates, loadTemplates, createTemplate, templateChrome } from "@/shared/store/widget-templates";
+import { getCsrfToken } from "@/shared/lib/csrf";
 import { queryClient } from "@/shared/lib/query-client";
-import TemplateNameForm from "@/shared/views/TemplateNameForm";
-import { setCurrentPageTemplateId } from "@/modules/webpages/store";
-import { editingWidgets, setEditingWidgets } from "@/shared/store/widget-layout";
-import { MdFillAdd, MdOutlineEdit, MdFillCheck } from "solid-icons/md";
 import { createComposerStore } from "../store/createComposerStore";
 import { DraftsList } from "../components/DraftsList";
 import RichEditor from "../core/RichEditor";
 import { CAPABILITIES } from "../types/editor.types";
-import { getCsrfToken } from "@/shared/lib/csrf";
 import { useEncrypt } from "../useEncrypt";
 import EncryptPanel from "../components/EncryptPanel";
 import { isEncryptedBody } from "@/shared/lib/postCrypto";
@@ -23,21 +18,18 @@ import { useAclState, splitAclEntries } from "../components/useAclState";
 import { useMentionEmojiWiring } from "../mention/useMentionEmojiWiring";
 import MentionEmojiPopups from "../mention/MentionEmojiPopups";
 import SlugField from "../components/SlugField";
-import SummaryField from "../components/SummaryField";
 import { PrimarySubmitButton, SecondaryButton, ToggleButton, IconButton } from "../components/buttons";
 import { slugify } from "../lib/slugify";
 import { underlineFieldClass } from "../lib/fieldStyles";
 import { countWords } from "../lib/textStats";
 
 interface Props {
-  profileUid: number;
   nick: string;
   initial?: {
     uuid: string;
     mid: string;
     title: string;
-    summary: string;
-    slug: string;
+    name: string;
     body: string;
     mimetype: string;
     item_private?: number;
@@ -46,24 +38,29 @@ interface Props {
     allow_gid?: string[];
     deny_cid?: string[];
     deny_gid?: string[];
-    layout_template?: string | null;
   };
   onSaved?: () => void;
   onCancel?: () => void;
 }
 
-export default function WebpageComposer(props: Props) {
+// Trimmed sibling of WebpageComposer.tsx — same building blocks (RichEditor,
+// AclPicker, AttachmentBar, drafts, encrypt), but a block has no summary and
+// no per-page layout-template assignment (it's not a routable page), and its
+// "slug" field is really the Comanche-style name a [block]name[/block] /
+// the HTML Block widget preset dropdown looks it up by — hence the relabeled
+// SlugField and the /spa/blocks endpoint instead of /spa/webpages.
+export default function BlockComposer(props: Props) {
   const { t } = useI18n();
-  const caps = CAPABILITIES.webpage;
+  const caps = CAPABILITIES.block;
   const isEditing = () => !!props.initial?.uuid;
   const scope = props.initial?.uuid
-    ? `webpage:edit:${props.initial.uuid}`
-    : "webpage:new";
+    ? `block:edit:${props.initial.uuid}`
+    : "block:new";
 
   const attach = createAttachmentStore(props.nick, scope);
   const [draftsOpen, setDraftsOpen] = createSignal(false);
 
-  // ── ACL state — initialize from existing page data when editing ──────────────
+  // ── ACL state — initialize from existing block data when editing ─────────────
   const initialAclMode = (): AclMode => {
     const p = props.initial;
     if (!p) return "public";
@@ -94,40 +91,6 @@ export default function WebpageComposer(props: Props) {
     denyEntries: initialDenyEntries(),
   });
 
-  // ── Page layout template assignment — pick one, or create a new one inline.
-  // While this composer is mounted, it drives the app shell's own
-  // currentPageTemplateId (same signal PageView.tsx sets while viewing the
-  // live page) — so Layout.tsx's real header/gridTop/right/footer slots
-  // immediately reflect whichever template is selected, live, using the
-  // exact same rendering AND edit-mode pencil as viewing the actual page.
-  // No separate preview UI: the real regions, in their real positions, are
-  // the preview, and are directly editable at the same time as the page
-  // content — cleared on unmount so navigating away doesn't leak scoping.
-  const templates = useTemplates();
-  createEffect(() => void loadTemplates());
-  const [layoutTemplate, setLayoutTemplate] = createSignal(props.initial?.layout_template ?? "");
-  createEffect(() => setCurrentPageTemplateId(layoutTemplate() || null));
-  onCleanup(() => setCurrentPageTemplateId(null));
-  const templateList = () => Object.entries(templates()?.templates ?? {});
-  // A native <select>'s `value` only "sticks" once a matching <option> exists
-  // in the DOM, and templateList() can still be empty/stale on first paint.
-  // Declaratively binding `value={}` to a derived value doesn't reliably fix
-  // this: if the derived output happens to equal what it was last time (e.g.
-  // a createMemo whose computed string didn't change), Solid's equality
-  // check skips re-running the DOM-setting effect even though the <option>
-  // list just changed underneath it — so the select can stay stuck on the
-  // first option ("Page default") forever. Set it imperatively instead, in a
-  // plain effect (no memoization to skip a "same value" update) that fires
-  // on every relevant change and force-syncs the DOM element directly.
-  let selectRef: HTMLSelectElement | undefined;
-  createEffect(() => {
-    templateList(); // track — re-sync once the matching <option> exists
-    const val = layoutTemplate();
-    if (selectRef && selectRef.value !== val) selectRef.value = val;
-  });
-  const [creatingTemplate, setCreatingTemplate] = createSignal(false);
-  const [justCreatedTemplate, setJustCreatedTemplate] = createSignal(false);
-
   function aclJson(): Record<string, unknown> {
     const mode = acl.mode();
     if (mode === "public")      return { scope: "public" };
@@ -150,20 +113,18 @@ export default function WebpageComposer(props: Props) {
   const store = createComposerStore(async (body, meta) => {
     if (isEditing()) {
       const csrf = await getCsrfToken();
-      const res = await fetch("/spa/webpages", {
+      const res = await fetch("/spa/blocks", {
         method:      "POST",
         headers:     { "X-CSRF-Token": csrf, "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          action:    "update",
-          nick:      props.nick,
-          uuid:      props.initial!.uuid,
-          title:     meta.title    ?? "",
-          summary:   meta.summary  ?? "",
-          body:      withFileAttachments(body),
-          mimetype:  meta.mimetype ?? "text/bbcode",
-          pagetitle: meta.slug     ?? "",
-          layout_template: layoutTemplate() || null,
+          action:   "update",
+          nick:     props.nick,
+          uuid:     props.initial!.uuid,
+          title:    meta.title    ?? "",
+          body:     withFileAttachments(body),
+          mimetype: meta.mimetype ?? "text/bbcode",
+          name:     meta.slug     ?? "",
           ...aclJson(),
         }),
       });
@@ -173,19 +134,17 @@ export default function WebpageComposer(props: Props) {
       }
     } else {
       const csrf = await getCsrfToken();
-      const res = await fetch("/spa/webpages", {
+      const res = await fetch("/spa/blocks", {
         method: "POST",
         headers: { "X-CSRF-Token": csrf, "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          action:    "create",
-          nick:      props.nick,
-          title:     meta.title    ?? "",
-          summary:   meta.summary  ?? "",
-          body:      withFileAttachments(body),
-          mimetype:  meta.mimetype ?? "text/bbcode",
-          pagetitle: meta.slug     ?? "",
-          layout_template: layoutTemplate() || null,
+          action:   "create",
+          nick:     props.nick,
+          title:    meta.title    ?? "",
+          body:     withFileAttachments(body),
+          mimetype: meta.mimetype ?? "text/bbcode",
+          name:     meta.slug     ?? "",
           ...aclJson(),
         }),
       });
@@ -195,12 +154,7 @@ export default function WebpageComposer(props: Props) {
       }
     }
 
-    // PageView's createQueryResource("webpage", ...) caches by [nick, pagelink]
-    // for 60s (see query-client.ts) — without invalidating, viewing the page
-    // right after a save (e.g. after changing its layout_template) can still
-    // serve the pre-edit cached response. Partial key match invalidates every
-    // cached webpage regardless of pagelink/nick.
-    void queryClient.invalidateQueries({ queryKey: ["webpage"] });
+    void queryClient.invalidateQueries({ queryKey: ["block"] });
 
     attach.clear();
     props.onSaved?.();
@@ -213,8 +167,7 @@ export default function WebpageComposer(props: Props) {
 
   if (props.initial) {
     store.setTitle(props.initial.title);
-    store.setSummary(props.initial.summary);
-    store.setSlug(props.initial.slug);
+    store.setSlug(props.initial.name);
     if (props.initial.mimetype) store.setMimetype(props.initial.mimetype as any);
   }
 
@@ -240,99 +193,22 @@ export default function WebpageComposer(props: Props) {
       {/* Title */}
       <input
         type="text"
-        placeholder={t("webpages.title_placeholder")}
+        placeholder={t("webpages.block_title_placeholder")}
         value={store.title()}
         onInput={(e) => onTitleChange(e.currentTarget.value)}
         class={`w-full px-0 py-2 text-lg font-bold text-txt placeholder:text-muted ${underlineFieldClass}`}
       />
 
-      {/* Summary */}
-      <Show when={caps.summary}>
-        <SummaryField
-          value={store.summary}
-          onInput={store.setSummary}
-          placeholder={t("editor.article_summary_placeholder")}
-          class={`w-full px-0 py-1.5 text-sm text-txt placeholder:text-muted resize-none ${underlineFieldClass}`}
+      {/* Name — the identifier the HTML Block widget's preset dropdown looks it up by */}
+      <Show when={caps.slug}>
+        <SlugField
+          value={store.slug}
+          onInput={store.setSlug}
+          title={store.title}
+          label={t("webpages.block_name_label") as string}
+          placeholder={t("webpages.block_name_placeholder") as string}
         />
       </Show>
-
-      {/* Slug */}
-      <Show when={caps.slug}>
-        <SlugField value={store.slug} onInput={store.setSlug} title={store.title} hideLabel />
-      </Show>
-
-      {/* Page layout template assignment — choose, or create a new one inline */}
-      <div class="space-y-2">
-        <div class="flex flex-wrap items-center gap-2 text-xs text-muted">
-          {t("webpages.layout_template_label")}
-          <select
-            ref={selectRef}
-            onChange={(e) => {
-              setLayoutTemplate(e.currentTarget.value);
-              setJustCreatedTemplate(false);
-            }}
-            class="bg-elevated border border-rim rounded-lg px-2 py-1 text-xs text-txt"
-          >
-            <option value="">{t("webpages.layout_template_default")}</option>
-            <For each={templateList()}>
-              {([id, tpl]) => <option value={id}>{tpl.name}</option>}
-            </For>
-          </select>
-
-          <button
-            type="button"
-            onClick={() => setCreatingTemplate((o) => !o)}
-            class="flex items-center gap-1 px-2 py-1 rounded-lg border border-dashed border-rim
-                   text-muted hover:text-txt hover:bg-elevated transition-colors"
-          >
-            <MdFillAdd size={12} />
-            {t("webpages.new_template")}
-          </button>
-
-          {/* Same pencil/checkmark toggle as Layout.tsx's sidebar header and
-              LayoutTemplatesView.tsx's per-row button — one-click access to
-              editing this page's real regions without hunting for the
-              sidebar pencil separately. */}
-          <button
-            type="button"
-            onClick={() => setEditingWidgets(!editingWidgets())}
-            aria-pressed={editingWidgets()}
-            class="p-1.5 rounded-md transition-colors"
-            classList={{
-              "bg-accent text-accent-fg": editingWidgets(),
-              "text-muted hover:text-txt hover:bg-elevated": !editingWidgets(),
-            }}
-            aria-label={editingWidgets() ? t("widgets.done_editing") : t("widgets.edit_layout")}
-            title={editingWidgets() ? t("widgets.done_editing") : t("widgets.edit_layout")}
-          >
-            <Show when={editingWidgets()} fallback={<MdOutlineEdit size={14} />}>
-              <MdFillCheck size={14} />
-            </Show>
-          </button>
-        </div>
-
-        <Show when={layoutTemplate() && templateChrome(layoutTemplate()) === "zen"}>
-          <p class="text-xs text-amber-500">{t("webpages.zen_chrome_notice")}</p>
-        </Show>
-
-        <Show when={creatingTemplate()}>
-          <TemplateNameForm
-            onCancel={() => setCreatingTemplate(false)}
-            onSubmit={async (name) => {
-              const id = await createTemplate(name);
-              setCreatingTemplate(false);
-              if (id) {
-                setLayoutTemplate(id);
-                setJustCreatedTemplate(true);
-              }
-            }}
-          />
-        </Show>
-
-        <Show when={justCreatedTemplate()}>
-          <p class="text-xs text-muted">{t("webpages.template_created_hint")}</p>
-        </Show>
-      </div>
 
       <div class="flex items-center justify-end gap-2">
         <span class="text-xs text-muted">{t("editor.words_count", { count: wordCount() })}</span>

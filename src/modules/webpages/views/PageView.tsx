@@ -1,8 +1,7 @@
 import { createEffect, onCleanup, Show } from "solid-js";
 import { useParams } from "@solidjs/router";
 import { createQueryResource } from "@/shared/lib/createQueryResource";
-import DOMPurify from "dompurify";
-import { bbcodeToHtml } from "@/shared/lib/bbcode";
+import { renderBody } from "@/shared/lib/renderBody";
 import { hydrateLatex } from "@/shared/lib/hydrateLatex";
 import { useToc } from "@/shared/lib/useToc";
 import ArticleToc from "@/shared/views/ArticleToc";
@@ -13,26 +12,11 @@ import { useViewerRole } from "@/shared/store/site-config";
 import { useI18n } from "@/i18n";
 
 // Renders a Hubzilla webpage inline in the SPA by fetching its body via the
-// JSON API. Branches on mimetype so BBCode goes through bbcodeToHtml first,
-// HTML is sanitized directly. Markdown support can be added later if needed.
+// JSON API, via the shared renderBody() helper (bbcode/html/markdown).
 //
 // Note: pages with custom Comanche layouts will still render their body content
 // correctly here; only the layout chrome (sidebars, regions) is intentionally
 // omitted — the page body is what the author actually wrote.
-
-function renderBody(body: string, mimetype: string): string {
-  switch (mimetype) {
-    case "text/bbcode":
-      return DOMPurify.sanitize(bbcodeToHtml(body));
-    case "text/html":
-      return DOMPurify.sanitize(body);
-    case "text/markdown":
-      // Markdown: treat as plain text wrapped in <pre> until a Markdown lib is added
-      return `<pre class="whitespace-pre-wrap">${DOMPurify.sanitize(body)}</pre>`;
-    default:
-      return DOMPurify.sanitize(body);
-  }
-}
 
 export default function PageView() {
   const { t } = useI18n();

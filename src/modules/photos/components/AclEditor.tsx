@@ -75,6 +75,7 @@ export default function AclEditor(props: {
 
       await saveAcl(props.nick, props.type, props.datum, {
         allow_cid, allow_gid, deny_cid, deny_gid,
+        scope: m === "me" ? "private" : undefined,
       });
       props.onClose();
     } catch (err) {

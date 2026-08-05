@@ -66,6 +66,7 @@ export default function WikiHeaderWidget() {
       const res = await createWiki(nick(), {
         name: newName().trim(),
         allow_cid, allow_gid, deny_cid, deny_gid,
+        scope: mode === "me" ? "private" : undefined,
       });
       if (res.success) {
         resetCreateForm();

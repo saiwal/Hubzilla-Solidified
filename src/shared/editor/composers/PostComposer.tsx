@@ -134,7 +134,9 @@ const PostComposer: Component<ComposerProps> = (props) => {
       return;
     }
     const fileAcl: FileAcl = { allow_cid: [], allow_gid: [], deny_cid: [], deny_gid: [] };
-    if (mode === "custom") {
+    if (mode === "me") {
+      fileAcl.scope = "private";
+    } else if (mode === "custom") {
       for (const key of acl.allowEntries()) {
         const [type, ...rest] = key.split(":");
         const xid = rest.join(":");
@@ -191,6 +193,8 @@ const PostComposer: Component<ComposerProps> = (props) => {
         payload.scope = "public";
       } else if (mode === "connections") {
         payload.scope = "contacts";
+      } else if (mode === "me") {
+        payload.scope = "private";
       } else {
         // Custom — require at least one allow entry
         if (acl.allowEntries().size === 0) {

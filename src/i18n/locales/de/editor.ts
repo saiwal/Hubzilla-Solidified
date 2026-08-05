@@ -80,6 +80,7 @@ export const editor = {
   img_alt:                "Alternativtext",
   acl_public:             "Öffentlich",
   acl_connections:        "Verbindungen",
+  acl_me:                 "Nur ich",
   acl_custom:             "Benutzerdefiniert",
   acl_search_placeholder: "Verbindungen & Gruppen durchsuchen…",
   acl_legend:             "Zeile = erlauben | ✕-Schaltfläche = verweigern",

@@ -1,5 +1,5 @@
 import { createSignal } from 'solid-js';
-import { fetchWebpages, deleteWebPage, type WebPage } from './api';
+import { fetchWebpages, deleteWebPage, fetchBlocks, deleteBlock, type WebPage, type Block } from './api';
 import { toast } from "@/shared/store/toast";
 
 // Module-level singletons — survive navigation by design.
@@ -61,6 +61,39 @@ export async function removePage(iid: number, nick: string) {
   } catch (e: any) {
     setPages(prev); // rollback on failure
     setError(e.message);
+    toast.error(e.message);
+  }
+}
+
+// ── Blocks — mirrors the pages state above ────────────────────────────────────
+
+const [blocks, setBlocks] = createSignal<Block[]>([]);
+const [blocksLoading, setBlocksLoading] = createSignal(false);
+const [blocksNick, setBlocksNick] = createSignal<string>('');
+
+export { blocks, blocksLoading };
+
+export async function loadBlocks(nick: string, force = false) {
+  if (!force && blocksNick() === nick && blocks().length > 0) return;
+
+  setBlocksNick(nick);
+  setBlocksLoading(true);
+  try {
+    setBlocks(await fetchBlocks(nick));
+  } catch (e: any) {
+    toast.error(e.message);
+  } finally {
+    setBlocksLoading(false);
+  }
+}
+
+export async function removeBlock(iid: number, nick: string) {
+  const prev = blocks();
+  setBlocks(prev.filter(b => b.iid !== iid));
+  try {
+    await deleteBlock(iid, nick);
+  } catch (e: any) {
+    setBlocks(prev); // rollback on failure
     toast.error(e.message);
   }
 }

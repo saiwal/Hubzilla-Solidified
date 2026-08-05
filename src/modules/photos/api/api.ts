@@ -278,7 +278,7 @@ export async function saveAcl(
   nick: string,
   type: 'image' | 'album',
   datum: string,
-  acl: { allow_gid: string[]; allow_cid: string[]; deny_gid: string[]; deny_cid: string[] },
+  acl: { allow_gid: string[]; allow_cid: string[]; deny_gid: string[]; deny_cid: string[]; scope?: "private" },
 ): Promise<void> {
   const { getCsrfToken } = await import('@/shared/lib/csrf');
   const token = await getCsrfToken().catch(() => '');

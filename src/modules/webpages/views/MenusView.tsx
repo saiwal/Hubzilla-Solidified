@@ -13,7 +13,7 @@ import {
   createMenuItem, editMenuItem, deleteMenuItem,
   type MenuSummary, type RawMenuItem, type MenuItemInput,
 } from "@/shared/lib/menus";
-import AclPicker, { entryKey, type AclEntry, type AclMode } from "@/shared/editor/components/AclPicker";
+import AclPicker, { entryKey, aclModeToScope, type AclEntry, type AclMode } from "@/shared/editor/components/AclPicker";
 import {
   MdFillAdd, MdFillClose, MdFillDelete, MdFillLock, MdOutlineEdit_note, MdOutlineMenu,
 } from "solid-icons/md";
@@ -161,7 +161,7 @@ function ItemForm(props: {
         order: order(),
         zid: zid(),
         newwin: newwin(),
-        scope: mode,
+        scope: aclModeToScope(mode),
       };
       if (mode === "custom") {
         if (allowEntries().size === 0) {

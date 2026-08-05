@@ -103,6 +103,21 @@ export const CAPABILITIES: Record<string, EditorCapabilities> = {
     latexMode: "live",
     poll: false,
   },
+  // Hubzilla block (item-backed content preset, referenced by name rather
+  // than URL slug — see core's Comanche [block]name[/block]) — read in-app
+  // like webpages, so LaTeX renders live (KaTeX) rather than as an image.
+  block: {
+    toolbar: "full",
+    title: true,
+    summary: false,
+    slug: true,
+    category: false,
+    attachments: "files",
+    aclPicker: true,
+    submitOnCtrlEnter: false,
+    latexMode: "live",
+    poll: false,
+  },
   // Wiki page — full toolbar (uniform with the other composers), no ACL,
   // no attachments; live LaTeX, same reasoning as webpage above.
   wiki: {

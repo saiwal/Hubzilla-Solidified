@@ -7,7 +7,7 @@ import { isOwner, createChatRoom } from "../store";
 import {
   MdFillAdd,
 } from "solid-icons/md";
-import AclPicker, { entryKey, type AclMode, type AclEntry } from "@/shared/editor/components/AclPicker";
+import AclPicker, { entryKey, aclModeToScope, type AclMode, type AclEntry } from "@/shared/editor/components/AclPicker";
 import { useIsChatRoomsList } from "../lib/isChatRoomsList";
 
 export default function ChatHeaderWidget() {
@@ -84,7 +84,7 @@ export default function ChatHeaderWidget() {
       const room = await createChatRoom(nick(), {
         name,
         expire: newExpire(),
-        visibility: aclMode(),
+        visibility: aclModeToScope(aclMode()),
         allow_cid: allowCids,
         allow_gid: allowGids,
         deny_cid: denyCids,
@@ -178,6 +178,7 @@ export default function ChatHeaderWidget() {
               <p class="text-[11px] text-muted">
                 {aclMode() === "public" && t("chat.visibility_public")}
                 {aclMode() === "connections" && t("chat.visibility_connections")}
+                {aclMode() === "me" && t("chat.visibility_me")}
                 {aclMode() === "custom" && t("chat.visibility_private")}
               </p>
             </div>

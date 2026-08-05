@@ -132,6 +132,9 @@ export default function ArticleComposer(props: Props) {
     if (mode === "connections") {
       return { contact_allow: [], group_allow: [], contact_deny: [], group_deny: [], public_policy: "contacts" };
     }
+    if (mode === "me") {
+      return { scope: "private" };
+    }
     if (acl.allowEntries().size === 0)
       throw new Error("Select at least one connection or group to allow.");
     const cAllow: string[] = [];

@@ -78,4 +78,15 @@ export const webpages: RawDictionary["webpages"] = {
   edit_widgets:              "विजेट संपादित करें",
   editing_template_notice:   "\"{{name}}\" संपादित की जा रही है — इस स्क्रीन के चारों ओर हेडर, साइडबार और फ़ूटर क्षेत्रों का उपयोग करके इसके विजेट व्यवस्थित करें।",
   done_editing_template:     "पूर्ण",
+  // Block manager
+  manage_blocks:            "ब्लॉक्स",
+  new_block:                "नया ब्लॉक",
+  no_blocks:                "अभी तक कोई ब्लॉक नहीं है।",
+  create_first_block:       "अपना पहला ब्लॉक बनाएं",
+  new_block_title:          "नया ब्लॉक",
+  edit_block_title:         "ब्लॉक संपादित करें",
+  block_title_placeholder:  "ब्लॉक शीर्षक…",
+  block_name_label:         "ब्लॉक नाम",
+  block_name_placeholder:   "block-name",
+  col_name:                 "नाम",
 };

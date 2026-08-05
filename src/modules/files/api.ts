@@ -7,6 +7,8 @@ export interface FileAcl {
   allow_cid: string[];
   deny_gid:  string[];
   deny_cid:  string[];
+  /** "private" = visible only to the owning channel; arrays above are ignored. */
+  scope?: "private";
 }
 
 export interface FileMeta {
@@ -66,6 +68,7 @@ export async function updatePermissions(
     body: JSON.stringify({
       hash,
       recurse,
+      scope:         acl.scope,
       group_allow:   acl.allow_gid ?? [],
       contact_allow: acl.allow_cid ?? [],
       group_deny:    acl.deny_gid  ?? [],

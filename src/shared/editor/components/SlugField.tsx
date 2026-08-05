@@ -17,6 +17,10 @@ export interface SlugFieldProps {
   title: () => string;
   /** Hide the "Slug" label above the input — the placeholder already names the field. */
   hideLabel?: boolean;
+  /** Override the default "Slug" label (e.g. for a differently-named identifier field). */
+  label?: string;
+  /** Override the default "url-slug" placeholder. */
+  placeholder?: string;
 }
 
 const SlugField: Component<SlugFieldProps> = (props) => {
@@ -24,12 +28,12 @@ const SlugField: Component<SlugFieldProps> = (props) => {
   return (
     <div class="flex-1 min-w-0">
       <Show when={!props.hideLabel}>
-        <label class="block text-xs text-muted mb-1">{t("editor.slug_label")}</label>
+        <label class="block text-xs text-muted mb-1">{props.label ?? t("editor.slug_label")}</label>
       </Show>
       <div class="flex items-center gap-1.5">
         <input
           type="text"
-          placeholder={t("editor.slug_placeholder")}
+          placeholder={props.placeholder ?? t("editor.slug_placeholder")}
           value={props.value()}
           onInput={(e) => props.onInput(e.currentTarget.value)}
           class={`flex-1 px-0 py-1.5 text-sm font-mono text-txt ${underlineFieldClass}`}

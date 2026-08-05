@@ -3,16 +3,14 @@ namespace Theme\Solidified\Api\Handlers;
 
 use Theme\Solidified\Api\Auth;
 use Theme\Solidified\Api\Response;
-use Theme\Solidified\Api\Concerns\EnforcesServiceClass;
 
 require_once 'include/items.php';
 
-class Webpages
+class Blocks
 {
-    use EnforcesServiceClass;
-    // GET /api/webpages/:nick               → list webpages  (owner only: write_pages)
-    // GET /api/webpages/:nick?pagelink=…    → render page    (public: view_pages)
-    // GET /api/webpages/:nick?mid=…         → render page    (public: view_pages)
+    // GET /api/blocks/:nick            → list blocks   (owner only: write_pages)
+    // GET /api/blocks/:nick?name=…    → fetch block    (ACL-gated: item_permissions_sql)
+    // GET /api/blocks/:nick?iid=…     → fetch block    (owner only: write_pages, for SPA editor)
     public function get(): void
     {
         $nick = \App::$argv[2] ?? '';
@@ -33,68 +31,28 @@ class Webpages
         $ob_hash  = $observer ? $observer['xchan_hash'] : '';
         $perms    = get_all_perms($owner, $ob_hash);
 
-        // ── Public page fetch by pagelink ──────────────────────────────────────
-        if (!empty($_GET['pagelink'])) {
-            if (!$perms['view_pages']) {
-                Response::error(403, 'Permission denied');
-            }
-
-            $pagelink      = urlencode($_GET['pagelink']);
-            $lang_pagelink = urlencode(\App::$language . '/' . $_GET['pagelink']);
-            $sql_extra     = item_permissions_sql($owner);
-
-            $p = q(
-                "SELECT item.* FROM item
-                 LEFT JOIN iconfig ON iconfig.iid = item.id
-                 WHERE item.uid = %d
-                   AND iconfig.cat = 'system'
-                   AND iconfig.k = 'WEBPAGE'
-                   AND (iconfig.v = '%s' OR iconfig.v = '%s')
-                   AND item_type = %d
-                   AND item.item_delayed = 0
-                   $sql_extra
-                 ORDER BY iconfig.v DESC
-                 LIMIT 1",
-                $owner,
-                dbesc($lang_pagelink),
-                dbesc($pagelink),
-                intval(ITEM_TYPE_WEBPAGE)
-            );
-
-            if (!$p) {
-                Response::error(404, 'Page not found');
-            }
-
-            xchan_query($p, true);
-            $p = fetch_post_tags($p, true);
-            Response::send($this->formatDetail($p[0]));
-        }
-
-        // ── Public page fetch by mid ───────────────────────────────────────────
-        if (!empty($_GET['mid'])) {
-            if (!$perms['view_pages']) {
-                Response::error(403, 'Permission denied');
-            }
-
+        // ── Fetch by name — ACL-gated, used by the HTML Block widget to render a preset ──
+        if (!empty($_GET['name'])) {
             $sql_extra = item_permissions_sql($owner);
 
             $p = q(
                 "SELECT item.* FROM item
                  LEFT JOIN iconfig ON iconfig.iid = item.id
                  WHERE item.uid = %d
-                   AND item.mid = '%s'
                    AND iconfig.cat = 'system'
-                   AND iconfig.k = 'WEBPAGE'
+                   AND iconfig.k = 'BUILDBLOCK'
+                   AND iconfig.v = '%s'
                    AND item_type = %d
+                   AND item.item_delayed = 0
                    $sql_extra
                  LIMIT 1",
                 $owner,
-                dbesc($_GET['mid']),
-                intval(ITEM_TYPE_WEBPAGE)
+                dbesc($_GET['name']),
+                intval(ITEM_TYPE_BLOCK)
             );
 
             if (!$p) {
-                Response::error(404, 'Page not found');
+                Response::error(404, 'Block not found');
             }
 
             xchan_query($p, true);
@@ -102,7 +60,7 @@ class Webpages
             Response::send($this->formatDetail($p[0]));
         }
 
-        // ── Page fetch by iid — write access required (SPA editor) ───────────
+        // ── Fetch by iid — write access required (SPA editor) ─────────────────
         if (!empty($_GET['iid'])) {
             Auth::requireLoggedIn();
             if (!$perms['write_pages']) {
@@ -115,16 +73,16 @@ class Webpages
                  WHERE item.uid = %d
                    AND item.id = %d
                    AND iconfig.cat = 'system'
-                   AND iconfig.k = 'WEBPAGE'
+                   AND iconfig.k = 'BUILDBLOCK'
                    AND item_type = %d
                  LIMIT 1",
                 $owner,
                 intval($_GET['iid']),
-                intval(ITEM_TYPE_WEBPAGE)
+                intval(ITEM_TYPE_BLOCK)
             );
 
             if (!$p) {
-                Response::error(404, 'Page not found');
+                Response::error(404, 'Block not found');
             }
 
             xchan_query($p, true);
@@ -132,8 +90,7 @@ class Webpages
             Response::send($this->formatDetail($p[0]));
         }
 
-        // ── List webpages — write access required ──────────────────────────────
-        // Listing requires write_pages (you need edit/delete capability to use the list)
+        // ── List blocks — write access required ────────────────────────────────
         Auth::requireLoggedIn();
 
         if (!$perms['write_pages']) {
@@ -143,7 +100,7 @@ class Webpages
         $sql_extra = item_permissions_sql($owner);
 
         $rows = q(
-            "SELECT iconfig.iid, iconfig.v AS pagelink,
+            "SELECT iconfig.iid, iconfig.v AS name,
                     item.mid, item.title, item.mimetype,
                     item.created, item.edited,
                     item.allow_cid, item.allow_gid, item.deny_cid, item.deny_gid,
@@ -152,17 +109,16 @@ class Webpages
              LEFT JOIN item ON iconfig.iid = item.id
              WHERE item.uid = %d
                AND iconfig.cat = 'system'
-               AND iconfig.k = 'WEBPAGE'
+               AND iconfig.k = 'BUILDBLOCK'
                AND item_type = %d
                $sql_extra
              ORDER BY item.created DESC",
             $owner,
-            intval(ITEM_TYPE_WEBPAGE)
+            intval(ITEM_TYPE_BLOCK)
         );
 
-        $pages = [];
+        $blocks = [];
         foreach (($rows ?: []) as $row) {
-            $pagelink   = urldecode(str_replace('%2f', '/', $row['pagelink']));
             $is_private = (
                 strlen($row['allow_cid']) ||
                 strlen($row['allow_gid']) ||
@@ -170,26 +126,24 @@ class Webpages
                 strlen($row['deny_gid'])  ||
                 intval($row['item_private'])
             );
-            $pages[] = [
+            $blocks[] = [
                 'iid'        => intval($row['iid']),
                 'mid'        => $row['mid'],
                 'title'      => $row['title'],
-                'pagelink'   => $pagelink,
+                'name'       => $row['name'],
                 'mimetype'   => $row['mimetype'],
                 'created'    => $row['created'],
                 'edited'     => $row['edited'],
                 'is_private' => (bool) $is_private,
-                'view_url'   => z_root() . '/page/' . $nick . '/' . $pagelink,
-                'edit_url'   => z_root() . '/editwebpage/' . $nick . '/' . intval($row['iid']),
             ];
         }
 
-        Response::send($pages, ['channel' => $nick, 'count' => count($pages)]);
+        Response::send($blocks, ['channel' => $nick, 'count' => count($blocks)]);
     }
 
-    // POST /api/webpages
-    // Body (JSON): { "action": "create", "nick": "…", title, summary, body, mimetype, pagetitle, scope, allow_cid[], allow_gid[], deny_cid[], deny_gid[] }
-    // Body (JSON): { "action": "update", "nick": "…", uuid, title, summary, body, mimetype, pagetitle, scope, allow_cid[], allow_gid[], deny_cid[], deny_gid[] }
+    // POST /api/blocks
+    // Body (JSON): { "action": "create", "nick": "…", title, body, mimetype, name, scope, allow_cid[], allow_gid[], deny_cid[], deny_gid[] }
+    // Body (JSON): { "action": "update", "nick": "…", uuid, title, body, mimetype, name, scope, allow_cid[], allow_gid[], deny_cid[], deny_gid[] }
     // Body (JSON): { "action": "delete", "nick": "…", "iid": 123 }
     public function post(): void
     {
@@ -206,19 +160,17 @@ class Webpages
         }
         $uid = intval($owner['channel_id']);
 
-        // Any observer (local or remote) with write_pages ACL on this channel
-        // may create/update/delete its webpages — not just the owner.
         if (!perm_is_allowed($uid, $obs_hash, 'write_pages')) {
             Response::error(403, 'Permission denied');
         }
 
         if (($body['action'] ?? '') === 'create') {
-            $this->createWebpage($owner, $obs_hash, $body);
+            $this->createBlock($owner, $obs_hash, $body);
             return;
         }
 
         if (($body['action'] ?? '') === 'update') {
-            $this->updateWebpage($uid, $body, $owner['channel_hash']);
+            $this->updateBlock($uid, $body, $owner['channel_hash']);
             return;
         }
 
@@ -247,27 +199,29 @@ class Webpages
         Response::error(400, 'Unknown action');
     }
 
-    private function createWebpage(array $owner, string $obs_hash, array $body): void
+    private function createBlock(array $owner, string $obs_hash, array $body): void
     {
         require_once 'include/items.php';
 
         $uid = intval($owner['channel_id']);
 
-        $this->checkTopLevelItemLimit($uid, true);
-
-        $title     = trim($body['title']     ?? '');
-        $summary   = trim($body['summary']   ?? '');
-        $content   = trim($body['body']      ?? '');
-        $mimetype  = $body['mimetype']        ?? 'text/bbcode';
-        $pagetitle = trim($body['pagetitle'] ?? '');
-        $scope     = $body['scope']           ?? 'public';
+        // ponytail: no service-class quota check here — EnforcesServiceClass's
+        // two modes (webpage count / item_wall+item_normal count) don't
+        // represent a block quota (item_normal() excludes item_type=1), so a
+        // borrowed check would silently never trigger. Add a real
+        // ITEM_TYPE_BLOCK-counting mode to that trait if block quotas matter.
+        $title    = trim($body['title'] ?? '');
+        $content  = trim($body['body']  ?? '');
+        $mimetype = $body['mimetype']    ?? 'text/bbcode';
+        $name     = trim($body['name']  ?? '');
+        $scope    = $body['scope']       ?? 'public';
 
         if (!$content) {
             Response::error(400, 'body is required');
         }
 
         [$allow_cid, $allow_gid, $deny_cid, $deny_gid, $item_private, $public_policy] =
-            $this->resolveWebpageAcl($scope, $body, $owner['channel_hash']);
+            $this->resolveBlockAcl($scope, $body, $owner['channel_hash']);
 
         $uuid = item_message_id();
         $mid  = z_root() . '/item/' . $uuid;
@@ -289,10 +243,9 @@ class Webpages
             'changed'         => $now,
             'verb'            => 'Create',
             'obj_type'        => 'Note',
-            'item_type'       => ITEM_TYPE_WEBPAGE,
+            'item_type'       => ITEM_TYPE_BLOCK,
             'mimetype'        => $mimetype,
             'title'           => $title,
-            'summary'         => $summary,
             'body'            => $content,
             'allow_cid'       => $allow_cid,
             'allow_gid'       => $allow_gid,
@@ -307,19 +260,15 @@ class Webpages
             'plink'           => $mid,
         ];
 
-        // Register the WEBPAGE slug in iconfig (read by the page router and listing)
-        \Zotlabs\Lib\IConfig::Set($datarray, 'system', 'WEBPAGE',
-            ($pagetitle ?: basename($mid)), true);
+        // Register the BUILDBLOCK name in iconfig (read by the widget lookup and listing)
+        \Zotlabs\Lib\IConfig::Set($datarray, 'system', 'BUILDBLOCK',
+            ($name ?: basename($mid)), true);
 
         $post = item_store($datarray);
 
         if (!$post['success']) {
-            Response::error(500, 'Failed to create webpage');
+            Response::error(500, 'Failed to create block');
         }
-
-        $this->assignLayoutTemplate($uid, intval($post['item_id']), $body['layout_template'] ?? null);
-
-        \Zotlabs\Daemon\Master::Summon(['Notifier', 'wall-new', $post['item_id']]);
 
         Response::send([
             'iid'  => $post['item_id'],
@@ -328,40 +277,16 @@ class Webpages
         ]);
     }
 
-    // Assigns (or clears) the layout template a webpage uses for its right
-    // sidebar. Silently ignores an id that isn't one of the owner's current
-    // templates — same "stale ids are dropped, not errored" tolerance used
-    // for stored widget ids elsewhere, since templates can be deleted out
-    // from under a page.
-    private function assignLayoutTemplate(int $uid, int $iid, $templateId): void
-    {
-        if (!is_string($templateId) || $templateId === '') {
-            \Zotlabs\Lib\IConfig::Delete($iid, 'spa', 'layout_template');
-            return;
-        }
-
-        $raw = get_pconfig($uid, 'spa', 'widget_templates', '');
-        $decoded = $raw ? json_decode($raw, true) : null;
-        $templates = is_array($decoded['templates'] ?? null) ? $decoded['templates'] : [];
-
-        if (isset($templates[$templateId])) {
-            \Zotlabs\Lib\IConfig::Set($iid, 'spa', 'layout_template', $templateId);
-        } else {
-            \Zotlabs\Lib\IConfig::Delete($iid, 'spa', 'layout_template');
-        }
-    }
-
-    private function updateWebpage(int $uid, array $body, string $ownerHash): void
+    private function updateBlock(int $uid, array $body, string $ownerHash): void
     {
         require_once 'include/items.php';
 
-        $uuid      = trim($body['uuid']      ?? '');
-        $content   = trim($body['body']      ?? '');
-        $title     = trim($body['title']     ?? '');
-        $summary   = trim($body['summary']   ?? '');
-        $mimetype  = $body['mimetype']        ?? 'text/bbcode';
-        $pagetitle = trim($body['pagetitle'] ?? '');
-        $scope     = $body['scope']           ?? null;
+        $uuid     = trim($body['uuid']  ?? '');
+        $content  = trim($body['body']  ?? '');
+        $title    = trim($body['title'] ?? '');
+        $mimetype = $body['mimetype']    ?? 'text/bbcode';
+        $name     = trim($body['name']  ?? '');
+        $scope    = $body['scope']       ?? null;
 
         if (!$uuid) {
             Response::error(400, 'uuid is required');
@@ -375,65 +300,54 @@ class Webpages
             dbesc($uuid), $uid
         );
         if (!$item) {
-            Response::error(404, 'Webpage not found or permission denied');
+            Response::error(404, 'Block not found or permission denied');
         }
 
         $iid = intval($item[0]['id']);
         $now = datetime_convert();
 
-        // updateWebpage() writes directly to the item row rather than going
-        // through item_store_update(), so it must apply the same
-        // z_input_filter() sanitization/permission gate core's own editor
-        // applies before storing (Zotlabs/Module/Item.php $execflag
-        // pattern) — otherwise a client-supplied mimetype like text/html
-        // would be stored and later rendered raw (prepare_text() does no
-        // sanitization at display time for text/html).
+        // Same z_input_filter() sanitization Webpages.php applies before a
+        // direct-to-row update — see that class for the full rationale.
         require_once('include/text.php');
         $content = z_input_filter($content, $mimetype, channel_codeallowed($uid));
 
         if ($scope !== null) {
             [$allow_cid, $allow_gid, $deny_cid, $deny_gid, $item_private, $public_policy] =
-                $this->resolveWebpageAcl($scope, $body, $ownerHash);
+                $this->resolveBlockAcl($scope, $body, $ownerHash);
 
             q("UPDATE item
-               SET body = '%s', title = '%s', summary = '%s', mimetype = '%s',
+               SET body = '%s', title = '%s', mimetype = '%s',
                    allow_cid = '%s', allow_gid = '%s', deny_cid = '%s', deny_gid = '%s',
                    item_private = %d, public_policy = '%s',
                    edited = '%s', changed = '%s'
                WHERE id = %d AND uid = %d",
-                dbesc($content), dbesc($title), dbesc($summary), dbesc($mimetype),
+                dbesc($content), dbesc($title), dbesc($mimetype),
                 dbesc($allow_cid), dbesc($allow_gid), dbesc($deny_cid), dbesc($deny_gid),
                 $item_private, dbesc($public_policy),
                 dbesc($now), dbesc($now), $iid, $uid);
         } else {
             q("UPDATE item
-               SET body = '%s', title = '%s', summary = '%s', mimetype = '%s',
+               SET body = '%s', title = '%s', mimetype = '%s',
                    edited = '%s', changed = '%s'
                WHERE id = %d AND uid = %d",
-                dbesc($content), dbesc($title), dbesc($summary), dbesc($mimetype),
+                dbesc($content), dbesc($title), dbesc($mimetype),
                 dbesc($now), dbesc($now), $iid, $uid);
         }
 
-        if ($pagetitle) {
-            q("UPDATE iconfig SET v = '%s' WHERE iid = %d AND cat = 'system' AND k = 'WEBPAGE'",
-                dbesc($pagetitle), $iid);
+        if ($name) {
+            q("UPDATE iconfig SET v = '%s' WHERE iid = %d AND cat = 'system' AND k = 'BUILDBLOCK'",
+                dbesc($name), $iid);
         }
-
-        if (array_key_exists('layout_template', $body)) {
-            $this->assignLayoutTemplate($uid, $iid, $body['layout_template']);
-        }
-
-        \Zotlabs\Daemon\Master::Summon(['Notifier', 'edit_post', $iid]);
 
         Response::send(['success' => true]);
     }
 
     // Returns [allow_cid, allow_gid, deny_cid, deny_gid, item_private, public_policy]
-    private function resolveWebpageAcl(string $scope, array $body, string $ownerHash): array
+    // Identical to Webpages.php::resolveWebpageAcl() — kept as its own copy
+    // rather than a shared trait since it's small and self-contained.
+    private function resolveBlockAcl(string $scope, array $body, string $ownerHash): array
     {
         if ($scope === 'connections') {
-            // item_private=1 + public_policy='contacts' is the mechanism
-            // item_permissions_sql() checks this via scopes_sql()
             return ['', '', '', '', 1, 'contacts'];
         }
 
@@ -470,37 +384,31 @@ class Webpages
 
     private function formatDetail(array $item): array
     {
-        // Extract the WEBPAGE pagelink and assigned layout template from
-        // iconfig (attached by fetch_post_tags / xchan_query)
-        $pagelink = '';
-        $layout_template = null;
+        $name = '';
         if (!empty($item['iconfig']) && is_array($item['iconfig'])) {
             foreach ($item['iconfig'] as $cfg) {
-                if (($cfg['cat'] ?? '') === 'system' && ($cfg['k'] ?? '') === 'WEBPAGE') {
-                    $pagelink = urldecode($cfg['v']);
-                } elseif (($cfg['cat'] ?? '') === 'spa' && ($cfg['k'] ?? '') === 'layout_template') {
-                    $layout_template = $cfg['v'];
+                if (($cfg['cat'] ?? '') === 'system' && ($cfg['k'] ?? '') === 'BUILDBLOCK') {
+                    $name = $cfg['v'];
+                    break;
                 }
             }
         }
 
         return [
-            'uuid'            => $item['uuid'],
-            'mid'             => $item['mid'],
-            'title'           => $item['title'],
-            'summary'         => $item['summary'] ?? '',
-            'body'            => $item['body'],
-            'mimetype'        => $item['mimetype'],
-            'slug'            => $pagelink,
-            'created'         => $item['created'],
-            'edited'          => $item['edited'],
-            'item_private'    => intval($item['item_private']),
-            'public_policy'   => $item['public_policy'] ?? '',
-            'allow_cid'       => self::parseHashList($item['allow_cid'] ?? ''),
-            'allow_gid'       => self::parseHashList($item['allow_gid'] ?? ''),
-            'deny_cid'        => self::parseHashList($item['deny_cid']  ?? ''),
-            'deny_gid'        => self::parseHashList($item['deny_gid']  ?? ''),
-            'layout_template' => $layout_template,
+            'uuid'          => $item['uuid'],
+            'mid'           => $item['mid'],
+            'title'         => $item['title'],
+            'body'          => $item['body'],
+            'mimetype'      => $item['mimetype'],
+            'name'          => $name,
+            'created'       => $item['created'],
+            'edited'        => $item['edited'],
+            'item_private'  => intval($item['item_private']),
+            'public_policy' => $item['public_policy'] ?? '',
+            'allow_cid'     => self::parseHashList($item['allow_cid'] ?? ''),
+            'allow_gid'     => self::parseHashList($item['allow_gid'] ?? ''),
+            'deny_cid'      => self::parseHashList($item['deny_cid']  ?? ''),
+            'deny_gid'      => self::parseHashList($item['deny_gid']  ?? ''),
         ];
     }
 

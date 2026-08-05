@@ -80,6 +80,7 @@ export const editor = {
   img_alt:                "Alt text",
   acl_public:             "Public",
   acl_connections:        "Connections",
+  acl_me:                 "Only me",
   acl_custom:             "Custom",
   acl_search_placeholder: "Search connections & groups…",
   acl_legend:             "Row = allow | ✕ button = deny",

@@ -24,7 +24,7 @@ registerModule({
       id: "blocks.html",
       label: () => useI18n().t("widgets.html_block"),
       loader: () => import("./widgets/HtmlBlockWidget"),
-      slot: ["right", "footer"],
+      slot: ["right", "footer", "gridTop", "contentTop", "header" ],
       defaultModules: [],
       contexts: "any",
       multiInstance: true,

@@ -101,3 +101,82 @@ export async function fetchWebPageByIid(
   const json = await res.json();
   return json.data as WebPageDetail;
 }
+
+// ── Blocks — item-backed content presets (Hubzilla's core "blocks" feature) ──
+
+export type Block = {
+  iid: number;
+  mid: string;
+  title: string;
+  name: string;
+  mimetype: string;
+  created: string;
+  edited: string;
+  is_private: boolean;
+};
+
+export type BlockDetail = {
+  uuid: string;
+  mid: string;
+  title: string;
+  body: string;
+  mimetype: string;
+  name: string;
+  created: string;
+  edited: string;
+  item_private: number;
+  public_policy: string;
+  allow_cid: string[];
+  allow_gid: string[];
+  deny_cid: string[];
+  deny_gid: string[];
+};
+
+export async function fetchBlocks(nick: string): Promise<Block[]> {
+  const res = await apiFetch(`/spa/blocks/${nick}`);
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.error?.message ?? 'Failed to fetch blocks');
+  }
+  const json = await res.json();
+  return (json.data ?? []) as Block[];
+}
+
+/** Fetch a single block by its item id (used by the SPA editor view) */
+export async function fetchBlockByIid(
+  nick: string,
+  iid: number,
+): Promise<BlockDetail> {
+  const res = await apiFetch(`/spa/blocks/${nick}?iid=${iid}`);
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.error?.message ?? 'Failed to fetch block');
+  }
+  const json = await res.json();
+  return json.data as BlockDetail;
+}
+
+/** Fetch a single block by its saved name (used by the HTML Block widget preset) */
+export async function fetchBlockByName(
+  nick: string,
+  name: string,
+): Promise<BlockDetail> {
+  const res = await apiFetch(`/spa/blocks/${nick}?name=${encodeURIComponent(name)}`);
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.error?.message ?? 'Failed to fetch block');
+  }
+  const json = await res.json();
+  return json.data as BlockDetail;
+}
+
+export async function deleteBlock(iid: number, nick: string): Promise<void> {
+  const res = await apiFetch('/spa/blocks', {
+    method: 'POST',
+    body: JSON.stringify({ action: 'delete', nick, iid }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.error?.message ?? 'Delete failed');
+  }
+}

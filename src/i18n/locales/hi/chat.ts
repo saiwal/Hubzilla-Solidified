@@ -11,6 +11,7 @@ export const chat: RawDictionary["chat"] = {
   visibility_public: "चैट अनुमति वाला कोई भी शामिल हो सकता है।",
   visibility_connections: "केवल आपके स्वीकृत कनेक्शन शामिल हो सकते हैं।",
   visibility_private: "केवल वे लोग या समूह शामिल हो सकते हैं जिन्हें आप नीचे चुनते हैं।",
+  visibility_me:      "केवल आप शामिल हो सकते हैं।",
   public_label:     "सार्वजनिक",
   connections_label: "कनेक्शन",
   private_label:    "निजी",
