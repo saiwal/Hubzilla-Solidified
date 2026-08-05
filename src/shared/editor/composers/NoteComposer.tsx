@@ -1,10 +1,20 @@
-import { Show } from "solid-js";
+import { Show, lazy } from "solid-js";
 import { useI18n } from "@/i18n";
 import { createComposerStore } from "../store/createComposerStore";
 import RichEditor from "../core/RichEditor";
 import { CAPABILITIES } from "../types/editor.types";
 import { apiFetch } from "@/shared/lib/fetch";
 import SourceToggleButton from "../components/SourceToggleButton";
+import AttachmentBar from "../attachments/AttachmentBar";
+import { createAttachmentStore } from "../attachments/useAttachments";
+import { bbcodeToInsert, patchInsertedAlt } from "../attachments/insertHelpers";
+import { currentNick, isFeatureEnabled } from "@/shared/store/auth-store";
+import { useEncrypt } from "../useEncrypt";
+import EncryptToggle from "../components/EncryptToggle";
+// Lazy: only fetched once the user opts into encrypting or decrypting — see
+// PostComposer/DMComposer for the same split.
+const EncryptPanel = lazy(() => import("../components/EncryptPanel"));
+const DecryptPanel = lazy(() => import("../components/DecryptPanel"));
 
 interface Props {
   nick: string;
@@ -31,13 +41,23 @@ export default function NoteComposer(props: Props) {
     ? `note:edit:${props.initial.mid}`
     : "note:new";
 
+  const attach = props.minimal ? null : createAttachmentStore(currentNick(), scope);
+
   const store = createComposerStore(async (body, meta) => {
+    // Files (non-image) attach automatically; images are inserted inline via
+    // the AttachmentBar's Insert button — same convention as PostComposer/DMComposer.
+    const fileTags = attach?.attachments()
+      .filter((a) => a.status === "ready" && !a.isImage && (a.hash || a.resourceId))
+      .map((a) => `[attachment]${a.hash ?? a.resourceId},0[/attachment]`)
+      .join("\n") ?? "";
+    const augmentedBody = fileTags ? `${body}\n${fileTags}` : body;
+
     if (isEditing()) {
       // Edit via existing item-edit endpoint
       const res = await apiFetch(`/spa/item/${props.initial!.mid}/edit`, {
         method: "POST",
         body: JSON.stringify({
-          body,
+          body: augmentedBody,
           title:    "",
           summary:  "",
           mimetype: meta.mimetype ?? "text/bbcode",
@@ -51,7 +71,7 @@ export default function NoteComposer(props: Props) {
       const res = await apiFetch("/spa/notes", {
         method: "POST",
         body: JSON.stringify({
-          body,
+          body: augmentedBody,
           mimetype: meta.mimetype ?? "text/bbcode",
         }),
       });
@@ -61,12 +81,15 @@ export default function NoteComposer(props: Props) {
       }
     }
 
+    attach?.clear();
     props.onSaved?.();
   }, scope, { initialBody: props.initial?.body });
 
   if (props.initial?.mimetype) {
     store.setMimetype(props.initial.mimetype as any);
   }
+
+  const enc = useEncrypt(store.body, store.setBody);
 
   return (
     <div class={props.fill ? "flex flex-col flex-1 min-h-0 gap-3 p-4" : "space-y-3"}>
@@ -106,6 +129,18 @@ export default function NoteComposer(props: Props) {
             fill={props.fill}
           />
 
+          <AttachmentBar
+            store={attach!}
+            nick={currentNick()}
+            accept="both"
+            onInsert={(bbcode) => {
+              store.setBody(store.body() + "\n" + bbcodeToInsert(bbcode, store.mimetype()));
+            }}
+            onAltChange={(att) => {
+              store.setBody(patchInsertedAlt(store.body(), att, store.mimetype()));
+            }}
+          />
+
           <div class="flex justify-end mt-3">
             <SourceToggleButton
               tab={store.tab()}
@@ -115,11 +150,27 @@ export default function NoteComposer(props: Props) {
         </div>
       </Show>
 
+      {/* ── Encrypt panel ── */}
+      <Show when={enc.open()}>
+        <EncryptPanel enc={enc} />
+      </Show>
+
+      {/* ── Decrypt-to-edit panel ── */}
+      <Show when={enc.decryptOpen()}>
+        <DecryptPanel enc={enc} body={store.body} />
+      </Show>
+
       <div class="flex items-center gap-2 justify-end shrink-0">
+        <Show when={!props.minimal && isFeatureEnabled("content_encrypt")}>
+          <EncryptToggle enc={enc} body={store.body} />
+        </Show>
+
+        <div class="flex-1" />
+
         <Show when={props.onCancel}>
           <button
             type="button"
-            onClick={() => { store.reset(); props.onCancel?.(); }}
+            onClick={() => { store.reset(); attach?.clear(); enc.reset(); props.onCancel?.(); }}
             class="px-3 py-1.5 text-sm rounded-lg border border-rim text-muted
                    hover:bg-elevated transition-colors"
           >
@@ -141,7 +192,7 @@ export default function NoteComposer(props: Props) {
         <button
           type="button"
           onClick={() => void store.submit()}
-          disabled={store.submitting() || !store.body().trim()}
+          disabled={store.submitting() || !!attach?.uploading() || !store.body().trim()}
           class="px-4 py-1.5 text-sm font-medium rounded-lg bg-accent text-accent-fg
                  hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
         >

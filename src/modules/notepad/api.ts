@@ -1,4 +1,5 @@
 import { apiFetch } from "@/shared/lib/fetch";
+import type { StreamAttachment } from "@/shared/types/post.types";
 
 export type Note = {
   id: number;
@@ -8,6 +9,7 @@ export type Note = {
   created: string;
   edited: string;
   mimetype: string;
+  attach: StreamAttachment[];
 };
 
 export type NotesResponse = {

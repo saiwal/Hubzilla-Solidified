@@ -141,7 +141,7 @@ export const CAPABILITIES: Record<string, EditorCapabilities> = {
     summary: false,
     slug: false,
     category: false,
-    attachments: "photos",
+    attachments: "both",
     aclPicker: false,
     submitOnCtrlEnter: true,
     latexMode: "live",

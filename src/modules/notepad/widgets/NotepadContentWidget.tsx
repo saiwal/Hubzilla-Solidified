@@ -8,6 +8,8 @@ import { useI18n } from "@/i18n";
 import DOMPurify from "dompurify";
 import { bbcodeToHtml } from "@/shared/lib/bbcode";
 import { hydrateLatex } from "@/shared/lib/hydrateLatex";
+import { handleDecryptClick } from "@/shared/lib/decrypt-click";
+import AttachmentList from "@/shared/stream/components/AttachmentList";
 import NoteComposer from "@/shared/editor/composers/NoteComposer";
 import { notes, loading, hasMore, loadNotes, removeNote } from "../store";
 import type { Note } from "../api";
@@ -75,7 +77,12 @@ function NoteCard(props: {
                [&_a]:text-accent [&_a]:no-underline [&_a:hover]:underline
                ${expanded() ? "" : "line-clamp-6"}`}
         innerHTML={renderBody(props.note.body, props.note.mimetype)}
+        onClick={handleDecryptClick}
       />
+
+      <Show when={props.note.attach.length > 0}>
+        <AttachmentList attachments={props.note.attach} compact />
+      </Show>
 
       <Show when={overflowing() || expanded()}>
         <button
