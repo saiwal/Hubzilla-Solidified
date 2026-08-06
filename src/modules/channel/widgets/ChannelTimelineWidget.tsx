@@ -1,17 +1,21 @@
 // src/modules/channel/widgets/ChannelTimelineWidget.tsx
 import { For, Show } from "solid-js";
-import { posts, loading, streamHandlers } from "../store";
-import { FeedPlaceholder } from "@/shared/stream/feedviews/FeedView";
-import TimelineView from "@/shared/stream/feedviews/TimelineView";
+import { posts, loading, loadingMore, streamHandlers } from "../store";
+import TimelineView, {
+  TimelineCardPlaceholder,
+  TimelinePlaceholder,
+} from "@/shared/stream/feedviews/TimelineView";
 import ChannelFeedShell from "./ChannelFeedShell";
 
 function TimelineBody() {
   return (
-    <Show
-      when={!loading()}
-      fallback={<For each={Array(5).fill(0)}>{() => <FeedPlaceholder />}</For>}
-    >
+    <Show when={!loading()} fallback={<TimelinePlaceholder />}>
       <TimelineView posts={posts()} handlers={streamHandlers} />
+      <Show when={loadingMore()}>
+        <div class="max-w-3xl mx-auto space-y-8 mt-8">
+          <For each={Array(2).fill(0)}>{() => <TimelineCardPlaceholder />}</For>
+        </div>
+      </Show>
     </Show>
   );
 }

@@ -198,6 +198,64 @@ const SECTION_ACCENTS = [
 // result down here; this view just renders whatever it's given.
 export interface CategoryGroup { name: string; posts: Post[] }
 
+export function WireItemPlaceholder() {
+  return (
+    <div class="break-inside-avoid mb-5 space-y-1.5 animate-pulse">
+      <div class="h-2 bg-accent-muted rounded w-1/3" />
+      <div class="h-3.5 bg-accent-muted rounded w-full" />
+      <div class="h-3 bg-accent-muted rounded w-full" />
+      <div class="h-3 bg-accent-muted rounded w-4/5" />
+    </div>
+  );
+}
+
+export function NewspaperPlaceholder() {
+  return (
+    <div class="max-w-6xl mx-auto animate-pulse">
+      <header class="mb-8 text-center">
+        <div class="h-10 sm:h-14 bg-accent-muted rounded w-2/3 mx-auto" />
+        <div class="mt-3 border-t-4 border-double border-txt/20" />
+        <div class="flex items-center justify-between mt-1.5">
+          <div class="h-2.5 bg-accent-muted rounded w-24" />
+          <div class="h-2.5 bg-accent-muted rounded w-20" />
+        </div>
+      </header>
+
+      <div class="grid grid-cols-1 md:grid-cols-[1.1fr_1fr] gap-6 pb-8 border-b-2 border-txt/10">
+        <div>
+          <div class="h-8 bg-accent-muted rounded w-5/6 mb-2" />
+          <div class="h-8 bg-accent-muted rounded w-3/4 mb-4" />
+          <div class="space-y-2">
+            <div class="h-3 bg-accent-muted rounded w-full" />
+            <div class="h-3 bg-accent-muted rounded w-full" />
+            <div class="h-3 bg-accent-muted rounded w-5/6" />
+          </div>
+        </div>
+        <div class="h-56 md:h-full bg-accent-muted rounded-sm" />
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 py-6 border-b-2 border-txt/10">
+        <For each={Array(4).fill(0)}>
+          {() => (
+            <div class="flex gap-3">
+              <div class="w-16 h-16 shrink-0 rounded-sm bg-accent-muted" />
+              <div class="flex-1 space-y-1.5">
+                <div class="h-3.5 bg-accent-muted rounded w-full" />
+                <div class="h-3.5 bg-accent-muted rounded w-4/5" />
+                <div class="h-2.5 bg-accent-muted rounded w-1/2" />
+              </div>
+            </div>
+          )}
+        </For>
+      </div>
+
+      <div class="columns-1 sm:columns-2 gap-x-8 pt-6">
+        <For each={Array(4).fill(0)}>{() => <WireItemPlaceholder />}</For>
+      </div>
+    </div>
+  );
+}
+
 export default function NewspaperView(props: {
   posts: ThreadNode[];
   handlers: StreamHandlers;

@@ -100,6 +100,36 @@ function StickyNote(props: { post: ThreadNode; rotate: string; color: string; ha
   );
 }
 
+const PLACEHOLDER_HEIGHTS = ["h-32", "h-44", "h-40", "h-28", "h-52", "h-36"];
+
+export function ScrapbookCardPlaceholder(props: { index: number }) {
+  return (
+    <div
+      class={`${ROTATIONS[props.index % ROTATIONS.length]} break-inside-avoid mb-5
+              bg-surface border border-rim p-3 shadow-sm animate-pulse`}
+    >
+      <div class={`w-full ${PLACEHOLDER_HEIGHTS[props.index % PLACEHOLDER_HEIGHTS.length]} bg-accent-muted rounded-sm`} />
+      <div class="h-3 bg-accent-muted rounded w-4/5 mt-2" />
+      <div class="flex items-center gap-2 mt-2">
+        <div class="h-2.5 bg-accent-muted rounded w-16" />
+        <div class="h-2.5 bg-accent-muted rounded w-10 ml-auto" />
+      </div>
+    </div>
+  );
+}
+
+export function ScrapbookPlaceholder(props: { count?: number }) {
+  return (
+    <div class="max-w-6xl mx-auto">
+      <div class="columns-2 sm:columns-3 lg:columns-4 gap-5">
+        <For each={Array(props.count ?? 8).fill(0)}>
+          {(_, i) => <ScrapbookCardPlaceholder index={i()} />}
+        </For>
+      </div>
+    </div>
+  );
+}
+
 export default function ScrapbookView(props: { posts: ThreadNode[]; handlers: StreamHandlers }) {
   const { t } = useI18n();
   const [modalUuid, setModalUuid] = createSignal<string | null>(null);

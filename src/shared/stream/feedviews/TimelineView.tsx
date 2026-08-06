@@ -118,6 +118,51 @@ function TimelineCard(props: { post: ThreadNode; handlers: StreamHandlers; onOpe
   );
 }
 
+export function TimelineCardPlaceholder() {
+  return (
+    <div class="bg-surface border border-rim rounded-2xl p-5 sm:p-6 shadow-sm animate-pulse">
+      <div class="h-48 sm:h-56 bg-accent-muted rounded-xl" />
+      <div class="h-4 bg-accent-muted rounded w-3/4 mt-3" />
+      <div class="space-y-2 mt-2">
+        <div class="h-3 bg-accent-muted rounded w-full" />
+        <div class="h-3 bg-accent-muted rounded w-5/6" />
+      </div>
+      <div class="flex items-center gap-2.5 mt-4 pt-3 border-t border-rim">
+        <div class="w-8 h-8 rounded-full bg-accent-muted shrink-0" />
+        <div class="space-y-1">
+          <div class="h-3 bg-accent-muted rounded w-24" />
+          <div class="h-2.5 bg-accent-muted rounded w-16" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function TimelinePlaceholder(props: { count?: number }) {
+  return (
+    <div class="max-w-3xl mx-auto">
+      <div class="relative">
+        <div
+          class="absolute left-4 sm:left-6 top-1 bottom-1 w-1 -translate-x-1/2 rounded-full bg-rim"
+          aria-hidden="true"
+        />
+        <div class="space-y-8">
+          <For each={Array(props.count ?? 4).fill(0)}>
+            {() => (
+              <div class="relative">
+                <div class="absolute left-4 sm:left-6 top-7 w-3 h-3 -translate-x-1/2 rounded-full bg-accent-muted ring-4 ring-base z-10" />
+                <div class="ml-9 sm:ml-14">
+                  <TimelineCardPlaceholder />
+                </div>
+              </div>
+            )}
+          </For>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function TimelineView(props: { posts: ThreadNode[]; handlers: StreamHandlers }) {
   const { t, locale } = useI18n();
   const [modalUuid, setModalUuid] = createSignal<string | null>(null);

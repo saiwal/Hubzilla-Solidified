@@ -1,11 +1,14 @@
 // src/modules/channel/widgets/ChannelNewspaperWidget.tsx
 import { For, Show } from "solid-js";
-import { nick, posts, loading, streamHandlers } from "../store";
+import { nick, posts, loading, loadingMore, streamHandlers } from "../store";
 import { fetchChannelPosts } from "../api";
 import { fetchCategories } from "@/shared/stream/components/CategoryWidget";
 import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { FeedPlaceholder } from "@/shared/stream/feedviews/FeedView";
-import NewspaperView, { type CategoryGroup } from "@/shared/stream/feedviews/NewspaperView";
+import NewspaperView, {
+  type CategoryGroup,
+  NewspaperPlaceholder,
+  WireItemPlaceholder,
+} from "@/shared/stream/feedviews/NewspaperView";
 import ChannelFeedShell from "./ChannelFeedShell";
 
 const SECTION_COUNT = 6;
@@ -37,11 +40,13 @@ function NewspaperBody() {
   );
 
   return (
-    <Show
-      when={!loading()}
-      fallback={<For each={Array(5).fill(0)}>{() => <FeedPlaceholder />}</For>}
-    >
+    <Show when={!loading()} fallback={<NewspaperPlaceholder />}>
       <NewspaperView posts={posts()} handlers={streamHandlers} categoryGroups={categoryGroups()} />
+      <Show when={loadingMore()}>
+        <div class="max-w-6xl mx-auto columns-1 sm:columns-2 gap-x-8 pt-6">
+          <For each={Array(2).fill(0)}>{() => <WireItemPlaceholder />}</For>
+        </div>
+      </Show>
     </Show>
   );
 }
