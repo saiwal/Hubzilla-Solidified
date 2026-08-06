@@ -3,7 +3,7 @@ import { createEffect, createSignal, onCleanup, Show, type Component, type JSX }
 import { useSearchParams, useNavigate } from "@solidjs/router";
 import { useI18n } from "@/i18n";
 import { useScrollStyle } from "@/shared/store/scroll-style";
-import { usePageNick } from "@/shared/store/site-config";
+import { usePageNick, useViewerRole } from "@/shared/store/site-config";
 import {
   loading,
   hasMore,
@@ -47,7 +47,11 @@ export default function ChannelFeedShell(props: {
   const [composeEverOpened, setComposeEverOpened] = createSignal(false);
   const openCompose = () => { setComposeEverOpened(true); setComposeOpen(true); };
   const auth = useAuth();
-  const isVisitor = () => (auth()?.uid ?? 0) > 0 && auth()!.uid !== profileUid();
+  const viewerRole = useViewerRole();
+  // profileUid() (from the loaded-posts stream) is 0 until a post loads, so an
+  // empty wall would wrongly read as "visiting someone else" — use the
+  // post-independent viewer role instead.
+  const isVisitor = () => (auth()?.uid ?? 0) > 0 && viewerRole() !== "owner";
 
   const submitSearch = (e?: Event) => {
     e?.preventDefault();
