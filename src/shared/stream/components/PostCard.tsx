@@ -53,6 +53,8 @@ import {
   MdOutlineSchedule,
   MdOutlineContent_copy,
   MdOutlineCheck,
+  MdOutlineClose,
+  MdOutlineFlag,
   MdFillPush_pin,
   MdOutlinePush_pin,
   MdOutlineVisibility,
@@ -73,6 +75,7 @@ const PostComposer = lazy(
 import DOMPurify from "dompurify";
 import { handleNsfwToggleClick } from "@/shared/lib/nsfw";
 import { handleDecryptClick } from "@/shared/lib/decrypt-click";
+import { fetchPendingReactions, type PendingItem } from "@/modules/moderate/api";
 import { useAuth } from "@/shared/store/auth-store";
 import {
   apiFollowPost,
@@ -443,6 +446,68 @@ export default function PostCard(props: {
     isLocalOnlyDelete()
       ? t("post.confirm_remove_from_feed")
       : t("post.confirm_delete");
+
+  // Moderate: this row is stuck pending approval (item_blocked = ITEM_MODERATED
+  // — see Api/Handlers/Moderate.php) on a channel the viewer owns.
+  const canModerate = () =>
+    (!!props.handlers.onApprove || !!props.handlers.onReject) &&
+    ownsStreamCopy() &&
+    props.post.flags.includes("pending_moderation");
+  const [moderating, setModerating] = createSignal(false);
+  async function onApproveClick() {
+    setMoreDropdownOpen(false);
+    if (!props.post.iid || moderating()) return;
+    setModerating(true);
+    try {
+      await props.handlers.onApprove?.(props.post.iid);
+    } finally {
+      setModerating(false);
+    }
+  }
+  async function onRejectClick() {
+    setMoreDropdownOpen(false);
+    if (!props.post.iid || moderating()) return;
+    setModerating(true);
+    try {
+      await props.handlers.onReject?.(props.post.iid);
+    } finally {
+      setModerating(false);
+    }
+  }
+
+  // Pending reactions (Like/Dislike/Announce): unlike comments, these never
+  // render as their own thread row (core only ever surfaces reaction counts,
+  // not individual reaction items) — so instead of an inline badge, the
+  // owner gets a folder-picker-style panel listing whatever's queued.
+  const canReactionQueue = () =>
+    (!!props.handlers.onApprove || !!props.handlers.onReject) && ownsStreamCopy();
+  const [showReactionQueue, setShowReactionQueue] = createSignal(false);
+  const [reactionQueueLoading, setReactionQueueLoading] = createSignal(false);
+  const [reactionQueue, setReactionQueue] = createSignal<PendingItem[]>([]);
+  const [reactionQueueBusy, setReactionQueueBusy] = createSignal<number | null>(null);
+
+  async function toggleReactionQueue() {
+    const next = !showReactionQueue();
+    setShowReactionQueue(next);
+    if (!next) return;
+    setReactionQueueLoading(true);
+    try {
+      setReactionQueue(await fetchPendingReactions(props.post.mid));
+    } finally {
+      setReactionQueueLoading(false);
+    }
+  }
+
+  async function resolveQueuedReaction(iid: number, approve: boolean) {
+    if (reactionQueueBusy()) return;
+    setReactionQueueBusy(iid);
+    try {
+      await (approve ? props.handlers.onApprove : props.handlers.onReject)?.(iid);
+      setReactionQueue((prev) => prev.filter((r) => r.iid !== iid));
+    } finally {
+      setReactionQueueBusy(null);
+    }
+  }
 
   // Edit: same author-address gate as delete
   const canEdit = () => {
@@ -878,6 +943,26 @@ export default function PostCard(props: {
             <MdFillPush_pin size={9} />
           </span>
         </Show>
+        <Show when={canModerate()}>
+          <div class="absolute top-1 right-1 z-10 flex items-center gap-0.5">
+            <button
+              onClick={onApproveClick}
+              disabled={moderating()}
+              title={t("directory.approve")}
+              class="flex items-center justify-center w-4 h-4 rounded-full bg-accent text-accent-fg leading-none disabled:opacity-50"
+            >
+              <MdOutlineCheck size={10} />
+            </button>
+            <button
+              onClick={onRejectClick}
+              disabled={moderating()}
+              title={t("moderate.reject")}
+              class="flex items-center justify-center w-4 h-4 rounded-full bg-overlay text-red-500 leading-none disabled:opacity-50"
+            >
+              <MdOutlineClose size={10} />
+            </button>
+          </div>
+        </Show>
         {/* Single-line author header */}
         <div class="flex items-center gap-2 min-w-0">
           <AuthorPopover
@@ -1153,6 +1238,18 @@ export default function PostCard(props: {
               >
                 <MdFillFolder size={14} />
               </Show>
+            </button>
+          </Show>
+
+          <Show when={canReactionQueue()}>
+            <button
+              onClick={toggleReactionQueue}
+              title={t("moderate.pending_reactions")}
+              class={`flex items-center gap-1 px-2 py-1 rounded-md text-xs
+                     transition-colors select-none hover:bg-overlay
+                     ${showReactionQueue() ? "text-accent" : "text-subtle hover:text-txt"}`}
+            >
+              <MdOutlineFlag size={14} />
             </button>
           </Show>
 
@@ -1457,6 +1554,15 @@ export default function PostCard(props: {
             onSetInput={setNewFolderInput}
             onToggle={toggleFolder}
             onAdd={addNewFolder}
+          />
+        </Show>
+        <Show when={showReactionQueue()}>
+          <PendingReactionsPanel
+            loading={reactionQueueLoading()}
+            items={reactionQueue()}
+            busy={reactionQueueBusy()}
+            onApprove={(iid) => resolveQueuedReaction(iid, true)}
+            onReject={(iid) => resolveQueuedReaction(iid, false)}
           />
         </Show>
         <Show when={commentsLoading()}>
@@ -1884,6 +1990,18 @@ export default function PostCard(props: {
           </button>
         </Show>
 
+        <Show when={canReactionQueue()}>
+          <button
+            onClick={toggleReactionQueue}
+            title={t("moderate.pending_reactions")}
+            class={`flex items-center px-2 py-1.5 rounded-lg text-sm font-medium
+                   transition-colors select-none hover:bg-overlay
+                   ${showReactionQueue() ? "text-accent" : "text-muted hover:text-txt"}`}
+          >
+            <MdOutlineFlag size={17} />
+          </button>
+        </Show>
+
         {/* ── Comments + thread controls group ── */}
         <Show when={totalComments() > 0}>
           <button
@@ -2183,6 +2301,15 @@ export default function PostCard(props: {
           onAdd={addNewFolder}
         />
       </Show>
+      <Show when={showReactionQueue()}>
+        <PendingReactionsPanel
+          loading={reactionQueueLoading()}
+          items={reactionQueue()}
+          busy={reactionQueueBusy()}
+          onApprove={(iid) => resolveQueuedReaction(iid, true)}
+          onReject={(iid) => resolveQueuedReaction(iid, false)}
+        />
+      </Show>
 
       <Show when={replyOpen() && props.post.iid && props.post.profileUid}>
         <CommentComposer
@@ -2415,6 +2542,83 @@ function PostSource(props: { loading: boolean; data: unknown }) {
         <pre class="bg-overlay rounded-lg p-3 overflow-x-auto max-h-96 text-txt font-mono whitespace-pre-wrap break-all leading-relaxed">
           {JSON.stringify(typed()!.source, null, 2)}
         </pre>
+      </Show>
+    </div>
+  );
+}
+
+type Translate = ReturnType<typeof useI18n>["t"];
+
+function reactionVerbLabel(item: PendingItem, t: Translate): string {
+  if (item.verb === "Dislike") return t("moderate.requested_to_dislike");
+  if (item.verb === "Announce") return t("moderate.requested_to_repeat");
+  return t("moderate.requested_to_like");
+}
+
+function PendingReactionsPanel(props: {
+  loading: boolean;
+  items: PendingItem[];
+  busy: number | null;
+  onApprove: (iid: number) => void;
+  onReject: (iid: number) => void;
+}) {
+  const { t } = useI18n();
+
+  return (
+    <div class="mt-3 pt-3 border-t border-rim">
+      <Show when={props.loading}>
+        <div class="space-y-2">
+          <For each={Array(2)}>
+            {() => <div class="h-8 rounded-lg bg-overlay animate-pulse" />}
+          </For>
+        </div>
+      </Show>
+      <Show when={!props.loading}>
+        <Show
+          when={props.items.length > 0}
+          fallback={
+            <p class="text-xs text-muted">{t("moderate.pending_reactions_empty")}</p>
+          }
+        >
+          <div class="space-y-1.5">
+            <For each={props.items}>
+              {(item) => {
+                const busy = () => props.busy === item.iid;
+                return (
+                  <div class="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-overlay text-xs">
+                    <Show when={item.author.photo?.src}>
+                      <img
+                        src={item.author.photo?.src}
+                        alt=""
+                        class="w-5 h-5 rounded-full object-cover shrink-0"
+                      />
+                    </Show>
+                    <span class="min-w-0 flex-1 truncate">
+                      <span class="font-medium text-txt">{item.author.name} </span>
+                      <span class="text-muted">{reactionVerbLabel(item, t)}</span>
+                    </span>
+                    <button
+                      onClick={() => props.onApprove(item.iid)}
+                      disabled={busy()}
+                      title={t("directory.approve")}
+                      class="flex items-center justify-center w-6 h-6 rounded-full bg-accent text-accent-fg disabled:opacity-50 shrink-0"
+                    >
+                      <MdOutlineCheck size={13} />
+                    </button>
+                    <button
+                      onClick={() => props.onReject(item.iid)}
+                      disabled={busy()}
+                      title={t("moderate.reject")}
+                      class="flex items-center justify-center w-6 h-6 rounded-full bg-elevated text-red-500 disabled:opacity-50 shrink-0"
+                    >
+                      <MdOutlineClose size={13} />
+                    </button>
+                  </div>
+                );
+              }}
+            </For>
+          </div>
+        </Show>
       </Show>
     </div>
   );

@@ -83,6 +83,7 @@ export type RawDictionary = {
     drag_reorder:  string;
     new_channel:     string;
     manage_channels: string;
+    moderate:        string;
   };
   layout: {
     title:              string;
@@ -2439,6 +2440,18 @@ export type RawDictionary = {
     all_title:      string;
     mark_all_seen:  string;
     new:            string;
+  };
+  moderate: {
+    title:                   string;
+    empty:                   string;
+    reject:                  string;
+    wants_to_comment:        string;
+    requested_to_like:       string;
+    requested_to_dislike:    string;
+    requested_to_repeat:     string;
+    wants_to_post:           string;
+    pending_reactions:       string;
+    pending_reactions_empty: string;
   };
   // Display names for Hubzilla system apps (Settings › Integrations, New Channel
   // wizard). Keyed by a slugified canonical .apd name (see appLabel() in

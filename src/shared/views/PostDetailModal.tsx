@@ -12,6 +12,7 @@ import { useI18n } from "@/i18n";
 import { apiDeleteItem, apiEditItem, apiToggleStar } from "@/shared/lib/item-api";
 import { toggleVerb, repeatItem } from "@/shared/stream/store/actions-store";
 import { markItemSeen } from "@/shared/lib/markSeen";
+import { approveModerationItem, dropModerationItem } from "@/modules/moderate/api";
 
 async function fetchDisplay(uuid: string): Promise<ThreadNode> {
   const res = await fetch(`/spa/display/${uuid}`);
@@ -182,6 +183,14 @@ const PostDetailModal: Component<PostDetailModalProps> = (props) => {
       const found = findInTree(nodeData(), mid);
       if (found?.uuid) await apiDeleteItem(found.uuid);
       props.onClose();
+    },
+    async onApprove(iid) {
+      await approveModerationItem(iid);
+      await loadNode(props.uuid);
+    },
+    async onReject(iid) {
+      await dropModerationItem(iid);
+      await loadNode(props.uuid);
     },
   };
 

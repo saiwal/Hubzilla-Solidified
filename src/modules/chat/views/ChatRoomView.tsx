@@ -42,6 +42,7 @@ import formatPostDate from "@/shared/lib/date";
 import ChatComposer from "../ChatComposer";
 import DOMPurify from "dompurify";
 import { bbcode } from "@/shared/lib/bbcode";
+import { sanitizeHtml } from "@/shared/lib/sanitize";
 import { decryptPayload, getPayloadHint } from "@/shared/lib/postCrypto";
 
 export default function ChatRoomView() {
@@ -470,10 +471,7 @@ export default function ChatRoomView() {
 													data-msg-id={String(msg.id)}
 													onClick={handleBubbleClick}
 												>
-													<span innerHTML={DOMPurify.sanitize(bbcode(msg.body), {
-							ADD_TAGS: ["video", "audio", "button"],
-							ADD_ATTR: ["controls", "preload", "poster", "data-crypt-payload"],
-						})} />
+													<span innerHTML={sanitizeHtml(bbcode(msg.body))} />
 												</div>
 												<Show when={msg.isLast}>
 													<p

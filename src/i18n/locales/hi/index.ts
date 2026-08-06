@@ -33,6 +33,7 @@ import { channel_create } from "./channel_create";
 import { blocklist }  from "./blocklist";
 import { notify }     from "./notify";
 import { apps }       from "./apps";
+import { moderate }   from "./moderate";
 
 export const dict: RawDictionary = {
   nav,
@@ -69,4 +70,5 @@ export const dict: RawDictionary = {
   blocklist,
   notify,
   apps,
+  moderate,
 };

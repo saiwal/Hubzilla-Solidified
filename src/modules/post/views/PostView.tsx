@@ -16,6 +16,7 @@ import {
 } from "@/shared/lib/item-api";
 import { toggleVerb, repeatItem } from "@/shared/stream/store/actions-store";
 import { unblockChannel } from "@/shared/lib/blocklist-api";
+import { approveModerationItem, dropModerationItem } from "@/modules/moderate/api";
 
 async function fetchPost(uuid: string): Promise<ThreadNode> {
   const res = await fetch(`/spa/display/${uuid}`);
@@ -143,6 +144,14 @@ export default function PostView() {
       const found = findInTree(node(), mid);
       if (!found?.uuid) return;
       await apiEditItem(found.uuid, body, title ?? "");
+      refetch();
+    },
+    async onApprove(iid) {
+      await approveModerationItem(iid);
+      refetch();
+    },
+    async onReject(iid) {
+      await dropModerationItem(iid);
       refetch();
     },
   };

@@ -1,0 +1,14 @@
+import type { RawDictionary } from "../namespaces/types";
+
+export const moderate: RawDictionary["moderate"] = {
+  title:                   "Moderationswarteschlange",
+  empty:                   "Nichts ausstehend",
+  reject:                  "Löschen",
+  wants_to_comment:        "möchte kommentieren zu",
+  requested_to_like:       "möchte gefällt mir sagen zu",
+  requested_to_dislike:    "möchte gefällt mir nicht sagen zu",
+  requested_to_repeat:     "möchte teilen",
+  wants_to_post:           "möchte auf deinem Kanal posten",
+  pending_reactions:       "Ausstehende Reaktionen",
+  pending_reactions_empty: "Keine ausstehenden Anfragen",
+};

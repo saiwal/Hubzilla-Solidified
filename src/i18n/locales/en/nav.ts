@@ -37,4 +37,5 @@ export const nav: RawDictionary["nav"] = {
   drag_reorder:  "Drag to reorder",
   new_channel:     "New Channel",
   manage_channels: "Manage Channels",
+  moderate:        "Moderation Queue",
 };

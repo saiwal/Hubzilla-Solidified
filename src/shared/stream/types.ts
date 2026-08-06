@@ -16,6 +16,10 @@ export interface StreamHandlers {
   onDelete?: (mid: string) => Promise<void>;
   onEdit?: (mid: string, body: string, title?: string) => Promise<void>;
   onRefresh?: (mid: string, uuid: string) => Promise<void>;
+  // Approve/reject a comment or wall post stuck in moderation
+  // (post.flags includes "pending_moderation") — see src/modules/moderate/api.ts.
+  onApprove?: (iid: number) => Promise<void>;
+  onReject?: (iid: number) => Promise<void>;
 }
 
 export type ViewMode = "feed" | "masonry" | "list";
