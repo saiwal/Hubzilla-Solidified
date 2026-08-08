@@ -808,9 +808,11 @@ export default function NotificationsAside() {
       fetchAnnouncements,
     );
 
+  const [seenAnnouncementId, setSeenAnnouncementId] = createSignal(getLastSeenAnnouncementId());
+
   const hasNewAnnouncements = createMemo(() => {
     const list = announcements();
-    return !!list?.length && list[0].id !== getLastSeenAnnouncementId();
+    return !!list?.length && list[0].id !== seenAnnouncementId();
   });
 
   const toggleAnnouncements = () => {
@@ -818,7 +820,10 @@ export default function NotificationsAside() {
       const next = !v;
       if (next) {
         const list = announcements();
-        if (list?.length) setLastSeenAnnouncementId(list[0].id);
+        if (list?.length) {
+          setLastSeenAnnouncementId(list[0].id);
+          setSeenAnnouncementId(list[0].id);
+        }
       }
       return next;
     });
