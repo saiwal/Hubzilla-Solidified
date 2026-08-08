@@ -249,6 +249,8 @@ export const settings: RawDictionary["settings"] = {
   integ_install:            "इंस्टॉल करें",
   integ_remove:             "हटाएँ",
   integ_busy:               "…",
+  integ_frontend_title:     "फ्रंटएंड फ़ीचर",
+  integ_frontend_desc:      "बिना किसी बैकिंग ऐप वाले ब्राउज़र-ओनली फ़ीचर। जो इस्तेमाल न हों उन्हें बंद करें।",
   // Danger zone
   danger_remove_channel:   "यह चैनल हटाएँ",
   danger_remove_desc:      "{{name}} (@{{nick}}) और उसकी सभी पोस्ट, कनेक्शन और डेटा स्थायी रूप से हटाता है। इसे वापस नहीं किया जा सकता।",

@@ -96,7 +96,7 @@ function PinnedRoomPanel(props: { room: PinnedRoom; onUnpin: () => void }) {
           <span class="text-xs font-medium text-txt truncate">{props.room.name}</span>
 
           <span
-            class={`flex items-center gap-0.5 text-[10px] shrink-0 ${
+            class={`flex items-center gap-0.5 text-[0.625rem] shrink-0 ${
               restricted() ? "text-accent" : "text-green-600 dark:text-green-400"
             }`}
           >
@@ -147,11 +147,11 @@ function PinnedRoomPanel(props: { room: PinnedRoom; onUnpin: () => void }) {
               class="max-h-36 overflow-y-auto px-3 py-2 space-y-1"
             >
               <Show when={msgs().length === 0}>
-                <p class="text-[11px] text-muted text-center py-3">{t("chat.no_messages")}</p>
+                <p class="text-[0.6875rem] text-muted text-center py-3">{t("chat.no_messages")}</p>
               </Show>
               <For each={msgs()}>
                 {(msg) => (
-                  <p class="text-[11px] text-txt leading-snug">
+                  <p class="text-[0.6875rem] text-txt leading-snug">
                     <span class="font-semibold text-accent">{msg.author_name}: </span>
                     {stripBBCode(msg.body)}
                   </p>
@@ -169,7 +169,7 @@ function PinnedRoomPanel(props: { room: PinnedRoom; onUnpin: () => void }) {
                   if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void send(); }
                 }}
                 placeholder={t("chat.write_message") as string}
-                class="flex-1 text-[11px] bg-surface border border-rim rounded-lg px-2 py-1 text-txt placeholder:text-muted focus:outline-none focus:border-accent"
+                class="flex-1 text-[0.6875rem] bg-surface border border-rim rounded-lg px-2 py-1 text-txt placeholder:text-muted focus:outline-none focus:border-accent"
               />
               <button
                 onClick={() => void send()}

@@ -89,14 +89,14 @@ const DISPLAY_ORDER = [
 type BucketMeta = { label: string; Icon: any; href?: string };
 const KNOWN_META: Record<string, BucketMeta> = {
   network: { label: "Network", Icon: MdFillWifi, href: "/network" },
-  dm: { label: "Messages", Icon: MdFillMail, href: "/mail" },
+  dm: { label: "Messages", Icon: MdFillMail, href: "/hq" },
   home: { label: "Channel", Icon: MdFillHome, href: "/channel" },
   notify: { label: "Alerts", Icon: MdFillNotifications, href: "/notify" },
-  intros: { label: "Intros", Icon: MdFillPeople, href: "/connections" },
+  intros: { label: "Intros", Icon: MdFillPeople, href: "/directory/connections" },
   forums: { label: "Forums", Icon: MdFillForum },
   pubs: { label: "Public", Icon: MdFillPublic },
   files: { label: "Files", Icon: MdFillInsert_drive_file },
-  all_events: { label: "Events", Icon: MdFillEvent, href: "/calendar" },
+  all_events: { label: "Events", Icon: MdFillEvent, href: "/cdav/calendar" },
   register: { label: "Signups", Icon: MdFillApp_registration },
 };
 
@@ -270,7 +270,11 @@ function relativeTime(when?: string): string {
   // Enotify::format() (Zotlabs/Lib/Enotify.php) converts `created` from UTC to
   // the server's configured local timezone before sending it as `when` — so it
   // must be parsed as local time here, not UTC (no "Z" suffix).
+  // Exception: Enotify::format_all_events() sends `when` as an already
+  // human-formatted string ("8 AM Friday January 18 [today]"), not a
+  // parseable datetime — pass those through as-is instead of "NaNd ago".
   const d = new Date(when.replace(" ", "T"));
+  if (isNaN(d.getTime())) return when;
   const diff = Math.max(0, Math.floor((Date.now() - d.getTime()) / 1000));
   if (diff < 60) return "just now";
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
@@ -369,7 +373,7 @@ function NotifRow(props: {
           </p>
           <div class="flex items-center gap-1.5 mt-0.5">
             <Show when={props.n.when}>
-              <p class="text-[10px] text-muted">{when()}</p>
+              <p class="text-[0.625rem] text-muted">{when()}</p>
             </Show>
           </div>
         </div>
@@ -479,7 +483,7 @@ function StreamSection(props: {
           </Show>
           <Show when={props.bucket.count > 0}>
             <span
-              class="text-[10px] font-bold bg-accent text-accent-fg rounded-full
+              class="text-[0.625rem] font-bold bg-accent text-accent-fg rounded-full
                          px-1.5 py-0.5 min-w-[18px] text-center leading-none"
             >
               {props.bucket.count > 99 ? "99+" : props.bucket.count}
@@ -515,7 +519,7 @@ function StreamSection(props: {
             <Show
               when={notifications().length > 0}
               fallback={
-                <p class="text-[11px] text-muted text-center py-3">
+                <p class="text-[0.6875rem] text-muted text-center py-3">
                   {t("ui.nothing_new")}
                 </p>
               }
@@ -571,7 +575,7 @@ function NoticeRow(props: {
           <span class="font-semibold">{props.entry.author_name} </span>
           <span>{decodeHtmlEntities(props.entry.summary)}</span>
         </p>
-        <p class="text-[10px] text-muted mt-0.5">
+        <p class="text-[0.625rem] text-muted mt-0.5">
           {relativeTime(props.entry.created)}
         </p>
       </div>
@@ -603,7 +607,7 @@ function NoticesSection(props: {
           </div>
         </Show>
         <Show when={!entries.loading && entries.error}>
-          <div class="flex flex-col items-center gap-1 py-3 text-[11px] text-muted">
+          <div class="flex flex-col items-center gap-1 py-3 text-[0.6875rem] text-muted">
             <span>{entries.error?.message}</span>
             <button
               onClick={() => refetch()}
@@ -617,7 +621,7 @@ function NoticesSection(props: {
           <Show
             when={(entries() ?? []).length > 0}
             fallback={
-              <p class="text-[11px] text-muted text-center py-3">
+              <p class="text-[0.6875rem] text-muted text-center py-3">
                 {t("hq.no_messages")}
               </p>
             }
@@ -633,7 +637,7 @@ function NoticesSection(props: {
         </Show>
       </div>
       <div class="border-t border-rim py-1.5 text-center bg-surface">
-        <a href="/notifications" class="text-[11px] text-accent hover:underline">
+        <a href="/notifications" class="text-[0.6875rem] text-accent hover:underline">
           {t("hq.view_all")}
         </a>
       </div>
@@ -686,7 +690,7 @@ function AnnouncementsSection(props: {
           <Show
             when={props.list.length > 0}
             fallback={
-              <p class="text-[11px] text-muted text-center py-3">
+              <p class="text-[0.6875rem] text-muted text-center py-3">
                 {t("widgets.no_announcements")}
               </p>
             }
@@ -702,7 +706,7 @@ function AnnouncementsSection(props: {
                       <Show when={props.isAdmin}>
                         <button
                           onClick={() => props.onDelete(a.id)}
-                          class="shrink-0 text-[10px] text-muted hover:text-txt"
+                          class="shrink-0 text-[0.625rem] text-muted hover:text-txt"
                         >
                           {t("widgets.delete_announcement")}
                         </button>
@@ -711,7 +715,7 @@ function AnnouncementsSection(props: {
                     <Show when={a.body}>
                       <p class="text-xs text-muted mt-0.5 whitespace-pre-wrap">{a.body}</p>
                     </Show>
-                    <p class="text-[10px] text-subtle mt-1">{fmtDate(a.created)}</p>
+                    <p class="text-[0.625rem] text-subtle mt-1">{fmtDate(a.created)}</p>
                   </div>
                 )}
               </For>
@@ -1276,7 +1280,7 @@ export default function NotificationsAside() {
             notices().length === 0
           }
         >
-          <p class="flex items-center justify-center gap-1.5 py-1.5 text-[11px] text-subtle">
+          <p class="flex items-center justify-center gap-1.5 py-1.5 text-[0.6875rem] text-subtle">
             <MdFillNotifications class="w-3.5 h-3.5 shrink-0" />
             {t("ui.no_notifications")}
           </p>

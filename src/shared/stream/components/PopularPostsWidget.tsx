@@ -124,7 +124,7 @@ function PopularPostRow(props: {
           {/* Rank badge */}
           <span
             class="shrink-0 w-5 h-5 rounded-full flex items-center justify-center
-                   text-[10px] font-bold mt-0.5 transition-colors"
+                   text-[0.625rem] font-bold mt-0.5 transition-colors"
             classList={{
               "bg-accent text-accent-fg": props.rank === 1,
               "bg-elevated text-muted": props.rank !== 1,
@@ -146,7 +146,7 @@ function PopularPostRow(props: {
                 when={p.authorAvatar}
                 fallback={
                   <div class="w-4 h-4 rounded-full bg-accent-muted shrink-0
-                              flex items-center justify-center text-[8px] text-accent font-bold">
+                              flex items-center justify-center text-[0.5rem] text-accent font-bold">
                     {p.authorName?.[0]?.toUpperCase() ?? "?"}
                   </div>
                 }

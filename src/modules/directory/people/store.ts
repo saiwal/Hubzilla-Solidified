@@ -13,6 +13,7 @@ const [loadingMore, setLoadingMore] = createSignal(false);
 const [hasMore, setHasMore] = createSignal(false);
 const [total, setTotal] = createSignal(0);
 const [error, setError] = createSignal<string | null>(null);
+const [isDirectoryAdmin, setIsDirectoryAdmin] = createSignal(false);
 
 let currentParams: DirectoryParams = {};
 let currentStart = 0;
@@ -29,6 +30,7 @@ export async function loadDirectory(params: DirectoryParams = {}) {
     const data = await fetchDirectory({ ...params, start: 0 });
     setEntries(data.entries);
     setTotal(data.meta.total);
+    setIsDirectoryAdmin(data.meta.is_directory_admin);
     currentStart = data.entries.length;
     setHasMore(data.entries.length >= data.meta.limit);
   } catch (err) {
@@ -70,4 +72,8 @@ export function resetDirectory() {
   currentParams = {};
 }
 
-export { entries, loading, loadingMore, hasMore, total, error };
+export function setEntryCensored(hash: string, censored: number) {
+  setEntries((prev) => prev.map((e) => (e.hash === hash ? { ...e, censored } : e)));
+}
+
+export { entries, loading, loadingMore, hasMore, total, error, isDirectoryAdmin };

@@ -139,7 +139,7 @@ export default function UpcomingEventsWidget() {
                   classList={{ "bg-accent-muted": !ev.calendarColor }}
                 >
                   <span
-                    class="text-[9px] font-bold uppercase tracking-wide leading-none"
+                    class="text-[0.5625rem] font-bold uppercase tracking-wide leading-none"
                     classList={{ "text-accent": !ev.calendarColor }}
                   >
                     {fmtMonth(ev.start)}

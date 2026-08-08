@@ -299,11 +299,11 @@ export default function ConnectionEditorModal(props: Props) {
                   </datalist>
                   {/* Labels aligned to slider thumb positions (mx-[8px] ≈ half thumb inset) */}
                   <div class="relative h-4 mt-0.5 mx-[8px]">
-                    <span class="absolute left-0 text-[10px] text-muted leading-none">{t("connection.aff_me")}</span>
-                    <span class="absolute left-[25%] -translate-x-1/2 text-[10px] text-muted leading-none">{t("connection.aff_family")}</span>
-                    <span class="absolute left-1/2 -translate-x-1/2 text-[10px] text-muted leading-none">{t("connection.aff_friends")}</span>
-                    <span class="absolute left-[75%] -translate-x-1/2 text-[10px] text-muted leading-none">{t("connection.aff_acquaintances")}</span>
-                    <span class="absolute right-0 text-[10px] text-muted leading-none">{t("connection.aff_all")}</span>
+                    <span class="absolute left-0 text-[0.625rem] text-muted leading-none">{t("connection.aff_me")}</span>
+                    <span class="absolute left-[25%] -translate-x-1/2 text-[0.625rem] text-muted leading-none">{t("connection.aff_family")}</span>
+                    <span class="absolute left-1/2 -translate-x-1/2 text-[0.625rem] text-muted leading-none">{t("connection.aff_friends")}</span>
+                    <span class="absolute left-[75%] -translate-x-1/2 text-[0.625rem] text-muted leading-none">{t("connection.aff_acquaintances")}</span>
+                    <span class="absolute right-0 text-[0.625rem] text-muted leading-none">{t("connection.aff_all")}</span>
                   </div>
                 </div>
 
@@ -408,13 +408,13 @@ export default function ConnectionEditorModal(props: Props) {
                     <table class="w-full text-xs">
                       <thead class="sticky top-0 bg-surface z-10">
                         <tr class="border-b border-rim">
-                          <th class="text-left px-4 py-2.5 font-semibold text-muted uppercase tracking-wide text-[10px]">
+                          <th class="text-left px-4 py-2.5 font-semibold text-muted uppercase tracking-wide text-[0.625rem]">
                             Permission
                           </th>
-                          <th class="px-3 py-2.5 text-center font-semibold text-muted uppercase tracking-wide text-[10px] w-16">
+                          <th class="px-3 py-2.5 text-center font-semibold text-muted uppercase tracking-wide text-[0.625rem] w-16">
                             {t("connection.perms_their")}
                           </th>
-                          <th class="px-3 py-2.5 text-center font-semibold text-muted uppercase tracking-wide text-[10px] w-16">
+                          <th class="px-3 py-2.5 text-center font-semibold text-muted uppercase tracking-wide text-[0.625rem] w-16">
                             {t("connection.perms_my")}
                           </th>
                         </tr>
@@ -468,7 +468,7 @@ export default function ConnectionEditorModal(props: Props) {
                              placeholder:text-muted focus:outline-none hover:border-rim-strong
                              focus:border-rim-strong transition-colors resize-y font-mono"
                     />
-                    <p class="text-[10px] text-muted mt-1">{t("connection.filter_incl_hint")}</p>
+                    <p class="text-[0.625rem] text-muted mt-1">{t("connection.filter_incl_hint")}</p>
                   </div>
                   <div>
                     <label class="block text-xs font-semibold text-muted uppercase tracking-wide mb-1">
@@ -482,7 +482,7 @@ export default function ConnectionEditorModal(props: Props) {
                              placeholder:text-muted focus:outline-none hover:border-rim-strong
                              focus:border-rim-strong transition-colors resize-y font-mono"
                     />
-                    <p class="text-[10px] text-muted mt-1">{t("connection.filter_excl_hint")}</p>
+                    <p class="text-[0.625rem] text-muted mt-1">{t("connection.filter_excl_hint")}</p>
                   </div>
                 </div>
               </Show>
@@ -527,7 +527,7 @@ export default function ConnectionEditorModal(props: Props) {
                 {refreshing() ? t("connection.refreshing") : t("connection.refresh_perms")}
               </button>
               <Show when={refreshFailed()}>
-                <span class="text-[11px] text-red-500">{t("connection.refresh_error")}</span>
+                <span class="text-[0.6875rem] text-red-500">{t("connection.refresh_error")}</span>
               </Show>
             </Show>
 

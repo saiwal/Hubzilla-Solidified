@@ -24,6 +24,12 @@ export interface CalEvent {
     avatar: string;
     url: string;
   };
+  /** Native (channel-calendar) events only, and only for the channel owner — audience detail for edit pre-population. */
+  scope?: "public" | "private" | "custom";
+  contactAllow?: string[];
+  groupAllow?: string[];
+  contactDeny?: string[];
+  groupDeny?: string[];
 }
 
 export interface CalRange {
@@ -61,6 +67,14 @@ export interface CreateEventInput {
   end?: string;
   allDay?: boolean;
   nofinish?: boolean;
+  /** Browser-resolved IANA zone (e.g. "America/New_York") — display/export metadata only. */
+  timezone?: string;
+  /** Audience — channel-calendar (native) events only, ignored for CalDAV targets. */
+  scope?: "public" | "connections" | "private" | "custom";
+  contact_allow?: string[];
+  group_allow?: string[];
+  contact_deny?: string[];
+  group_deny?: string[];
   /** CalDAV calendar target. Omit (or use "channel_calendar") for the channel event table. */
   calendarId?: number;
   calendarInstanceId?: number;
@@ -95,6 +109,14 @@ export interface EditEventInput {
   end?: string;
   allDay?: boolean;
   nofinish?: boolean;
+  /** Browser-resolved IANA zone (e.g. "America/New_York") — display/export metadata only. */
+  timezone?: string;
+  /** Audience — channel-calendar (native) events only, ignored for CalDAV targets. */
+  scope?: "public" | "connections" | "private" | "custom";
+  contact_allow?: string[];
+  group_allow?: string[];
+  contact_deny?: string[];
+  group_deny?: string[];
   /** For CalDAV events — identifies the target object */
   calendarId?: number;
   uri?: string;

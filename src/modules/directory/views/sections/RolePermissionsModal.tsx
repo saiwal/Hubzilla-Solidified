@@ -113,7 +113,7 @@ export default function RolePermissionsModal(props: Props) {
                       <label for={`perm-${perm.key}`} class="flex-1 min-w-0 cursor-pointer">
                         <div class="text-sm text-txt leading-snug">{perm.label}</div>
                         <Show when={perm.inherited}>
-                          <div class="text-[10px] text-muted mt-0.5">
+                          <div class="text-[0.625rem] text-red-500 mt-0.5">
                             {t("directory.role_perms_inherited")}
                           </div>
                         </Show>

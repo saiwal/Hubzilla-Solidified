@@ -33,7 +33,7 @@ const LanguageSwitcher = () => {
             style={floatStyle()}
             class="z-50 w-44 bg-surface border border-rim rounded-lg shadow-lg overflow-hidden"
           >
-            <div class="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted border-b border-rim">
+            <div class="px-3 py-1.5 text-[0.625rem] font-semibold uppercase tracking-widest text-muted border-b border-rim">
               {t("ui.language")}
             </div>
             <div class="py-1">

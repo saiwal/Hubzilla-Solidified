@@ -7,6 +7,7 @@ import { initWidgetLayout } from "./widget-layout";
 import { initWidgetTemplates } from "./widget-templates";
 import { initNavOrder } from "./nav-order";
 import { initNsfwWords } from "./nsfw-settings";
+import { initDisabledFrontendModules } from "./disabled-frontend-modules";
 import { THEMES, type ThemeId } from "../types/theme.types";
 
 export type AuthState = {
@@ -99,6 +100,7 @@ async function fetchAuthState(): Promise<AuthState> {
   initWidgetLayout(isLocal ? data.spa?.widget_layout : undefined);
   initWidgetTemplates(isLocal ? data.spa?.widget_templates : undefined);
   initNavOrder(isLocal ? data.spa?.nav_order : undefined);
+  initDisabledFrontendModules(isLocal ? data.spa?.disabled_frontend_modules : undefined);
   initNsfwWords(isLocal ? data.nsfw?.words : undefined);
 
   return {

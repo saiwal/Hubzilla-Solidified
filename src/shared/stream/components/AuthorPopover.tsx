@@ -336,7 +336,7 @@ export default function AuthorPopover(props: Props) {
                   </Show>
                   <Show when={badge()}>
                     {(b) => (
-                      <span class={`inline-block mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold leading-none ${b().cls}`}>
+                      <span class={`inline-block mt-1.5 px-2 py-0.5 rounded-full text-[0.625rem] font-semibold leading-none ${b().cls}`}>
                         {b().label}
                       </span>
                     )}
@@ -355,12 +355,12 @@ export default function AuthorPopover(props: Props) {
                   return (
                     <div class="mt-2 pt-2 border-t border-rim/50 flex flex-wrap gap-x-3 gap-y-0.5">
                       <Show when={conn.connected}>
-                        <span class="text-[10px] text-muted">
+                        <span class="text-[0.625rem] text-muted">
                           {t("ui.connected_since")} {new Date(conn.connected + "Z").toLocaleDateString(locale(), { year: "numeric", month: "short" })}
                         </span>
                       </Show>
                       <Show when={conn.role}>
-                        <span class="text-[10px] text-muted capitalize">{conn.role}</span>
+                        <span class="text-[0.625rem] text-muted capitalize">{conn.role}</span>
                       </Show>
                     </div>
                   );
@@ -472,7 +472,7 @@ export default function AuthorPopover(props: Props) {
                 <button
                   onClick={handleSiteBlock}
                   disabled={siteBlockState() !== "idle"}
-                  class="w-full flex items-center justify-center gap-1.5 text-[11px] font-medium
+                  class="w-full flex items-center justify-center gap-1.5 text-[0.6875rem] font-medium
                          text-red-500/80 hover:text-red-500 transition-colors disabled:cursor-default"
                 >
                   <Show when={siteBlockState() !== "loading"} fallback={<span class="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />}>
@@ -486,7 +486,7 @@ export default function AuthorPopover(props: Props) {
             {/* Expiry picker — shown after clicking the chat icon */}
             <Show when={chatPanelOpen() && chatroomsInstalled()}>
               <div class="px-3 pb-3 border-t border-rim/50 pt-2 space-y-2">
-                <p class="text-[11px] text-muted">{t("chat.expire_after")}</p>
+                <p class="text-[0.6875rem] text-muted">{t("chat.expire_after")}</p>
                 <div class="flex gap-1.5 flex-wrap items-center">
                   {([
                     [0,     "Never"],
@@ -538,7 +538,7 @@ export default function AuthorPopover(props: Props) {
                     onChange={(e) => setSendInvite(e.currentTarget.checked)}
                     class="accent-accent w-3.5 h-3.5 cursor-pointer"
                   />
-                  <span class="text-[11px] text-muted">Notify {props.name}</span>
+                  <span class="text-[0.6875rem] text-muted">Notify {props.name}</span>
                 </label>
                 <button
                   onClick={handleStartChat}

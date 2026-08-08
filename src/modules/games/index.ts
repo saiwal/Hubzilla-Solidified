@@ -17,6 +17,9 @@ registerModule({
     icon: "games",
     hidden: false,
   },
+  frontendFeature: {
+    label: () => useI18n().t("nav.games"),
+  },
 });
 
 export {};

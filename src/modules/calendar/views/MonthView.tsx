@@ -71,7 +71,7 @@ export default function MonthView(props: Props) {
                         <For each={dayEvs().slice(0, 2)}>
                           {(ev) => (
                             <div
-                              class="text-[10px] leading-[18px] rounded px-1 mb-0.5 font-medium truncate"
+                              class="text-[0.625rem] leading-[18px] rounded px-1 mb-0.5 font-medium truncate"
                               style={ev.calendarColor
                                 ? { background: ev.calendarColor + "33", color: ev.calendarColor }
                                 : undefined}
@@ -82,7 +82,7 @@ export default function MonthView(props: Props) {
                           )}
                         </For>
                         <Show when={dayEvs().length > 2}>
-                          <span class="text-[10px] text-muted pl-1">+{dayEvs().length - 2} more</span>
+                          <span class="text-[0.625rem] text-muted pl-1">+{dayEvs().length - 2} more</span>
                         </Show>
                       </div>
                     );
@@ -105,7 +105,7 @@ export default function MonthView(props: Props) {
                             const color = span.event.calendarColor;
                             return (
                               <div
-                                class={`absolute top-0.5 bottom-0.5 text-[10px] leading-[18px] font-medium px-1
+                                class={`absolute top-0.5 bottom-0.5 text-[0.625rem] leading-[18px] font-medium px-1
                                   truncate pointer-events-auto cursor-pointer
                                   ${span.startsBefore ? "" : "rounded-l"} ${span.endsAfter ? "" : "rounded-r"}`}
                                 style={{

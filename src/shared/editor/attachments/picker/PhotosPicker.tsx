@@ -85,7 +85,7 @@ const PhotosPicker: Component<Props> = (props) => {
                       </div>
                       <div class="px-2 py-1.5 text-left">
                         <p class="text-xs font-medium text-txt truncate">{album.album}</p>
-                        <p class="text-[10px] text-muted">{t("editor.photo_count", { count: album.total })}</p>
+                        <p class="text-[0.625rem] text-muted">{t("editor.photo_count", { count: album.total })}</p>
                       </div>
                     </button>
                   )}

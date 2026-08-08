@@ -41,7 +41,7 @@ function AccessBadge(props: { access: number }) {
   const rw = () => props.access === 3;
   return (
     <span
-      class={`text-[9px] font-bold px-1 py-0.5 rounded leading-none
+      class={`text-[0.5625rem] font-bold px-1 py-0.5 rounded leading-none
         ${rw() ? "bg-accent text-accent-fg" : "bg-elevated text-muted"}`}
     >
       {rw() ? t("calendar.rw_badge") : t("calendar.read_badge")}
@@ -648,12 +648,13 @@ function ImportSection(props: {
         fd.append("userfile", file);
         fd.append("target", targetId);
         fd.append("c_upload", "c_upload");
-        await fetch("/cdav/calendar", {
+        const res = await fetch("/cdav/calendar", {
           method: "POST",
           credentials: "include",
           headers: { "X-CSRF-Token": token },
           body: fd,
         });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         toast.success(t("calendar.import_success") as string);
       }
 

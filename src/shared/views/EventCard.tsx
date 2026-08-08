@@ -15,7 +15,7 @@ export default function EventCard(props: { event: EventData }) {
 			{/* Calendar icon column */}
 			<div class="shrink-0 flex flex-col items-center justify-start w-12">
 				<div class="w-12 rounded-lg overflow-hidden border border-accent/40 text-center">
-					<div class="bg-accent text-accent-fg text-[10px] font-semibold uppercase py-0.5 tracking-wide">
+					<div class="bg-accent text-accent-fg text-[0.625rem] font-semibold uppercase py-0.5 tracking-wide">
 						{new Date(e.start.replace(" ", "T") + "Z")
 							.toLocaleString("default", { month: "short" })}
 					</div>

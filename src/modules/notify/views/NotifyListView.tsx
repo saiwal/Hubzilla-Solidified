@@ -36,7 +36,11 @@ function toRelativePath(href?: string): string {
 
 function relativeTime(when?: string): string {
   if (!when) return "";
+  // Enotify::format_all_events() sends `when` as an already human-formatted
+  // string ("8 AM Friday January 18 [today]"), not a parseable datetime —
+  // pass those through as-is instead of "NaNd ago".
   const d = new Date(when.replace(" ", "T"));
+  if (isNaN(d.getTime())) return when;
   const diff = Math.max(0, Math.floor((Date.now() - d.getTime()) / 1000));
   if (diff < 60) return "just now";
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;

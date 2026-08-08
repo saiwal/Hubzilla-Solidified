@@ -30,7 +30,7 @@ function Stamp(props: { post: ThreadNode; handlers: StreamHandlers }) {
   const canInteract = () => auth()?.isLoggedIn === true;
   const { locale } = useI18n();
   return (
-    <div class="flex items-center gap-2 mt-2 text-[11px] text-neutral-500" onClick={(e) => e.stopPropagation()}>
+    <div class="flex items-center gap-2 mt-2 text-[0.6875rem] text-neutral-500" onClick={(e) => e.stopPropagation()}>
       <span class="font-semibold text-neutral-700 truncate">{p.authorName}</span>
       <span class="shrink-0">· {formatPostDate(p.created, locale())}</span>
       <span class="ml-auto flex items-center gap-2 shrink-0">
@@ -92,7 +92,7 @@ function StickyNote(props: { post: ThreadNode; rotate: string; color: string; ha
           <MdFillPush_pin size={13} />
         </span>
       </Show>
-      <p class="font-serif italic text-[15px] leading-snug text-neutral-800 line-clamp-6">
+      <p class="font-serif italic text-[0.9375rem] leading-snug text-neutral-800 line-clamp-6">
         {props.post.title || excerptOf(props.post, 220)}
       </p>
       <Stamp post={props.post} handlers={props.handlers} />

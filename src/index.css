@@ -17,6 +17,11 @@
 /* Enable class-based dark mode */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Collapses multi-column layouts back to one column once the user's font-size
+   setting (typography.ts) makes columns too narrow to hold their text next
+   to a control without overlap — independent of viewport width. */
+@custom-variant font-scaled (&:where([data-font-size="large"] *, [data-font-size="xl"] *));
+
 /* ── Plyr theme integration ─────────────────────────────────────── */
 :root {
   --plyr-color-main: var(--color-accent);

@@ -88,7 +88,7 @@ export default function ContactCardWidget() {
           </Show>
 
           <Show when={profile()!.is_remote}>
-            <span class="inline-flex items-center gap-1 mt-2 px-2 py-0.5 text-[10px] rounded-full bg-elevated text-muted border border-rim">
+            <span class="inline-flex items-center gap-1 mt-2 px-2 py-0.5 text-[0.625rem] rounded-full bg-elevated text-muted border border-rim">
               <MdFillPublic size={10} /> {t("channel.remote_channel")}
             </span>
           </Show>
@@ -125,7 +125,7 @@ export default function ContactCardWidget() {
             <div class="flex flex-wrap gap-1 mt-3">
               <For each={profile()!.keywords.slice(0, 8)}>
                 {(kw) => (
-                  <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-elevated text-muted">
+                  <span class="text-[0.625rem] px-1.5 py-0.5 rounded-full bg-elevated text-muted">
                     {kw}
                   </span>
                 )}
@@ -133,31 +133,30 @@ export default function ContactCardWidget() {
             </div>
           </Show>
 
-          <Show when={viewerRole() !== "owner" && viewerRole() !== "anonymous"}>
-            <div class="mt-3 pt-3 border-t border-rim flex gap-3">
-              <a href={`/channel/${profile()!.channel_address}`} class="text-xs text-accent hover:underline">
-                {t("ui.view_channel")}
-              </a>
-              <Show when={!profile()!.is_connected && profile()!.connect_url}>
+          <Show
+            when={
+              (viewerRole() !== "owner" && viewerRole() !== "anonymous" && !profile()!.is_connected && profile()!.connect_url) ||
+              !profile()!.is_remote
+            }
+          >
+            <div class="mt-3 pt-3 border-t border-rim flex items-center gap-2">
+              <Show when={viewerRole() !== "owner" && viewerRole() !== "anonymous" && !profile()!.is_connected && profile()!.connect_url}>
                 <button
                   onClick={handleConnect}
                   disabled={connecting()}
-                  class="text-xs text-accent hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="text-[0.625rem] px-2.5 py-1 rounded-full bg-accent text-accent-fg font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
                 >
                   {connecting() ? t("directory.connecting") : t("ui.connect")}
                 </button>
               </Show>
-            </div>
-          </Show>
-
-          <Show when={!profile()!.is_remote}>
-            <div class="mt-3 flex justify-end">
-              <A
-                href={`/profile/${profile()!.channel_address}`}
-                class="text-xs text-muted hover:text-accent transition-colors"
-              >
-                {t("channel.more_details")} →
-              </A>
+              <Show when={!profile()!.is_remote}>
+                <A
+                  href={`/profile/${profile()!.channel_address}`}
+                  class="text-[0.625rem] px-2.5 py-1 rounded-full bg-elevated text-muted border border-rim hover:text-accent hover:border-accent transition-colors"
+                >
+                  {t("channel.more_details")}
+                </A>
+              </Show>
             </div>
           </Show>
         </div>

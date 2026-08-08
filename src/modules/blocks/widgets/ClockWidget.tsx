@@ -154,7 +154,7 @@ export default function ClockWidget(props: WidgetProps) {
                   <span class="text-sm font-semibold tabular-nums text-txt">
                     {zoneTime(zone.timezone)}
                     <Show when={zoneDayOffset(zone.timezone)}>
-                      <sup class="ml-0.5 text-[10px] text-muted">{zoneDayOffset(zone.timezone)}</sup>
+                      <sup class="ml-0.5 text-[0.625rem] text-muted">{zoneDayOffset(zone.timezone)}</sup>
                     </Show>
                   </span>
                 </li>

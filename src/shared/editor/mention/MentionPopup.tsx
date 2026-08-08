@@ -73,7 +73,7 @@ const MentionPopup: Component<MentionPopupProps> = (props) => {
                 <span class="text-xs font-medium truncate text-txt leading-tight">
                   {entry.name}
                 </span>
-                <span class="text-[10px] text-muted truncate leading-tight">
+                <span class="text-[0.625rem] text-muted truncate leading-tight">
                   @{entry.addr}
                 </span>
               </span>

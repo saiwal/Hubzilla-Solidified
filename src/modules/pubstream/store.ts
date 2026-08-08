@@ -139,3 +139,9 @@ export function optimisticRepeat(mid: string): void {
   );
   rebuildThreads(posts());
 }
+
+/** Remove a deleted post (and rebuild its thread) from the local view. */
+export function removePost(mid: string): void {
+  setPosts((prev) => prev.filter((p) => p.mid !== mid && p.uuid !== mid));
+  rebuildThreads(posts());
+}

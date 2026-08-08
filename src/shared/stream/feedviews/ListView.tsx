@@ -89,7 +89,7 @@ function VoteGutter(props: { post: ThreadNode; handlers: StreamHandlers }) {
       </Show>
 
       <span
-        class="text-[11px] font-bold tabular-nums leading-none"
+        class="text-[0.6875rem] font-bold tabular-nums leading-none"
         classList={{
           "text-accent": score() > 0,
           "text-muted": score() === 0,
@@ -148,7 +148,7 @@ function RowDetails(props: {
       <Show when={!p.flags?.includes("private") && canInteract()}>
         <button
           onClick={() => props.handlers.onRepeat(p.mid)}
-          class="flex items-center gap-1 text-[11px] px-2 py-1 rounded-md transition-colors"
+          class="flex items-center gap-1 text-[0.6875rem] px-2 py-1 rounded-md transition-colors"
           classList={{
             "text-accent bg-accent-muted": p.viewerRepeated,
             "text-muted hover:text-txt hover:bg-elevated": !p.viewerRepeated,
@@ -176,7 +176,7 @@ function RowDetails(props: {
 
       <button
         onClick={() => props.onReplies()}
-        class="flex items-center gap-1 text-[11px] px-2 py-1 rounded-md transition-colors"
+        class="flex items-center gap-1 text-[0.6875rem] px-2 py-1 rounded-md transition-colors"
         classList={{
           "text-accent bg-accent-muted": props.repliesActive,
           "text-muted hover:text-txt hover:bg-elevated": !props.repliesActive,
@@ -204,7 +204,7 @@ function RowDetails(props: {
       <Show when={p.via}>
         <a
           href={p.via!.url}
-          class="flex items-center gap-1 text-[11px] px-2 py-1 rounded-md
+          class="flex items-center gap-1 text-[0.6875rem] px-2 py-1 rounded-md
                  text-muted hover:text-txt hover:bg-elevated transition-colors min-w-0"
         >
           <svg
@@ -230,7 +230,7 @@ function RowDetails(props: {
           href={p.permalink}
           target="_blank"
           rel="noopener noreferrer"
-          class="flex items-center gap-1 text-[11px] px-2 py-1 rounded-md
+          class="flex items-center gap-1 text-[0.6875rem] px-2 py-1 rounded-md
                  text-muted hover:text-txt hover:bg-elevated transition-colors"
         >
           <svg
@@ -318,7 +318,7 @@ function ListRow(props: {
         >
           <div class="flex items-center gap-1.5 min-w-0">
             <Show when={p.flags.includes("unseen")}>
-              <span class="shrink-0 inline-flex px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-accent text-accent-fg leading-none">
+              <span class="shrink-0 inline-flex px-1.5 py-0.5 rounded-full text-[0.625rem] font-bold bg-accent text-accent-fg leading-none">
                 New
               </span>
             </Show>
@@ -347,7 +347,7 @@ function ListRow(props: {
               </Show>
               <Show when={isFlatReply()}>
                 <span
-                  class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-accent-muted/40 text-muted leading-none"
+                  class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[0.625rem] font-bold bg-accent-muted/40 text-muted leading-none"
                   title={t("post.reply_indicator")}
                 >
                   <MdOutlineReply size={11} />
@@ -356,7 +356,7 @@ function ListRow(props: {
               </Show>
               <Show when={isExpired()}>
                 <span
-                  class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-muted/30 text-muted leading-none"
+                  class="px-1.5 py-0.5 rounded-full text-[0.625rem] font-bold bg-muted/30 text-muted leading-none"
                   title={t("post.expired_title")}
                 >
                   {t("post.expired_badge")}
@@ -364,7 +364,7 @@ function ListRow(props: {
               </Show>
               <Show when={isExpiring()}>
                 <span
-                  class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 leading-none"
+                  class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[0.625rem] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 leading-none"
                   title={expiresTitle()}
                 >
                   <MdOutlineTimer size={11} />
@@ -373,7 +373,7 @@ function ListRow(props: {
               </Show>
               <Show when={isScheduled()}>
                 <span
-                  class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/15 text-sky-600 dark:text-sky-400 leading-none"
+                  class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[0.625rem] font-bold bg-sky-500/15 text-sky-600 dark:text-sky-400 leading-none"
                   title={scheduledTitle()}
                 >
                   <MdOutlineSchedule size={11} />
@@ -399,7 +399,7 @@ function ListRow(props: {
             <Show
               when={p.authorAvatar}
               fallback={
-                <div class="w-4 h-4 rounded-full bg-accent-muted text-accent flex items-center justify-center text-[9px] font-bold shrink-0 uppercase">
+                <div class="w-4 h-4 rounded-full bg-accent-muted text-accent flex items-center justify-center text-[0.5625rem] font-bold shrink-0 uppercase">
                   {p.authorName?.[0] ?? "?"}
                 </div>
               }
@@ -410,12 +410,12 @@ function ListRow(props: {
                 class="w-4 h-4 rounded-full object-cover shrink-0"
               />
             </Show>
-            <span class="text-[11px] text-muted font-medium truncate">
+            <span class="text-[0.6875rem] text-muted font-medium truncate">
               {p.authorName}
             </span>
-            <span class="text-[11px] text-muted/50">·</span>
+            <span class="text-[0.6875rem] text-muted/50">·</span>
             <span
-              class="text-[11px] text-muted whitespace-nowrap"
+              class="text-[0.6875rem] text-muted whitespace-nowrap"
               title={new Date(p.created + "Z").toLocaleString(locale())}
             >
               {formatPostDate(p.created, locale())}
@@ -424,7 +424,7 @@ function ListRow(props: {
 
           <DmRecipients
             recipients={isDirectMessage() ? p.recipients : undefined}
-            class="text-[11px] text-muted truncate"
+            class="text-[0.6875rem] text-muted truncate"
           />
         </div>
 
@@ -463,7 +463,7 @@ function MessageRow(props: {
       <Show
         when={props.msg.authorAvatar}
         fallback={
-          <div class="w-6 h-6 rounded-full bg-accent-muted text-accent flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5 uppercase">
+          <div class="w-6 h-6 rounded-full bg-accent-muted text-accent flex items-center justify-center text-[0.625rem] font-bold shrink-0 mt-0.5 uppercase">
             {props.msg.authorName?.[0] ?? "?"}
           </div>
         }
@@ -476,11 +476,11 @@ function MessageRow(props: {
       </Show>
       <div class="flex-1 min-w-0">
         <div class="flex items-baseline gap-1.5 mb-0.5">
-          <span class="text-[11px] font-semibold text-txt">
+          <span class="text-[0.6875rem] font-semibold text-txt">
             {props.msg.authorName}
           </span>
           <span
-            class="text-[10px] text-muted"
+            class="text-[0.625rem] text-muted"
             title={new Date(props.msg.created + "Z").toLocaleString(
               props.locale,
             )}
@@ -496,7 +496,7 @@ function MessageRow(props: {
         <Show when={canInteract()}>
           <button
             onClick={() => props.handlers.onLike(props.msg.mid)}
-            class="mt-1 flex items-center gap-1 text-[10px] transition-colors"
+            class="mt-1 flex items-center gap-1 text-[0.625rem] transition-colors"
             classList={{
               "text-accent": props.msg.viewerLiked,
               "text-subtle hover:text-accent": !props.msg.viewerLiked,
@@ -709,7 +709,7 @@ function InboxRow(props: {
         >
           <div class="flex items-center gap-1.5">
             <Show when={isUnseen()}>
-              <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-accent text-accent-fg leading-none shrink-0">
+              <span class="px-1.5 py-0.5 rounded-full text-[0.625rem] font-bold bg-accent text-accent-fg leading-none shrink-0">
                 New
               </span>
             </Show>
@@ -746,7 +746,7 @@ function InboxRow(props: {
             </Show>
             <Show when={isFlatReply()}>
               <span
-                class="ml-auto flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-accent-muted/40 text-muted leading-none shrink-0"
+                class="ml-auto flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[0.625rem] font-bold bg-accent-muted/40 text-muted leading-none shrink-0"
                 title={t("post.reply_indicator")}
               >
                 <MdOutlineReply size={11} />
@@ -772,7 +772,7 @@ function InboxRow(props: {
                     <Show
                       when={node?.authorAvatar}
                       fallback={
-                        <div class="w-4 h-4 rounded-full ring-1 ring-base bg-accent-muted text-accent flex items-center justify-center text-[9px] font-bold uppercase shrink-0">
+                        <div class="w-4 h-4 rounded-full ring-1 ring-base bg-accent-muted text-accent flex items-center justify-center text-[0.5625rem] font-bold uppercase shrink-0">
                           {name?.[0]}
                         </div>
                       }
@@ -788,19 +788,19 @@ function InboxRow(props: {
               </For>
             </div>
 
-            <span class="text-[11px] text-muted font-medium truncate max-w-[160px]">
+            <span class="text-[0.6875rem] text-muted font-medium truncate max-w-[160px]">
               {participants().slice(0, 2).join(", ")}
             </span>
             <Show when={participants().length > 2}>
-              <span class="text-[11px] text-muted">
+              <span class="text-[0.6875rem] text-muted">
                 +{participants().length - 2}
               </span>
             </Show>
 
-            <span class="text-[11px] text-muted/50">·</span>
+            <span class="text-[0.6875rem] text-muted/50">·</span>
 
             <span
-              class="text-[11px] text-muted whitespace-nowrap"
+              class="text-[0.6875rem] text-muted whitespace-nowrap"
               title={new Date(p.created + "Z").toLocaleString(locale())}
             >
               {formatPostDate(p.created, locale())}
@@ -824,7 +824,7 @@ function InboxRow(props: {
 
           <DmRecipients
             recipients={isDirectMessage() ? p.recipients : undefined}
-            class="text-[11px] text-muted truncate"
+            class="text-[0.6875rem] text-muted truncate"
           />
         </div>
 

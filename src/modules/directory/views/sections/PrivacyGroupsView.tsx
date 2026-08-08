@@ -21,6 +21,8 @@ import {
   MdFillStar,
   MdFillStar_border,
   MdFillClose,
+  MdFillExpand_more,
+  MdFillExpand_less,
 } from "solid-icons/md";
 import SubPageContent from "@/shared/views/SubPageContent";
 import {
@@ -31,7 +33,8 @@ import {
   deleteGroup,
   updateGroup,
 } from "../../groups/store";
-import type { PrivacyGroup } from "../../groups/api";
+import { fetchGroup } from "../../groups/api";
+import type { PrivacyGroup, GroupContact } from "../../groups/api";
 
 // ── Inline create form ────────────────────────────────────────────────────────
 
@@ -99,6 +102,9 @@ const CreateForm: Component<{ onDone: () => void }> = (props) => {
 const GroupRow: Component<{ group: PrivacyGroup }> = (props) => {
   const { t } = useI18n();
   const [deleteBusy, setDeleteBusy] = createSignal(false);
+  const [expanded, setExpanded] = createSignal(false);
+  const [members, setMembers] = createSignal<GroupContact[] | null>(null);
+  const [membersLoading, setMembersLoading] = createSignal(false);
 
   async function handleDelete(e: Event) {
     e.preventDefault();
@@ -113,61 +119,118 @@ const GroupRow: Component<{ group: PrivacyGroup }> = (props) => {
     await updateGroup(props.group.id, { set_default_acl: !props.group.is_default_acl });
   }
 
-  return (
-    <div class="bg-surface border border-rim rounded-xl px-4 py-3 flex items-center gap-3">
-      <span class="text-accent shrink-0">
-        <MdFillGroup size={20} />
-      </span>
+  async function toggleExpanded() {
+    const next = !expanded();
+    setExpanded(next);
+    if (next && members() === null) {
+      setMembersLoading(true);
+      try {
+        const detail = await fetchGroup(props.group.id);
+        setMembers(detail.members);
+      } finally {
+        setMembersLoading(false);
+      }
+    }
+  }
 
-      {/* Name + badges */}
-      <div class="flex-1 min-w-0">
+  return (
+    <div class="bg-surface border border-rim rounded-xl px-4 py-3">
+      <div class="flex items-center gap-3">
+        <button
+          onClick={toggleExpanded}
+          title={expanded() ? t("directory.hide_members") : t("directory.view_members")}
+          class="text-muted hover:text-accent transition-colors shrink-0"
+        >
+          {expanded() ? <MdFillExpand_less size={18} /> : <MdFillExpand_more size={18} />}
+        </button>
+
+        <span class="text-accent shrink-0">
+          <MdFillGroup size={20} />
+        </span>
+
+        {/* Name + badges */}
+        <div class="flex-1 min-w-0">
+          <A
+            href={`/directory/privacy-groups/${props.group.id}`}
+            class="text-sm font-medium text-txt hover:text-accent truncate block"
+          >
+            {props.group.name}
+          </A>
+          <div class="flex items-center gap-2 mt-0.5">
+            <span class="text-xs text-muted">
+              {t("directory.member_count", { count: String(props.group.member_count) })}
+            </span>
+            <span class="flex items-center gap-1 text-xs text-muted">
+              {props.group.visible
+                ? <><MdFillVisibility size={11} />{t("directory.visible_label")}</>
+                : <><MdFillVisibility_off size={11} />{t("directory.private_label")}</>}
+            </span>
+            <Show when={props.group.is_default_group}>
+              <span class="text-xs text-accent">· {t("directory.default_group")}</span>
+            </Show>
+            <Show when={props.group.is_default_acl}>
+              <span class="text-xs text-accent">· {t("directory.default_acl")}</span>
+            </Show>
+          </div>
+        </div>
+
+        {/* Star = default ACL shortcut */}
+        <button
+          onClick={toggleDefaultAcl}
+          title={props.group.is_default_acl ? t("directory.remove_default_acl") : t("directory.set_default_acl")}
+          class="text-muted hover:text-accent transition-colors"
+        >
+          {props.group.is_default_acl
+            ? <MdFillStar size={17} class="text-accent" />
+            : <MdFillStar_border size={17} />}
+        </button>
+
         <A
           href={`/directory/privacy-groups/${props.group.id}`}
-          class="text-sm font-medium text-txt hover:text-accent truncate block"
+          class="text-xs border border-rim text-muted hover:bg-elevated rounded-lg px-3 py-1.5 transition-colors"
         >
-          {props.group.name}
+          {t("directory.edit_label")}
         </A>
-        <div class="flex items-center gap-2 mt-0.5">
-          <span class="flex items-center gap-1 text-xs text-muted">
-            {props.group.visible
-              ? <><MdFillVisibility size={11} />{t("directory.visible_label")}</>
-              : <><MdFillVisibility_off size={11} />{t("directory.private_label")}</>}
-          </span>
-          <Show when={props.group.is_default_group}>
-            <span class="text-xs text-accent">· {t("directory.default_group")}</span>
-          </Show>
-          <Show when={props.group.is_default_acl}>
-            <span class="text-xs text-accent">· {t("directory.default_acl")}</span>
-          </Show>
-        </div>
+
+        <button
+          onClick={handleDelete}
+          disabled={deleteBusy()}
+          class="text-muted hover:text-red-500 disabled:opacity-40 transition-colors"
+          title={t("directory.delete_group")}
+        >
+          <MdFillDelete size={17} />
+        </button>
       </div>
 
-      {/* Star = default ACL shortcut */}
-      <button
-        onClick={toggleDefaultAcl}
-        title={props.group.is_default_acl ? t("directory.remove_default_acl") : t("directory.set_default_acl")}
-        class="text-muted hover:text-accent transition-colors"
-      >
-        {props.group.is_default_acl
-          ? <MdFillStar size={17} class="text-accent" />
-          : <MdFillStar_border size={17} />}
-      </button>
-
-      <A
-        href={`/directory/privacy-groups/${props.group.id}`}
-        class="text-xs border border-rim text-muted hover:bg-elevated rounded-lg px-3 py-1.5 transition-colors"
-      >
-        {t("directory.edit_label")}
-      </A>
-
-      <button
-        onClick={handleDelete}
-        disabled={deleteBusy()}
-        class="text-muted hover:text-red-500 disabled:opacity-40 transition-colors"
-        title={t("directory.delete_group")}
-      >
-        <MdFillDelete size={17} />
-      </button>
+      <Show when={expanded()}>
+        <div class="mt-3 pt-3 border-t border-rim pl-9">
+          <Show
+            when={!membersLoading()}
+            fallback={<p class="text-muted text-xs">{t("directory.loading")}</p>}
+          >
+            <Show
+              when={(members() ?? []).length > 0}
+              fallback={<p class="text-muted text-xs">{t("directory.no_members")}</p>}
+            >
+              <div class="flex flex-wrap gap-2">
+                <For each={members()}>
+                  {(m) => (
+                    <span class="flex items-center gap-1.5 bg-elevated rounded-full pl-1 pr-2.5 py-1 text-xs text-txt">
+                      <img
+                        src={m.photo}
+                        alt={m.name}
+                        class="w-5 h-5 rounded-full object-cover bg-overlay"
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                      />
+                      {m.name}
+                    </span>
+                  )}
+                </For>
+              </div>
+            </Show>
+          </Show>
+        </div>
+      </Show>
     </div>
   );
 };

@@ -430,22 +430,31 @@ export default function PostCard(props: {
     return !!a && a.uid > 0 && props.post.profileUid === a.uid;
   };
 
-  // Delete: viewer must be a local user, and either the true author/owner or
-  // merely own this stream copy (see isLocalOnlyDelete for the label split).
+  // Delete: viewer must be a local user, and either the true author/owner,
+  // merely own this stream copy, or a site admin (see isLocalOnlyDelete /
+  // isAdminOnlyDelete for the label split).
   const canDelete = () => {
     if (!props.handlers.onDelete) return false;
-    return isTrueAuthor() || ownsStreamCopy();
+    return isTrueAuthor() || ownsStreamCopy() || auth()?.isAdmin === true;
   };
 
   const isLocalOnlyDelete = () => ownsStreamCopy() && !isTrueAuthor();
+  const isAdminOnlyDelete = () =>
+    !isTrueAuthor() && !ownsStreamCopy() && auth()?.isAdmin === true;
 
   const deleteLabel = () =>
-    isLocalOnlyDelete() ? t("post.remove_from_feed") : t("post.delete");
+    isAdminOnlyDelete()
+      ? t("post.admin_delete")
+      : isLocalOnlyDelete()
+        ? t("post.remove_from_feed")
+        : t("post.delete");
 
   const deleteConfirmLabel = () =>
-    isLocalOnlyDelete()
-      ? t("post.confirm_remove_from_feed")
-      : t("post.confirm_delete");
+    isAdminOnlyDelete()
+      ? t("post.confirm_admin_delete")
+      : isLocalOnlyDelete()
+        ? t("post.confirm_remove_from_feed")
+        : t("post.confirm_delete");
 
   // Moderate: this row is stuck pending approval (item_blocked = ITEM_MODERATED
   // — see Api/Handlers/Moderate.php) on a channel the viewer owns.
@@ -978,7 +987,7 @@ export default function PostCard(props: {
               fallback={
                 <div
                   class="w-6 h-6 rounded-full bg-gradient-to-br from-accent to-accent-txt
-                            shrink-0 flex items-center justify-center text-accent-fg text-[10px] font-bold cursor-pointer"
+                            shrink-0 flex items-center justify-center text-accent-fg text-[0.625rem] font-bold cursor-pointer"
                 >
                   {props.post.authorName?.[0]?.toUpperCase() ?? "?"}
                 </div>
@@ -999,7 +1008,7 @@ export default function PostCard(props: {
             }
           >
             <span
-              class="shrink-0 px-1 py-px rounded text-[10px] font-bold leading-none bg-accent text-accent-fg"
+              class="shrink-0 px-1 py-px rounded text-[0.625rem] font-bold leading-none bg-accent text-accent-fg"
               title={t("post.op_title")}
             >
               {t("post.op")}
@@ -1037,7 +1046,7 @@ export default function PostCard(props: {
           </span>
           <Show when={isExpired()}>
             <span
-              class="shrink-0 px-1 py-px rounded text-[10px] font-bold leading-none bg-muted/30 text-muted"
+              class="shrink-0 px-1 py-px rounded text-[0.625rem] font-bold leading-none bg-muted/30 text-muted"
               title={t("post.expired_title")}
             >
               {t("post.expired_badge")}
@@ -1045,7 +1054,7 @@ export default function PostCard(props: {
           </Show>
           <Show when={isExpiring()}>
             <span
-              class="flex items-center gap-0.5 shrink-0 px-1 py-px rounded text-[10px] font-medium leading-none bg-amber-500/15 text-amber-600 dark:text-amber-400"
+              class="flex items-center gap-0.5 shrink-0 px-1 py-px rounded text-[0.625rem] font-medium leading-none bg-amber-500/15 text-amber-600 dark:text-amber-400"
               title={expiresTitle()}
             >
               <MdOutlineTimer size={10} />
@@ -1054,7 +1063,7 @@ export default function PostCard(props: {
           </Show>
           <Show when={isScheduled()}>
             <span
-              class="flex items-center gap-0.5 shrink-0 px-1 py-px rounded text-[10px] font-medium leading-none bg-sky-500/15 text-sky-600 dark:text-sky-400"
+              class="flex items-center gap-0.5 shrink-0 px-1 py-px rounded text-[0.625rem] font-medium leading-none bg-sky-500/15 text-sky-600 dark:text-sky-400"
               title={scheduledTitle()}
             >
               <MdOutlineSchedule size={10} />
@@ -1065,12 +1074,12 @@ export default function PostCard(props: {
             <DmBadge />
           </Show>
           <Show when={props.post.location}>
-            <span
-              class="flex items-center gap-0.5 min-w-0 text-[10px] text-muted"
-              title={props.post.location}
-            >
+            <span class="flex items-center gap-0.5 min-w-0 text-[0.625rem] text-muted">
               <MdOutlineLocation_on size={10} class="shrink-0" />
-              <span class="truncate max-w-[8rem]">{props.post.location}</span>
+              <span
+                class="truncate max-w-[8rem] [&_a]:hover:underline"
+                innerHTML={props.post.location}
+              />
             </span>
           </Show>
         </div>
@@ -1667,18 +1676,16 @@ export default function PostCard(props: {
               {formatPostDate(props.post.created, locale())}
             </span>
             <Show when={props.post.location}>
-              <span
-                class="flex items-center gap-0.5 min-w-0 text-sm text-muted"
-                title={props.post.location}
-              >
+              <span class="flex items-center gap-0.5 min-w-0 text-sm text-muted">
                 <span class="opacity-60">·</span>
                 <MdOutlineLocation_on size={14} class="shrink-0" />
                 <Show
                   when={locationHref()}
                   fallback={
-                    <span class="truncate max-w-[12rem]">
-                      {props.post.location}
-                    </span>
+                    <span
+                      class="truncate max-w-[12rem] [&_a]:hover:underline"
+                      innerHTML={props.post.location}
+                    />
                   }
                 >
                   <a
@@ -1686,9 +1693,8 @@ export default function PostCard(props: {
                     target="_blank"
                     rel="noopener noreferrer"
                     class="truncate max-w-[12rem] hover:underline"
-                  >
-                    {props.post.location}
-                  </a>
+                    innerHTML={props.post.location}
+                  />
                 </Show>
               </span>
             </Show>
@@ -1706,7 +1712,7 @@ export default function PostCard(props: {
           </Show>
           <Show when={isFlatReply()}>
             <span
-              class="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-accent-muted/40 text-muted leading-none"
+              class="flex items-center gap-1 px-2 py-0.5 rounded-full text-[0.625rem] font-bold bg-accent-muted/40 text-muted leading-none"
               title={t("post.reply_indicator")}
             >
               <MdOutlineReply size={11} />
@@ -1715,7 +1721,7 @@ export default function PostCard(props: {
           </Show>
           <Show when={isExpired()}>
             <span
-              class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-muted/30 text-muted leading-none"
+              class="px-1.5 py-0.5 rounded-full text-[0.625rem] font-bold bg-muted/30 text-muted leading-none"
               title={t("post.expired_title")}
             >
               {t("post.expired_badge")}
@@ -1723,7 +1729,7 @@ export default function PostCard(props: {
           </Show>
           <Show when={isExpiring()}>
             <span
-              class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 leading-none"
+              class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[0.625rem] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 leading-none"
               title={expiresTitle()}
             >
               <MdOutlineTimer size={11} />
@@ -1732,7 +1738,7 @@ export default function PostCard(props: {
           </Show>
           <Show when={isScheduled()}>
             <span
-              class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/15 text-sky-600 dark:text-sky-400 leading-none"
+              class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[0.625rem] font-bold bg-sky-500/15 text-sky-600 dark:text-sky-400 leading-none"
               title={scheduledTitle()}
             >
               <MdOutlineSchedule size={11} />
@@ -1743,7 +1749,7 @@ export default function PostCard(props: {
             <DmBadge size="md" />
           </Show>
           <Show when={isUnseen()}>
-            <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-accent text-accent-fg leading-none">
+            <span class="px-1.5 py-0.5 rounded-full text-[0.625rem] font-bold bg-accent text-accent-fg leading-none">
               {t("post.new_badge")}
             </span>
           </Show>
@@ -2390,7 +2396,7 @@ function StatActorChip(props: { actor: StatActor }) {
       <Show
         when={props.actor.avatar}
         fallback={
-          <div class="w-5 h-5 rounded-full bg-gradient-to-br from-accent to-accent-txt shrink-0 flex items-center justify-center text-accent-fg text-[9px] font-bold">
+          <div class="w-5 h-5 rounded-full bg-gradient-to-br from-accent to-accent-txt shrink-0 flex items-center justify-center text-accent-fg text-[0.5625rem] font-bold">
             {props.actor.name?.[0]?.toUpperCase() ?? "?"}
           </div>
         }
@@ -2471,7 +2477,7 @@ function PostStats(props: {
                 >
                   {t.label}
                   <span
-                    class={`ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold
+                    class={`ml-1.5 px-1.5 py-0.5 rounded-full text-[0.625rem] font-bold
                     ${tab() === t.key ? "bg-accent text-accent-fg" : "bg-overlay text-muted"}`}
                   >
                     {t.count}

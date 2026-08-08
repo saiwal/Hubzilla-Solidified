@@ -10,6 +10,7 @@ export interface PrivacyGroup {
   visible: boolean;
   is_default_acl: boolean;
   is_default_group: boolean;
+  member_count: number;
 }
 
 export interface GroupContact {

@@ -102,7 +102,7 @@ const AttachmentPreview: Component<Props> = (props) => {
       </div>
 
       {/* Filename */}
-      <span class="text-[10px] text-muted leading-tight line-clamp-2 w-full break-all">
+      <span class="text-[0.625rem] text-muted leading-tight line-clamp-2 w-full break-all">
         {a().filename}
       </span>
 
@@ -113,7 +113,7 @@ const AttachmentPreview: Component<Props> = (props) => {
           onClick={openAlt}
           title={hasAlt() ? `Alt: ${a().altText}` : t("editor.add_alt_text")}
           class={
-            "text-[10px] px-1.5 py-0.5 rounded w-full truncate transition-colors " +
+            "text-[0.625rem] px-1.5 py-0.5 rounded w-full truncate transition-colors " +
             (hasAlt()
               ? "bg-green-500/15 text-green-600 dark:text-green-400 hover:bg-green-500/25"
               : "bg-elevated text-muted hover:text-txt hover:bg-surface border border-rim")
@@ -129,7 +129,7 @@ const AttachmentPreview: Component<Props> = (props) => {
           type="button"
           title={t("editor.insert_into_editor")}
           onClick={() => props.onInsert!(props.insertBBCode(a().id))}
-          class="text-[10px] px-1.5 py-0.5 rounded bg-accent/20 text-accent hover:bg-accent/30 transition-colors w-full truncate"
+          class="text-[0.625rem] px-1.5 py-0.5 rounded bg-accent/20 text-accent hover:bg-accent/30 transition-colors w-full truncate"
         >
           {t("editor.insert_btn")}
         </button>
@@ -170,7 +170,7 @@ const AttachmentPreview: Component<Props> = (props) => {
               </button>
             </div>
 
-            <p class="text-[11px] text-muted leading-snug">
+            <p class="text-[0.6875rem] text-muted leading-snug">
               {t("editor.alt_text_desc")}
             </p>
 
@@ -214,7 +214,7 @@ function FileIcon(props: { filename: string }) {
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
           d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
       </svg>
-      <span class="text-[9px] font-mono uppercase">{ext()}</span>
+      <span class="text-[0.5625rem] font-mono uppercase">{ext()}</span>
     </div>
   );
 }

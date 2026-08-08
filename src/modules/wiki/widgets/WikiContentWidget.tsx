@@ -185,7 +185,7 @@ export default function WikiContentWidget() {
         {/* Column headers + list */}
         <Show when={!wikisLoading() && !wikisError() && wikis().length > 0}>
           <div class="border-t border-rim" />
-          <div class="flex items-center gap-3 px-3 text-[10px] font-semibold uppercase tracking-wide text-muted select-none">
+          <div class="flex items-center gap-3 px-3 text-[0.625rem] font-semibold uppercase tracking-wide text-muted select-none">
             <button
               onClick={() => toggleSort("name")}
               class={`flex-1 flex items-center gap-0.5 text-left transition-colors hover:text-txt ${

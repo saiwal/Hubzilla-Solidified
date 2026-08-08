@@ -91,7 +91,7 @@ export default function AppearanceStep(props: {
                     <span class="w-3 h-3 rounded-full bg-accent" />
                     <span class="w-3 h-3 rounded-full bg-elevated border border-rim" />
                   </div>
-                  <span class="block text-[10px] text-txt truncate">{th.label}</span>
+                  <span class="block text-[0.625rem] text-txt truncate">{th.label}</span>
                   <Show when={selected()}>
                     <div class="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-accent text-accent-fg flex items-center justify-center">
                       <MdFillCheck class="w-2.5 h-2.5" />

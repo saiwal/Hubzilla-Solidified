@@ -261,7 +261,7 @@ export default function ChanView() {
                       <p class="text-xs text-muted mt-0.5 italic">{xdata().pdesc}</p>
                     </Show>
                     <Show when={b}>
-                      <span class={`inline-block mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold leading-none ${b!.cls}`}>
+                      <span class={`inline-block mt-1.5 px-2 py-0.5 rounded-full text-[0.625rem] font-semibold leading-none ${b!.cls}`}>
                         {b!.label}
                       </span>
                     </Show>

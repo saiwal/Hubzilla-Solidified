@@ -24,7 +24,7 @@ export default function SuggestSection() {
       </Show>
 
       <Show when={loading()}>
-        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="grid gap-3 grid-cols-[repeat(auto-fit,minmax(17rem,1fr))]">
           <For each={Array(12).fill(0)}>{() => <CardSkeleton />}</For>
         </div>
       </Show>
@@ -34,7 +34,7 @@ export default function SuggestSection() {
           when={entries().length > 0}
           fallback={<p class="py-12 text-center text-muted">{t("directory.no_suggestions")}</p>}
         >
-          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="grid gap-3 grid-cols-[repeat(auto-fit,minmax(17rem,1fr))]">
             <For each={entries()}>
               {(entry) => <DirectoryCard entry={entry} onSelect={setSelected} />}
             </For>
@@ -54,7 +54,7 @@ export default function SuggestSection() {
         </Show>
 
         <Show when={loadingMore()}>
-          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div class="grid gap-3 grid-cols-[repeat(auto-fit,minmax(17rem,1fr))]">
             <For each={Array(6).fill(0)}>{() => <CardSkeleton />}</For>
           </div>
         </Show>

@@ -134,24 +134,24 @@ function ChannelCard(props: {
       {/* Identity */}
       <div class="min-w-0 w-40 shrink-0">
         <p class="text-sm font-medium text-txt leading-tight truncate">{ch.channel_name}</p>
-        <p class="text-[11px] text-muted font-mono truncate">@{ch.channel_address}</p>
+        <p class="text-[0.6875rem] text-muted font-mono truncate">@{ch.channel_address}</p>
       </div>
 
       {/* Badges + dates */}
       <div class="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
         <Show when={ch.blocked}>
-          <span class="px-1.5 py-0.5 text-[10px] font-medium rounded-full shrink-0
+          <span class="px-1.5 py-0.5 text-[0.625rem] font-medium rounded-full shrink-0
                        bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
             Censored
           </span>
         </Show>
         <Show when={ch.allowcode}>
-          <span class="px-1.5 py-0.5 text-[10px] font-medium rounded-full shrink-0
+          <span class="px-1.5 py-0.5 text-[0.625rem] font-medium rounded-full shrink-0
                        bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
             Code
           </span>
         </Show>
-        <span class="text-[11px] text-muted hidden sm:block truncate">
+        <span class="text-[0.6875rem] text-muted hidden sm:block truncate">
           Created {fmtDate(ch.channel_created)}
         </span>
       </div>

@@ -131,6 +131,12 @@ export const directory: RawDictionary["directory"] = {
   no_connections_found: "कोई कनेक्शन नहीं मिला।",
   add_to_group:         "समूह में जोड़ें",
   remove_from_group:    "समूह से हटाएँ",
+  // PrivacyGroupsView member preview
+  view_members:         "सदस्य देखें",
+  hide_members:         "सदस्य छुपाएँ",
+  member_count:         "{{count}} सदस्य",
+  no_members:           "इस समूह में कोई सदस्य नहीं।",
+  loading:              "लोड हो रहा है…",
   // DirectoryFiltersWidget
   filters:              "फ़िल्टर",
   filter_network:       "नेटवर्क",
@@ -140,4 +146,9 @@ export const directory: RawDictionary["directory"] = {
   network_all:          "सभी नेटवर्क",
   network_zot6:         "Hubzilla / Streams",
   network_activitypub:  "ActivityPub",
+  // DirectoryCard moderation (site admin)
+  unsafe:               "असुरक्षित",
+  spam:                 "स्पैम",
+  mark_unsafe:          "इस प्रविष्टि को डायरेक्टरी में असुरक्षित के रूप में चिह्नित करें",
+  mark_spam:            "इस प्रविष्टि को स्पैम के रूप में चिह्नित करें और इसे डायरेक्टरी से छिपाएँ",
 };

@@ -41,7 +41,7 @@ const editButtonClass =
 // movable widget" and the other means "this is a slot boundary."
 export const SlotRegionBox: Component<{ label: string; children: JSX.Element }> = (props) => (
   <div>
-    <p class="text-[10px] font-semibold uppercase tracking-widest text-muted mb-1.5">
+    <p class="text-[0.625rem] font-semibold uppercase tracking-widest text-muted mb-1.5">
       {props.label}
     </p>
     <div class="rounded-xl border border-dashed border-rim p-2 bg-accent-muted flex flex-col gap-4">

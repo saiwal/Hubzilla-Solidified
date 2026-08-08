@@ -113,6 +113,14 @@ export interface ModuleDef {
   permissions?: string[];
   /** Hubzilla app name (e.g. "Photos"). If set, module only renders when this app is installed. */
   appName?: string;
+  /** Marks a module as a pure-frontend feature with no backing Hubzilla app.
+   * Shows up as a toggleable entry in Settings → Integrations and is gated the
+   * same way as appName-gated modules (isModuleActive/ModuleGuard/Slot), keyed
+   * off a pconfig list instead of the installed-apps set. */
+  frontendFeature?: {
+    label: string | (() => string);
+    description?: string | (() => string);
+  };
   /** true = only rendered for authenticated users; anonymous visitors are redirected to /login. */
   requiresAuth?: boolean;
   /** Reactive accessor for the layout-template id assigned to the item

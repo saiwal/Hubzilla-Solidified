@@ -139,7 +139,7 @@ const FilesPicker: Component<Props> = (props) => {
                     <FileTypeIcon filetype={item.filetype} filename={item.filename} isPhoto={item.is_photo} />
                     <span class="flex-1 min-w-0">
                       <span class="text-sm text-txt truncate block">{item.filename}</span>
-                      <span class="text-[10px] text-muted">
+                      <span class="text-[0.625rem] text-muted">
                         {formatBytes(item.filesize)}
                         {item.edited ? ` · ${new Date(item.edited).toLocaleDateString()}` : ""}
                       </span>
@@ -199,7 +199,7 @@ function FileTypeIcon(props: { filetype: string; filename: string; isPhoto: bool
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
           d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
       </svg>
-      <span class="text-[8px] font-mono leading-none -mt-1">{ext()}</span>
+      <span class="text-[0.5rem] font-mono leading-none -mt-1">{ext()}</span>
     </div>
   );
 }

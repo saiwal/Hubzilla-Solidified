@@ -18,6 +18,7 @@ import { getRoutes, getSpaExclusiveNavItems, getModule, moduleIdForPath } from "
 import { useI18n } from "@/i18n";
 import { useViewerRole } from "../store/site-config";
 import { applyNavItemOrder } from "../store/nav-order";
+import { disabledFrontendModules } from "../store/disabled-frontend-modules";
 import type { ViewerRole } from "../store/site-config";
 
 type ActionMeta = {
@@ -199,7 +200,7 @@ export function useNav(subjectNick: () => string): () => NavItemDef[] {
       );
 
       // SPA-exclusive modules (no appName) opt in with hidden: false
-      for (const item of getSpaExclusiveNavItems()) {
+      for (const item of getSpaExclusiveNavItems(disabledFrontendModules())) {
         if (item.hidden === false && visibleForOwner(item.context)) items.push(item);
       }
 

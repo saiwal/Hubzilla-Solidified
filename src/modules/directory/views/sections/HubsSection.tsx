@@ -174,7 +174,7 @@ export default function PubsitesView() {
 
       {/* Loading */}
       <Show when={sites.loading}>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div class="grid gap-3 grid-cols-[repeat(auto-fit,minmax(17rem,1fr))]">
           <For each={Array(9).fill(0)}>{() => <SkeletonCard />}</For>
         </div>
       </Show>
@@ -189,7 +189,7 @@ export default function PubsitesView() {
 
       {/* Grid */}
       <Show when={!sites.loading && filtered().length > 0}>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div class="grid gap-3 grid-cols-[repeat(auto-fit,minmax(17rem,1fr))]">
           <For each={filtered()}>{(site) => <HubCard site={site} />}</For>
         </div>
       </Show>

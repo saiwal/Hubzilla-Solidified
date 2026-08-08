@@ -15,7 +15,7 @@ import MonthView from "../views/MonthView";
 import WeekView from "../views/WeekView";
 import DayView from "../views/DayView";
 import ListView from "../views/ListView";
-import { isoDateStr, startOfWeek, addDays } from "../views/calUtils";
+import { isoDateStr, startOfWeek, addDays, eventOnDay } from "../views/calUtils";
 
 type ViewType = "month" | "week" | "day" | "list";
 
@@ -99,9 +99,7 @@ export default function CalendarContentWidget() {
   const activeDayEvs = createMemo<CalEvent[]>(() => {
     const d = activeDay();
     if (!d) return [];
-    return events().filter(ev =>
-      ev.start.slice(0, 10) <= d && (ev.end ?? ev.start).slice(0, 10) >= d
-    );
+    return events().filter(ev => eventOnDay(ev, d));
   });
 
   const VIEWS: { key: ViewType; label: () => string }[] = [

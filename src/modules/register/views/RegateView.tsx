@@ -51,7 +51,7 @@ export default function RegateView() {
         <div class="mb-6 text-center">
           <div
             class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-txt mb-4
-                   text-[11px] font-bold select-none"
+                   text-[0.6875rem] font-bold select-none"
             style="color: var(--color-surface)"
           >
             Hz

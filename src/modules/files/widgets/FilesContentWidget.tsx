@@ -380,7 +380,7 @@ const ThumbnailGrid: Component<{
             <div class="px-2 py-1.5 border-t border-rim/50 bg-elevated">
               <p class="text-xs font-medium text-txt truncate">{item.filename}</p>
               <Show when={!item.is_dir}>
-                <p class="text-[10px] text-muted">{formatSize(item.filesize)}</p>
+                <p class="text-[0.625rem] text-muted">{formatSize(item.filesize)}</p>
               </Show>
             </div>
 
@@ -406,7 +406,7 @@ const ThumbnailGrid: Component<{
             {/* Private badge */}
             <Show when={isPrivate(item.acl)}>
               <div class="absolute bottom-8 left-1.5 flex items-center gap-0.5
-                          bg-surface/80 backdrop-blur-sm text-accent text-[9px]
+                          bg-surface/80 backdrop-blur-sm text-accent text-[0.5625rem]
                           px-1.5 py-0.5 rounded-full">
                 <MdFillLock size={9} />
                 Restricted
@@ -662,7 +662,7 @@ export default function FilesContentWidget() {
                   >
                     {label}
                     <Show when={sortField() === field}>
-                      <span class="text-[10px] leading-none">
+                      <span class="text-[0.625rem] leading-none">
                         {sortDir() === "asc" ? "↑" : "↓"}
                       </span>
                     </Show>
@@ -743,7 +743,7 @@ export default function FilesContentWidget() {
       {/* ── Column labels (list mode only) ── */}
       <Show when={viewMode() === "list"}>
         <div class="border-t border-rim" />
-        <div class="flex items-center gap-3 px-3 text-[10px] font-semibold uppercase tracking-wide text-muted select-none">
+        <div class="flex items-center gap-3 px-3 text-[0.625rem] font-semibold uppercase tracking-wide text-muted select-none">
           <span class="w-6 shrink-0" />
           {/* Sortable: Name */}
           <button

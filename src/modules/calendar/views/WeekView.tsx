@@ -78,7 +78,7 @@ export default function WeekView(props: Props) {
                   hover:bg-elevated transition-colors ${isToday ? "bg-accent-muted/30" : ""}`}
                 onClick={() => props.onDayClick(date)}
               >
-                <div class="text-[10px] font-medium text-muted uppercase">
+                <div class="text-[0.625rem] font-medium text-muted uppercase">
                   {d.toLocaleDateString(undefined, { weekday: "short" })}
                 </div>
                 <div
@@ -99,7 +99,7 @@ export default function WeekView(props: Props) {
           class="border-b border-rim shrink-0"
           style={{ "grid-template-columns": `${TIME_W}px 1fr`, display: "grid" }}
         >
-          <div class="border-r border-rim text-[10px] text-muted flex items-center justify-end pr-2">
+          <div class="border-r border-rim text-[0.625rem] text-muted flex items-center justify-end pr-2">
             all‑day
           </div>
           <div
@@ -118,7 +118,7 @@ export default function WeekView(props: Props) {
                       const color = span.event.calendarColor;
                       return (
                         <div
-                          class={`absolute h-full text-[10px] leading-[20px] font-medium px-1 truncate
+                          class={`absolute h-full text-[0.625rem] leading-[20px] font-medium px-1 truncate
                             cursor-pointer ${span.startsBefore ? "" : "rounded-l"} ${span.endsAfter ? "" : "rounded-r"}`}
                           style={{
                             left: span.startsBefore ? "0" : `calc(${span.startCol * pct}% + 2px)`,
@@ -155,7 +155,7 @@ export default function WeekView(props: Props) {
             <For each={HOURS}>
               {(h) => (
                 <div
-                  class="absolute right-2 text-[10px] text-muted leading-none"
+                  class="absolute right-2 text-[0.625rem] text-muted leading-none"
                   style={{ top: `${h * HOUR_H - 6}px` }}
                 >
                   {h > 0 ? `${h}:00` : ""}
@@ -211,7 +211,7 @@ export default function WeekView(props: Props) {
                       return (
                         <div
                           data-ev
-                          class="absolute rounded overflow-hidden px-1 py-0.5 text-[10px] font-medium
+                          class="absolute rounded overflow-hidden px-1 py-0.5 text-[0.625rem] font-medium
                             cursor-pointer leading-snug"
                           style={{
                             top: `${top}px`,

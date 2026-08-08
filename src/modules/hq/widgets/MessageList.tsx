@@ -311,14 +311,14 @@ const MessageItem: Component<{
           <div class="flex items-baseline justify-between gap-2">
             <div class="flex items-center gap-1 min-w-0">
               <span
-                class={`text-[13px] truncate leading-snug ${
+                class={`text-[0.8125rem] truncate leading-snug ${
                   isAnyUnseen() ? "font-semibold text-txt" : "font-medium text-txt"
                 }`}
               >
                 {e.author_name}
               </span>
             </div>
-            <time class="text-[10px] text-muted shrink-0 tabular-nums">
+            <time class="text-[0.625rem] text-muted shrink-0 tabular-nums">
               {timeAgo(e.created)}
             </time>
           </div>
@@ -331,7 +331,7 @@ const MessageItem: Component<{
             <div class="flex flex-wrap gap-1 mt-0.5">
               <For each={parseFolderNames(e.info)}>
                 {(name) => (
-                  <span class="inline-flex items-center gap-1 py-0.5 rounded-md italic text-[10px] text-muted font-medium">
+                  <span class="inline-flex items-center gap-1 py-0.5 rounded-md italic text-[0.625rem] text-muted font-medium">
                     <span class="truncate max-w-[200px]">{name}</span>
                   </span>
                 )}
@@ -345,7 +345,7 @@ const MessageItem: Component<{
             no replies yet — the backend has no reply count to give us). */}
         <Show when={isAnyUnseen()}>
           <span
-            class="absolute bottom-1.5 right-2.5 min-w-[1.1rem] h-4 rounded-full text-[9px] font-bold
+            class="absolute bottom-1.5 right-2.5 min-w-[1.1rem] h-4 rounded-full text-[0.5625rem] font-bold
               flex items-center justify-center px-1 tabular-nums
               bg-accent text-surface"
           >
@@ -375,11 +375,11 @@ const SkeletonRow: Component = () => (
 
 const GroupHeader: Component<{ label: string; count: number }> = (props) => (
   <div class="sticky top-0 z-10 bg-surface px-3.5 py-1 flex items-center gap-2 border-b border-rim">
-    <span class="text-[10px] font-semibold uppercase tracking-widest text-muted">
+    <span class="text-[0.625rem] font-semibold uppercase tracking-widest text-muted">
       {props.label}
     </span>
     <div class="flex-1 h-px bg-rim" />
-    <span class="text-[10px] text-muted tabular-nums">{props.count}</span>
+    <span class="text-[0.625rem] text-muted tabular-nums">{props.count}</span>
   </div>
 );
 

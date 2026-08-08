@@ -56,6 +56,7 @@ export const FONT_FAMILY_IDS = Object.keys(FONT_FAMILIES) as FontFamily[];
 /** Apply font settings to CSS only — does NOT touch localStorage. */
 export function applyTypographyCSS(size: FontSize, family: FontFamily): void {
   document.documentElement.style.fontSize = FONT_SIZES[size] ?? FONT_SIZES.medium;
+  document.documentElement.dataset.fontSize = size;
   document.documentElement.style.setProperty(
     "--hz-font-family",
     FONT_FAMILIES[family] ?? FONT_FAMILIES.system,

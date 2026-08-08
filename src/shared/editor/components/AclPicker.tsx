@@ -278,14 +278,14 @@ const AclPicker: Component<AclPickerProps> = (props) => {
 
           {/* Legend */}
           <div class="flex items-center gap-4 px-3 py-1.5 border-b border-rim shrink-0">
-            <span class="text-[10px] text-muted">
+            <span class="text-[0.625rem] text-muted">
               {t("editor.acl_legend")}
             </span>
-            <span class="flex items-center gap-1 text-[10px] text-green-600 dark:text-green-400 ml-auto">
+            <span class="flex items-center gap-1 text-[0.625rem] text-green-600 dark:text-green-400 ml-auto">
               <span class="w-2 h-2 rounded-full bg-green-400 inline-block" />{" "}
               {t("editor.acl_allowed")}
             </span>
-            <span class="flex items-center gap-1 text-[10px] text-red-500 dark:text-red-400">
+            <span class="flex items-center gap-1 text-[0.625rem] text-red-500 dark:text-red-400">
               <span class="w-2 h-2 rounded-full bg-red-400 inline-block" />{" "}
               {t("editor.acl_denied")}
             </span>
@@ -341,7 +341,7 @@ const AclPicker: Component<AclPickerProps> = (props) => {
                           {c.name}
                         </span>
                         <Show when={c.link}>
-                          <span class="truncate text-[10px] text-muted">
+                          <span class="truncate text-[0.625rem] text-muted">
                             {c.link}
                           </span>
                         </Show>

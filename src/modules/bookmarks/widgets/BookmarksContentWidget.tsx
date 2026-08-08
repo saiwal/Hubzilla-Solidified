@@ -97,7 +97,7 @@ export default function BookmarksContentWidget() {
                   <div class="flex items-center gap-3 px-4 py-3 hover:bg-elevated group transition-colors">
                     {/* Chat badge */}
                     <Show when={item.is_chat}>
-                      <span class="shrink-0 text-[10px] font-medium px-1.5 py-0.5 rounded
+                      <span class="shrink-0 text-[0.625rem] font-medium px-1.5 py-0.5 rounded
                                    bg-accent/10 text-accent border border-accent/20">
                         {t("bookmarks.chat_badge")}
                       </span>
@@ -115,7 +115,7 @@ export default function BookmarksContentWidget() {
                     <div class="flex items-center gap-1 shrink-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => visit(item.url)}
-                        class="text-[10px] px-2 py-0.5 rounded border border-rim text-muted
+                        class="text-[0.625rem] px-2 py-0.5 rounded border border-rim text-muted
                                hover:text-txt hover:border-rim-strong transition-colors"
                       >
                         {t("bookmarks.visit")}

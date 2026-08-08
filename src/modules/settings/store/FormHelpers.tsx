@@ -65,7 +65,9 @@ export const inputClass = `w-full px-3 py-2 rounded-lg border border-rim bg-surf
 
 /**
  * Card-style settings group: icon chip + title + one-line description header,
- * rows below. `columns` splits the rows into two columns on md+ screens.
+ * rows below. `columns` splits the rows into two columns on md+ screens,
+ * collapsing back to one column at "large"/"xl" font-size settings so row
+ * labels don't overlap the toggle (see `font-scaled` variant in index.css).
  */
 export function Group(props: {
   icon: JSX.Element;
@@ -85,7 +87,7 @@ export function Group(props: {
           <p class="text-xs text-muted">{props.desc}</p>
         </span>
       </header>
-      <div class={"px-4 py-1.5" + (props.columns ? " md:grid md:grid-cols-2 md:gap-x-10" : "")}>
+      <div class={"px-4 py-1.5" + (props.columns ? " md:grid md:grid-cols-2 md:gap-x-10 font-scaled:grid-cols-1!" : "")}>
         {props.children}
       </div>
     </section>

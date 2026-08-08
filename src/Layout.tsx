@@ -871,7 +871,7 @@ const Layout: ParentComponent = (props) => {
                   <span
                     class="absolute -top-2 -right-1.5 min-w-[14px] h-[14px] px-[3px]
                            rounded-full bg-accent text-accent-fg
-                           text-[9px] font-bold leading-[14px] text-center
+                           text-[0.5625rem] font-bold leading-[14px] text-center
                            pointer-events-none select-none"
                   >
                     {notifCount() > 99 ? "99+" : notifCount()}
@@ -904,7 +904,7 @@ const Layout: ParentComponent = (props) => {
                 <span
                   class="absolute top-0 right-0 translate-x-3/2 -translate-y-3/2 min-w-[14px] h-[14px] px-[3px]
                          rounded-full bg-accent text-accent-fg
-                         text-[9px] font-bold leading-[14px] text-center
+                         text-[0.5625rem] font-bold leading-[14px] text-center
                          pointer-events-none select-none"
                 >
                   {notifCount() > 99 ? "99+" : notifCount()}

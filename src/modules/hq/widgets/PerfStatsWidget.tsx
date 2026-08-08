@@ -174,12 +174,12 @@ function PerfStatsPanelInner() {
               <For each={graphs}>
                 {(g) => (
                   <div class="bg-elevated rounded-lg px-2.5 pt-2 pb-1.5 min-w-0 border border-rim">
-                    <p class="text-[11px] text-muted truncate mb-0.5">{g.label}</p>
+                    <p class="text-[0.6875rem] text-muted truncate mb-0.5">{g.label}</p>
                     <p class="text-lg font-medium text-txt tabular-nums leading-tight">{g.value}</p>
                     <div class="mt-1 h-7">
                       <Show
                         when={g.data.length > 1}
-                        fallback={<p class="text-[11px] text-muted leading-7">collecting…</p>}
+                        fallback={<p class="text-[0.6875rem] text-muted leading-7">collecting…</p>}
                       >
                         <Sparkline data={g.data} color={g.color} />
                       </Show>

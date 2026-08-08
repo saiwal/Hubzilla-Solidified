@@ -2,7 +2,7 @@ import { createSignal, Show, For, onMount, onCleanup } from "solid-js";
 import { createQueryResource } from "@/shared/lib/createQueryResource";
 import { toast } from "@/shared/store/toast";
 import { createEvent, editEvent } from "../api";
-import type { CalEvent } from "../api";
+import type { CalEvent, CreateEventInput } from "../api";
 import { fetchCdavCalendars } from "../api/cdav";
 import { useI18n } from "@/i18n";
 import RichEditor from "@/shared/editor/core/RichEditor";
@@ -11,6 +11,9 @@ import AttachmentBar from "@/shared/editor/attachments/AttachmentBar";
 import { createAttachmentStore } from "@/shared/editor/attachments/useAttachments";
 import { bbcodeToInsert, patchInsertedAlt } from "@/shared/editor/attachments/insertHelpers";
 import { currentNick } from "@/shared/store/auth-store";
+import AclPicker, { aclModeToScope } from "@/shared/editor/components/AclPicker";
+import { useAclState, splitAclEntries } from "@/shared/editor/components/useAclState";
+import { prevDay, nextDay } from "../views/calUtils";
 
 interface Props {
   onClose: () => void;
@@ -55,7 +58,14 @@ export default function EventCreatorModal(props: Props) {
   const [startDate, setStartDate] = createSignal(ev ? isoToDate(ev.start, ev.allDay) : (props.defaultDate ?? todayDate()));
   const [startTime, setStartTime] = createSignal(ev && !ev.allDay ? isoToTime(ev.start) : "09:00");
   const [nofinish, setNofinish] = createSignal(ev?.nofinish ?? false);
-  const [endDate, setEndDate] = createSignal(ev?.end ? isoToDate(ev.end, ev.allDay) : (props.defaultDate ?? todayDate()));
+  // Stored dtend for all-day events is exclusive (end date + 1 day, matching
+  // classic Hubzilla) — shift back a day so the picker shows the last
+  // inclusive day the user actually picked.
+  const [endDate, setEndDate] = createSignal(
+    ev?.end
+      ? (ev.allDay ? prevDay(isoToDate(ev.end, true)) : isoToDate(ev.end, false))
+      : (props.defaultDate ?? todayDate())
+  );
   const [endTime, setEndTime] = createSignal(ev?.end && !ev.allDay ? isoToTime(ev.end) : "10:00");
   const [location, setLocation] = createSignal(ev?.location ?? "");
   const [description, setDescription] = createSignal(ev?.description ?? "");
@@ -87,6 +97,23 @@ export default function EventCreatorModal(props: Props) {
     return opts;
   };
 
+  // Audience picker only applies to the channel calendar (native event+item
+  // rows) — CalDAV events have no ACL concept in this app.
+  const isNativeTarget = () =>
+    isEdit ? !ev?.calendarId : !calendarOptions()[selectedCalIdx()]?.calendarId;
+
+  const acl = useAclState({
+    mode: ev?.scope === "private" ? "me" : ev?.scope === "custom" ? "custom" : "public",
+    allowEntries: [
+      ...(ev?.contactAllow ?? []).map((h) => `c:${h}`),
+      ...(ev?.groupAllow ?? []).map((h) => `g:${h}`),
+    ],
+    denyEntries: [
+      ...(ev?.contactDeny ?? []).map((h) => `c:${h}`),
+      ...(ev?.groupDeny ?? []).map((h) => `g:${h}`),
+    ],
+  });
+
   let titleRef!: HTMLInputElement;
   onMount(() => titleRef?.focus());
 
@@ -110,11 +137,42 @@ export default function EventCreatorModal(props: Props) {
         ? `${startDate()}T00:00:00Z`
         : new Date(`${startDate()}T${startTime()}:00`).toISOString();
 
+      // All-day dtend is stored exclusive (end date + 1 day) — same convention
+      // classic Hubzilla's calendar (Cdav.php) uses for CalDAV and channel events.
       const endIso = !nofinish() && endDate()
         ? allDay()
-          ? `${endDate()}T00:00:00Z`
+          ? `${nextDay(endDate())}T00:00:00Z`
           : new Date(`${endDate()}T${endTime()}:00`).toISOString()
         : undefined;
+
+      if (endIso && endIso < startIso) {
+        toast.error("End time must not be before start time.");
+        setSubmitting(false);
+        return;
+      }
+
+      // Metadata only — dtstart/dtend above are already absolute UTC instants.
+      // Lets core's ical/CalDAV export tag events with the zone they were
+      // actually authored in instead of a hardcoded UTC.
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+      // Audience — only meaningful for the channel calendar (native events);
+      // CalDAV targets have no ACL concept in this app.
+      let aclPayload: Pick<CreateEventInput, "scope" | "contact_allow" | "group_allow" | "contact_deny" | "group_deny"> = {};
+      if (isNativeTarget()) {
+        if (acl.mode() === "custom" && acl.allowEntries().size === 0) {
+          throw new Error("Select at least one connection or group to allow.");
+        }
+        const allow = splitAclEntries(acl.allowEntries());
+        const deny = splitAclEntries(acl.denyEntries());
+        aclPayload = {
+          scope: aclModeToScope(acl.mode()),
+          contact_allow: allow.contactIds,
+          group_allow: allow.groupIds,
+          contact_deny: deny.contactIds,
+          group_deny: deny.groupIds,
+        };
+      }
 
       if (isEdit && ev) {
         await editEvent(ev.id, {
@@ -125,6 +183,8 @@ export default function EventCreatorModal(props: Props) {
           end: endIso,
           allDay: allDay(),
           nofinish: nofinish(),
+          timezone,
+          ...aclPayload,
           calendarId: ev.calendarId,
           uri: ev.uri,
         });
@@ -139,6 +199,8 @@ export default function EventCreatorModal(props: Props) {
           end: endIso,
           allDay: allDay(),
           nofinish: nofinish(),
+          timezone,
+          ...aclPayload,
           calendarId: selectedCal?.calendarId,
           calendarInstanceId: selectedCal?.calendarInstanceId,
         });
@@ -247,7 +309,14 @@ export default function EventCreatorModal(props: Props) {
                 type="date"
                 required
                 value={startDate()}
-                onInput={(e) => setStartDate(e.currentTarget.value)}
+                onInput={(e) => {
+                  const v = e.currentTarget.value;
+                  setStartDate(v);
+                  // Keep a stale end date (e.g. left over from the day cell
+                  // that opened this modal) from silently producing an
+                  // end-before-start event.
+                  if (endDate() < v) setEndDate(v);
+                }}
                 class={inputClass}
               />
             </div>
@@ -339,24 +408,39 @@ export default function EventCreatorModal(props: Props) {
           </div>
 
           {/* Actions */}
-          <div class="flex justify-end gap-2 pt-1">
-            <button
-              type="button"
-              onClick={props.onClose}
-              class="px-4 py-1.5 rounded-lg text-xs font-medium text-muted hover:bg-elevated hover:text-txt transition-colors"
-            >
-              {t("calendar.cancel")}
-            </button>
-            <button
-              type="submit"
-              disabled={submitting()}
-              class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-accent text-accent-fg
-                     hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
-            >
-              {submitting()
-                ? (isEdit ? t("calendar.saving") : t("calendar.creating"))
-                : (isEdit ? t("calendar.save_event") : t("calendar.create_event"))}
-            </button>
+          <div class="flex items-center gap-2 pt-1">
+            {/* Audience — channel calendar (native events) only; CalDAV
+                calendars have no ACL concept in this app. */}
+            <Show when={isNativeTarget()}>
+              <AclPicker
+                mode={acl.mode()}
+                onModeChange={acl.setMode}
+                allowEntries={acl.allowEntries()}
+                denyEntries={acl.denyEntries()}
+                onToggle={acl.toggleEntry}
+                onClear={acl.clearEntries}
+              />
+            </Show>
+
+            <div class="flex gap-2 ml-auto">
+              <button
+                type="button"
+                onClick={props.onClose}
+                class="px-4 py-1.5 rounded-lg text-xs font-medium text-muted hover:bg-elevated hover:text-txt transition-colors"
+              >
+                {t("calendar.cancel")}
+              </button>
+              <button
+                type="submit"
+                disabled={submitting()}
+                class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-accent text-accent-fg
+                       hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
+              >
+                {submitting()
+                  ? (isEdit ? t("calendar.saving") : t("calendar.creating"))
+                  : (isEdit ? t("calendar.save_event") : t("calendar.create_event"))}
+              </button>
+            </div>
           </div>
         </form>
       </div>

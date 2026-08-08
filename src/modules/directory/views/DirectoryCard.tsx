@@ -1,6 +1,8 @@
 // modules/directory/views/DirectoryCard.tsx
 import { Show, For, createSignal, type Component } from "solid-js";
-import { addConnection, type DirectoryEntry } from "../people/api";
+import { addConnection, censorEntry, type DirectoryEntry } from "../people/api";
+import { isDirectoryAdmin, setEntryCensored } from "../people/store";
+import { toast } from "@/shared/store/toast";
 import { useI18n } from "@/i18n";
 import { MdFillCheck } from "solid-icons/md";
 
@@ -14,6 +16,7 @@ const DirectoryCard: Component<Props> = (props) => {
   const e = () => props.entry;
   const blurb = () => e().description || stripTags(e().about);
   const [connectState, setConnectState] = createSignal<"idle" | "pending" | "done">("idle");
+  const [censoring, setCensoring] = createSignal(false);
   async function handleAdd() {
     if (connectState() !== "idle") return;
     setConnectState("pending");
@@ -22,6 +25,21 @@ const DirectoryCard: Component<Props> = (props) => {
       setConnectState("done");
     } catch {
       setConnectState("idle");
+    }
+  }
+
+  async function handleCensor(severity: 0 | 1 | 2) {
+    if (censoring()) return;
+    setCensoring(true);
+    const prev = e().censored;
+    try {
+      await censorEntry(e().hash, severity);
+      setEntryCensored(e().hash, severity);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Censor failed");
+      setEntryCensored(e().hash, prev);
+    } finally {
+      setCensoring(false);
     }
   }
   return (
@@ -102,9 +120,12 @@ const DirectoryCard: Component<Props> = (props) => {
         </Show>
       </div>
 
-      {/* ── Connect button — stopPropagation so it doesn't open modal ── */}
+      {/* ── Actions row — connect/ignore + (site admins only) the
+             dircensor-style Unsafe/Spam moderation toggles. flex-wrap so it
+             drops to a second line instead of overlapping at large text
+             sizes; stopPropagation so it doesn't open the modal. ── */}
       <div
-        class="flex items-center gap-2 px-4 py-3 border-t border-rim mt-auto"
+        class="flex flex-wrap items-center gap-2 px-4 py-3 border-t border-rim mt-auto"
         onClick={(ev) => ev.stopPropagation()}
       >
         <Show
@@ -124,7 +145,7 @@ const DirectoryCard: Component<Props> = (props) => {
           </button>
         </Show>
         <Show when={e().ignore_url && !e().is_connected}>
-         <a 
+         <a
             href={e().ignore_url!}
             title={t("directory.ignore")}
             class="p-1.5 rounded-lg border border-rim text-muted hover:text-txt hover:bg-overlay transition-colors"
@@ -134,6 +155,32 @@ const DirectoryCard: Component<Props> = (props) => {
                 d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
             </svg>
           </a>
+        </Show>
+        <Show when={isDirectoryAdmin()}>
+          <button
+            disabled={censoring()}
+            onClick={() => handleCensor(e().censored > 0 ? 0 : 1)}
+            title={t("directory.mark_unsafe")}
+            class={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors disabled:opacity-50 ${
+              e().censored === 1
+                ? "border-red-500 bg-red-500/15 text-red-600 dark:text-red-400"
+                : "border-red-300/60 dark:border-red-800/50 text-red-600/80 dark:text-red-400/80 hover:bg-red-500/10"
+            }`}
+          >
+            {t("directory.unsafe")}
+          </button>
+          <button
+            disabled={censoring()}
+            onClick={() => handleCensor(e().censored > 1 ? 0 : 2)}
+            title={t("directory.mark_spam")}
+            class={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors disabled:opacity-50 ${
+              e().censored > 1
+                ? "border-red-500 bg-red-500/15 text-red-600 dark:text-red-400"
+                : "border-red-300/60 dark:border-red-800/50 text-red-600/80 dark:text-red-400/80 hover:bg-red-500/10"
+            }`}
+          >
+            {t("directory.spam")}
+          </button>
         </Show>
       </div>
     </div>

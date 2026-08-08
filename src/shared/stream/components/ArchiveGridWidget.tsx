@@ -184,7 +184,7 @@ const ArchiveGridWidget: Component<ArchiveCalendarProps> = (props) => {
           <div class="grid grid-cols-7 gap-1 mb-1">
             <For each={WEEKDAY_LABELS}>
               {(label) => (
-                <div class="text-center text-[10px] font-medium text-muted">{label}</div>
+                <div class="text-center text-[0.625rem] font-medium text-muted">{label}</div>
               )}
             </For>
           </div>

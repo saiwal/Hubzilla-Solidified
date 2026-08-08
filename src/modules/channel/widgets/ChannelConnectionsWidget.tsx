@@ -61,7 +61,7 @@ export default function ChannelConnectionsWidget() {
                     alt={conn.name}
                     class="w-11 h-11 rounded-full object-cover ring-1 ring-rim group-hover:ring-2 group-hover:ring-accent transition-all"
                   />
-                  <span class="text-[10px] text-muted leading-tight text-center w-full truncate group-hover:text-txt transition-colors">
+                  <span class="text-[0.625rem] text-muted leading-tight text-center w-full truncate group-hover:text-txt transition-colors">
                     {conn.name}
                   </span>
                 </a>

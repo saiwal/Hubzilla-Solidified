@@ -17,6 +17,9 @@ registerModule({
     icon: "tools",
     hidden: false,
   },
+  frontendFeature: {
+    label: () => useI18n().t("nav.tools"),
+  },
 });
 
 export {};

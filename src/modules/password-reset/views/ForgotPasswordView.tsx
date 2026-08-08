@@ -45,7 +45,7 @@ export default function ForgotPasswordView() {
         <div class="mb-8 text-center">
           <div
             class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-txt mb-4
-                   text-[11px] font-bold text-base select-none"
+                   text-[0.6875rem] font-bold text-base select-none"
             style="color: var(--color-surface)"
           >
             Hz

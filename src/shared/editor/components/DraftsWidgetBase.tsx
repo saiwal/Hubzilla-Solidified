@@ -182,7 +182,7 @@ export default function DraftsWidgetBase(props: DraftsWidgetBaseProps) {
 
                   {/* Line 3 — badge · delete · date (right-aligned) */}
                   <div class="flex items-center justify-between mt-1.5">
-                    <span class={`shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded
+                    <span class={`shrink-0 text-[0.625rem] font-semibold px-1.5 py-0.5 rounded
                                   border leading-none select-none ${props.badgeClassName}`}>
                       {props.badgeLabel(entry.scope)}
                     </span>
@@ -208,7 +208,7 @@ export default function DraftsWidgetBase(props: DraftsWidgetBaseProps) {
                         </Show>
                       </button>
                       <span
-                        class="text-[10px] text-muted/60 tabular-nums shrink-0"
+                        class="text-[0.625rem] text-muted/60 tabular-nums shrink-0"
                         title={new Date(entry.draft.created).toLocaleString()}
                       >
                         {formatDate(entry.draft.created)}

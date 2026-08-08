@@ -53,7 +53,7 @@ export default function ArticleTeaserWidget(props: WidgetProps) {
             <div class="bg-surface border border-rim rounded-xl overflow-hidden">
               <div class="px-4 py-3">
                 <h4 class="text-sm font-semibold text-txt">{a().title}</h4>
-                <p class="text-[10px] text-muted mt-0.5">
+                <p class="text-[0.625rem] text-muted mt-0.5">
                   {new Date(a().created).toLocaleDateString()}
                 </p>
                 <p class="text-sm text-txt mt-2">{excerpt(a().summary || a().body)}</p>

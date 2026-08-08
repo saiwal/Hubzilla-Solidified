@@ -383,7 +383,7 @@ export default function RichEditor(props: Props) {
                 class="w-16 px-1.5 py-0.5 text-xs rounded border border-rim bg-elevated text-txt
                        outline-none focus:border-accent/50"
               />
-              <span class="text-[10px] text-muted">px</span>
+              <span class="text-[0.625rem] text-muted">px</span>
             </div>
             <textarea
               placeholder={t("editor.img_alt")}

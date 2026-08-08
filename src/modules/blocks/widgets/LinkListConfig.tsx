@@ -101,7 +101,7 @@ export default function LinkListConfig(props: WidgetConfigProps) {
 
       <div class="flex items-center justify-between gap-2">
         <Show when={size() > MAX_CONFIG_CHARS}>
-          <span class="text-[10px] text-muted">{t("widgets.cfg_too_large")}</span>
+          <span class="text-[0.625rem] text-muted">{t("widgets.cfg_too_large")}</span>
         </Show>
         <button
           onClick={() => props.onSave(cleanConfig())}

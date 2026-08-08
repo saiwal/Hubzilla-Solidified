@@ -44,7 +44,7 @@ export default function MenuConfig(props: WidgetConfigProps) {
         </select>
       </label>
       <Show when={!menus.loading && (menus() ?? []).length === 0}>
-        <p class="text-[10px] text-muted">{t("widgets.cfg_no_menus")}</p>
+        <p class="text-[0.625rem] text-muted">{t("widgets.cfg_no_menus")}</p>
       </Show>
 
       <label class="text-xs text-muted">

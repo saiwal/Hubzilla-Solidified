@@ -8,6 +8,7 @@ import NotFound from "@/shared/views/NotFound";
 import { getModule, isModuleActive } from "@/shared/lib/module-registry";
 import { useInstalledApps, useNavData } from "@/shared/store/nav-store";
 import { useAuth } from "@/shared/store/auth-store";
+import { disabledFrontendModules } from "@/shared/store/disabled-frontend-modules";
 import { queryClient } from "@/shared/lib/query-client";
 
 const QueryDevtools = import.meta.env.DEV
@@ -30,7 +31,9 @@ const ModuleGuard: ParentComponent<{ moduleId: string }> = (props) => {
   const installedApps = useInstalledApps();
   const navigate = useNavigate();
 
-  const active = createMemo(() => isModuleActive(props.moduleId, installedApps()));
+  const active = createMemo(() =>
+    isModuleActive(props.moduleId, installedApps(), disabledFrontendModules()),
+  );
 
   createEffect(() => {
     if (!active()) navigate("/", { replace: true });
@@ -90,7 +93,7 @@ export default function App() {
             const mod = mid ? getModule(mid) : null;
 
             let Rendered: Component = Comp;
-            if (mod?.appName) {
+            if (mod?.appName || mod?.frontendFeature) {
               const Inner = Rendered;
               Rendered = () => <ModuleGuard moduleId={mid!}><Inner /></ModuleGuard>;
             }

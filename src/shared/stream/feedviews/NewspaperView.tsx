@@ -34,7 +34,7 @@ function Byline(props: { post: ThreadNode; onOpen: () => void; handlers: StreamH
   const auth = useAuth();
   const canInteract = () => auth()?.isLoggedIn === true;
   return (
-    <div class="flex items-end justify-between gap-3 text-[11px] text-muted mt-2 font-sans">
+    <div class="flex items-end justify-between gap-3 text-[0.6875rem] text-muted mt-2 font-sans">
       <div class="leading-tight min-w-0">
         <p class="uppercase tracking-wide truncate">By <span class="font-semibold">{props.post.authorName}</span></p>
         <p title={new Date(props.post.created + "Z").toLocaleString(locale())}>
@@ -115,7 +115,7 @@ function LeadStory(props: { post: ThreadNode; onOpen: () => void; handlers: Stre
         </Show>
         <Show when={excerpt()}>
           <p
-            class="font-serif text-[15px] leading-relaxed text-txt/85
+            class="font-serif text-[0.9375rem] leading-relaxed text-txt/85
                    first-letter:float-left first-letter:font-black first-letter:text-5xl
                    first-letter:leading-[0.8] first-letter:pr-2 first-letter:pt-1"
             classList={{ "mt-3": !!props.post.title }}
@@ -172,13 +172,13 @@ function WireItem(props: { post: ThreadNode; onOpen: () => void; handlers: Strea
   return (
     <article onClick={props.onOpen} class="relative break-inside-avoid mb-5 cursor-pointer group">
       <PinRibbon post={props.post} />
-      <p class="font-mono text-[10px] tracking-widest uppercase text-subtle">
+      <p class="font-mono text-[0.625rem] tracking-widest uppercase text-subtle">
         {props.post.authorName} — {new Date(props.post.created + "Z").toLocaleDateString(locale(), { month: "short", day: "numeric" })}
       </p>
-      <h4 class="font-serif font-bold text-[15px] leading-snug text-txt group-hover:underline decoration-2 underline-offset-2 mt-0.5">
+      <h4 class="font-serif font-bold text-[0.9375rem] leading-snug text-txt group-hover:underline decoration-2 underline-offset-2 mt-0.5">
         {headlineOf(props.post)}
       </h4>
-      <p class="text-[13px] text-muted leading-relaxed line-clamp-3 mt-1 font-sans">
+      <p class="text-[0.8125rem] text-muted leading-relaxed line-clamp-3 mt-1 font-sans">
         {excerptOf(props.post, 160)}
       </p>
       <Byline post={props.post} onOpen={props.onOpen} handlers={props.handlers} />
@@ -301,7 +301,7 @@ export default function NewspaperView(props: {
             {masthead()}
           </h1>
           <div class="mt-3 border-t-4 border-double border-txt" />
-          <div class="flex items-center justify-between text-[11px] uppercase tracking-widest text-muted mt-1.5 font-sans">
+          <div class="flex items-center justify-between text-[0.6875rem] uppercase tracking-widest text-muted mt-1.5 font-sans">
             <span>{today()}</span>
             <span>Vol. I · No. {sorted().length}</span>
           </div>
@@ -337,7 +337,7 @@ export default function NewspaperView(props: {
                             <p class="text-sm font-semibold text-txt leading-snug line-clamp-2 group-hover:underline decoration-2 underline-offset-2">
                               {headlineOf(post)}
                             </p>
-                            <p class="text-[11px] text-muted mt-0.5">{formatPostDate(post.created, locale())}</p>
+                            <p class="text-[0.6875rem] text-muted mt-0.5">{formatPostDate(post.created, locale())}</p>
                           </li>
                         )}
                       </For>

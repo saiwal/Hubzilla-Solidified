@@ -48,7 +48,7 @@ function PageRow(props: {
         >
           {props.page.title || t('webpages.untitled')}
         </a>
-        <span class="text-[11px] text-muted font-mono truncate block">
+        <span class="text-[0.6875rem] text-muted font-mono truncate block">
           /{props.page.pagelink}
         </span>
       </div>
@@ -171,7 +171,7 @@ export default function WebpagesContentWidget() {
     <Show when={isList()}>
       <div class="max-w-3xl mx-auto px-4 md:px-6 pb-6 space-y-4">
         {/* Column labels */}
-        <div class="flex items-center gap-3 px-3 text-[10px] font-semibold uppercase tracking-wide text-muted select-none">
+        <div class="flex items-center gap-3 px-3 text-[0.625rem] font-semibold uppercase tracking-wide text-muted select-none">
           <span class="w-5 shrink-0" />
           <span class="flex-1">{t('webpages.col_title')}</span>
           <span class="hidden sm:block w-20 shrink-0 text-right">{t('webpages.col_visibility')}</span>

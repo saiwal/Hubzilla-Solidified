@@ -101,7 +101,7 @@ export default function HtmlBlockConfig(props: WidgetConfigProps) {
           {t("widgets.cfg_select_block")}
           <Show
             when={blockOptions().length > 0}
-            fallback={<p class="mt-1 text-[11px] text-muted">{t("widgets.cfg_no_blocks")}</p>}
+            fallback={<p class="mt-1 text-[0.6875rem] text-muted">{t("widgets.cfg_no_blocks")}</p>}
           >
             <select
               value={blockName()}
@@ -119,7 +119,7 @@ export default function HtmlBlockConfig(props: WidgetConfigProps) {
 
       <div class="flex items-center justify-between gap-2">
         <Show when={source() === "custom"} fallback={<span />}>
-          <span class="text-[10px] text-muted">
+          <span class="text-[0.625rem] text-muted">
             {t("widgets.cfg_html_hint")} ({html().length}/{MAX_HTML})
           </span>
         </Show>

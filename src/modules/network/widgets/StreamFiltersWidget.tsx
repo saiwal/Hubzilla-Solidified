@@ -106,11 +106,11 @@ function AffinitySlider(props: { min: number; max: number; onChange: (min: numbe
           />
         </div>
         <div class="relative h-4 mt-1 mx-[7px]">
-          <span class="absolute left-0 text-[10px] text-muted">{t("connection.aff_me")}</span>
-          <span class="absolute left-[25%] -translate-x-1/2 text-[10px] text-muted">{t("connection.aff_family")}</span>
-          <span class="absolute left-1/2 -translate-x-1/2 text-[10px] text-muted">{t("connection.aff_friends")}</span>
-          <span class="absolute left-[75%] -translate-x-1/2 text-[10px] text-muted">{t("connection.aff_acquaintances")}</span>
-          <span class="absolute right-0 text-[10px] text-muted">{t("connection.aff_all")}</span>
+          <span class="absolute left-0 text-[0.625rem] text-muted">{t("connection.aff_me")}</span>
+          <span class="absolute left-[25%] -translate-x-1/2 text-[0.625rem] text-muted">{t("connection.aff_family")}</span>
+          <span class="absolute left-1/2 -translate-x-1/2 text-[0.625rem] text-muted">{t("connection.aff_friends")}</span>
+          <span class="absolute left-[75%] -translate-x-1/2 text-[0.625rem] text-muted">{t("connection.aff_acquaintances")}</span>
+          <span class="absolute right-0 text-[0.625rem] text-muted">{t("connection.aff_all")}</span>
         </div>
       </div>
     </div>

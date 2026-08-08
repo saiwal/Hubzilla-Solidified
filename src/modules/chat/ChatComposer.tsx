@@ -309,7 +309,7 @@ export default function ChatComposer(props: Props) {
                   style={{ width: `${uploadPct()}%` }}
                 />
               </div>
-              <span class="text-[10px] text-muted tabular-nums">{uploadPct()}%</span>
+              <span class="text-[0.625rem] text-muted tabular-nums">{uploadPct()}%</span>
             </div>
           </Show>
         </div>

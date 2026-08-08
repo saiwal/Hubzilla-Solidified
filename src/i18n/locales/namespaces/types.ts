@@ -680,8 +680,8 @@ export type RawDictionary = {
     view_source: string; import_post: string; import: string; original: string; toggle_comments: string;
     toggle_flat: string; toggle_threaded: string; flat: string; threaded: string;
     flat_view: string; threaded_view: string; refresh: string; more_actions: string;
-    reply: string; delete_post: string; delete: string; remove_from_feed: string;
-    confirm: string; confirm_delete: string; confirm_remove_from_feed: string;
+    reply: string; delete_post: string; delete: string; remove_from_feed: string; admin_delete: string;
+    confirm: string; confirm_delete: string; confirm_remove_from_feed: string; confirm_admin_delete: string;
     op: string; op_title: string; new_badge: string;
     comments_singular: string; comments_plural: string;
     loading_comments: string; loading: string; loading_source: string;
@@ -1252,6 +1252,8 @@ export type RawDictionary = {
     integ_install:            string;
     integ_remove:             string;
     integ_busy:               string;
+    integ_frontend_title:     string;
+    integ_frontend_desc:      string;
     // Danger zone
     danger_remove_channel:   string;
     danger_remove_desc:      string;
@@ -1481,6 +1483,12 @@ export type RawDictionary = {
     no_connections_found: string;
     add_to_group:         string;
     remove_from_group:    string;
+    // PrivacyGroupsView member preview
+    view_members:         string;
+    hide_members:         string;
+    member_count:         string;
+    no_members:           string;
+    loading:              string;
     // DirectoryFiltersWidget
     filters:              string;
     filter_network:       string;
@@ -1490,6 +1498,11 @@ export type RawDictionary = {
     network_all:          string;
     network_zot6:         string;
     network_activitypub:  string;
+    // DirectoryCard moderation (site admin)
+    unsafe:               string;
+    spam:                 string;
+    mark_unsafe:          string;
+    mark_spam:            string;
   };
   hq: {
     activity:             string;

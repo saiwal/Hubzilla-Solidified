@@ -250,6 +250,8 @@ export const settings: RawDictionary["settings"] = {
   integ_install:            "Installieren",
   integ_remove:             "Entfernen",
   integ_busy:               "…",
+  integ_frontend_title:     "Frontend-Funktionen",
+  integ_frontend_desc:      "Reine Browser-Funktionen ohne zugehörige App. Deaktiviere, was du nicht nutzt.",
   // Danger zone
   danger_remove_channel:   "Diesen Kanal entfernen",
   danger_remove_desc:      "Löscht {{name}} (@{{nick}}) und alle Beiträge, Verbindungen und Daten dauerhaft. Dies kann nicht rückgängig gemacht werden.",

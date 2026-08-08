@@ -56,7 +56,7 @@ const RecipientField: Component<RecipientFieldProps> = (props) => {
               <Show
                 when={entry.photo}
                 fallback={
-                  <span class="w-4 h-4 rounded-full shrink-0 bg-accent-muted text-accent flex items-center justify-center text-[9px] font-semibold">
+                  <span class="w-4 h-4 rounded-full shrink-0 bg-accent-muted text-accent flex items-center justify-center text-[0.5625rem] font-semibold">
                     {entry.name[0]?.toUpperCase() ?? "?"}
                   </span>
                 }
@@ -111,7 +111,7 @@ const RecipientField: Component<RecipientFieldProps> = (props) => {
                   <span class="flex flex-col min-w-0 flex-1">
                     <span class="truncate text-xs font-medium text-txt">{c.name}</span>
                     <Show when={c.link}>
-                      <span class="truncate text-[10px] text-muted">{c.link}</span>
+                      <span class="truncate text-[0.625rem] text-muted">{c.link}</span>
                     </Show>
                   </span>
                 </button>

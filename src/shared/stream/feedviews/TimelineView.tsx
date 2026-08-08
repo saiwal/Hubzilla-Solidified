@@ -86,7 +86,7 @@ function TimelineCard(props: { post: ThreadNode; handlers: StreamHandlers; onOpe
           <div class="min-w-0 leading-tight">
             <p class="text-sm font-semibold text-txt truncate">{p.authorName}</p>
             <p
-              class="text-[11px] text-muted"
+              class="text-[0.6875rem] text-muted"
               title={new Date(p.created + "Z").toLocaleString(locale())}
             >
               {formatPostDate(p.created, locale())}

@@ -65,6 +65,28 @@ export function prevDay(dateStr: string): string {
   return d.toISOString().slice(0, 10);
 }
 
+/** Add one calendar day to a YYYY-MM-DD string using UTC arithmetic. */
+export function nextDay(dateStr: string): string {
+  const d = new Date(dateStr + "T00:00:00Z");
+  d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString().slice(0, 10);
+}
+
+/** Whether an event occurs on the given local-timezone calendar day (YYYY-MM-DD). */
+export function eventOnDay(ev: CalEvent, day: string): boolean {
+  if (ev.allDay) {
+    // Use UTC date slices for all-day events (no meaningful timezone offset).
+    const startD = ev.start.slice(0, 10);
+    const endD = ev.end ? ev.end.slice(0, 10) : startD;
+    // CalDAV uses exclusive DTEND (next day); channel events use inclusive DTEND (same day).
+    const inclusiveEnd = ev.end && endD > startD ? prevDay(endD) : endD;
+    return startD <= day && (inclusiveEnd < startD ? startD : inclusiveEnd) >= day;
+  }
+  const s = localDay(ev.start);
+  const e = localDay(ev.end ?? ev.start);
+  return s <= day && e >= day;
+}
+
 function fmtDayKey(dateStr: string): string {
   return new Date(dateStr + "T00:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
@@ -123,6 +145,9 @@ export function weekLayout(weekDates: string[], events: CalEvent[], allInLanes =
     if (ev.allDay && ev.end && evE > evS) {
       evE = prevDay(evE);
     }
+    // Malformed end-before-start data (e.g. a stray legacy event) shouldn't
+    // vanish from the calendar — clamp to a single-day event at its start.
+    if (evE < evS) evE = evS;
 
     if (evE < weekStart || evS > weekEnd) continue;
 

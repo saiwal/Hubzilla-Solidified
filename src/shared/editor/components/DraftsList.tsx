@@ -63,7 +63,7 @@ export function DraftsList(props: DraftsListProps) {
                       {draft.preview}
                     </Show>
                   </p>
-                  <p class="text-[10px] text-muted/60 mt-0.5">{timeAgo(draft.updated)}</p>
+                  <p class="text-[0.625rem] text-muted/60 mt-0.5">{timeAgo(draft.updated)}</p>
                 </div>
 
                 <div class="flex items-center gap-1 shrink-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
@@ -71,7 +71,7 @@ export function DraftsList(props: DraftsListProps) {
                     type="button"
                     title={t("editor.load_draft")}
                     onClick={() => props.onLoad(draft)}
-                    class="px-2 py-0.5 text-[10px] rounded border border-rim text-muted
+                    class="px-2 py-0.5 text-[0.625rem] rounded border border-rim text-muted
                            hover:text-txt hover:border-rim-strong transition-colors"
                   >
                     {t("editor.load_btn")}
@@ -79,7 +79,7 @@ export function DraftsList(props: DraftsListProps) {
                   <button
                     type="button"
                     onClick={() => props.onDelete(draft.id)}
-                    class="px-2 py-0.5 text-[10px] rounded border border-rim text-muted
+                    class="px-2 py-0.5 text-[0.625rem] rounded border border-rim text-muted
                            hover:text-red-500 hover:border-red-400/50 transition-colors"
                   >
                     {t("editor.delete_draft")}

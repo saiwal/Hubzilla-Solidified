@@ -700,7 +700,7 @@ function CatalogManagerPanel() {
                   <div class="flex items-center gap-1.5">
                     <p class="text-sm font-medium text-txt truncate">{item.desc}</p>
                     <Show when={!item.active}>
-                      <span class="text-[10px] font-medium px-1.5 py-0.5 rounded-full shrink-0
+                      <span class="text-[0.625rem] font-medium px-1.5 py-0.5 rounded-full shrink-0
                                    bg-surface text-muted border border-rim">
                         {t('cart.catalog_inactive')}
                       </span>
@@ -839,7 +839,7 @@ function CatalogItemForm(props: { sku: string | null; onClose: () => void }) {
       </p>
 
       <Show when={props.sku !== null}>
-        <p class="text-[11px] text-subtle font-mono">SKU: {props.sku}</p>
+        <p class="text-[0.6875rem] text-subtle font-mono">SKU: {props.sku}</p>
       </Show>
 
       <div class="flex flex-col gap-1">
@@ -891,7 +891,7 @@ function CatalogItemForm(props: { sku: string | null; onClose: () => void }) {
                    text-muted hover:text-txt hover:border-accent transition-colors disabled:opacity-50 shrink-0"
           >
             <Show when={uploading()} fallback={<MdFillImage size={16} />}>
-              <span class="text-[11px] font-mono w-7 text-center">{uploadPct()}%</span>
+              <span class="text-[0.6875rem] font-mono w-7 text-center">{uploadPct()}%</span>
             </Show>
           </button>
           <button
@@ -978,10 +978,10 @@ function CatalogItemForm(props: { sku: string | null; onClose: () => void }) {
                               class="w-full h-full object-cover" />
                           </Show>
                         </div>
-                        <span class="text-[10px] text-muted truncate w-full text-center leading-tight">
+                        <span class="text-[0.625rem] text-muted truncate w-full text-center leading-tight">
                           {album.album}
                         </span>
-                        <span class="text-[9px] text-subtle">{album.total}</span>
+                        <span class="text-[0.5625rem] text-subtle">{album.total}</span>
                       </button>
                     )}
                   </For>
@@ -1520,17 +1520,17 @@ function StatusBadge(props: { paid?: boolean; fulfilled?: boolean; exception?: b
   return (
     <div class="flex flex-wrap gap-1 justify-end shrink-0">
       <Show when={props.exception}>
-        <span class="flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-full
+        <span class="flex items-center gap-0.5 text-[0.625rem] font-medium px-1.5 py-0.5 rounded-full
                      bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
           <MdFillError size={10} /> {t('cart.order_exception')}
         </span>
       </Show>
-      <span class={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${props.paid
+      <span class={`text-[0.625rem] font-medium px-1.5 py-0.5 rounded-full ${props.paid
         ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
         : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'}`}>
         {props.paid ? t('cart.order_paid') : t('cart.order_unpaid')}
       </span>
-      <span class={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${props.fulfilled
+      <span class={`text-[0.625rem] font-medium px-1.5 py-0.5 rounded-full ${props.fulfilled
         ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
         : 'bg-surface text-muted'}`}>
         {props.fulfilled ? t('cart.order_fulfilled') : t('cart.order_pending')}
@@ -1544,7 +1544,7 @@ function ItemStatusBadge(props: { item: import('../api').OrderItem }) {
   const item = () => props.item;
   return (
     <Show when={item().fulfilled !== undefined}>
-      <span class={`text-[10px] font-medium px-1.5 py-0.5 rounded-full shrink-0 ${
+      <span class={`text-[0.625rem] font-medium px-1.5 py-0.5 rounded-full shrink-0 ${
         item().exception
           ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
           : item().fulfilled

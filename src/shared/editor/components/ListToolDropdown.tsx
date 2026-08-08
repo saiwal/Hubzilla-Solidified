@@ -103,7 +103,7 @@ export default function ListToolDropdown(props: ListToolDropdownProps) {
             onClick={() => select("alpha")}
             class="flex items-center gap-2 px-3 py-1.5 text-xs text-txt hover:bg-elevated transition-colors text-left"
           >
-            <span class="w-4 h-4 shrink-0 flex items-center justify-center text-[10px] font-semibold">abc</span>
+            <span class="w-4 h-4 shrink-0 flex items-center justify-center text-[0.625rem] font-semibold">abc</span>
             {t("editor.lettered_list")}
           </button>
         </div>

@@ -175,7 +175,7 @@ export default function ChatHeaderWidget() {
                 onToggle={toggleEntry}
                 onClear={clearEntries}
               />
-              <p class="text-[11px] text-muted">
+              <p class="text-[0.6875rem] text-muted">
                 {aclMode() === "public" && t("chat.visibility_public")}
                 {aclMode() === "connections" && t("chat.visibility_connections")}
                 {aclMode() === "me" && t("chat.visibility_me")}

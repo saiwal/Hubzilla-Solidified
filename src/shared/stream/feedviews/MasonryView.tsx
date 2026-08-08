@@ -119,7 +119,7 @@ function MasonryCard(props: {
           </Show>
           <Show when={isFlatReply()}>
             <span
-              class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-accent-muted/40 text-muted leading-none"
+              class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[0.625rem] font-bold bg-accent-muted/40 text-muted leading-none"
               title={t("post.reply_indicator")}
             >
               <MdOutlineReply size={11} />
@@ -127,7 +127,7 @@ function MasonryCard(props: {
             </span>
           </Show>
           <Show when={p.flags.includes("unseen")}>
-            <span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-accent text-accent-fg leading-none">
+            <span class="px-1.5 py-0.5 rounded-full text-[0.625rem] font-bold bg-accent text-accent-fg leading-none">
               New
             </span>
           </Show>
@@ -186,13 +186,13 @@ function MasonryCard(props: {
             </p>
             <DmRecipients
               recipients={isDirectMessage() ? p.recipients : undefined}
-              class="text-[11px] text-muted truncate"
+              class="text-[0.6875rem] text-muted truncate"
             />
           </div>
           <div class="ml-auto flex items-center gap-2 shrink-0">
             <Show when={isExpired()}>
               <span
-                class="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-muted/30 text-muted leading-none"
+                class="px-1.5 py-0.5 rounded-full text-[0.625rem] font-bold bg-muted/30 text-muted leading-none"
                 title={t("post.expired_title")}
               >
                 {t("post.expired_badge")}
@@ -200,7 +200,7 @@ function MasonryCard(props: {
             </Show>
             <Show when={isExpiring()}>
               <span
-                class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 leading-none"
+                class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[0.625rem] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 leading-none"
                 title={expiresTitle()}
               >
                 <MdOutlineTimer size={11} />
@@ -209,7 +209,7 @@ function MasonryCard(props: {
             </Show>
             <Show when={isScheduled()}>
               <span
-                class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/15 text-sky-600 dark:text-sky-400 leading-none"
+                class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[0.625rem] font-bold bg-sky-500/15 text-sky-600 dark:text-sky-400 leading-none"
                 title={scheduledTitle()}
               >
                 <MdOutlineSchedule size={11} />

@@ -34,7 +34,7 @@ function BlockRow(props: { block: Block; nick: string; onDelete: (iid: number) =
         <span class="text-sm font-medium text-txt truncate block">
           {props.block.title || t("webpages.untitled")}
         </span>
-        <span class="text-[11px] text-muted font-mono truncate block">{props.block.name}</span>
+        <span class="text-[0.6875rem] text-muted font-mono truncate block">{props.block.name}</span>
       </div>
 
       <span class={`hidden sm:flex items-center gap-1 text-xs shrink-0 ${

@@ -107,7 +107,7 @@ export default function BlockedChannelsSection() {
               </div>
               <button
                 onClick={() => void handleRemove(c.hash)}
-                class="text-[11px] px-2.5 py-1 rounded-lg border border-rim text-muted
+                class="text-[0.6875rem] px-2.5 py-1 rounded-lg border border-rim text-muted
                        hover:border-red-500 hover:text-red-500 transition-colors shrink-0"
               >
                 {t("blocklist.unblock")}

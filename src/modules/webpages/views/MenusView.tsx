@@ -352,7 +352,7 @@ export default function MenusView() {
                     <span class="text-sm font-medium text-txt truncate block">
                       {m.desc || m.name}
                     </span>
-                    <span class="text-[11px] text-muted font-mono truncate block">{m.name}</span>
+                    <span class="text-[0.6875rem] text-muted font-mono truncate block">{m.name}</span>
                   </div>
                   <span class="hidden sm:block text-xs text-muted shrink-0">
                     {m.item_count} {t("webpages.items_label")}
@@ -433,14 +433,14 @@ export default function MenusView() {
                         }
                       >
                         <div class="flex items-center gap-3 px-2 py-2 rounded-lg group hover:bg-elevated transition-colors">
-                          <span class="w-8 text-right text-[11px] text-muted font-mono shrink-0">
+                          <span class="w-8 text-right text-[0.6875rem] text-muted font-mono shrink-0">
                             {it.order}
                           </span>
                           <div class="flex-1 min-w-0">
                             <span class="text-sm text-txt truncate block">{it.label}</span>
-                            <span class="text-[11px] text-muted font-mono truncate block">{it.link}</span>
+                            <span class="text-[0.6875rem] text-muted font-mono truncate block">{it.link}</span>
                           </div>
-                          <div class="hidden sm:flex items-center gap-1.5 shrink-0 text-[10px] text-muted">
+                          <div class="hidden sm:flex items-center gap-1.5 shrink-0 text-[0.625rem] text-muted">
                             <Show when={it.link.toLowerCase().startsWith("menu:")}>
                               <span class="px-1.5 py-0.5 rounded bg-elevated text-accent">
                                 {t("webpages.submenu_label")}
@@ -479,7 +479,7 @@ export default function MenusView() {
                 </div>
               </Show>
 
-              <p class="px-1 pt-1 text-[11px] text-muted">{t("webpages.submenu_hint")}</p>
+              <p class="px-1 pt-1 text-[0.6875rem] text-muted">{t("webpages.submenu_hint")}</p>
             </div>
           </div>
         )}

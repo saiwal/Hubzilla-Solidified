@@ -129,7 +129,7 @@ export default function ChatRoomView() {
 		const form = document.createElement("form");
 		form.className = "hz-decrypt-form flex flex-col gap-1.5 mt-1";
 		form.innerHTML = `
-			<span class="text-[11px] text-muted">🔒 ${DOMPurify.sanitize(hint || "Enter passphrase")}</span>
+			<span class="text-[0.6875rem] text-muted">🔒 ${DOMPurify.sanitize(hint || "Enter passphrase")}</span>
 			<div class="flex items-center gap-1.5">
 				<input type="password" placeholder="Passphrase" autofocus
 					class="hz-decrypt-input flex-1 bg-surface border border-rim rounded px-2 py-0.5 text-xs text-txt outline-none focus:border-rim-strong" />
@@ -140,7 +140,7 @@ export default function ChatRoomView() {
 					✕
 				</button>
 			</div>
-			<span class="hz-decrypt-error text-[11px] text-red-400 hidden"></span>
+			<span class="hz-decrypt-error text-[0.6875rem] text-red-400 hidden"></span>
 		`;
 
 		btn.replaceWith(form);
@@ -454,7 +454,7 @@ export default function ChatRoomView() {
 											>
 												<Show when={msg.isFirst}>
 													<p
-														class="text-[11px] text-muted px-1"
+														class="text-[0.6875rem] text-muted px-1"
 														classList={{ "text-right": isSelf() }}
 													>
 														{msg.author_name}
@@ -475,7 +475,7 @@ export default function ChatRoomView() {
 												</div>
 												<Show when={msg.isLast}>
 													<p
-														class="text-[10px] text-muted px-1"
+														class="text-[0.625rem] text-muted px-1"
 														title={new Date(msg.created.replace(" ", "T") + "Z").toLocaleString()}
 													>
 														{formatPostDate(msg.created)}
@@ -506,7 +506,7 @@ export default function ChatRoomView() {
 											<Show
 												when={member.avatar}
 												fallback={
-													<div class="w-6 h-6 rounded-full bg-accent-muted flex items-center justify-center text-[10px] text-accent font-semibold">
+													<div class="w-6 h-6 rounded-full bg-accent-muted flex items-center justify-center text-[0.625rem] text-accent font-semibold">
 														{member.name?.[0]?.toUpperCase() ?? "?"}
 													</div>
 												}

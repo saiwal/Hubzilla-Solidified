@@ -23,6 +23,7 @@ export interface DirectoryEntry {
   cover: string | null;
   common_count: number | null;
   ignore_url: string | null;
+  censored: number;
 }
 
 export interface DirectoryMeta {
@@ -34,6 +35,7 @@ export interface DirectoryMeta {
   safe_mode: number;
   suggest: boolean;
   order: string;
+  is_directory_admin: boolean;
 }
 
 export interface DirectoryResponse {
@@ -83,5 +85,20 @@ export async function addConnection(addr: string): Promise<void> {
   const body = await res.json().catch(() => null);
   if (!body?.success) {
     throw new Error(body?.message || "Follow failed");
+  }
+}
+
+// Core Mod_Dircensor: GET /dircensor/<xchan_hash>?severity=0|1|2&aj=1 — site-admin
+// only, marks a directory entry OK(0), Unsafe(1), or Spam/Hidden(2). aj=1 makes
+// it answer JSON instead of redirecting.
+export async function censorEntry(hash: string, severity: 0 | 1 | 2): Promise<void> {
+  const res = await fetch(
+    `/dircensor/${encodeURIComponent(hash)}?severity=${severity}&aj=1`,
+    { credentials: "include" },
+  );
+  if (!res.ok) throw new Error(`Censor failed: ${res.status}`);
+  const body = await res.json().catch(() => null);
+  if (!body?.success) {
+    throw new Error("Censor failed");
   }
 }

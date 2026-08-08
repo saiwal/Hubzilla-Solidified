@@ -95,7 +95,7 @@ export default function AttachmentList(props: { attachments: StreamAttachment[];
                         {decodeURIComponent(file.title) || "File"}
                       </div>
                       <Show when={file.length && file.length !== "0"}>
-                        <div class="text-[10px] text-muted">{formatBytes(file.length)}</div>
+                        <div class="text-[0.625rem] text-muted">{formatBytes(file.length)}</div>
                       </Show>
                     </div>
                   </a>
@@ -136,7 +136,7 @@ function LinkChip(props: { link: StreamAttachment }) {
       <div class="min-w-0 flex-1">
         <div class="truncate text-xs font-medium">{displayTitle()}</div>
         <Show when={hostname()}>
-          <div class="text-[10px] text-muted truncate">{hostname()}</div>
+          <div class="text-[0.625rem] text-muted truncate">{hostname()}</div>
         </Show>
       </div>
     </a>
@@ -163,7 +163,7 @@ function ImageChip(props: { img: StreamAttachment; compact?: boolean }) {
           <div class="min-w-0">
             <div class="truncate text-xs font-medium">{filename()}</div>
             <Show when={props.img.length && props.img.length !== "0"}>
-              <div class="text-[10px] text-muted">{formatBytes(props.img.length)}</div>
+              <div class="text-[0.625rem] text-muted">{formatBytes(props.img.length)}</div>
             </Show>
           </div>
         </a>

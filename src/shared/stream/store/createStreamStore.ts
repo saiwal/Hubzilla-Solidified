@@ -109,6 +109,34 @@ export function createStreamStore<P extends StreamParams>(
 
   // ── load / loadMore ─────────────────────────────────────────────────────────
 
+  // In flat/unthreaded mode (no thread-top restriction) a raw backend page
+  // can consist entirely of non-post activity — likes/reactions on older
+  // threads — which fetchers filter out client-side. That doesn't mean the
+  // backend is out of data: "more" is driven by the raw rootCount vs limit,
+  // not by whether anything survived client-side filtering. Keep pulling
+  // pages (bounded) until something displayable turns up or we genuinely
+  // run out.
+  async function fetchDisplayablePage(startOffset: number): Promise<{
+    threads: ThreadNode[];
+    offset: number;
+    more: boolean;
+    result: StreamResult;
+  }> {
+    let offset = startOffset;
+    let more = true;
+    let result: StreamResult = { items: [], rootCount: 0, limit: 0, nouveau: false };
+    for (let guard = 0; guard < 10 && more; guard++) {
+      result = await fetcher({ ...params(), start: offset } as P);
+      offset += result.rootCount;
+      more = result.rootCount >= result.limit;
+      const threads = result.nouveau
+        ? result.items.map(postToThreadNode)
+        : buildThreadTree(result.items);
+      if (threads.length) return { threads, offset, more, result };
+    }
+    return { threads: [], offset, more, result };
+  }
+
   async function load(newParams?: P) {
     if (newParams !== undefined) setParams(() => newParams);
     setLoading(true);
@@ -116,14 +144,11 @@ export function createStreamStore<P extends StreamParams>(
     currentOffset = 0;
     stopPolling();
     try {
-      const result = await fetcher({ ...params(), start: 0 } as P);
-      const threads = result.nouveau
-        ? result.items.map(postToThreadNode)
-        : buildThreadTree(result.items);
+      const { threads, offset, more, result } = await fetchDisplayablePage(0);
       setPosts(threads);
       setNewPosts([]);
-      currentOffset = result.rootCount;
-      setHasMore(result.rootCount >= result.limit);
+      currentOffset = offset;
+      setHasMore(more);
       if (result.items.length && result.items[0].profileUid)
         setProfileUid(result.items[0].profileUid);
       activated.clear();
@@ -141,19 +166,12 @@ export function createStreamStore<P extends StreamParams>(
     if (loadingMore() || !hasMore()) return;
     setLoadingMore(true);
     try {
-      const result = await fetcher({ ...params(), start: currentOffset } as P);
-      if (!result.items.length) {
-        setHasMore(false);
-        return;
-      }
-      const threads = result.nouveau
-        ? result.items.map(postToThreadNode)
-        : buildThreadTree(result.items);
+      const { threads, offset, more, result } = await fetchDisplayablePage(currentOffset);
       const existingMids = new Set(posts().map((t) => t.mid));
       const fresh = threads.filter((t) => !existingMids.has(t.mid));
-      setPosts((prev) => [...prev, ...fresh]);
-      currentOffset += result.rootCount;
-      setHasMore(result.rootCount >= result.limit);
+      if (fresh.length) setPosts((prev) => [...prev, ...fresh]);
+      currentOffset = offset;
+      setHasMore(more);
       registerActivated(activated, result.items);
     } catch (err) {
       console.error(err);

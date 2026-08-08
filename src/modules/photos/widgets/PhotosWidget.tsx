@@ -130,7 +130,7 @@ export default function PhotosWidget() {
                   />
                   <Show when={photo.is_nsfw}>
                     <span class="absolute inset-0 flex items-center justify-center
-                                 text-[9px] font-bold text-red-400 pointer-events-none">
+                                 text-[0.5625rem] font-bold text-red-400 pointer-events-none">
                       {t("photos.nsfw")}
                     </span>
                   </Show>

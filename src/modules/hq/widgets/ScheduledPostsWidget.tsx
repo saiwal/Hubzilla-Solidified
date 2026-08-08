@@ -93,7 +93,7 @@ export default function ScheduledPostsWidget() {
                 <p class="text-xs text-muted truncate">{makePreview(post.body)}</p>
 
                 <div class="flex items-center justify-between gap-2 mt-1.5">
-                  <span class="flex items-center gap-1 text-[10px] text-muted/70 truncate" title={t("hq.scheduled_for")}>
+                  <span class="flex items-center gap-1 text-[0.625rem] text-muted/70 truncate" title={t("hq.scheduled_for")}>
                     <MdOutlineSchedule size={11} class="shrink-0" />
                     {publishAt(post.created)}
                   </span>
@@ -101,7 +101,7 @@ export default function ScheduledPostsWidget() {
                     <button
                       type="button"
                       onClick={(e) => { e.stopPropagation(); void act(post.uuid, "publish"); }}
-                      class="px-2 py-0.5 text-[10px] rounded border border-rim text-muted
+                      class="px-2 py-0.5 text-[0.625rem] rounded border border-rim text-muted
                              hover:text-txt hover:border-rim-strong transition-colors"
                     >
                       {t("hq.publish_now")}
@@ -109,7 +109,7 @@ export default function ScheduledPostsWidget() {
                     <button
                       type="button"
                       onClick={(e) => { e.stopPropagation(); void act(post.uuid, "delete"); }}
-                      class="px-2 py-0.5 text-[10px] rounded border border-rim text-muted
+                      class="px-2 py-0.5 text-[0.625rem] rounded border border-rim text-muted
                              hover:text-red-500 hover:border-red-400/50 transition-colors"
                     >
                       {t("hq.cancel_scheduled")}

@@ -106,14 +106,14 @@ export default function HqFoldersWidget(props: { viewMode: ViewMode }) {
                         </svg>
                         <Show when={folder.count > 0}>
                           <span
-                            class="absolute -top-1 -right-1.5 min-w-[1.1rem] h-4 rounded-full text-[9px] font-bold
+                            class="absolute -top-1 -right-1.5 min-w-[1.1rem] h-4 rounded-full text-[0.5625rem] font-bold
                                    flex items-center justify-center px-1 tabular-nums bg-accent text-surface"
                           >
                             {folder.count}
                           </span>
                         </Show>
                       </div>
-                      <span class="text-[11px] text-txt truncate max-w-full w-full">{folder.name}</span>
+                      <span class="text-[0.6875rem] text-txt truncate max-w-full w-full">{folder.name}</span>
                     </button>
                   )}
                 </For>
@@ -132,9 +132,9 @@ export default function HqFoldersWidget(props: { viewMode: ViewMode }) {
                     <svg class={`w-5 h-5 shrink-0 ${iconColor(folder)}`} fill="currentColor" viewBox="0 0 24 24">
                       <path d={iconPath(folder)} />
                     </svg>
-                    <span class="flex-1 text-[13px] text-txt truncate">{folder.name}</span>
+                    <span class="flex-1 text-[0.8125rem] text-txt truncate">{folder.name}</span>
                     <Show when={folder.count > 0}>
-                      <span class="text-[10px] text-muted tabular-nums shrink-0">{folder.count}</span>
+                      <span class="text-[0.625rem] text-muted tabular-nums shrink-0">{folder.count}</span>
                     </Show>
                   </button>
                   <div class="mx-3.5 h-px bg-rim" />

@@ -106,21 +106,42 @@ export function widgetAllowedIn(w: RegisteredWidget, moduleId: string): boolean 
   return contexts === "any" || contexts.includes(moduleId);
 }
 
-// Returns false when the module has an appName that isn't in the installed set.
-// Empty set is treated as "not yet loaded" — all modules pass through.
-export function isModuleActive(moduleId: string, installedApps: Set<string>): boolean {
+// Returns false when the module has an appName that isn't in the installed
+// set, or is a user-disabled frontendFeature module. Empty installedApps set
+// is treated as "not yet loaded" — appName-gated modules pass through.
+export function isModuleActive(
+  moduleId: string,
+  installedApps: Set<string>,
+  disabledFrontendModules?: Set<string>,
+): boolean {
   const mod = modules.get(moduleId);
   if (!mod) return false;
+  if (mod.frontendFeature && disabledFrontendModules?.has(moduleId)) return false;
   if (!mod.appName) return true;
   if (installedApps.size === 0) return true;
   return installedApps.has(mod.appName);
 }
 
 // Nav items from modules that have no Hubzilla appName (SPA-exclusive features).
-export function getSpaExclusiveNavItems(): NavItemDef[] {
+export function getSpaExclusiveNavItems(disabledFrontendModules?: Set<string>): NavItemDef[] {
   const result: NavItemDef[] = [];
-  for (const mod of modules.values()) {
-    if (!mod.appName && mod.navItem) result.push(mod.navItem);
+  for (const [id, mod] of modules) {
+    if (mod.appName) continue;
+    if (mod.frontendFeature && disabledFrontendModules?.has(id)) continue;
+    if (mod.navItem) result.push(mod.navItem);
+  }
+  return result;
+}
+
+// Modules that declare frontendFeature — enumerable for the Settings UI.
+export function getFrontendToggleableModules(): {
+  id: string;
+  navItem?: NavItemDef;
+  frontendFeature: NonNullable<ModuleDef["frontendFeature"]>;
+}[] {
+  const result: ReturnType<typeof getFrontendToggleableModules> = [];
+  for (const [id, mod] of modules) {
+    if (mod.frontendFeature) result.push({ id, navItem: mod.navItem, frontendFeature: mod.frontendFeature });
   }
   return result;
 }

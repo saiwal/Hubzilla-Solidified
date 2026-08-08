@@ -18,7 +18,7 @@ export function DmBadge(props: { size?: "sm" | "md" }) {
   const iconSize = () => (props.size === "md" ? 11 : 10);
   return (
     <span
-      class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold
+      class="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[0.625rem] font-bold
              bg-violet-500/15 text-violet-600 dark:text-violet-400 leading-none"
       title={t("post.dm_title")}
     >

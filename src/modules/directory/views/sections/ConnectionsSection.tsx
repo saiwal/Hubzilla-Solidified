@@ -263,7 +263,7 @@ function ConnectionCard(props: { conn: Connection; onDeleted: () => void }) {
 
       <Show when={chatPanelOpen()}>
         <div class="px-3 pb-3 pt-2 border-t border-rim/50 space-y-2">
-          <p class="text-[11px] text-muted">{t("chat.expire_after")}</p>
+          <p class="text-[0.6875rem] text-muted">{t("chat.expire_after")}</p>
           <div class="flex gap-1.5 flex-wrap items-center">
             {([
               [0,     "Never"],
@@ -315,7 +315,7 @@ function ConnectionCard(props: { conn: Connection; onDeleted: () => void }) {
               onChange={(e) => setSendInvite(e.currentTarget.checked)}
               class="accent-accent w-3.5 h-3.5 cursor-pointer"
             />
-            <span class="text-[11px] text-muted">Notify {props.conn.name}</span>
+            <span class="text-[0.6875rem] text-muted">Notify {props.conn.name}</span>
           </label>
           <div class="flex gap-2">
             <button
@@ -383,7 +383,7 @@ function ConnectionCard(props: { conn: Connection; onDeleted: () => void }) {
 function DetailField(props: { label: string; value: string }) {
   return (
     <div class="pt-2">
-      <p class="text-muted uppercase tracking-wide text-[10px] font-semibold">{props.label}</p>
+      <p class="text-muted uppercase tracking-wide text-[0.625rem] font-semibold">{props.label}</p>
       <p class="text-txt mt-0.5 break-all">{props.value}</p>
     </div>
   );

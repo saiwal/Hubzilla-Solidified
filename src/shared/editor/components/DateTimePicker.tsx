@@ -181,7 +181,7 @@ export default function DateTimePicker(props: Props) {
   });
 
   const colBtn = (active: boolean, disabled: boolean) =>
-    "w-full px-1.5 py-0.5 text-[11px] tabular-nums rounded transition-colors " +
+    "w-full px-1.5 py-0.5 text-[0.6875rem] tabular-nums rounded transition-colors " +
     (disabled
       ? "text-muted/30 cursor-default"
       : active
@@ -236,7 +236,7 @@ export default function DateTimePicker(props: Props) {
             </div>
             <div class="grid grid-cols-7 gap-0.5 text-center">
               <For each={weekdays()}>
-                {(w) => <span class="text-[10px] text-muted/60 py-0.5">{w}</span>}
+                {(w) => <span class="text-[0.625rem] text-muted/60 py-0.5">{w}</span>}
               </For>
               <For each={days()}>
                 {(d) => (
@@ -246,7 +246,7 @@ export default function DateTimePicker(props: Props) {
                       disabled={dayDisabled(d!)}
                       onClick={() => pickDay(d!)}
                       class={
-                        "py-0.5 text-[11px] tabular-nums rounded transition-colors " +
+                        "py-0.5 text-[0.6875rem] tabular-nums rounded transition-colors " +
                         (dayDisabled(d!)
                           ? "text-muted/30 cursor-default"
                           : selected() && sameDay(selected()!, d!)
@@ -302,7 +302,7 @@ export default function DateTimePicker(props: Props) {
               <button
                 type="button"
                 onClick={() => props.onChange("")}
-                class="px-2 py-1 text-[11px] rounded border border-rim text-muted
+                class="px-2 py-1 text-[0.6875rem] rounded border border-rim text-muted
                        hover:text-red-500 hover:border-red-400/50 transition-colors"
               >
                 {t("editor.dtp_clear")}
@@ -311,7 +311,7 @@ export default function DateTimePicker(props: Props) {
             <button
               type="button"
               onClick={toggle}
-              class="px-2 py-1 text-[11px] rounded bg-accent text-accent-fg hover:opacity-90 transition-opacity"
+              class="px-2 py-1 text-[0.6875rem] rounded bg-accent text-accent-fg hover:opacity-90 transition-opacity"
             >
               {t("editor.dtp_done")}
             </button>

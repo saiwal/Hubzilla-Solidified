@@ -320,7 +320,7 @@ function LogRow(props: {
     >
       <div class="flex items-start gap-2.5 min-w-0">
         {/* Level badge */}
-        <span class={`shrink-0 mt-0.5 inline-block px-1.5 py-0.5 text-[10px] font-semibold rounded uppercase tracking-wide ${SEVERITY_CLASSES[meta().severity]}`}>
+        <span class={`shrink-0 mt-0.5 inline-block px-1.5 py-0.5 text-[0.625rem] font-semibold rounded uppercase tracking-wide ${SEVERITY_CLASSES[meta().severity]}`}>
           {meta().short}
         </span>
 
@@ -335,7 +335,7 @@ function LogRow(props: {
           <Show when={isLong()}>
             <button
               onClick={() => props.onToggle(props.idx)}
-              class="text-[10px] text-accent hover:underline"
+              class="text-[0.625rem] text-accent hover:underline"
             >
               {props.expanded ? t("admin.show_less") : t("admin.show_more")}
             </button>
@@ -344,18 +344,18 @@ function LogRow(props: {
           {/* Meta line */}
           <div class="flex items-center gap-2 flex-wrap">
             <Show when={props.entry.file}>
-              <span class="text-[10px] text-muted font-mono">
+              <span class="text-[0.625rem] text-muted font-mono">
                 {props.entry.file}:{props.entry.line}
               </span>
-              <span class="text-[10px] text-muted opacity-40">·</span>
-              <span class="text-[10px] text-muted font-mono">{props.entry.fn}()</span>
+              <span class="text-[0.625rem] text-muted opacity-40">·</span>
+              <span class="text-[0.625rem] text-muted font-mono">{props.entry.fn}()</span>
             </Show>
           </div>
         </div>
 
         {/* Timestamp */}
         <span
-          class="shrink-0 text-[10px] text-muted whitespace-nowrap pt-0.5"
+          class="shrink-0 text-[0.625rem] text-muted whitespace-nowrap pt-0.5"
           title={ts().full}
         >
           {ts().short}

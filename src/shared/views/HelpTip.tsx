@@ -13,7 +13,7 @@ export default function HelpTip(props: Props) {
                bg-surface border border-rim
                cursor-default flex-shrink-0"
       >
-        <span class="text-[10px] font-medium text-muted select-none leading-none">
+        <span class="text-[0.625rem] font-medium text-muted select-none leading-none">
           ?
         </span>
       </span>

@@ -15,6 +15,8 @@ import { refetchNavData } from "@/shared/store/nav-store";
 import { useI18n } from "@/i18n";
 import { appLabel } from "@/shared/lib/app-labels";
 import NsfwConfigModal from "./NsfwConfigModal";
+import { getFrontendToggleableModules } from "@/shared/lib/module-registry";
+import { disabledFrontendModules, setFrontendModuleEnabled } from "@/shared/store/disabled-frontend-modules";
 
 interface AppEntry {
   name: string;
@@ -268,7 +270,69 @@ export default function IntegrationsSection() {
       <Show when={showNsfwConfig()}>
         <NsfwConfigModal onClose={() => setShowNsfwConfig(false)} />
       </Show>
+
+      <FrontendFeaturesSection />
     </SubPageContent>
+  );
+}
+
+function FrontendFeaturesSection() {
+  const { t } = useI18n();
+  const modules = getFrontendToggleableModules();
+
+  return (
+    <Show when={modules.length > 0}>
+      <div class="pt-6 mt-2 border-t border-rim space-y-3">
+        <div>
+          <h3 class="text-sm font-medium text-txt">{t("settings.integ_frontend_title")}</h3>
+          <p class="text-xs text-muted mt-0.5">{t("settings.integ_frontend_desc")}</p>
+        </div>
+        <div class="space-y-2">
+          <For each={modules}>
+            {(mod) => {
+              const label = typeof mod.frontendFeature.label === "function"
+                ? mod.frontendFeature.label()
+                : mod.frontendFeature.label;
+              const description = typeof mod.frontendFeature.description === "function"
+                ? mod.frontendFeature.description()
+                : mod.frontendFeature.description;
+              const enabled = () => !disabledFrontendModules().has(mod.id);
+
+              return (
+                <div class="flex items-start gap-4 rounded-lg border border-rim bg-surface px-4 py-3">
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-txt">{label}</p>
+                    <Show when={description}>
+                      <p class="text-xs text-muted mt-0.5 leading-relaxed">{description}</p>
+                    </Show>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setFrontendModuleEnabled(mod.id, !enabled())}
+                    aria-pressed={enabled()}
+                    class={[
+                      "shrink-0 relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
+                      "focus:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+                      enabled() ? "bg-accent" : "bg-elevated border border-rim",
+                    ].join(" ")}
+                  >
+                    <span class="sr-only">
+                      {enabled() ? t("settings.feat_toggle_off") : t("settings.feat_toggle_on")}
+                    </span>
+                    <span
+                      class={[
+                        "inline-block h-4 w-4 rounded-full transition-transform",
+                        enabled() ? "translate-x-6 bg-accent-fg" : "translate-x-1 bg-muted",
+                      ].join(" ")}
+                    />
+                  </button>
+                </div>
+              );
+            }}
+          </For>
+        </div>
+      </div>
+    </Show>
   );
 }
 

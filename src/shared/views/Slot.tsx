@@ -14,6 +14,7 @@ import {
   type RegisteredWidget,
 } from "@/shared/lib/module-registry";
 import { useInstalledApps } from "@/shared/store/nav-store";
+import { disabledFrontendModules } from "@/shared/store/disabled-frontend-modules";
 import { useViewerRole } from "@/shared/store/site-config";
 import {
   layoutFor,
@@ -102,7 +103,7 @@ const Slot: Component<SlotProps> = (props) => {
     widgetVersion(); // track
     const moduleId = activeModuleId();
     const apps = installedApps();
-    if (!isModuleActive(moduleId, apps)) return [];
+    if (!isModuleActive(moduleId, apps, disabledFrontendModules())) return [];
 
     const custom = props.templateId
       ? (isPageOwner() ? templateEntriesFor : pageTemplateEntriesFor)(props.templateId, props.name)
@@ -118,7 +119,7 @@ const Slot: Component<SlotProps> = (props) => {
           !w ||
           w.global ||
           !widgetAllowedIn(w, moduleId) ||
-          !isModuleActive(w.moduleId, apps) ||
+          !isModuleActive(w.moduleId, apps, disabledFrontendModules()) ||
           !visibleToViewer(w) ||
           seen.has(entryKey(entry))
         ) continue;
@@ -127,7 +128,7 @@ const Slot: Component<SlotProps> = (props) => {
       }
     } else {
       resolved = resolveModuleSlot(props.name, moduleId)
-        .filter((w) => isModuleActive(w.moduleId, apps) && visibleToViewer(w))
+        .filter((w) => isModuleActive(w.moduleId, apps, disabledFrontendModules()) && visibleToViewer(w))
         .map((w) => ({ widget: w, key: w.id }));
     }
 
@@ -140,7 +141,7 @@ const Slot: Component<SlotProps> = (props) => {
         w.locked && !w.global && !present.has(w.id) &&
         widgetSlots(w).includes(props.name) &&
         w.defaultModules.includes(moduleId) &&
-        isModuleActive(w.moduleId, apps) &&
+        isModuleActive(w.moduleId, apps, disabledFrontendModules()) &&
         visibleToViewer(w)
       ) {
         resolved.push({ widget: w, key: w.id });
@@ -248,7 +249,7 @@ const Slot: Component<SlotProps> = (props) => {
         widgetSlots(w).includes(props.name) &&
         (w.multiInstance === true || !present.has(w.id)) &&
         widgetAllowedIn(w, moduleId) &&
-        isModuleActive(w.moduleId, apps),
+        isModuleActive(w.moduleId, apps, disabledFrontendModules()),
     );
   });
 

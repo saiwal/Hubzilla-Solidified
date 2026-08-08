@@ -43,7 +43,8 @@ export default function DayView(props: Props) {
         // CalDAV uses exclusive DTEND (next day); channel events use inclusive DTEND (same day).
         // Normalize to inclusive so a June 10 CalDAV event doesn't bleed into June 11.
         const inclusiveEnd = (ev.end && endD > startD) ? prevDay(endD) : endD;
-        return startD <= dateStr() && inclusiveEnd >= dateStr();
+        // Malformed end-before-start data shouldn't vanish from the day view.
+        return startD <= dateStr() && (inclusiveEnd < startD ? startD : inclusiveEnd) >= dateStr();
       }
       // Multi-day timed events that started before this day but extend through it
       const s = isoDateStr(new Date(ev.start));
@@ -116,7 +117,7 @@ export default function DayView(props: Props) {
             <For each={HOURS}>
               {(h) => (
                 <div
-                  class="absolute right-2 text-[10px] text-muted leading-none"
+                  class="absolute right-2 text-[0.625rem] text-muted leading-none"
                   style={{ top: `${h * HOUR_H - 6}px` }}
                 >
                   {h > 0 ? `${h}:00` : ""}
@@ -188,11 +189,11 @@ export default function DayView(props: Props) {
                     onClick={() => props.onDayClick(dateStr())}
                   >
                     <div class="font-semibold truncate">{item.event.title || t("calendar.no_title")}</div>
-                    <div class="opacity-70 text-[10px]">
+                    <div class="opacity-70 text-[0.625rem]">
                       {startLbl}{endLbl ? ` – ${crossesMidnight ? endLbl + " →" : endLbl}` : ""}
                     </div>
                     <Show when={item.event.location}>
-                      <div class="opacity-60 text-[10px] truncate">{item.event.location}</div>
+                      <div class="opacity-60 text-[0.625rem] truncate">{item.event.location}</div>
                     </Show>
                   </div>
                 );

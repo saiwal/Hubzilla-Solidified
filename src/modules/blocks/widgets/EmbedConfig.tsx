@@ -43,7 +43,7 @@ export default function EmbedConfig(props: WidgetConfigProps) {
         />
       </label>
       <Show when={url() && !valid()}>
-        <p class="text-[11px] text-red-500">{t("widgets.cfg_invalid_url")}</p>
+        <p class="text-[0.6875rem] text-red-500">{t("widgets.cfg_invalid_url")}</p>
       </Show>
       <label class="text-xs text-muted">
         {t("widgets.cfg_title")}

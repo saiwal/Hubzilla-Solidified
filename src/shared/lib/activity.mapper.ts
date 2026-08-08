@@ -70,6 +70,9 @@ export function mapActivityToPost(activity: any): Post {
   const nsfwTitleMatch = matchNsfwWord(rawTitle, nsfwWordsList());
   const title = nsfwTitleMatch ? wrapNsfwHtml(rawTitle, nsfwTitleMatch) : rawTitle;
 
+  const rawLocation: string = activity.location ?? "";
+  const location = rawLocation ? sanitizeHtml(bbcodeToHtml(rawLocation)) : undefined;
+
   return {
     id: activity.iid,
     iid: activity.iid ? Number(activity.iid) : undefined,
@@ -109,7 +112,7 @@ export function mapActivityToPost(activity: any): Post {
     flags: activity.flags ?? [],
     canComment: activity.can_comment ?? true,
     permalink: activity.permalink ?? "",
-    location: activity.location || undefined,
+    location,
     coord: activity.coord || undefined,
     expires: activity.expires || undefined,
     likeCount: activity.like_count ?? 0,

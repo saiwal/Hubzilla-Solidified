@@ -36,9 +36,11 @@ export const post: RawDictionary["post"] = {
   delete_post:          "Delete post",
   delete:               "Delete",
   remove_from_feed:         "Remove from your feed",
+  admin_delete:         "Admin Delete",
   confirm:              "Confirm?",
   confirm_delete:       "Confirm delete?",
   confirm_remove_from_feed: "Confirm remove from feed?",
+  confirm_admin_delete: "Confirm admin delete? This removes the item from the site.",
   // badges
   op:                   "OP",
   op_title:             "Original poster",
