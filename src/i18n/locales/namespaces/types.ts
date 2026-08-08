@@ -1244,10 +1244,10 @@ export type RawDictionary = {
     integ_no_results:         string;
     integ_move_up:            string;
     integ_move_down:          string;
-    integ_pin:                string;
-    integ_unpin:              string;
-    integ_feature:            string;
-    integ_unfeature:          string;
+    integ_show_nav:           string;
+    integ_hide_nav:           string;
+    integ_nav_label:          string;
+    integ_install_label:      string;
     integ_configure:          string;
     integ_install:            string;
     integ_remove:             string;
