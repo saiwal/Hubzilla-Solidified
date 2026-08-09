@@ -10,7 +10,7 @@ import {
 import { useAuth } from "@/shared/store/auth-store";
 import { usePageNick } from "@/shared/store/site-config";
 import { useInstalledApps } from "@/shared/store/nav-store";
-import { isModuleActive } from "@/shared/lib/module-registry";
+import { isModuleActive, isAppInstalled } from "@/shared/lib/module-registry";
 import { useI18n } from "@/i18n";
 import PostComposer from "@/shared/editor/composers/PostComposer";
 import DMComposer from "@/shared/editor/composers/DMComposer";
@@ -36,7 +36,7 @@ export default function QuickComposeWidget() {
     const apps = installedApps();
     const list: { key: string; label: string; icon: IconType; onClick: () => void }[] = [];
 
-    if (apps.has("Post")) {
+    if (isAppInstalled(apps, "/rpost")) {
       list.push({
         key: "post",
         label: t("hq.new_post"),

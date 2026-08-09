@@ -55,5 +55,5 @@ registerModule({
     },
   ],
   permissions: [],
-  appName: "Webpages",
+  appUrlSlug: "/webpages/",
 });

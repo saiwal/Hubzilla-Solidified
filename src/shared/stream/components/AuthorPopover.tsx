@@ -4,6 +4,7 @@ import { createMediaQuery } from "@solid-primitives/media";
 import { MdOutlinePerson, MdOutlinePerson_add, MdOutlineEdit, MdOutlineEmail, MdOutlineChat_bubble, MdOutlineCheck, MdOutlineBlock, MdOutlineGavel } from "solid-icons/md";
 import { useAuth, isAdmin } from "@/shared/store/auth-store";
 import { useNavViewer, useInstalledApps } from "@/shared/store/nav-store";
+import { isAppInstalled } from "@/shared/lib/module-registry";
 import { addConnection } from "@/modules/directory/people/api";
 import { fetchConnectionByAddress } from "@/modules/directory/connections/api";
 import type { Connection } from "@/modules/directory/connections/api";
@@ -78,7 +79,7 @@ export default function AuthorPopover(props: Props) {
   const auth = useAuth();
   const navViewer = useNavViewer();
   const installedApps = useInstalledApps();
-  const chatroomsInstalled = () => installedApps().has("Chatrooms");
+  const chatroomsInstalled = () => isAppInstalled(installedApps(), "/chat/");
   const navigate = useNavigate();
   let closeTimer: ReturnType<typeof setTimeout> | null = null;
   let triggerRef!: HTMLDivElement;

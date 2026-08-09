@@ -38,5 +38,5 @@ registerModule({
     },
   ],
   permissions: [],
-  appName: "Files",
+  appUrlSlug: "/cloud/",
 });

@@ -65,7 +65,7 @@ function AppIcon(props: { app: AppEntry }) {
       <img
         src={props.app.photo}
         alt={appLabel(props.app.name, t)}
-        class="w-9 h-9 rounded-lg object-cover shrink-0 bg-elevated"
+        class="w-9 h-9 rounded-lg object-cover shrink-0 bg-elevated p-2"
       />
     </Show>
   );
@@ -155,7 +155,7 @@ export default function IntegrationsSection() {
           placeholder={t("settings.integ_search_placeholder")}
           value={search()}
           onInput={(e) => setSearch(e.currentTarget.value)}
-          class="flex-1 min-w-0 px-3 py-1.5 text-sm rounded-lg bg-surface border border-rim
+          class="flex-1 min-w-1 px-3 py-1.5 text-sm rounded-lg bg-surface border border-rim
                  text-txt hover:border-rim-strong focus:outline-none focus:border-accent
                  placeholder:text-muted"
         />

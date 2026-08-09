@@ -111,11 +111,13 @@ export interface ModuleDef {
   slots?: SlotsDef;
   widgets?: WidgetDef[];
   permissions?: string[];
-  /** Hubzilla app name (e.g. "Photos"). If set, module only renders when this app is installed. */
-  appName?: string;
+  /** Stable URL path fragment from the app's .apd (e.g. "/articles/"). If set, module only
+   * renders when an installed app's url contains this fragment. (Matched on url, not the
+   * app's display name, because app_name can be a stale translated string on old channels.) */
+  appUrlSlug?: string;
   /** Marks a module as a pure-frontend feature with no backing Hubzilla app.
    * Shows up as a toggleable entry in Settings → Integrations and is gated the
-   * same way as appName-gated modules (isModuleActive/ModuleGuard/Slot), keyed
+   * same way as appUrlSlug-gated modules (isModuleActive/ModuleGuard/Slot), keyed
    * off a pconfig list instead of the installed-apps set. */
   frontendFeature?: {
     label: string | (() => string);

@@ -64,5 +64,5 @@ registerModule({
     },
   ],
   permissions: [],
-  appName: "Photos",
+  appUrlSlug: "/photos/",
 });

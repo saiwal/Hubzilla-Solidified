@@ -106,9 +106,19 @@ export function widgetAllowedIn(w: RegisteredWidget, moduleId: string): boolean 
   return contexts === "any" || contexts.includes(moduleId);
 }
 
-// Returns false when the module has an appName that isn't in the installed
+// Whether an installed-apps set (raw app urls, see useInstalledApps) contains
+// an app whose url includes the given stable path fragment. Use this — not
+// installedApps.has(name) — anywhere app installation is checked directly:
+// app_name can be a stale translated string frozen on an old channel, while
+// url is never translated (see isModuleActive below).
+export function isAppInstalled(installedApps: Set<string>, urlSlug: string): boolean {
+  for (const url of installedApps) if (url.includes(urlSlug)) return true;
+  return false;
+}
+
+// Returns false when the module has an appUrlSlug that isn't in the installed
 // set, or is a user-disabled frontendFeature module. Empty installedApps set
-// is treated as "not yet loaded" — appName-gated modules pass through.
+// is treated as "not yet loaded" — appUrlSlug-gated modules pass through.
 export function isModuleActive(
   moduleId: string,
   installedApps: Set<string>,
@@ -117,16 +127,16 @@ export function isModuleActive(
   const mod = modules.get(moduleId);
   if (!mod) return false;
   if (mod.frontendFeature && disabledFrontendModules?.has(moduleId)) return false;
-  if (!mod.appName) return true;
+  if (!mod.appUrlSlug) return true;
   if (installedApps.size === 0) return true;
-  return installedApps.has(mod.appName);
+  return isAppInstalled(installedApps, mod.appUrlSlug);
 }
 
-// Nav items from modules that have no Hubzilla appName (SPA-exclusive features).
+// Nav items from modules that have no Hubzilla appUrlSlug (SPA-exclusive features).
 export function getSpaExclusiveNavItems(disabledFrontendModules?: Set<string>): NavItemDef[] {
   const result: NavItemDef[] = [];
   for (const [id, mod] of modules) {
-    if (mod.appName) continue;
+    if (mod.appUrlSlug) continue;
     if (mod.frontendFeature && disabledFrontendModules?.has(id)) continue;
     if (mod.navItem) result.push(mod.navItem);
   }

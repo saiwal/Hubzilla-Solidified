@@ -59,5 +59,5 @@ registerModule({
     },
   ],
   permissions: [],
-  appName: "Calendar",
+  appUrlSlug: "/cdav/calendar",
 });

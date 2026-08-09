@@ -2,6 +2,7 @@ import { type JSX, Show, createMemo } from "solid-js";
 import { useLocation, useNavigate, A } from "@solidjs/router";
 import { useViewerRole } from "@/shared/store/site-config";
 import { useInstalledApps } from "@/shared/store/nav-store";
+import { isAppInstalled } from "@/shared/lib/module-registry";
 import { useI18n } from "@/i18n";
 
 export type SubPageContext = "owner" | "local" | "remote" | "anonymous" | "all";
@@ -13,7 +14,8 @@ export interface SubPageItem {
   dividerAfter?: boolean;
   /** Who can see this nav item. Omit or use "all" for everyone. */
   context?: SubPageContext | SubPageContext[];
-  /** Hubzilla app name that must be installed for this item to appear. */
+  /** Stable url path fragment (e.g. "/group") of the Hubzilla app that must
+   * be installed for this item to appear — see ModuleDef.appUrlSlug. */
   requiresApp?: string;
 }
 
@@ -28,7 +30,7 @@ interface Props {
 }
 
 function isVisible(item: SubPageItem, role: string, installed: Set<string>): boolean {
-  if (item.requiresApp && !installed.has(item.requiresApp)) return false;
+  if (item.requiresApp && !isAppInstalled(installed, item.requiresApp)) return false;
   if (!item.context || item.context === "all") return true;
   // "admin" is a superset of "owner" for visibility purposes
   const effectiveRole = role === "admin" ? "owner" : role;

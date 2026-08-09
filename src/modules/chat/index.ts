@@ -77,5 +77,5 @@ registerModule({
     },
   ],
   permissions: [],
-  appName: "Chatrooms",
+  appUrlSlug: "/chat/",
 });

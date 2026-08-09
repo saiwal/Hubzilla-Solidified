@@ -69,5 +69,5 @@ registerModule({
   ],
   slots: {},
   permissions: [],
-  appName: "Wiki",
+  appUrlSlug: "/wiki/",
 });

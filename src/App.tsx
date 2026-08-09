@@ -93,7 +93,7 @@ export default function App() {
             const mod = mid ? getModule(mid) : null;
 
             let Rendered: Component = Comp;
-            if (mod?.appName || mod?.frontendFeature) {
+            if (mod?.appUrlSlug || mod?.frontendFeature) {
               const Inner = Rendered;
               Rendered = () => <ModuleGuard moduleId={mid!}><Inner /></ModuleGuard>;
             }

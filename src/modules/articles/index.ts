@@ -137,5 +137,5 @@ registerModule({
     },
   ],
   permissions: [],
-  appName: "Articles",
+  appUrlSlug: "/articles/",
 });

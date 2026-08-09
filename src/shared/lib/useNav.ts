@@ -126,7 +126,7 @@ const NAV_HELP_SLUGS: Record<string, string> = {
  * Help-mode target for a nav item, in "nav.<topic>" form (see
  * src/docs/user/en/nav.txt).
  *
- * Items for `appName`-gated modules (Calendar, Photos, Wiki, ...) are built
+ * Items for `appUrlSlug`-gated modules (Calendar, Photos, Wiki, ...) are built
  * from the *server's* app URL (see `appToNavItem` below), which doesn't
  * necessarily match the module's own registered path (e.g. the Calendar app
  * URL is "/cdav/calendar" while the module's SPA route/navItem use "/cal").
@@ -193,13 +193,13 @@ export function useNav(subjectNick: () => string): () => NavItemDef[] {
         (a) =>
           isSpaApp(a, spaRoots) &&
           !pinnedUrls.has(toSpaHref(a.url)) &&
-          (installed.size === 0 || installed.has(a.name)),
+          (installed.size === 0 || installed.has(a.url_raw)),
       );
       const items: NavItemDef[] = [...filteredPinned, ...filteredFeatured].map((a) =>
         appToNavItem(a),
       );
 
-      // SPA-exclusive modules (no appName) opt in with hidden: false
+      // SPA-exclusive modules (no appUrlSlug) opt in with hidden: false
       for (const item of getSpaExclusiveNavItems(disabledFrontendModules())) {
         if (item.hidden === false && visibleForOwner(item.context)) items.push(item);
       }

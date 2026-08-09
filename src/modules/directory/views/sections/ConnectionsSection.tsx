@@ -13,6 +13,7 @@ import { createRoom } from "@/modules/chat/api";
 import { MdOutlineEdit, MdOutlineEmail, MdOutlineChat_bubble } from "solid-icons/md";
 import { useAuth } from "@/shared/store/auth-store";
 import { useNavViewer, useInstalledApps } from "@/shared/store/nav-store";
+import { isAppInstalled } from "@/shared/lib/module-registry";
 import { useNavigate } from "@solidjs/router";
 import { useI18n } from "@/i18n";
 
@@ -86,7 +87,7 @@ function ConnectionCard(props: { conn: Connection; onDeleted: () => void }) {
   const auth = useAuth();
   const navViewer = useNavViewer();
   const installedApps = useInstalledApps();
-  const chatroomsInstalled = () => installedApps().has("Chatrooms");
+  const chatroomsInstalled = () => isAppInstalled(installedApps(), "/chat/");
   const navigate = useNavigate();
   const networkLabel = () => NETWORK_LABELS[props.conn.network] ?? props.conn.network;
 

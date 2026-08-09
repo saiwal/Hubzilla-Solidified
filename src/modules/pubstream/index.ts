@@ -29,5 +29,5 @@ registerModule({
       locked: true,
     },
   ],
-  appName: "Public Stream",
+  appUrlSlug: "/pubstream",
 });

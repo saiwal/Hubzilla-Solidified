@@ -22,6 +22,7 @@ import { useI18n } from "@/i18n";
 import { loadNetwork, resetPosts } from "../store";
 import { fetchFolders, fetchForums, parseNetworkParams } from "../api";
 import { useInstalledApps } from "@/shared/store/nav-store";
+import { isAppInstalled } from "@/shared/lib/module-registry";
 import { fetchGroups, type PrivacyGroup } from "@/modules/directory/groups/api";
 
 const CHIPS = [
@@ -123,8 +124,8 @@ export default function StreamFiltersWidget() {
   const [folders] = createQueryResource("network-folders", fetchFolders);
 
   const installedApps = useInstalledApps();
-  const privacyGroupsInstalled = () => installedApps().has("Privacy Groups");
-  const affinityInstalled = () => installedApps().has("Affinity Tool");
+  const privacyGroupsInstalled = () => isAppInstalled(installedApps(), "/group");
+  const affinityInstalled = () => isAppInstalled(installedApps(), "/affinity");
   const [privacyGroups] = createQueryResource(
     "privacy-groups",
     () => privacyGroupsInstalled() || null,
