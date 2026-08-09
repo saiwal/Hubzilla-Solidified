@@ -1,7 +1,7 @@
 import { createEffect, Show, For } from 'solid-js';
 import { A } from '@solidjs/router';
 import { useAuth } from '@/shared/store/auth-store';
-import { usePageNick } from '@/shared/store/site-config';
+import { usePageNick, useViewerRole } from '@/shared/store/site-config';
 import { pages, loading, loadWebpages, removePage } from '../store';
 import type { WebPage } from '../api';
 import { useI18n } from '@/i18n';
@@ -30,6 +30,7 @@ function formatDate(s: string): string {
 function PageRow(props: {
   page: WebPage;
   nick: string;
+  isOwner: boolean;
   onDelete: (iid: number) => void;
 }) {
   const { t } = useI18n();
@@ -84,23 +85,25 @@ function PageRow(props: {
           </svg>
         </a>
 
-        {/* Edit */}
-        <A
-          href={`/webpages/${props.nick}/edit/${props.page.iid}`}
-          class="p-1.5 rounded text-muted hover:text-txt hover:bg-overlay transition-colors"
-          title={t('webpages.edit') as string}
-        >
-          <MdOutlineEdit_note size={14} />
-        </A>
+        <Show when={props.isOwner}>
+          {/* Edit */}
+          <A
+            href={`/webpages/${props.nick}/edit/${props.page.iid}`}
+            class="p-1.5 rounded text-muted hover:text-txt hover:bg-overlay transition-colors"
+            title={t('webpages.edit') as string}
+          >
+            <MdOutlineEdit_note size={14} />
+          </A>
 
-        {/* Delete */}
-        <button
-          onClick={() => props.onDelete(props.page.iid)}
-          class="p-1.5 rounded text-muted hover:text-red-500 hover:bg-overlay transition-colors"
-          title={t('webpages.delete') as string}
-        >
-          <MdFillDelete size={14} />
-        </button>
+          {/* Delete */}
+          <button
+            onClick={() => props.onDelete(props.page.iid)}
+            class="p-1.5 rounded text-muted hover:text-red-500 hover:bg-overlay transition-colors"
+            title={t('webpages.delete') as string}
+          >
+            <MdFillDelete size={14} />
+          </button>
+        </Show>
       </div>
     </div>
   );
@@ -131,18 +134,20 @@ function Skeleton() {
 
 // ── Empty state ───────────────────────────────────────────────────────────────
 
-function EmptyState(props: { nick: string }) {
+function EmptyState(props: { nick: string; isOwner: boolean }) {
   const { t } = useI18n();
   return (
     <div class="py-16 flex flex-col items-center gap-4 text-center">
       <MdOutlineDescription class="w-10 h-10 text-muted" />
       <p class="text-sm text-muted">{t('webpages.no_webpages')}</p>
-      <A
-        href={`/webpages/${props.nick}/new`}
-        class="px-4 py-1.5 rounded-lg bg-accent text-accent-fg text-sm hover:opacity-90 transition-opacity"
-      >
-        {t('webpages.create_first')}
-      </A>
+      <Show when={props.isOwner}>
+        <A
+          href={`/webpages/${props.nick}/new`}
+          class="px-4 py-1.5 rounded-lg bg-accent text-accent-fg text-sm hover:opacity-90 transition-opacity"
+        >
+          {t('webpages.create_first')}
+        </A>
+      </Show>
     </div>
   );
 }
@@ -154,6 +159,8 @@ export default function WebpagesContentWidget() {
   const auth = useAuth();
   const nick = usePageNick();
   const isList = useIsWebpagesList();
+  const viewerRole = useViewerRole();
+  const isOwner = () => viewerRole() === 'owner';
 
   createEffect(() => {
     if ((auth as any).loading || !nick() || !isList()) return;
@@ -183,7 +190,7 @@ export default function WebpagesContentWidget() {
         <Show when={!loading()} fallback={<Skeleton />}>
           <Show
             when={pages().length > 0}
-            fallback={<EmptyState nick={nick()} />}
+            fallback={<EmptyState nick={nick()} isOwner={isOwner()} />}
           >
             <div class="space-y-0.5">
               <For each={pages()}>
@@ -191,6 +198,7 @@ export default function WebpagesContentWidget() {
                   <PageRow
                     page={page}
                     nick={nick()}
+                    isOwner={isOwner()}
                     onDelete={handleDelete}
                   />
                 )}

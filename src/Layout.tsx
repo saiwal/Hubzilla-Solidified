@@ -55,6 +55,7 @@ import {
 } from "./shared/store/nav-store";
 import { motion } from "solid-motionone";
 import ToastContainer from "@/shared/views/ToastContainer";
+import ConnectionRequestModalHost from "@/shared/views/ConnectionRequestModalHost";
 import { useI18n } from "@/i18n";
 import { usePWA } from "@/pwa";
 import DOMPurify from "dompurify";
@@ -312,6 +313,7 @@ const Layout: ParentComponent = (props) => {
       </a>
       <HelpOverlay />
       <ToastContainer />
+      <ConnectionRequestModalHost />
       <Show when={isRouting()}>
         <div
           class="fixed top-0 inset-x-0 z-[150] h-[2px] overflow-hidden"

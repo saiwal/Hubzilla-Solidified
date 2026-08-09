@@ -5,6 +5,8 @@ import DOMPurify from "dompurify";
 import { createQueryResource } from "@/shared/lib/createQueryResource";
 import { useI18n } from "@/i18n";
 import { markNotifySeen } from "@/shared/lib/markSeen";
+import { resolveNotifyPath, connectionRequestId } from "@/shared/lib/notifyLink";
+import { openConnectionRequestModal } from "@/shared/store/connection-request-modal";
 
 interface NotifyEntry {
   notify_id?: number;
@@ -21,17 +23,6 @@ async function fetchAlerts(): Promise<NotifyEntry[]> {
   const data: Record<string, { notifications?: NotifyEntry[] }> =
     await res.json();
   return data.notify?.notifications ?? [];
-}
-
-function toRelativePath(href?: string): string {
-  if (!href) return "#";
-  try {
-    if (!href.startsWith("http")) return href;
-    const u = new URL(href);
-    return u.pathname + u.search + u.hash;
-  } catch {
-    return href;
-  }
 }
 
 function relativeTime(when?: string): string {
@@ -60,7 +51,12 @@ export default function NotifyListView() {
 
   function open(entry: NotifyEntry) {
     if (entry.notify_id) markNotifySeen(entry.notify_id);
-    const path = toRelativePath(entry.notify_link);
+    const connId = connectionRequestId(entry.notify_link);
+    if (connId) {
+      openConnectionRequestModal(connId);
+      return;
+    }
+    const path = resolveNotifyPath(entry.notify_link);
     if (path.startsWith("/")) {
       navigate(path);
     } else if (entry.notify_link) {

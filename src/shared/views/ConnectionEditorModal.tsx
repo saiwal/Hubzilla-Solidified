@@ -3,7 +3,7 @@ import { Portal } from "solid-js/web";
 import { createQueryResource } from "@/shared/lib/createQueryResource";
 import type { Connection } from "@/modules/directory/connections/api";
 import {
-  updateConnection, deleteConnection, refreshConnection,
+  updateConnection, deleteConnection, refreshConnection, approveConnection,
   fetchPermcats, fetchConnectionPerms, fetchConnectionGroups,
 } from "@/modules/directory/connections/api";
 import { fetchGroups } from "@/modules/directory/groups/api";
@@ -71,6 +71,7 @@ export default function ConnectionEditorModal(props: Props) {
   const [saving, setSaving] = createSignal(false);
   const [deleting, setDeleting] = createSignal(false);
   const [confirmDelete, setConfirmDelete] = createSignal(false);
+  const [approving, setApproving] = createSignal(false);
 
   const [profileId, setProfileId] = createSignal<number | null>(props.connection.profile_id ?? null);
 
@@ -174,6 +175,17 @@ export default function ConnectionEditorModal(props: Props) {
     }
   }
 
+  async function handleApprove() {
+    setApproving(true);
+    try {
+      await approveConnection(props.connection.id);
+      props.onSaved?.();
+      props.onClose();
+    } finally {
+      setApproving(false);
+    }
+  }
+
   async function handleDelete() {
     if (!confirmDelete()) { setConfirmDelete(true); return; }
     setDeleting(true);
@@ -213,7 +225,12 @@ export default function ConnectionEditorModal(props: Props) {
               />
             </Show>
             <div class="flex-1 min-w-0">
-              <div class="font-semibold text-sm text-txt truncate">{props.authorName}</div>
+              <a
+                href={`/chanview?f=&hash=${encodeURIComponent(props.connection.xchan_hash)}`}
+                class="font-semibold text-sm text-txt truncate hover:underline block"
+              >
+                {props.authorName}
+              </a>
               <div class="text-xs text-muted truncate">{props.connection.address}</div>
             </div>
             <button
@@ -380,7 +397,7 @@ export default function ConnectionEditorModal(props: Props) {
                       {t("connection.pending")}
                     </span>
                   </Show>
-                  <For each={props.connection.status.filter(s => !["blocked","ignored","archived","hidden"].includes(s))}>
+                  <For each={props.connection.status.filter(s => !["blocked","ignored","archived","hidden","pending"].includes(s))}>
                     {(s) => (
                       <span class="text-xs px-1.5 py-0.5 rounded bg-overlay text-muted">{s}</span>
                     )}
@@ -504,8 +521,27 @@ export default function ConnectionEditorModal(props: Props) {
               <Show when={deleting()}>
                 <span class="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
               </Show>
-              {confirmDelete() ? t("connection.confirm_remove") : t("connection.remove")}
+              {confirmDelete()
+                ? t("connection.confirm_remove")
+                : props.connection.pending
+                ? t("connection.reject")
+                : t("connection.remove")}
             </button>
+
+            <Show when={props.connection.pending}>
+              <button
+                onClick={handleApprove}
+                disabled={approving()}
+                class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium
+                       bg-accent text-accent-fg hover:opacity-80 transition-opacity
+                       disabled:opacity-50 disabled:cursor-default"
+              >
+                <Show when={approving()}>
+                  <span class="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
+                </Show>
+                {approving() ? t("connection.approving") : t("connection.approve")}
+              </button>
+            </Show>
 
             <Show when={tab() === "settings"}>
               <button

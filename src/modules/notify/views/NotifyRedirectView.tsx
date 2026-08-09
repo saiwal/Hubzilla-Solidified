@@ -3,16 +3,8 @@ import { createEffect, createSignal, Show } from "solid-js";
 import { useParams, useNavigate } from "@solidjs/router";
 import { useI18n } from "@/i18n";
 import { resolveNotify } from "../api";
-
-function toRelativePath(href: string): string {
-  try {
-    if (!href.startsWith("http")) return href;
-    const u = new URL(href);
-    return u.pathname + u.search + u.hash;
-  } catch {
-    return href;
-  }
-}
+import { resolveNotifyPath, connectionRequestId } from "@/shared/lib/notifyLink";
+import { openConnectionRequestModal } from "@/shared/store/connection-request-modal";
 
 export default function NotifyRedirectView() {
   const params = useParams<{ id: string }>();
@@ -27,7 +19,16 @@ export default function NotifyRedirectView() {
     started = true;
     resolveNotify(id)
       .then(({ link }) => {
-        const path = toRelativePath(link);
+        // This view is just a landing spinner for a deep-linked notify id — a
+        // connection request opens its accept/reject modal over the app's
+        // normal home instead of dropping the user onto the connections list.
+        const connId = connectionRequestId(link);
+        if (connId) {
+          openConnectionRequestModal(connId);
+          navigate("/", { replace: true });
+          return;
+        }
+        const path = resolveNotifyPath(link);
         if (path.startsWith("/")) {
           navigate(path, { replace: true });
         } else {

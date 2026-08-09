@@ -108,6 +108,11 @@ export const directory: RawDictionary["directory"] = {
   role_perms_loading:   "Loading permissions…",
   role_perms_inherited: "Always allowed by your channel's privacy settings",
   cancel:               "Cancel",
+  assign_to_group:      "Assign to group…",
+  assign_to_group_confirm: 'Assign "{{role}}" to all members of "{{group}}"?',
+  no_privacy_groups_short: "No groups yet",
+  set_default_role:     "Automatically assign to new contacts",
+  remove_default_role:  "Remove as default role for new contacts",
   // PrivacyGroupsView
   privacy_groups_title: "Privacy Groups",
   privacy_groups_desc:  "Group your connections to control who sees each post.",

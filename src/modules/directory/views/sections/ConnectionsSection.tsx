@@ -4,8 +4,9 @@ import {
   filter, order, search, page, LIMIT,
 } from "../../connections/store";
 import type { ConnectionFilter, ConnectionOrder, Connection } from "../../connections/api";
-import { deleteConnection, approveConnection, fetchConnectionByAddress } from "../../connections/api";
+import { deleteConnection, approveConnection, fetchConnectionByAddress, fetchConnectionById } from "../../connections/api";
 import { addConnection } from "../../people/api";
+import { useSearchParams } from "@solidjs/router";
 import ConnectionEditorModal from "@/shared/views/ConnectionEditorModal";
 import Tooltip from "@/shared/views/Tooltip";
 import DMComposer from "@/shared/editor/composers/DMComposer";
@@ -185,7 +186,7 @@ function ConnectionCard(props: { conn: Connection; onDeleted: () => void }) {
                 {t("directory.pending")}
               </span>
             </Show>
-            <For each={props.conn.status}>
+            <For each={props.conn.status.filter((s) => s !== "pending")}>
               {(s) => (
                 <span class="shrink-0 text-xs px-1.5 py-0.5 rounded font-medium bg-accent-muted text-accent">
                   {s}
@@ -418,6 +419,7 @@ export default function ConnectionsSection() {
   const [newConn, setNewConn] = createSignal<Connection | null>(null);
   const [allConnections, setAllConnections] = createSignal<Connection[]>([]);
   const [hasMore, setHasMore] = createSignal(true);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Plain boolean ref — set synchronously before fetch, cleared when data arrives.
   // Prevents the IntersectionObserver from double-firing between setPage() and when
@@ -432,6 +434,17 @@ export default function ConnectionsSection() {
 
   onMount(() => {
     setPage(0);
+
+    // Deep-link from a notification (e.g. "new connection request") — see
+    // resolveNotifyPath, which routes classic connections#<abook_id> intro
+    // links here as ?open=<abook_id> so the accept/reject modal opens directly.
+    const openId = Number(searchParams.open);
+    if (openId > 0) {
+      fetchConnectionById(openId).then((conn) => {
+        if (conn) setNewConn(conn);
+      });
+      setSearchParams({ open: undefined });
+    }
   });
 
   onCleanup(() => {

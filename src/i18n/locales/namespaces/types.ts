@@ -215,6 +215,9 @@ export type RawDictionary = {
     pending:        string;
     confirm_remove: string;
     remove:         string;
+    reject:         string;
+    approve:        string;
+    approving:      string;
     cancel:         string;
     saving:         string;
     save:           string;
@@ -1452,6 +1455,11 @@ export type RawDictionary = {
     role_perms_loading:   string;
     role_perms_inherited: string;
     cancel:               string;
+    assign_to_group:      string;
+    assign_to_group_confirm: string;
+    no_privacy_groups_short: string;
+    set_default_role:     string;
+    remove_default_role:  string;
     privacy_groups_title: string;
     privacy_groups_desc:  string;
     no_privacy_groups:    string;

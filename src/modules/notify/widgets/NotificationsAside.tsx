@@ -9,6 +9,7 @@ import {
   onCleanup,
   lazy,
 } from "solid-js";
+import { useNavigate } from "@solidjs/router";
 import { useI18n } from "@/i18n";
 import { useAuth, updateInterval } from "@/shared/store/auth-store";
 import { useIsAdmin } from "@/shared/store/site-config";
@@ -37,6 +38,8 @@ import { markNotifySeen, markItemSeen } from "@/shared/lib/markSeen";
 import { showDesktopNotification } from "@/shared/lib/desktopNotify";
 import { apiFetch } from "@/shared/lib/fetch";
 import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { resolveNotifyPath, connectionRequestId } from "@/shared/lib/notifyLink";
+import { openConnectionRequestModal } from "@/shared/store/connection-request-modal";
 const PostDetailModal = lazy(() => import("@/shared/views/PostDetailModal"));
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -254,17 +257,6 @@ function getDisplayUuid(n: HzNotification): string | null {
   }
 }
 
-function toRelativePath(href?: string): string {
-  if (!href) return "#";
-  try {
-    if (!href.startsWith("http")) return href;
-    const u = new URL(href);
-    return u.pathname + u.search + u.hash;
-  } catch {
-    return href;
-  }
-}
-
 function relativeTime(when?: string): string {
   if (!when) return "";
   // Enotify::format() (Zotlabs/Lib/Enotify.php) converts `created` from UTC to
@@ -316,6 +308,7 @@ function NotifRow(props: {
 }) {
   const [hidden, setHidden] = createSignal(false);
   const uuid = () => getDisplayUuid(props.n);
+  const navigate = useNavigate();
 
   const [tick, setTick] = createSignal(0);
   onMount(() => {
@@ -335,9 +328,24 @@ function NotifRow(props: {
 
   const handleClick = (e: MouseEvent) => {
     const u = uuid();
+    const connId = connectionRequestId(props.n.notify_link);
     if (u) {
       e.preventDefault();
       props.onOpenModal(u);
+    } else if (connId) {
+      // Open the accept/reject modal in place — no navigation, works from
+      // whatever page the user is currently on.
+      e.preventDefault();
+      openConnectionRequestModal(connId);
+    } else {
+      // Route internal SPA paths through the router — a raw <a href> here would
+      // hit the server directly, which 404s on classic Hubzilla paths the SPA
+      // doesn't route.
+      const target = resolveNotifyPath(props.n.notify_link);
+      if (target.startsWith("/")) {
+        e.preventDefault();
+        navigate(target);
+      }
     }
     dismiss();
   };
@@ -352,7 +360,7 @@ function NotifRow(props: {
     <Show when={!hidden()}>
     <div class="flex items-start gap-1 group">
       <a
-        href={toRelativePath(props.n.notify_link)}
+        href={resolveNotifyPath(props.n.notify_link)}
         onClick={handleClick}
         class="flex gap-2 items-start px-2 py-1.5 rounded-lg transition-colors
                hover:bg-elevated flex-1 min-w-0"
@@ -551,6 +559,16 @@ function NoticeRow(props: {
   onOpen: (uuid: string) => void;
 }) {
   const handleClick = (e: MouseEvent) => {
+    const connId = connectionRequestId(props.entry.href);
+    if (connId) {
+      // Open the accept/reject modal in place — the default here previously
+      // always ran the post-display path below, which no-ops for connection
+      // requests (they have no b64mid) and swallows the click via preventDefault,
+      // so the link underneath (dead or not) never got followed either.
+      e.preventDefault();
+      openConnectionRequestModal(connId);
+      return;
+    }
     e.preventDefault();
     markItemSeen(props.entry.b64mid);
     props.onOpen(props.entry.b64mid);
@@ -558,7 +576,7 @@ function NoticeRow(props: {
 
   return (
     <a
-      href={toRelativePath(props.entry.href)}
+      href={resolveNotifyPath(props.entry.href)}
       onClick={handleClick}
       class="flex gap-2 items-start px-2 py-1.5 rounded-lg transition-colors
              hover:bg-elevated"
@@ -886,8 +904,10 @@ export default function NotificationsAside() {
           tag: n.b64mid ?? `${key}-${n.notify_id ?? ""}`,
           onClick: () => {
             const uuid = getDisplayUuid(n);
+            const connId = connectionRequestId(n.notify_link);
             if (uuid) setModalUuid(uuid);
-            else window.location.assign(toRelativePath(n.notify_link ?? meta?.href));
+            else if (connId) openConnectionRequestModal(connId);
+            else window.location.assign(resolveNotifyPath(n.notify_link ?? meta?.href));
           },
         });
       }

@@ -83,6 +83,13 @@ export async function fetchConnectionByAddress(address: string): Promise<Connect
   return body.data as Connection | null;
 }
 
+export async function fetchConnectionById(id: number): Promise<Connection | null> {
+  const res = await apiFetch(`/spa/connections?id=${id}`);
+  if (!res.ok) return null;
+  const body = await res.json();
+  return body.data as Connection | null;
+}
+
 export async function approveConnection(abookId: number): Promise<void> {
   const res = await apiFetch(`/spa/connections/${abookId}/approve`, {
     method: "POST",
@@ -129,6 +136,7 @@ export interface Permcat {
   name: string;
   label: string;
   system: boolean;
+  is_default: boolean;
 }
 
 export interface PermcatPermEntry {
@@ -194,6 +202,29 @@ export async function updatePermcatPerms(name: string, perms: string[]): Promise
   }
   const body = await res.json();
   return body.data as Permcat;
+}
+
+export async function setDefaultPermcat(name: string, isDefault: boolean): Promise<Permcat> {
+  const res = await apiFetch("/spa/connections/permcats", {
+    method: "POST",
+    body: JSON.stringify({ name, set_default: isDefault }),
+  });
+  if (!res.ok) throw new Error(`set default permcat HTTP ${res.status}`);
+  const body = await res.json();
+  return body.data as Permcat;
+}
+
+export async function assignPermcatToGroup(name: string, gid: number): Promise<{ assigned: number }> {
+  const res = await apiFetch("/spa/connections/permcats/assign-group", {
+    method: "POST",
+    body: JSON.stringify({ name, gid }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body?.error?.message ?? `assign to group HTTP ${res.status}`);
+  }
+  const body = await res.json();
+  return body.data as { assigned: number };
 }
 
 export async function deletePermcat(name: string): Promise<void> {

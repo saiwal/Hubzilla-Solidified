@@ -11,10 +11,14 @@ import {
   createPermcat,
   deletePermcat,
   updateConnection,
+  assignPermcatToGroup,
+  setDefaultPermcat,
 } from "../../connections/api";
 import type { Connection, Permcat } from "../../connections/api";
+import { fetchGroups } from "../../groups/api";
+import type { PrivacyGroup } from "../../groups/api";
 import { useI18n } from "@/i18n";
-import { MdFillAdd, MdFillClose, MdOutlineEdit } from "solid-icons/md";
+import { MdFillAdd, MdFillClose, MdOutlineEdit, MdFillStar, MdFillStar_border } from "solid-icons/md";
 import ConnectionEditorModal from "@/shared/views/ConnectionEditorModal";
 import RolePermissionsModal from "./RolePermissionsModal";
 import SubPageContent from "@/shared/views/SubPageContent";
@@ -111,13 +115,33 @@ function CustomRolePill(props: {
   onDeleted: (name: string) => void;
   onRenamed: (oldName: string, newPermcat: Permcat) => void;
   onEditPerms: (name: string, label: string) => void;
+  onBulkAssigned: () => void;
 }) {
   const { t } = useI18n();
   const [open, setOpen] = createSignal(false);
+  const [picking, setPicking] = createSignal(false);
   const [renaming, setRenaming] = createSignal(false);
   const [newName, setNewName] = createSignal("");
   const [busy, setBusy] = createSignal(false);
   const [renameError, setRenameError] = createSignal<string | null>(null);
+  const [groups] = createQueryResource("privacy-groups", fetchGroups);
+
+  function closeMenu() {
+    setOpen(false);
+    setPicking(false);
+  }
+
+  async function handleAssignToGroup(group: PrivacyGroup) {
+    if (!confirm(t("directory.assign_to_group_confirm", { role: props.label, group: group.name }))) return;
+    closeMenu();
+    setBusy(true);
+    try {
+      await assignPermcatToGroup(props.name, group.id);
+      props.onBulkAssigned();
+    } finally {
+      setBusy(false);
+    }
+  }
 
   function startRename() {
     setOpen(false);
@@ -242,26 +266,63 @@ function CustomRolePill(props: {
 
       {/* Dropdown menu */}
       <Show when={open()}>
-        <div class="fixed inset-0 z-[9]" onClick={() => setOpen(false)} />
-        <div class="absolute top-full left-0 mt-1 bg-surface border border-rim rounded-lg shadow-lg z-10 py-1 min-w-[140px]">
-          <button
-            onClick={() => { setOpen(false); props.onEditPerms(props.name, props.label); }}
-            class="w-full text-left px-3 py-1.5 text-xs text-txt hover:bg-overlay transition-colors"
+        <div class="fixed inset-0 z-[9]" onClick={closeMenu} />
+        <div class="absolute top-full left-0 mt-1 bg-surface border border-rim rounded-lg shadow-lg z-10 py-1 min-w-[160px] max-h-64 overflow-y-auto">
+          <Show
+            when={!picking()}
+            fallback={
+              <>
+                <div class="px-3 py-1.5 text-xs text-muted border-b border-rim">
+                  {t("directory.assign_to_group")}
+                </div>
+                <Show
+                  when={(groups() ?? []).length > 0}
+                  fallback={
+                    <div class="px-3 py-1.5 text-xs text-muted">
+                      {t("directory.no_privacy_groups_short")}
+                    </div>
+                  }
+                >
+                  <For each={groups() ?? []}>
+                    {(g) => (
+                      <button
+                        onClick={() => handleAssignToGroup(g)}
+                        disabled={busy()}
+                        class="w-full text-left px-3 py-1.5 text-xs text-txt hover:bg-overlay transition-colors disabled:opacity-50"
+                      >
+                        {g.name} <span class="text-muted">({g.member_count})</span>
+                      </button>
+                    )}
+                  </For>
+                </Show>
+              </>
+            }
           >
-            {t("directory.edit_permissions")}
-          </button>
-          <button
-            onClick={startRename}
-            class="w-full text-left px-3 py-1.5 text-xs text-txt hover:bg-overlay transition-colors"
-          >
-            Rename
-          </button>
-          <button
-            onClick={handleDelete}
-            class="w-full text-left px-3 py-1.5 text-xs text-red-500 hover:bg-overlay transition-colors"
-          >
-            Delete
-          </button>
+            <button
+              onClick={() => { setOpen(false); props.onEditPerms(props.name, props.label); }}
+              class="w-full text-left px-3 py-1.5 text-xs text-txt hover:bg-overlay transition-colors"
+            >
+              {t("directory.edit_permissions")}
+            </button>
+            <button
+              onClick={() => setPicking(true)}
+              class="w-full text-left px-3 py-1.5 text-xs text-txt hover:bg-overlay transition-colors"
+            >
+              {t("directory.assign_to_group")}
+            </button>
+            <button
+              onClick={startRename}
+              class="w-full text-left px-3 py-1.5 text-xs text-txt hover:bg-overlay transition-colors"
+            >
+              Rename
+            </button>
+            <button
+              onClick={handleDelete}
+              class="w-full text-left px-3 py-1.5 text-xs text-red-500 hover:bg-overlay transition-colors"
+            >
+              Delete
+            </button>
+          </Show>
         </div>
       </Show>
     </div>
@@ -394,12 +455,13 @@ type RolePill = {
   label: string;
   count: number;
   system: boolean;
+  is_default: boolean;
 };
 
 export default function ContactRolesSection() {
   const { t } = useI18n();
   const [connections, { mutate: mutateConns, refetch: refetchConns }] = createQueryResource("connections-all", fetchAllConnections);
-  const [permcats, { mutate: mutatePermcats }] = createQueryResource("permcats", fetchPermcats);
+  const [permcats, { mutate: mutatePermcats, refetch: refetchPermcats }] = createQueryResource("permcats", fetchPermcats);
   const [activeRole, setActiveRole] = createSignal<string | null>(null);
   const [showCreate, setShowCreate] = createSignal(false);
   const [editingPerms, setEditingPerms] = createSignal<{ name: string; label: string } | null>(null);
@@ -425,15 +487,16 @@ export default function ContactRolesSection() {
     const noRoleCount = counts.get("") ?? 0;
 
     return [
-      { name: null,  label: "All",     count: data.length,  system: true },
+      { name: null,  label: "All",     count: data.length,  system: true, is_default: false },
       ...(noRoleCount > 0
-        ? [{ name: "" as string | null, label: "No role", count: noRoleCount, system: true }]
+        ? [{ name: "" as string | null, label: "No role", count: noRoleCount, system: true, is_default: false }]
         : []),
       ...cats.map((p) => ({
-        name:   p.name as string | null,
-        label:  p.label,
-        count:  counts.get(p.name) ?? 0,
-        system: p.system,
+        name:       p.name as string | null,
+        label:      p.label,
+        count:      counts.get(p.name) ?? 0,
+        system:     p.system,
+        is_default: p.is_default,
       })),
     ];
   });
@@ -470,6 +533,16 @@ export default function ContactRolesSection() {
     mutatePermcats((prev) => prev?.map((p) => p.name === oldName ? newPermcat : p));
     mutateConns((prev) => prev?.map((c) => c.role === oldName ? { ...c, role: newPermcat.name } : c));
     if (activeRole() === oldName) setActiveRole(newPermcat.name);
+  }
+
+  async function handleToggleDefault(name: string, wasDefault: boolean) {
+    const next = !wasDefault;
+    mutatePermcats((prev) => prev?.map((p) => ({ ...p, is_default: p.name === name ? next : false })));
+    try {
+      await setDefaultPermcat(name, next);
+    } catch {
+      refetchPermcats();
+    }
   }
 
   return (
@@ -510,37 +583,51 @@ export default function ContactRolesSection() {
           <div class="flex flex-wrap gap-1.5">
             <For each={rolePills()}>
               {(pill) => (
-                <Show
-                  when={!pill.system && pill.name !== null && pill.name !== ""}
-                  fallback={
+                <div class="flex items-center gap-1">
+                  <Show
+                    when={!pill.system && pill.name !== null && pill.name !== ""}
+                    fallback={
+                      <button
+                        onClick={() => setActiveRole(pill.name)}
+                        class={`px-3 py-1 rounded-full text-sm transition-colors flex items-center gap-1.5 ${
+                          selected() === pill.name
+                            ? "bg-accent text-accent-fg"
+                            : "bg-overlay text-muted hover:bg-surface"
+                        }`}
+                      >
+                        {pill.label}
+                        <span class={`text-xs font-medium tabular-nums ${
+                          selected() === pill.name ? "opacity-80" : "text-muted"
+                        }`}>
+                          {pill.count}
+                        </span>
+                      </button>
+                    }
+                  >
+                    <CustomRolePill
+                      name={pill.name!}
+                      label={pill.label}
+                      count={pill.count}
+                      active={selected() === pill.name}
+                      onSelect={() => setActiveRole(pill.name)}
+                      onDeleted={handlePermcatDeleted}
+                      onRenamed={handlePermcatRenamed}
+                      onEditPerms={(name, label) => setEditingPerms({ name, label })}
+                      onBulkAssigned={() => refetchConns()}
+                    />
+                  </Show>
+                  <Show when={pill.name && pill.name !== "default"}>
                     <button
-                      onClick={() => setActiveRole(pill.name)}
-                      class={`px-3 py-1 rounded-full text-sm transition-colors flex items-center gap-1.5 ${
-                        selected() === pill.name
-                          ? "bg-accent text-accent-fg"
-                          : "bg-overlay text-muted hover:bg-surface"
-                      }`}
+                      onClick={() => handleToggleDefault(pill.name!, pill.is_default)}
+                      title={pill.is_default ? t("directory.remove_default_role") : t("directory.set_default_role")}
+                      class="text-muted hover:text-accent transition-colors shrink-0"
                     >
-                      {pill.label}
-                      <span class={`text-xs font-medium tabular-nums ${
-                        selected() === pill.name ? "opacity-80" : "text-muted"
-                      }`}>
-                        {pill.count}
-                      </span>
+                      {pill.is_default
+                        ? <MdFillStar size={15} class="text-accent" />
+                        : <MdFillStar_border size={15} />}
                     </button>
-                  }
-                >
-                  <CustomRolePill
-                    name={pill.name!}
-                    label={pill.label}
-                    count={pill.count}
-                    active={selected() === pill.name}
-                    onSelect={() => setActiveRole(pill.name)}
-                    onDeleted={handlePermcatDeleted}
-                    onRenamed={handlePermcatRenamed}
-                    onEditPerms={(name, label) => setEditingPerms({ name, label })}
-                  />
-                </Show>
+                  </Show>
+                </div>
               )}
             </For>
           </div>
