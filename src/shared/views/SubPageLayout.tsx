@@ -1,4 +1,4 @@
-import { type JSX, Show, createMemo } from "solid-js";
+import { type JSX, Show, createMemo, createSignal, createEffect } from "solid-js";
 import { useLocation, useNavigate, A } from "@solidjs/router";
 import { useViewerRole } from "@/shared/store/site-config";
 import { useInstalledApps } from "@/shared/store/nav-store";
@@ -29,6 +29,12 @@ interface Props {
   contentClass?: string;
 }
 
+// Each section path (e.g. "/settings/integrations") is registered as its own
+// <Route>, so navigating back to the bare base path unmounts SubPageLayout
+// entirely — component-local state can't survive that. Track the last
+// section per base outside the component lifecycle instead.
+const lastKeyByBase = new Map<string, string>();
+
 function isVisible(item: SubPageItem, role: string, installed: Set<string>): boolean {
   if (item.requiresApp && !isAppInstalled(installed, item.requiresApp)) return false;
   if (!item.context || item.context === "all") return true;
@@ -53,6 +59,18 @@ export default function SubPageLayout(props: Props) {
     location.pathname === props.base ||
     location.pathname === props.base + "/";
 
+  // Remember the last section visited so the overview list (mobile) keeps it
+  // highlighted after "< Back" navigates to the bare base path, which has no
+  // section segment for props.activeKey to derive from.
+  const [lastKey, setLastKey] = createSignal(lastKeyByBase.get(props.base) ?? props.activeKey);
+  createEffect(() => {
+    if (!atBase()) {
+      setLastKey(props.activeKey);
+      lastKeyByBase.set(props.base, props.activeKey);
+    }
+  });
+  const highlightKey = () => (atBase() ? lastKey() : props.activeKey);
+
   const activeItem = () =>
     visibleItems().find((item) => item.path === props.activeKey);
 
@@ -71,7 +89,7 @@ export default function SubPageLayout(props: Props) {
         <SubPageNav
           base={props.base}
           items={visibleItems()}
-          activeKey={props.activeKey}
+          activeKey={highlightKey()}
         />
         <Show when={props.sidebarFooter}>
           <div class="px-4 pb-3 mt-auto">{props.sidebarFooter}</div>
