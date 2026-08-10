@@ -121,6 +121,38 @@ export default function ChanView() {
     return Array.isArray(h) ? h[0] : (h ?? "");
   };
 
+  const param = (key: string) => {
+    const v = (searchParams as Record<string, string | string[] | undefined>)[key];
+    return Array.isArray(v) ? v[0] : v;
+  };
+
+  // When the local hash lookup misses (channel never discovered on this
+  // site), fall back to whatever profile data the caller already had —
+  // e.g. a directory search result — instead of a bare "not found".
+  const fallback = (): XchanData | null => {
+    const name = param("name");
+    const address = param("addr");
+    if (!name || !address) return null;
+    const kw = param("kw");
+    return {
+      xchan_hash: "",
+      name,
+      address,
+      url: param("url") ?? "",
+      photo: param("photo") ?? "",
+      network: "zot6",
+      is_forum: param("forum") === "1",
+      is_connected: false,
+      abook_id: null,
+      local_nick: null,
+      pdesc: param("desc"),
+      location: param("location"),
+      homepage: param("homepage"),
+      cover: param("cover"),
+      keywords: kw ? kw.split(",").filter(Boolean) : [],
+    };
+  };
+
   const [xchan] = createQueryResource("xchan", hash, fetchXchan);
 
   const [connectState, setConnectState] = createSignal<ConnectState>({ tag: "idle" });
@@ -136,7 +168,7 @@ export default function ChanView() {
     });
   }
 
-  const x = () => xchan();
+  const x = () => xchan() ?? fallback();
   const isConnected = () => !disconnected() && (x()?.is_connected ?? false);
 
   const isSelf = () => {
@@ -194,7 +226,7 @@ export default function ChanView() {
         <ChanViewSkeleton />
       </Show>
 
-      <Show when={xchan.error || (xchan() === null && !xchan.loading)}>
+      <Show when={(xchan.error || (xchan() === null && !xchan.loading)) && !fallback()}>
         <div class="rounded-2xl bg-surface border border-rim p-8 text-center text-muted text-sm">
           {t("ui.not_found_title")}
         </div>

@@ -12,6 +12,19 @@ interface Props {
   onClose: () => void;
 }
 
+function chanviewHref(entry: DirectoryEntry): string {
+  const params = new URLSearchParams({ f: "", hash: entry.hash, addr: entry.address, name: entry.name });
+  if (entry.photo) params.set("photo", entry.photo);
+  if (entry.profile_url) params.set("url", entry.profile_url);
+  if (entry.description) params.set("desc", entry.description);
+  if (entry.location) params.set("location", entry.location);
+  if (entry.homepage) params.set("homepage", entry.homepage);
+  if (entry.cover) params.set("cover", entry.cover);
+  if (entry.keywords.length) params.set("kw", entry.keywords.join(","));
+  if (entry.public_forum) params.set("forum", "1");
+  return `/chanview?${params.toString()}`;
+}
+
 const DirectoryEntryModal: Component<Props> = (props) => {
   const { t } = useI18n();
   const e = () => props.entry;
@@ -73,7 +86,7 @@ const DirectoryEntryModal: Component<Props> = (props) => {
 
             {/* ── Header ── */}
             <div class={`flex items-start gap-4 px-5 pb-4 border-b border-rim ${e()!.cover ? '-mt-8 pt-2' : 'pt-5'}`}>
-              <a href={`/chanview?f=&hash=${encodeURIComponent(e()!.hash)}`} class="shrink-0">
+              <a href={chanviewHref(e()!)} class="shrink-0">
                 <img
                   src={e()!.photo}
                   alt={e()!.name}
@@ -84,7 +97,7 @@ const DirectoryEntryModal: Component<Props> = (props) => {
                 <div class="flex items-start justify-between gap-2">
                   <div class="min-w-0">
                     <a
-                      href={`/chanview?f=&hash=${encodeURIComponent(e()!.hash)}`}
+                      href={chanviewHref(e()!)}
                       class="font-bold text-base text-txt hover:underline leading-tight block"
                     >
                       {e()!.name}
@@ -199,7 +212,7 @@ const DirectoryEntryModal: Component<Props> = (props) => {
                   when={e()!.connect_url}
                   fallback={
                     <a
-                      href={`/chanview?f=&hash=${encodeURIComponent(e()!.hash)}`}
+                      href={chanviewHref(e()!)}
                       class="flex-1 text-center px-4 py-2 rounded-lg text-sm font-semibold bg-accent text-accent-fg hover:opacity-80 transition-opacity"
                     >
                       {t("directory.view_profile")}
@@ -217,7 +230,7 @@ const DirectoryEntryModal: Component<Props> = (props) => {
               </Show>
              <Show when={isConnected() || e()!.connect_url}>
                 <a
-                  href={`/chanview?f=&hash=${encodeURIComponent(e()!.hash)}`}
+                  href={chanviewHref(e()!)}
                   class="px-4 py-2 rounded-lg text-sm font-medium border border-rim text-muted hover:bg-overlay transition-colors"
                 >
                   {t("directory.view_profile")}
