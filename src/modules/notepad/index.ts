@@ -46,6 +46,7 @@ registerModule({
       defaultModules: [],
       contexts: "any",
       visitorVisible: false,
+      helpTarget: "widgets.quick_note",
     },
     {
       id: "notepad.archive",
@@ -53,6 +54,7 @@ registerModule({
       loader: () => import("./widgets/NoteArchiveWidget"),
       slot: "right",
       visitorVisible: false,
+      helpTarget: "widgets.archive_tree",
     },
     {
       id: "notepad.drafts",
@@ -60,16 +62,18 @@ registerModule({
       loader: () => import("./widgets/NoteDraftsWidget"),
       slot: "right",
       visitorVisible: false,
+      helpTarget: "widgets.drafts",
     },
     {
       // Opt-in alternate layout for notepad.archive — picker only, no default placement
       id: "notepad.archive_grid",
       label: () => useI18n().t("widgets.archive_grid"),
       loader: () => import("./widgets/NoteArchiveGridWidget"),
-      slot: "right",
+      slot: ["footer", "right"],
       defaultModules: [],
       contexts: ["notepad"],
       visitorVisible: false,
+      helpTarget: "widgets.archive_calendar",
     },
     {
       id: "notepad.tags",
@@ -77,6 +81,7 @@ registerModule({
       loader: () => import("./widgets/NoteTagWidget"),
       slot: "right",
       visitorVisible: false,
+      helpTarget: "widgets.tags_cloud",
     },
     {
       // Opt-in alternate layout for notepad.tags — picker only, no default placement
@@ -87,6 +92,7 @@ registerModule({
       defaultModules: [],
       contexts: ["notepad"],
       visitorVisible: false,
+      helpTarget: "widgets.tags_list",
     },
   ],
   permissions: [],

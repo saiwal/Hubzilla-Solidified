@@ -51,7 +51,7 @@ registerModule({
       loader: () => import("./widgets/WebpageDraftsWidget"),
       slot: "right",
       visitorVisible: false,
-      helpTarget: "webpages.drafts_widget",
+      helpTarget: "widgets.drafts",
     },
   ],
   permissions: [],

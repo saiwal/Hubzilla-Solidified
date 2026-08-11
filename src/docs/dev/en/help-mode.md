@@ -3,7 +3,7 @@
 Help mode is an in-app "click anything to see its docs" overlay. A user turns
 it on via `HelpTrigger` (the `?` button in the top nav), then clicks any
 help-enabled element to open a modal rendering the relevant section of the
-**user** docs (`src/docs/user/<locale>/*.txt`) — no page navigation required.
+**user** docs (`src/docs/user/<locale>/*.md`) — no page navigation required.
 
 ## Turning It On
 
@@ -58,15 +58,27 @@ composer buttons (`NavUtilities.tsx`, `WidgetArrangementEditor.tsx`,
 Given a target like `"channel.connections_widget"`:
 
 1. Split on the first `.` → module `"channel"`, section `"connections_widget"`.
-2. Fetch `src/docs/user/<locale>/channel.txt` (via `useDocs(module, docType)`,
+2. Fetch `src/docs/user/<locale>/channel.md` (via `useDocs(module, docType)`,
    which the static-copy plugin ships alongside the built theme).
-3. If a section is given, extract just the `## <section title>` heading's
-   body (underscores in the target become spaces when matching the heading
-   text) — see `extractSection()` in `HelpOverlay.tsx`. Falls back to the
-   whole document if the heading isn't found.
+3. If a section is given, extract just the matching heading's body — any
+   level (`#`-`######`), whitespace-tolerant — see `extractSection()` in
+   `HelpOverlay.tsx`. A heading is matched one of two ways:
+   - a `<!-- section_slug -->` comment on its own line immediately above it,
+     matched literally against the target's section, or
+   - failing that, the heading text itself (underscores in the target become
+     spaces, case/whitespace-insensitive).
+   Falls back to the whole document if neither matches.
 4. Render the extracted Markdown with `marked`, rewriting any relative
    image `src` to the doc's own asset path
    (`/view/theme/solidified/docs/<docType>/<locale>/...`).
+
+Text matching only works against the doc in the fetched locale, so a fully
+translated heading (e.g. `hi/widgets.md`'s headings are translated, not
+mirrors of the English wording) won't match the target's English-derived
+slug. Anchor comments are the fix: keep the same `<!-- section_slug -->`
+line above the heading in every locale's translation, and the section
+resolves regardless of wording. Untranslated docs (or sections not yet
+annotated) still fall back to text matching, which only works in `en`.
 
 ## The Modal
 
@@ -86,6 +98,8 @@ clears both `helpMode` and `helpTarget`.
 Nothing beyond setting `helpTarget` (or relying on the default) and wrapping
 the relevant element with `use:helpable={target}` is required — there's no
 central registry to update. Make sure the target's module doc
-(`src/docs/user/en/<module>.txt`) actually has a `## <section>` heading
-matching the target's section, or the modal falls back to showing the whole
-document.
+(`src/docs/user/en/<module>.md`) actually has a heading matching the
+target's section, or the modal falls back to showing the whole document. If
+the doc is translated into other locales, add a matching
+`<!-- section_slug -->` anchor comment above the heading in each
+translation so the section still resolves there.

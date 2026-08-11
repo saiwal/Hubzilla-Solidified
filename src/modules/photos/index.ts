@@ -48,7 +48,7 @@ registerModule({
       label: () => useI18n().t("widgets.photo_albums"),
       loader: () => import("./widgets/PhotosWidget"),
       slot: "right",
-      helpTarget: "photos.photo_albums_widget",
+      helpTarget: "widgets.photo_albums",
     },
     {
       // Opt-in album showcase; place several, each configured with an album
@@ -60,7 +60,7 @@ registerModule({
       contexts: ["channel", "profile", "photos"],
       multiInstance: true,
       configComponent: () => import("./widgets/AlbumStripConfig"),
-      helpTarget: "photos.album_strip_widget",
+      helpTarget: "widgets.album_strip",
     },
   ],
   permissions: [],

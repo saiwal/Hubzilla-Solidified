@@ -103,7 +103,7 @@ function DocContent(props: { target: string }) {
     const html = marked.parse(extractSection(md()!, section())) as string;
 
     // module is the doc path relative to the lang root (e.g. "hq" for
-    // docs/user/en/hq.txt, or "network/index" for docs/user/en/network/index.txt).
+    // docs/user/en/hq.md, or "network/index" for docs/user/en/network/index.md).
     // Relative image srcs in the markdown are relative to that same directory.
     const slashIdx = module().lastIndexOf("/");
     const topicDir = slashIdx === -1 ? "" : module().slice(0, slashIdx);
@@ -138,19 +138,40 @@ function DocContent(props: { target: string }) {
 
 function extractSection(md: string, section?: string): string {
   if (!section) return md;
-  const slug = section.replace(/_/g, " ").toLowerCase();
+  // Docs are per-locale, so heading text can be fully translated and won't
+  // text-match the (English) target slug. A `<!-- section_slug -->` comment
+  // right before a heading pins it to the target independent of wording —
+  // preferred when present, with text-match as the fallback for docs that
+  // haven't been annotated yet.
+  const slug = section.toLowerCase();
+  const textSlug = section.replace(/_/g, " ").toLowerCase();
   const lines = md.split("\n");
-  let inside = false;
+  let insideLevel = -1;
+  let pendingAnchor: string | null = null;
   const result: string[] = [];
   for (const line of lines) {
-    if (line.startsWith("## ")) {
-      if (inside) break;
-      if (line.replace("## ", "").toLowerCase() === slug) {
-        inside = true;
+    const anchor = line.match(/^<!--\s*([\w-]+)\s*-->\s*$/);
+    if (anchor) {
+      pendingAnchor = anchor[1].toLowerCase();
+      continue;
+    }
+    const heading = line.match(/^(#{1,6})\s+(.*?)\s*$/);
+    if (heading) {
+      const level = heading[1].length;
+      if (insideLevel !== -1 && level <= insideLevel) break;
+      const isMatch = insideLevel === -1 && (
+        pendingAnchor === slug ||
+        heading[2].trim().replace(/\s+/g, " ").toLowerCase() === textSlug
+      );
+      pendingAnchor = null;
+      if (isMatch) {
+        insideLevel = level;
         continue;
       }
+    } else if (line.trim() !== "") {
+      pendingAnchor = null;
     }
-    if (inside) result.push(line);
+    if (insideLevel !== -1) result.push(line);
   }
   return result.join("\n").trim() || md;
 }

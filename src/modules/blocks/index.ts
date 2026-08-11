@@ -18,7 +18,7 @@ registerModule({
       contexts: "any",
       multiInstance: true,
       configComponent: () => import("./widgets/RssConfig"),
-      helpTarget: "widgets.rss_feed_widget",
+      helpTarget: "widgets.rss",
     },
     {
       id: "blocks.html",
@@ -29,7 +29,7 @@ registerModule({
       contexts: "any",
       multiInstance: true,
       configComponent: () => import("./widgets/HtmlBlockConfig"),
-      helpTarget: "widgets.html_block_widget",
+      helpTarget: "widgets.html_block",
     },
     {
       id: "blocks.clock",
@@ -40,7 +40,7 @@ registerModule({
       contexts: "any",
       multiInstance: true,
       configComponent: () => import("./widgets/ClockConfig"),
-      helpTarget: "widgets.clock_card_widget",
+      helpTarget: "widgets.clock_card",
     },
     {
       // Owner productivity tool, not page content — hidden from visitors
@@ -53,7 +53,7 @@ registerModule({
       multiInstance: true,
       visitorVisible: false,
       configComponent: () => import("./widgets/PomodoroConfig"),
-      helpTarget: "widgets.pomodoro_widget",
+      helpTarget: "widgets.pomodoro",
     },
     {
       id: "blocks.weather",
@@ -63,6 +63,7 @@ registerModule({
       defaultModules: [],
       contexts: "any",
       multiInstance: true,
+      helpTarget: "widgets.weather",
       configComponent: () => import("./widgets/WeatherConfig"),
     },
     {
@@ -72,6 +73,7 @@ registerModule({
       slot: ["right", "gridTop", "footer"],
       defaultModules: [],
       contexts: "any",
+      helpTarget: "widgets.quotes",
       multiInstance: true,
     },
     {
@@ -82,6 +84,7 @@ registerModule({
       defaultModules: [],
       contexts: "any",
       multiInstance: true,
+      helpTarget: "widgets.embed",
       configComponent: () => import("./widgets/EmbedConfig"),
     },
     {
@@ -95,7 +98,7 @@ registerModule({
       contexts: "any",
       multiInstance: true,
       configComponent: () => import("./widgets/MenuConfig"),
-      helpTarget: "widgets.menu_widgets",
+      helpTarget: "widgets.menu_bar",
     },
     {
       // Vertical multilevel menu fed by a Hubzilla menu — right sidebar only
@@ -107,7 +110,7 @@ registerModule({
       contexts: "any",
       multiInstance: true,
       configComponent: () => import("./widgets/MenuConfig"),
-      helpTarget: "widgets.menu_widgets",
+      helpTarget: "widgets.menu_tree",
     },
     {
       id: "blocks.links",
@@ -118,7 +121,7 @@ registerModule({
       contexts: "any",
       multiInstance: true,
       configComponent: () => import("./widgets/LinkListConfig"),
-      helpTarget: "widgets.link_list_widget",
+      helpTarget: "widgets.link_list",
     },
   ],
   permissions: [],

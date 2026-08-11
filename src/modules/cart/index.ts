@@ -52,7 +52,7 @@ registerModule({
       contexts: ["channel", "profile", "cart"],
       multiInstance: true,
       configComponent: () => import("./widgets/ItemCardConfig"),
-      helpTarget: "cart.item_card_widget",
+      helpTarget: "widgets.shop_item_card",
     },
   ],
   permissions: [],

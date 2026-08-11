@@ -124,7 +124,7 @@ const NAV_HELP_SLUGS: Record<string, string> = {
 
 /**
  * Help-mode target for a nav item, in "nav.<topic>" form (see
- * src/docs/user/en/nav.txt).
+ * src/docs/user/en/nav.md).
  *
  * Items for `appUrlSlug`-gated modules (Calendar, Photos, Wiki, ...) are built
  * from the *server's* app URL (see `appToNavItem` below), which doesn't

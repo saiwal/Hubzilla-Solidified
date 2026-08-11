@@ -39,6 +39,7 @@ registerModule({
       slot: "contentTop",
       defaultModules: ["channel"],
       contexts: ["channel"],
+      helpTarget: "widgets.chronological_feed",
     },
     {
       // Opt-in alternate layout for channel.feed — picker only, no default placement
@@ -48,6 +49,7 @@ registerModule({
       slot: "contentTop",
       defaultModules: [],
       contexts: ["channel"],
+      helpTarget: "widgets.newspaper_feed",
     },
     {
       // Opt-in alternate layout for channel.feed — picker only, no default placement
@@ -57,6 +59,7 @@ registerModule({
       slot: "contentTop",
       defaultModules: [],
       contexts: ["channel"],
+      helpTarget: "widgets.timeline_feed",
     },
     {
       // Opt-in alternate layout for channel.feed — picker only, no default placement
@@ -66,6 +69,7 @@ registerModule({
       slot: "contentTop",
       defaultModules: [],
       contexts: ["channel"],
+      helpTarget: "widgets.scrapbook_feed",
     },
 		{
       // Opt-in vCard-style summary — picker only, no default placement.
@@ -77,6 +81,7 @@ registerModule({
       slot: ["right"],
       defaultModules: ["articles", "photos", "cloud", "cal", "webpages", "wiki", "cart"],
       contexts: "any",
+      helpTarget: "widgets.contact_card",
     },
     {
       id: "channel.connections",
@@ -84,34 +89,35 @@ registerModule({
       loader: () => import("./widgets/ChannelConnectionsWidget"),
       ...channelWidgetPlacement,
       helpTarget: "channel.connections_widget",
+      helpTarget: "widgets.connections",
     },
     {
       id: "channel.popular",
       label: () => useI18n().t("widgets.popular_posts"),
       loader: () => import("./widgets/ChannelPopularWidget"),
       ...channelWidgetPlacement,
-      helpTarget: "channel.popular_posts_widget",
+      helpTarget: "widgets.popular_posts",
     },
     {
       id: "channel.categories",
       label: () => useI18n().t("widgets.categories"),
       loader: () => import("./widgets/ChannelCategoryWidget"),
       ...channelWidgetPlacement,
-      helpTarget: "channel.categories_widget",
+      helpTarget: "widgets.categories_list",
     },
     {
       id: "channel.tags",
       label: () => useI18n().t("widgets.tags"),
       loader: () => import("./widgets/ChannelTagWidget"),
       ...channelWidgetPlacement,
-      helpTarget: "channel.tags_widget",
+      helpTarget: "widgets.tags_cloud",
     },
     {
       id: "channel.archive",
       label: () => useI18n().t("widgets.archive"),
       loader: () => import("./widgets/ChannelArchiveWidget"),
       ...channelWidgetPlacement,
-      helpTarget: "channel.archive_widget",
+      helpTarget: "widgets.archive_tree",
     },
     {
       // Opt-in alternate layout for channel.tags — picker only, no default placement
@@ -120,8 +126,8 @@ registerModule({
       loader: () => import("./widgets/ChannelTagListWidget"),
       slot: ["right", "footer"],
       defaultModules: [],
-      contexts: ["channel", "profile", "webpages"],
-      helpTarget: "channel.tag_list_widget",
+      contexts: ["channel", "profile"],
+      helpTarget: "widgets.tag_list",
     },
     {
       // Opt-in alternate layout for channel.categories — picker only, no default placement
@@ -130,8 +136,8 @@ registerModule({
       loader: () => import("./widgets/ChannelCategoryCloudWidget"),
       slot: ["right", "footer"],
       defaultModules: [],
-      contexts: ["channel", "profile", "webpages"],
-      helpTarget: "channel.category_cloud_widget",
+      contexts: ["channel", "profile"],
+      helpTarget: "widgets.category_cloud",
     },
     {
       // Opt-in alternate layout for channel.archive — picker only, no default placement
@@ -140,8 +146,8 @@ registerModule({
       loader: () => import("./widgets/ChannelArchiveGridWidget"),
       slot: ["right", "footer"],
       defaultModules: [],
-      contexts: ["channel", "profile", "webpages"],
-      helpTarget: "channel.archive_grid_widget",
+      contexts: ["channel", "profile"],
+      helpTarget: "widgets.archive_calendar",
     },
 
     {
@@ -153,6 +159,7 @@ registerModule({
       slot: ["right", "gridTop"],
       defaultModules: [],
       contexts: ["channel", "profile", "hq"],
+      helpTarget: "widgets.activity_heatmap",
     },
   ],
   permissions: [],

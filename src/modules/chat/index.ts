@@ -53,7 +53,7 @@ registerModule({
       slot: "right",
       contexts: "any",
       global: true,
-      helpTarget: "chat.pinned_rooms_widget",
+      helpTarget: "widgets.pinned_chatrooms",
     },
     {
       id: "chat.bookmarkedRooms",
@@ -61,7 +61,7 @@ registerModule({
       loader: () => import("./widgets/BookmarkedRoomsWidget"),
       slot: "right",
       visitorVisible: false,
-      helpTarget: "chat.bookmarked_rooms_widget",
+      helpTarget: "widgets.bookmarked_rooms",
     },
     {
       // Opt-in chatroom showcase; place several, each configured with a room
@@ -73,7 +73,7 @@ registerModule({
       contexts: ["channel", "profile", "chat"],
       multiInstance: true,
       configComponent: () => import("./widgets/RoomCardConfig"),
-      helpTarget: "chat.room_card_widget",
+      helpTarget: "widgets.chat_room_card",
     },
   ],
   permissions: [],

@@ -41,6 +41,7 @@ registerModule({
       loader: () => import("./widgets/HelpNavWidget"),
       slot: "right",
       defaultModules: ["help"],
+      helpTarget: "widgets.navigation_tree",
     },
   ],
 });

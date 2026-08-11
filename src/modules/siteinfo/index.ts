@@ -38,6 +38,7 @@ registerModule({
       slot: "contentTop",
       defaultModules: ["siteinfo"],
       contexts: ["siteinfo"],
+      helpTarget: "widgets.about_site",
     },
     {
       id: "siteinfo.admin",
@@ -46,6 +47,7 @@ registerModule({
       slot: "contentTop",
       defaultModules: ["siteinfo"],
       contexts: ["siteinfo"],
+      helpTarget: "widgets.admin_info",
     },
     {
       id: "siteinfo.service_classes",
@@ -54,6 +56,7 @@ registerModule({
       slot: "contentTop",
       defaultModules: ["siteinfo"],
       contexts: ["siteinfo"],
+      helpTarget: "widgets.service_classes",
     },
     {
       id: "siteinfo.addons",
@@ -62,6 +65,7 @@ registerModule({
       slot: "contentTop",
       defaultModules: ["siteinfo"],
       contexts: ["siteinfo"],
+      helpTarget: "widgets.addons_info",
     },
     {
       id: "siteinfo.themes",
@@ -70,6 +74,7 @@ registerModule({
       slot: "contentTop",
       defaultModules: ["siteinfo"],
       contexts: ["siteinfo"],
+      helpTarget: "widgets.themes_info",
     },
     {
       id: "siteinfo.federation",
@@ -78,6 +83,7 @@ registerModule({
       slot: "contentTop",
       defaultModules: ["siteinfo"],
       contexts: ["siteinfo"],
+      helpTarget: "widgets.federation",
     },
   ],
 

@@ -30,7 +30,7 @@ registerModule({
       loader: () => import("./widgets/StreamFiltersWidget"),
       slot: "right",
       visitorVisible: false,
-      helpTarget: "network.stream_filters_widget",
+      helpTarget: "widgets.filters",
     },
     {
       id: "network.savedSearch",
@@ -38,7 +38,7 @@ registerModule({
       loader: () => import("./widgets/SavedSearchesWidget"),
       slot: "right",
       visitorVisible: false,
-      helpTarget: "network.saved_searches_widget",
+      helpTarget: "widgets.saved_searches",
     },
   ],
   permissions: [],

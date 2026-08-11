@@ -58,7 +58,7 @@ registerModule({
       loader: () => import("./widgets/ArticleDraftsWidget"),
       slot: "right",
       visitorVisible: false,
-      helpTarget: "articles.drafts_widget",
+      helpTarget: "widgets.drafts",
     },
     {
       id: "articles.popular",
@@ -67,14 +67,14 @@ registerModule({
       slot: "right",
       defaultModules: [],
       contexts: ["channel", "profile", "articles"],
-      helpTarget: "articles.popular_articles_widget",
+      helpTarget: "widgets.popular_articles",
     },
     {
       id: "articles.categories",
       label: () => useI18n().t("widgets.article_categories"),
       loader: () => import("./widgets/ArticleCategoryWidget"),
       slot: "right",
-      helpTarget: "articles.categories_widget",
+      helpTarget: "widgets.categories_list",
     },
     {
       // Opt-in alternate layout for articles.categories — picker only, no default placement
@@ -84,7 +84,7 @@ registerModule({
       slot: ["right", "footer"],
       defaultModules: [],
       contexts: ["articles"],
-      helpTarget: "articles.categories_cloud_widget",
+      helpTarget: "widgets.categories_cloud",
     },
     {
       // Opt-in archive calendar — picker only, no default placement
@@ -94,14 +94,14 @@ registerModule({
       slot: ["right", "footer"],
       defaultModules: [],
       contexts: ["articles"],
-      helpTarget: "articles.archive_grid_widget",
+      helpTarget: "widgets.archive_calendar",
     },
     {
       id: "articles.tags",
       label: () => useI18n().t("widgets.article_tags"),
       loader: () => import("./widgets/ArticleTagWidget"),
       slot: "right",
-      helpTarget: "articles.tags_widget",
+      helpTarget: "widgets.tags_cloud",
     },
     {
       // Opt-in alternate layout for articles.tags — picker only, no default placement
@@ -111,7 +111,7 @@ registerModule({
       slot: ["right", "footer"],
       defaultModules: [],
       contexts: ["articles"],
-      helpTarget: "articles.tags_list_widget",
+      helpTarget: "widgets.tags_list",
     },
     {
       // Opt-in article showcase; place several, each configured with an article
@@ -123,7 +123,7 @@ registerModule({
       contexts: ["channel", "profile", "articles"],
       multiInstance: true,
       configComponent: () => import("./widgets/ArticleTeaserConfig"),
-      helpTarget: "articles.teaser_widget",
+      helpTarget: "widgets.article_teaser",
     },
     {
       // Opt-in series index — picker only, no default placement
@@ -133,7 +133,7 @@ registerModule({
       slot: "right",
       defaultModules: [],
       contexts: ["articles"],
-      helpTarget: "articles.series_widget",
+      helpTarget: "widgets.article_series",
     },
   ],
   permissions: [],

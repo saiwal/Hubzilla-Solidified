@@ -23,7 +23,7 @@ registerModule({
       slot: "gridTop",
       defaultModules: [],
       contexts: "any",
-      helpTarget: "hq.quick_compose_widget",
+      helpTarget: "widgets.quick_compose_btns",
     },
 		{
       id: "hq.quick_compose_right",
@@ -32,7 +32,7 @@ registerModule({
       slot: "right",
       defaultModules: [],
       contexts: "any",
-      helpTarget: "hq.quick_compose_widget",
+      helpTarget: "widgets.quick_compose_btns",
     },
     // The dashboard itself, in the gridTop banner slot Layout.tsx already
     // renders above the routed view — same slot the "sleek" blocks.* / _top
@@ -44,7 +44,7 @@ registerModule({
       slot: "gridTop",
       defaultModules: ["hq"],
       contexts: "any",
-      helpTarget: "hq.post_composer",
+      helpTarget: "widgets.quick_composer",
     },
 		{
       id: "hq.composer_header",
@@ -53,7 +53,7 @@ registerModule({
       slot: "header",
       defaultModules: ["network"],
       contexts: "any",
-      helpTarget: "hq.post_composer",
+      helpTarget: "widgets.quick_composer",
     },
 
     {
@@ -63,7 +63,7 @@ registerModule({
       slot: "gridTop",
       defaultModules: ["hq"],
       contexts: ["hq"],
-      helpTarget: "hq.drafts_widget",
+      helpTarget: "widgets.drafts",
     },
     {
       // Delayed-publish queue in the right sidebar — the component renders
@@ -75,6 +75,7 @@ registerModule({
       defaultModules: ["hq"],
       contexts: "any",
       visitorVisible: false,
+      helpTarget: "widgets.scheduled_posts",
     },
     {
       // Local users only — mirrors the old `auth()?.isLocal` gate in HqView
@@ -85,7 +86,7 @@ registerModule({
       defaultModules: ["hq"],
       contexts: ["hq"],
       visitorVisible: false,
-      helpTarget: "hq.upcoming_events_widget",
+      helpTarget: "widgets.upcoming_events",
     },
     {
       id: "hq.messages",
@@ -94,7 +95,7 @@ registerModule({
       slot: "gridTop",
       defaultModules: ["hq"],
       contexts: ["hq"],
-      helpTarget: "hq.messages_widget",
+      helpTarget: "widgets.recent_posts",
     },
     // Single-tab variants of hq.messages, opt-in via the widget picker so the
     // dashboard doesn't default to 5 message feeds at once.
@@ -105,7 +106,7 @@ registerModule({
       slot: "gridTop",
       defaultModules: ["hq"],
       contexts: ["hq"],
-      helpTarget: "hq.messages_widget",
+      helpTarget: "widgets.direct_message_panel	",
     },
     {
       id: "hq.messages.notices",
@@ -114,7 +115,7 @@ registerModule({
       slot: "gridTop",
       defaultModules: [],
       contexts: ["hq"],
-      helpTarget: "hq.messages_widget",
+      helpTarget: "widgets.notices_panel",
     },
     // Account resource usage (storage, channels, connections, etc.) at a
     // glance — full detail lives on the Account settings page.
@@ -125,6 +126,7 @@ registerModule({
       slot: "gridTop",
       defaultModules: [],
       contexts: ["hq"],
+      helpTarget: "widgets.usage_quotas",
     },
     {
       id: "hq.usage_quotas_right",
@@ -133,6 +135,7 @@ registerModule({
       slot: "right",
       defaultModules: ["hq"],
       contexts: ["hq"],
+      helpTarget: "widgets.usage_quotas",
     },
   ],
   permissions: [],

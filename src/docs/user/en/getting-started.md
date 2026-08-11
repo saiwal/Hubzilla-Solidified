@@ -31,7 +31,7 @@ The centre of the page. This is where pages, streams, and content are displayed.
 
 
 ### Right Sidebar (Desktop)
-Context-sensitive widgets — notifications, upcoming events, and module-specific helpers appear here depending on which page you are on. On your own pages you can add, remove, reorder, and configure these — see [widgets.txt](./widgets).
+Context-sensitive widgets — notifications, upcoming events, and module-specific helpers appear here depending on which page you are on. On your own pages you can add, remove, reorder, and configure these — see [widgets](./widgets).
 
 ![IMAGE: Full layout with left nav, main content, right sidebar labelled](getting-started/hq.png)
 

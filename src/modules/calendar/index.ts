@@ -55,7 +55,7 @@ registerModule({
       contexts: ["channel", "profile", "cal"],
       multiInstance: true,
       configComponent: () => import("./widgets/EventCardConfig"),
-      helpTarget: "calendar.event_card_widget",
+      helpTarget: "widgets.event_card",
     },
   ],
   permissions: [],

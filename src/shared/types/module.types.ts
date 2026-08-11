@@ -17,7 +17,7 @@ export interface NavItemDef {
   hidden?: boolean;
   /**
    * Help-mode target for this nav item, in "nav.<topic>" form. Resolved the
-   * same way as the `use:helpable` directive: fetches src/docs/user/en/nav.txt
+   * same way as the `use:helpable` directive: fetches src/docs/user/en/nav.md
    * and extracts the "## <topic>" heading (underscores become spaces). Falls
    * back to a topic derived from the item's path when unset — see
    * `navItemHelpTarget()` in `useNav.ts`.
@@ -87,7 +87,7 @@ export interface WidgetDef {
   /**
    * Help-mode target for this widget, in "<docModule>.<section>" form (section
    * optional — omit it to show the whole doc). Resolved the same way as the
-   * `use:helpable` directive: fetches src/docs/user|dev/en/<docModule>.txt and,
+   * `use:helpable` directive: fetches src/docs/user|dev/en/<docModule>.md and,
    * if a section is given, extracts the "## <section>" heading (underscores
    * become spaces). Falls back to `widgets.<id>` when unset.
    */

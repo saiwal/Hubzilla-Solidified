@@ -55,7 +55,7 @@ registerModule({
       slot: "right",
       defaultModules: ["wiki"],
 			contexts: "any",
-      helpTarget: "wiki.wiki_list_widget",
+      helpTarget: "widgets.wiki_list",
     },
     {
       id: "wiki.drafts",
@@ -64,7 +64,7 @@ registerModule({
       slot: "right",
       defaultModules: ["wiki"],
       visitorVisible: false,
-      helpTarget: "wiki.drafts_widget",
+      helpTarget: "widgets.drafts",
     },
   ],
   slots: {},
