@@ -10,6 +10,7 @@ import { useI18n } from "@/i18n";
 import { bbcodeToHtml } from "@/shared/lib/bbcode";
 import { sanitizeHtml } from "@/shared/lib/sanitize";
 import { oembedResolver } from "@/shared/lib/oembedResolver";
+import { openFeedModal } from "@/shared/store/feed-modal";
 
 type ChannelProfile = {
   channel_name: string;
@@ -182,16 +183,33 @@ function ProfileHeader(props: {
           </Show>
         </div>
         <div class="flex items-center gap-2 shrink-0">
+          {/* Local channels: open the filterable subscribe modal. Remote
+              actors have no local /spa/feed to filter — link straight to
+              their home hub's own feed instead, same as before. */}
           <Show when={p.feed_url}>
-            <a
-              href={p.feed_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              title={t("channel.rss_feed")}
-              class="p-1.5 rounded-full border border-rim text-muted hover:text-accent hover:border-accent transition-colors"
+            <Show
+              when={!p.is_remote}
+              fallback={
+                <a
+                  href={p.feed_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={t("channel.rss_feed")}
+                  class="p-1.5 rounded-full border border-rim text-muted hover:text-accent hover:border-accent transition-colors"
+                >
+                  <MdFillRss_feed size={16} />
+                </a>
+              }
             >
-              <MdFillRss_feed size={16} />
-            </a>
+              <button
+                onClick={() => openFeedModal(p.channel_address)}
+                title={t("channel.rss_feed")}
+                aria-label={t("channel.rss_feed")}
+                class="p-1.5 rounded-full border border-rim text-muted hover:text-accent hover:border-accent transition-colors"
+              >
+                <MdFillRss_feed size={16} />
+              </button>
+            </Show>
           </Show>
           <Show when={!props.isOwner}>
             <FollowButton

@@ -88,7 +88,6 @@ registerModule({
       label: () => useI18n().t("widgets.connections"),
       loader: () => import("./widgets/ChannelConnectionsWidget"),
       ...channelWidgetPlacement,
-      helpTarget: "channel.connections_widget",
       helpTarget: "widgets.connections",
     },
     {

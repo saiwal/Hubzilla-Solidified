@@ -13,6 +13,8 @@ import { useAuth } from "@/shared/store/auth-store";
 import { useI18n } from "@/i18n";
 import formatPostDate from "@/shared/lib/date";
 import { MdFillPush_pin } from "solid-icons/md";
+import { BiRegularRss } from "solid-icons/bi";
+import { openFeedModal } from "@/shared/store/feed-modal";
 
 function eventOf(post: ThreadNode) {
   return post.eventData ?? (post.body.includes("[event-summary]") ? parseEventData(post.body) : undefined);
@@ -303,7 +305,17 @@ export default function NewspaperView(props: {
           <div class="mt-3 border-t-4 border-double border-txt" />
           <div class="flex items-center justify-between text-[0.6875rem] uppercase tracking-widest text-muted mt-1.5 font-sans">
             <span>{today()}</span>
-            <span>Vol. I · No. {sorted().length}</span>
+            <div class="flex items-center gap-2">
+              <span>Vol. I · No. {sorted().length}</span>
+              <button
+                onClick={() => openFeedModal(nick())}
+                title={t("channel.rss_feed")}
+                aria-label={t("channel.rss_feed")}
+                class="p-1 rounded-full border border-rim text-muted hover:text-accent hover:border-accent transition-colors normal-case tracking-normal"
+              >
+                <BiRegularRss size={12} />
+              </button>
+            </div>
           </div>
         </header>
 

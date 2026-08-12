@@ -72,6 +72,9 @@ export const post: RawDictionary["post"] = {
   edit:                  "संपादित करें",
   event_edit_unavailable: "यह इवेंट अभी संपादित नहीं किया जा सकता — कैलेंडर ऐप से प्रयास करें।",
   event_edit_failed:     "इवेंट संपादक नहीं खोला जा सका।",
+  add_to_calendar:       "कैलेंडर में जोड़ें",
+  added_to_calendar:     "आपके कैलेंडर में जोड़ा गया",
+  add_to_calendar_failed: "इवेंट को कैलेंडर में नहीं जोड़ा जा सका।",
   // expiry
   expires:               "समाप्ति",
   expired_badge:         "समाप्त",

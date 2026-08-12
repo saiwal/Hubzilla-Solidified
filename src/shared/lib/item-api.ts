@@ -88,6 +88,9 @@ export const apiRsvpDecline = (uuid: string) =>
 export const apiRsvpMaybe   = (uuid: string) =>
   post<RsvpResult>(`${BASE}/${encodeId(uuid)}/tentativeaccept`);
 
+export const apiAddToCalendar = (uuid: string) =>
+  post<{ success: boolean }>(`${BASE}/${encodeId(uuid)}/addtocal`);
+
 export const apiCreatePost = (body: Record<string, unknown>) =>
   post<{ success: boolean; iid: number; mid: string; uuid: string }>(BASE, body);
 

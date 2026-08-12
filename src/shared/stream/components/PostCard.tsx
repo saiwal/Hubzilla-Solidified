@@ -58,6 +58,7 @@ import {
   MdFillPush_pin,
   MdOutlinePush_pin,
   MdOutlineVisibility,
+  MdOutlineEvent,
 } from "solid-icons/md";
 import { useI18n } from "@/i18n";
 import { BiRegularLinkExternal, BiSolidShareAlt } from "solid-icons/bi";
@@ -83,6 +84,7 @@ import {
   apiFetchItemFolders,
   apiSaveToFolder,
   apiFetchComposeSource,
+  apiAddToCalendar,
 } from "@/shared/lib/item-api";
 import { fetchFolders } from "@/modules/network/api";
 import EventCard from "./EventCard";
@@ -365,6 +367,25 @@ export default function PostCard(props: {
 
   // Star: only meaningful for local authenticated users
   const canStar = () => !!props.handlers.onStar && auth()?.isLocal === true;
+
+  // Add to calendar: any local authenticated viewer of an event post — mirrors
+  // EventCard's canRsvp() gate, independent of RSVPing.
+  const canAddToCalendar = () =>
+    auth()?.isLocal === true && !!props.post.uuid && !!eventData();
+  const [addingToCal, setAddingToCal] = createSignal(false);
+  async function addToCalendar() {
+    if (addingToCal() || !props.post.uuid) return;
+    setMoreDropdownOpen(false);
+    setAddingToCal(true);
+    try {
+      await apiAddToCalendar(props.post.uuid);
+      toast.success(t("post.added_to_calendar"));
+    } catch {
+      toast.error(t("post.add_to_calendar_failed"));
+    } finally {
+      setAddingToCal(false);
+    }
+  }
 
   // Pin: channel wall owner only, top-level non-private posts (backend
   // re-validates this — these are UI-visibility gates, not the source of truth).
@@ -1333,6 +1354,7 @@ export default function PostCard(props: {
               canEdit() ||
               canFollow() ||
               canPin() ||
+              canAddToCalendar() ||
               canViewSource() ||
               canDeliveryReport() ||
               props.post.likeCount > 0 ||
@@ -1438,6 +1460,16 @@ export default function PostCard(props: {
                   >
                     <MdOutlineSend size={13} />
                     <span>{t("post.delivery_report")}</span>
+                  </button>
+                </Show>
+                <Show when={canAddToCalendar()}>
+                  <button
+                    onClick={addToCalendar}
+                    disabled={addingToCal()}
+                    class="w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-overlay transition-colors text-left text-txt disabled:opacity-60"
+                  >
+                    <MdOutlineEvent size={13} />
+                    <span>{t("post.add_to_calendar")}</span>
                   </button>
                 </Show>
                 <Show when={canPin()}>
@@ -2207,6 +2239,16 @@ export default function PostCard(props: {
               >
                 <MdOutlineSend size={15} />
                 <span>{t("post.delivery_report")}</span>
+              </button>
+            </Show>
+            <Show when={canAddToCalendar()}>
+              <button
+                onClick={addToCalendar}
+                disabled={addingToCal()}
+                class="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-overlay transition-colors text-left text-txt disabled:opacity-60"
+              >
+                <MdOutlineEvent size={15} />
+                <span>{t("post.add_to_calendar")}</span>
               </button>
             </Show>
             <Show when={canPin()}>

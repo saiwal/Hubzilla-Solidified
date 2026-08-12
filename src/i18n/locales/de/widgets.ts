@@ -217,4 +217,14 @@ export const widgets: RawDictionary["widgets"] = {
   // Bookmarks header (bookmarks.header) / folders list (bookmarks.content)
   bookmarks_header:  "Lesezeichen-Kopfzeile",
   bookmarks_content: "Lesezeichen",
+  // Subscribe / RSS feed modal (FeedModal.tsx, opened from the nav RSS icon)
+  rss_feeds:              "RSS-Feeds",
+  subscribe_posts:        "Beiträge",
+  subscribe_articles:     "Artikel",
+  subscribe_webpages:     "Webseiten",
+  subscribe_all_posts:    "Alle Beiträge",
+  subscribe_all_articles: "Alle Artikel",
+  subscribe_all_webpages: "Alle Webseiten",
+  open_feed:              "Feed öffnen",
+  copy_feed_url:          "Feed-URL kopieren",
 };

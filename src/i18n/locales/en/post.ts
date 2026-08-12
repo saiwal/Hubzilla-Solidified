@@ -80,6 +80,9 @@ export const post: RawDictionary["post"] = {
   edit:                  "Edit",
   event_edit_unavailable: "This event can't be edited right now — try from the Calendar app instead.",
   event_edit_failed:     "Couldn't open the event editor.",
+  add_to_calendar:       "Add to calendar",
+  added_to_calendar:     "Added to your calendar",
+  add_to_calendar_failed: "Couldn't add event to your calendar.",
   // expiry
   expires:               "Expires",
   expired_badge:         "Expired",

@@ -559,6 +559,16 @@ export type RawDictionary = {
     // Bookmarks header (bookmarks.header) / folders list (bookmarks.content)
     bookmarks_header:  string;
     bookmarks_content: string;
+    // Subscribe / RSS feed modal (FeedModal.tsx, opened from the nav RSS icon)
+    rss_feeds:              string;
+    subscribe_posts:        string;
+    subscribe_articles:     string;
+    subscribe_webpages:     string;
+    subscribe_all_posts:    string;
+    subscribe_all_articles: string;
+    subscribe_all_webpages: string;
+    open_feed:              string;
+    copy_feed_url:          string;
   };
   tools: {
     label:            string;
@@ -700,6 +710,9 @@ export type RawDictionary = {
     edit: string;
     event_edit_unavailable: string;
     event_edit_failed: string;
+    add_to_calendar: string;
+    added_to_calendar: string;
+    add_to_calendar_failed: string;
     expires: string; expired_badge: string; expired_title: string;
     scheduled_badge: string; scheduled_title: string;
     dm_badge: string; dm_title: string; dm_to: string;

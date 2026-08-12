@@ -3,27 +3,33 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import ThemeToggle from "./ThemeToggle";
 import HelpTrigger from "./HelpTrigger";
 import { A } from "@solidjs/router";
-import { BiRegularInfoCircle } from "solid-icons/bi";
+import { BiRegularInfoCircle, BiRegularRss } from "solid-icons/bi";
 import { MdFillCheck, MdOutlineEdit } from "solid-icons/md";
 import type { NavViewer, NavActions } from "@/shared/lib/nav-api";
 import Usermenu from "./UserMenu";
 import { useI18n } from "@/i18n";
 import { helpable } from "@/shared/lib/helpable";
 void helpable;
-import { useViewerRole } from "@/shared/store/site-config";
+import { useViewerRole, usePageNick } from "@/shared/store/site-config";
 import { editingWidgets, setEditingWidgets } from "@/shared/store/widget-layout";
+import { openFeedModal } from "@/shared/store/feed-modal";
+
+const CHANNEL_CONTEXT_MODULES = ["channel", "profile", "articles"];
 
 interface NavUtilitiesProps {
   viewer?: NavViewer;
   actions?: NavActions;
   actionsOpen?: boolean;
   onUserMenuToggle?: () => void;
+  moduleId?: string;
 }
 
 export default function NavUtilities(props: NavUtilitiesProps) {
   const { t } = useI18n();
   const viewerRole = useViewerRole();
   const isOwner = () => viewerRole() === "owner";
+  const pageNick = usePageNick();
+  const showFeedIcon = () => !isOwner() && CHANNEL_CONTEXT_MODULES.includes(props.moduleId ?? "");
   return (
     <>
       <Usermenu
@@ -55,6 +61,16 @@ export default function NavUtilities(props: NavUtilitiesProps) {
             <Show when={editingWidgets()} fallback={<MdOutlineEdit size={18} />}>
               <MdFillCheck size={18} />
             </Show>
+          </button>
+        </Show>
+        <Show when={showFeedIcon()}>
+          <button
+            onClick={() => openFeedModal(pageNick())}
+            title={t("widgets.rss_feeds")}
+            aria-label={t("widgets.rss_feeds")}
+            class="inline-flex items-center justify-center p-2 rounded-lg text-muted hover:bg-elevated hover:text-txt transition-colors"
+          >
+            <BiRegularRss size={18} />
           </button>
         </Show>
         <div use:helpable="nav.help_mode">
