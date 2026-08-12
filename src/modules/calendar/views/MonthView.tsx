@@ -2,10 +2,12 @@ import { For, Show, createMemo } from "solid-js";
 import type { CalEvent } from "../api";
 import { weeksForMonth, weekLayout, todayKey } from "./calUtils";
 import { useI18n } from "@/i18n";
+import { isFeatureEnabled } from "@/shared/store/auth-store";
 
 const LANE_H = 22;
 const DAY_NUM_H = 30;
-const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const WEEKDAYS_SUN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const WEEKDAYS_MON = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 interface Props {
   year: number;
@@ -17,14 +19,16 @@ interface Props {
 export default function MonthView(props: Props) {
   const { t } = useI18n();
   const todayK = todayKey();
+  const mondayStart = () => isFeatureEnabled("cal_first_day");
   const monthPrefix = () => `${props.year}-${String(props.month).padStart(2, "0")}`;
-  const weeks = createMemo(() => weeksForMonth(props.year, props.month));
+  const weeks = createMemo(() => weeksForMonth(props.year, props.month, mondayStart()));
+  const weekdayLabels = () => (mondayStart() ? WEEKDAYS_MON : WEEKDAYS_SUN);
 
   return (
     <div class="flex flex-col">
       {/* Weekday header */}
       <div class="grid grid-cols-7 border-b border-rim sticky top-0 bg-surface z-10">
-        <For each={WEEKDAYS}>
+        <For each={weekdayLabels()}>
           {(wd) => (
             <div class="text-center text-xs font-medium text-muted py-2 border-r border-rim last:border-r-0">
               {wd}

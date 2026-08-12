@@ -10,10 +10,18 @@ import { CAPABILITIES, type EditorTab } from "@/shared/editor/types/editor.types
 import AttachmentBar from "@/shared/editor/attachments/AttachmentBar";
 import { createAttachmentStore } from "@/shared/editor/attachments/useAttachments";
 import { bbcodeToInsert, patchInsertedAlt } from "@/shared/editor/attachments/insertHelpers";
-import { currentNick } from "@/shared/store/auth-store";
+import { currentNick, isFeatureEnabled } from "@/shared/store/auth-store";
 import AclPicker, { aclModeToScope } from "@/shared/editor/components/AclPicker";
 import { useAclState, splitAclEntries } from "@/shared/editor/components/useAclState";
-import { prevDay, nextDay } from "../views/calUtils";
+import { prevDay, nextDay, zonedTimeToUtc, utcToZonedDateTime } from "../views/calUtils";
+
+function timezones(): string[] {
+  try {
+    return Intl.supportedValuesOf("timeZone");
+  } catch {
+    return ["UTC", "America/New_York", "Europe/London", "Europe/Berlin", "Asia/Kolkata", "Asia/Tokyo", "Australia/Sydney"];
+  }
+}
 
 interface Props {
   onClose: () => void;
@@ -36,43 +44,47 @@ function todayDate() {
 }
 
 // All-day events store a calendar date with no timezone adjustment — use the
-// raw date string. Timed events come back with a server-timezone offset, so
-// convert to browser-local to match what the display shows.
-function isoToDate(iso: string, allDay = false) {
-  if (allDay) return iso.slice(0, 10);
-  const d = new Date(iso);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+// raw date string. Timed events are shown in `tz` (the event's own zone when
+// Event Timezone Selection is on and editing, otherwise the browser's zone).
+function isoToDate(iso: string, allDay: boolean, tz: string) {
+  return allDay ? iso.slice(0, 10) : utcToZonedDateTime(iso, tz).date;
 }
-function isoToTime(iso: string) {
-  const d = new Date(iso);
-  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+function isoToTime(iso: string, tz: string) {
+  return utcToZonedDateTime(iso, tz).time;
 }
 
 export default function EventCreatorModal(props: Props) {
   const { t } = useI18n();
   const ev = props.event;
   const isEdit = !!ev;
+  const tzSelectable = isFeatureEnabled("event_tz_select");
+  // Editing an event authored in a different zone: show/edit its wall-clock
+  // time as originally entered, not converted to the browser's own zone.
+  const initialTz = ev?.timezone && tzSelectable
+    ? ev.timezone
+    : Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const [title, setTitle] = createSignal(ev?.title ?? "");
   const [allDay, setAllDay] = createSignal(ev?.allDay ?? false);
-  const [startDate, setStartDate] = createSignal(ev ? isoToDate(ev.start, ev.allDay) : (props.defaultDate ?? todayDate()));
-  const [startTime, setStartTime] = createSignal(ev && !ev.allDay ? isoToTime(ev.start) : "09:00");
+  const [startDate, setStartDate] = createSignal(ev ? isoToDate(ev.start, ev.allDay, initialTz) : (props.defaultDate ?? todayDate()));
+  const [startTime, setStartTime] = createSignal(ev && !ev.allDay ? isoToTime(ev.start, initialTz) : "09:00");
   const [nofinish, setNofinish] = createSignal(ev?.nofinish ?? false);
   // Stored dtend for all-day events is exclusive (end date + 1 day, matching
   // classic Hubzilla) — shift back a day so the picker shows the last
   // inclusive day the user actually picked.
   const [endDate, setEndDate] = createSignal(
     ev?.end
-      ? (ev.allDay ? prevDay(isoToDate(ev.end, true)) : isoToDate(ev.end, false))
+      ? (ev.allDay ? prevDay(isoToDate(ev.end, true, initialTz)) : isoToDate(ev.end, false, initialTz))
       : (props.defaultDate ?? todayDate())
   );
-  const [endTime, setEndTime] = createSignal(ev?.end && !ev.allDay ? isoToTime(ev.end) : "10:00");
+  const [endTime, setEndTime] = createSignal(ev?.end && !ev.allDay ? isoToTime(ev.end, initialTz) : "10:00");
   const [location, setLocation] = createSignal(ev?.location ?? "");
   const [description, setDescription] = createSignal(ev?.description ?? "");
   const [descriptionTab, setDescriptionTab] = createSignal<EditorTab>("wysiwyg");
   const attach = createAttachmentStore(currentNick(), `event:${ev?.id ?? "new"}`);
   const [submitting, setSubmitting] = createSignal(false);
   const [selectedCalIdx, setSelectedCalIdx] = createSignal(0);
+  const [timezone, setTimezone] = createSignal(initialTz);
 
   const [calData] = createQueryResource("cdav-calendars", fetchCdavCalendars);
 
@@ -131,18 +143,18 @@ export default function EventCreatorModal(props: Props) {
 
     try {
       // All-day: send a bare UTC midnight so PHP stores the calendar date unchanged.
-      // Timed: new Date("YYYY-MM-DDTHH:MM:SS") is parsed as LOCAL time by the JS
-      // engine, so toISOString() gives the correct UTC equivalent.
+      // Timed: interpret the entered wall-clock time in the selected timezone
+      // (browser-local by default, or whatever Event Timezone Selection picked).
       const startIso = allDay()
         ? `${startDate()}T00:00:00Z`
-        : new Date(`${startDate()}T${startTime()}:00`).toISOString();
+        : zonedTimeToUtc(startDate(), startTime(), timezone()).toISOString();
 
       // All-day dtend is stored exclusive (end date + 1 day) — same convention
       // classic Hubzilla's calendar (Cdav.php) uses for CalDAV and channel events.
       const endIso = !nofinish() && endDate()
         ? allDay()
           ? `${nextDay(endDate())}T00:00:00Z`
-          : new Date(`${endDate()}T${endTime()}:00`).toISOString()
+          : zonedTimeToUtc(endDate(), endTime(), timezone()).toISOString()
         : undefined;
 
       if (endIso && endIso < startIso) {
@@ -150,11 +162,6 @@ export default function EventCreatorModal(props: Props) {
         setSubmitting(false);
         return;
       }
-
-      // Metadata only — dtstart/dtend above are already absolute UTC instants.
-      // Lets core's ical/CalDAV export tag events with the zone they were
-      // actually authored in instead of a hardcoded UTC.
-      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
       // Audience — only meaningful for the channel calendar (native events);
       // CalDAV targets have no ACL concept in this app.
@@ -183,7 +190,7 @@ export default function EventCreatorModal(props: Props) {
           end: endIso,
           allDay: allDay(),
           nofinish: nofinish(),
-          timezone,
+          timezone: timezone(),
           ...aclPayload,
           calendarId: ev.calendarId,
           uri: ev.uri,
@@ -199,7 +206,7 @@ export default function EventCreatorModal(props: Props) {
           end: endIso,
           allDay: allDay(),
           nofinish: nofinish(),
-          timezone,
+          timezone: timezone(),
           ...aclPayload,
           calendarId: selectedCal?.calendarId,
           calendarInstanceId: selectedCal?.calendarInstanceId,
@@ -332,6 +339,22 @@ export default function EventCreatorModal(props: Props) {
               </div>
             </Show>
           </div>
+
+          {/* Timezone — only when "Event Timezone Selection" is enabled and the event has a time */}
+          <Show when={tzSelectable && !allDay()}>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-medium text-muted">{t("calendar.timezone_label")}</label>
+              <select
+                value={timezone()}
+                onChange={(e) => setTimezone(e.currentTarget.value)}
+                class={inputClass + " appearance-none cursor-pointer"}
+              >
+                <For each={timezones()}>
+                  {(tz) => <option value={tz}>{tz}</option>}
+                </For>
+              </select>
+            </div>
+          </Show>
 
           {/* No-end toggle */}
           <label class="flex items-center gap-2 cursor-pointer select-none">

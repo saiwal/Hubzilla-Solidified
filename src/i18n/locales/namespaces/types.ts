@@ -1778,6 +1778,7 @@ export type RawDictionary = {
     time_label:       string;
     no_end_time:      string;
     end_label:        string;
+    timezone_label:   string;
     location_label:   string;
     optional:         string;
     description_label: string;

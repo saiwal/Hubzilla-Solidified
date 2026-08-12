@@ -16,6 +16,7 @@ export const calendar: RawDictionary["calendar"] = {
   time_label:       "समय",
   no_end_time:      "समाप्ति समय नहीं",
   end_label:        "समाप्त",
+  timezone_label:   "समय क्षेत्र",
   location_label:   "स्थान",
   optional:         "वैकल्पिक",
   description_label: "विवरण",

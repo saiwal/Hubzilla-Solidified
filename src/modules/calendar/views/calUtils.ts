@@ -19,9 +19,10 @@ export function todayKey(): string {
   return isoDateStr(new Date());
 }
 
-export function startOfWeek(d: Date): Date {
+export function startOfWeek(d: Date, mondayStart = false): Date {
   const r = new Date(d);
-  r.setDate(r.getDate() - r.getDay());
+  const day = r.getDay();
+  r.setDate(r.getDate() - (mondayStart ? (day + 6) % 7 : day));
   return r;
 }
 
@@ -31,11 +32,10 @@ export function addDays(d: Date, n: number): Date {
   return r;
 }
 
-export function weeksForMonth(year: number, month: number): string[][] {
+export function weeksForMonth(year: number, month: number, mondayStart = false): string[][] {
   const firstDay = new Date(year, month - 1, 1);
   const lastDay = new Date(year, month, 0);
-  const start = new Date(firstDay);
-  start.setDate(start.getDate() - start.getDay());
+  const start = startOfWeek(firstDay, mondayStart);
 
   const weeks: string[][] = [];
   const cur = new Date(start);
@@ -48,6 +48,44 @@ export function weeksForMonth(year: number, month: number): string[][] {
     weeks.push(week);
   }
   return weeks;
+}
+
+/**
+ * Convert a wall-clock date+time meant to be read in `timeZone` (e.g. the
+ * "9:00 AM" the user typed while the Event Timezone Selection feature is set
+ * to "Asia/Tokyo") into the UTC instant it represents. One pass — good enough
+ * for the rare DST-transition edge case, not iterated to a fixed point.
+ */
+export function zonedTimeToUtc(dateStr: string, timeStr: string, timeZone: string): Date {
+  const [y, mo, d] = dateStr.split("-").map(Number);
+  const [h, mi] = timeStr.split(":").map(Number);
+  const utcGuess = Date.UTC(y, mo - 1, d, h, mi);
+
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone, hour12: false,
+      year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit",
+    }).formatToParts(utcGuess).map((p) => [p.type, p.value]),
+  );
+  const asIfUtc = Date.UTC(
+    Number(parts.year), Number(parts.month) - 1, Number(parts.day),
+    Number(parts.hour) % 24, Number(parts.minute),
+  );
+  return new Date(utcGuess + (utcGuess - asIfUtc));
+}
+
+/** Inverse of zonedTimeToUtc: the wall-clock date+time an ISO instant reads as in `timeZone`. */
+export function utcToZonedDateTime(iso: string, timeZone: string): { date: string; time: string } {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-US", {
+      timeZone, hour12: false,
+      year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit",
+    }).formatToParts(new Date(iso)).map((p) => [p.type, p.value]),
+  );
+  return {
+    date: `${parts.year}-${parts.month}-${parts.day}`,
+    time: `${parts.hour === "24" ? "00" : parts.hour}:${parts.minute}`,
+  };
 }
 
 export interface SpanEv {

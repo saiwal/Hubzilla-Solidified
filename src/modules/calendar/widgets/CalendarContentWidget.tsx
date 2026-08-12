@@ -2,7 +2,7 @@ import {
   createEffect, createSignal, createMemo, Show,
 } from "solid-js";
 import { usePageNick } from "@/shared/store/site-config";
-import { useAuth } from "@/shared/store/auth-store";
+import { useAuth, isFeatureEnabled } from "@/shared/store/auth-store";
 import { useI18n } from "@/i18n";
 import { MdFillChevron_left, MdFillChevron_right } from "solid-icons/md";
 import {
@@ -30,7 +30,7 @@ function rangeForView(view: ViewType, anchor: Date): CalRange {
     return monthRange(anchor.getFullYear(), anchor.getMonth() + 1);
   }
   if (view === "week") {
-    const s = startOfWeek(anchor);
+    const s = startOfWeek(anchor, isFeatureEnabled("cal_first_day"));
     return { start: isoDateStr(s), end: isoDateStr(addDays(s, 7)) };
   }
   return { start: isoDateStr(anchor), end: isoDateStr(addDays(anchor, 1)) };
@@ -78,7 +78,7 @@ export default function CalendarContentWidget() {
       return new Date(d.getFullYear(), d.getMonth(), 1)
         .toLocaleDateString(undefined, { month: "long", year: "numeric" });
     if (v === "week") {
-      const s = startOfWeek(d);
+      const s = startOfWeek(d, isFeatureEnabled("cal_first_day"));
       const e = addDays(s, 6);
       return `${s.toLocaleDateString(undefined, { month: "short", day: "numeric" })} – ${e.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}`;
     }

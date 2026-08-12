@@ -5,6 +5,7 @@ import {
   weekLayout, columnLayout, eventTopPx, eventHeightPx,
 } from "./calUtils";
 import { useI18n } from "@/i18n";
+import { isFeatureEnabled } from "@/shared/store/auth-store";
 
 interface Props {
   anchor: Date;
@@ -25,7 +26,7 @@ export default function WeekView(props: Props) {
   const todayK = todayKey();
 
   const weekDates = createMemo(() => {
-    const s = startOfWeek(new Date(props.anchor));
+    const s = startOfWeek(new Date(props.anchor), isFeatureEnabled("cal_first_day"));
     return Array.from({ length: 7 }, (_, i) => isoDateStr(addDays(s, i)));
   });
 
