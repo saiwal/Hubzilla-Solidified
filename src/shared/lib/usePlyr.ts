@@ -51,6 +51,33 @@ function patchDownloadButton(plyrContainer: Element): void {
   });
 }
 
+// Single-element variant for a video/audio node whose ref is known directly
+// (e.g. a preview modal), rather than scanning a rendered-body container.
+// Returns a dispose function — call it from onCleanup at the ref call site.
+export function mountPlyr(el: HTMLMediaElement): () => void {
+  let player: Plyr | null = null;
+  let disposed = false;
+
+  import('plyr').then(({ default: PlyrCtor }) => {
+    if (disposed || !el.isConnected) return;
+    try {
+      player = new PlyrCtor(el, PLYR_OPTIONS);
+      player.on('error', () => {});
+      player.on('ready', () => {
+        const container = el.closest('.plyr');
+        if (container) patchDownloadButton(container);
+      });
+    } catch (_) {
+      player = null;
+    }
+  });
+
+  return () => {
+    disposed = true;
+    try { player?.destroy(); } catch (_) {}
+  };
+}
+
 export function usePlyr(
   containerRef: () => HTMLElement | undefined,
   body: () => string,

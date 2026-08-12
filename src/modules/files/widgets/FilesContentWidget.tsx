@@ -38,6 +38,8 @@ import FileInfoModal from "../views/FileInfoModal";
 import RenameModal from "../views/RenameModal";
 import MoveCopyModal from "../views/MoveCopyModal";
 import CategoriesModal from "../views/CategoriesModal";
+import FilePreviewModal from "@/shared/views/FilePreviewModal";
+import { classifyPreview } from "@/shared/lib/filePreview";
 
 type ModalKind = "info" | "rename" | "moveCopy" | "categories";
 
@@ -593,6 +595,13 @@ export default function FilesContentWidget() {
 
   // Kebab menu actions
   const [activeModal, setActiveModal] = createSignal<{ kind: ModalKind; item: FileMeta } | null>(null);
+  const [previewItem, setPreviewItem] = createSignal<FileMeta | null>(null);
+
+  function openItem(item: FileMeta) {
+    if (item.is_dir) { navigateInto(item); return; }
+    if (classifyPreview(item.filetype, item.filename) !== "none") { setPreviewItem(item); return; }
+    window.open(davPath(nick(), item.display_path), "_blank");
+  }
 
   function handleMenuAction(action: FileAction, item: FileMeta) {
     if (action === "permissions") {
@@ -815,9 +824,7 @@ export default function FilesContentWidget() {
                     isOwner={isOwner()}
                     deleting={deleting()}
                     permItem={permItem()}
-                    onOpen={(it) => it.is_dir
-                      ? navigateInto(it)
-                      : window.open(davPath(nick(), it.display_path), "_blank")}
+                    onOpen={openItem}
                     onAction={handleMenuAction}
                   />
                   {/* Permissions panel for grid mode — centered modal */}
@@ -848,7 +855,7 @@ export default function FilesContentWidget() {
                         nick={nick()}
                         canWrite={canWrite()}
                         isOwner={isOwner()}
-                        onOpen={(it) => it.is_dir ? navigateInto(it) : window.open(davPath(nick(), it.display_path), "_blank")}
+                        onOpen={openItem}
                         onAction={handleMenuAction}
                         deleting={deleting() === item.hash}
                         permOpen={permItem()?.hash === item.hash}
@@ -901,6 +908,23 @@ export default function FilesContentWidget() {
           onSaved={handleCategoriesSaved}
           onClose={() => setActiveModal(null)}
         />
+      </Show>
+
+      <Show when={previewItem()}>
+        {(item) => (
+          <FilePreviewModal
+            url={davPath(nick(), item().display_path)}
+            filename={item().filename}
+            mimetype={item().filetype}
+            sizeBytes={item().filesize}
+            onClose={() => setPreviewItem(null)}
+            onEditSaved={canWrite() ? async (blob) => {
+              const edited = new File([blob], item().filename, { type: blob.type });
+              await uploadFile(davBase(), edited);
+              refetch();
+            } : undefined}
+          />
+        )}
       </Show>
 
     </div>

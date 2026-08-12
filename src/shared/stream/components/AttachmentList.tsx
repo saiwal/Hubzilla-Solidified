@@ -1,5 +1,11 @@
 import { createSignal, For, Show } from "solid-js";
 import type { StreamAttachment } from "@/shared/types/post.types";
+import { classifyPreview } from "@/shared/lib/filePreview";
+import FilePreviewModal from "@/shared/views/FilePreviewModal";
+
+function safeDecode(s: string): string {
+  try { return decodeURIComponent(s); } catch { return s; }
+}
 
 function formatBytes(raw: string): string {
   const n = parseInt(raw, 10);
@@ -24,6 +30,7 @@ function photoDisplayUrl(href: string, type: string): string {
 
 export default function AttachmentList(props: { attachments: StreamAttachment[]; compact?: boolean }) {
   const [open, setOpen] = createSignal(false);
+  const [previewing, setPreviewing] = createSignal<StreamAttachment | null>(null);
 
   const images = () => props.attachments.filter((a) => a.type.startsWith("image/"));
   const links  = () => props.attachments.filter((a) => a.type.startsWith("text/html"));
@@ -81,29 +88,64 @@ export default function AttachmentList(props: { attachments: StreamAttachment[];
           <Show when={files().length > 0}>
             <div class="flex flex-wrap gap-2">
               <For each={files()}>
-                {(file) => (
-                  <a
-                    href={file.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="flex items-center gap-2 px-3 py-2 rounded-lg border border-rim bg-elevated
-                           hover:bg-overlay text-txt transition-colors max-w-xs"
-                  >
-                    <FileIcon type={file.type} />
-                    <div class="min-w-0">
-                      <div class="truncate text-xs font-medium">
-                        {decodeURIComponent(file.title) || "File"}
+                {(file) => {
+                  const previewable = () =>
+                    classifyPreview(file.type, safeDecode(file.title)) !== "none";
+                  const chip = (
+                    <>
+                      <FileIcon type={file.type} />
+                      <div class="min-w-0">
+                        <div class="truncate text-xs font-medium">
+                          {safeDecode(file.title) || "File"}
+                        </div>
+                        <Show when={file.length && file.length !== "0"}>
+                          <div class="text-[0.625rem] text-muted">{formatBytes(file.length)}</div>
+                        </Show>
                       </div>
-                      <Show when={file.length && file.length !== "0"}>
-                        <div class="text-[0.625rem] text-muted">{formatBytes(file.length)}</div>
-                      </Show>
-                    </div>
-                  </a>
-                )}
+                    </>
+                  );
+                  return (
+                    <Show
+                      when={previewable()}
+                      fallback={
+                        <a
+                          href={file.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="flex items-center gap-2 px-3 py-2 rounded-lg border border-rim bg-elevated
+                                 hover:bg-overlay text-txt transition-colors max-w-xs"
+                        >
+                          {chip}
+                        </a>
+                      }
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setPreviewing(file)}
+                        class="flex items-center gap-2 px-3 py-2 rounded-lg border border-rim bg-elevated
+                               hover:bg-overlay text-txt transition-colors max-w-xs text-left"
+                      >
+                        {chip}
+                      </button>
+                    </Show>
+                  );
+                }}
               </For>
             </div>
           </Show>
         </div>
+      </Show>
+
+      <Show when={previewing()}>
+        {(file) => (
+          <FilePreviewModal
+            url={file().href}
+            filename={safeDecode(file().title) || "File"}
+            mimetype={file().type}
+            sizeBytes={parseInt(file().length, 10) || undefined}
+            onClose={() => setPreviewing(null)}
+          />
+        )}
       </Show>
     </div>
   );
@@ -111,7 +153,7 @@ export default function AttachmentList(props: { attachments: StreamAttachment[];
 
 function LinkChip(props: { link: StreamAttachment }) {
   const displayTitle = () => {
-    const t = decodeURIComponent(props.link.title).trim();
+    const t = safeDecode(props.link.title).trim();
     if (t) return t;
     try {
       return new URL(props.link.href).hostname;
@@ -145,43 +187,56 @@ function LinkChip(props: { link: StreamAttachment }) {
 
 function ImageChip(props: { img: StreamAttachment; compact?: boolean }) {
   const [failed, setFailed] = createSignal(false);
+  const [open, setOpen] = createSignal(false);
   const displayUrl = photoDisplayUrl(props.img.href, props.img.type);
-  const filename = () => decodeURIComponent(props.img.title) || "Image";
+  const filename = () => safeDecode(props.img.title) || "Image";
 
   return (
-    <Show
-      when={!failed()}
-      fallback={
-        <a
-          href={props.img.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="flex items-center gap-2 px-3 py-2 rounded-lg border border-rim bg-elevated
-                 hover:bg-overlay text-txt transition-colors"
-        >
-          <FileIcon type={props.img.type} />
-          <div class="min-w-0">
-            <div class="truncate text-xs font-medium">{filename()}</div>
-            <Show when={props.img.length && props.img.length !== "0"}>
-              <div class="text-[0.625rem] text-muted">{formatBytes(props.img.length)}</div>
-            </Show>
-          </div>
-        </a>
-      }
-    >
-      <a href={props.img.href} target="_blank" rel="noopener noreferrer">
-        <img
-          src={displayUrl}
-          alt={filename()}
-          onError={() => setFailed(true)}
-          class={
-            "w-full rounded-lg object-cover hover:opacity-90 transition-opacity " +
-            (props.compact ? "max-h-40" : "max-h-72")
-          }
-          loading="lazy"
+    <>
+      <Show
+        when={!failed()}
+        fallback={
+          <a
+            href={props.img.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center gap-2 px-3 py-2 rounded-lg border border-rim bg-elevated
+                   hover:bg-overlay text-txt transition-colors"
+          >
+            <FileIcon type={props.img.type} />
+            <div class="min-w-0">
+              <div class="truncate text-xs font-medium">{filename()}</div>
+              <Show when={props.img.length && props.img.length !== "0"}>
+                <div class="text-[0.625rem] text-muted">{formatBytes(props.img.length)}</div>
+              </Show>
+            </div>
+          </a>
+        }
+      >
+        <button type="button" onClick={() => setOpen(true)} class="block w-full">
+          <img
+            src={displayUrl}
+            alt={filename()}
+            onError={() => setFailed(true)}
+            class={
+              "w-full rounded-lg object-cover hover:opacity-90 transition-opacity " +
+              (props.compact ? "max-h-40" : "max-h-72")
+            }
+            loading="lazy"
+          />
+        </button>
+      </Show>
+
+      <Show when={open()}>
+        <FilePreviewModal
+          url={displayUrl}
+          filename={filename()}
+          mimetype={props.img.type}
+          sizeBytes={parseInt(props.img.length, 10) || undefined}
+          onClose={() => setOpen(false)}
         />
-      </a>
-    </Show>
+      </Show>
+    </>
   );
 }
 

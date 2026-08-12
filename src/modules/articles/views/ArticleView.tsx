@@ -18,6 +18,7 @@ import { languageLabel } from "@/shared/lib/languages";
 import DOMPurify from "dompurify";
 import { hydrateLatex } from "@/shared/lib/hydrateLatex";
 import { useToc } from "@/shared/lib/useToc";
+import { usePlyr } from "@/shared/lib/usePlyr";
 import ArticleToc from "@/shared/views/ArticleToc";
 import { usePageNick, useViewerRole } from "@/shared/store/site-config";
 import { useAuth } from "@/shared/store/auth-store";
@@ -39,6 +40,7 @@ import { buildThreadTree, countAllComments, REACTION_VERBS } from "@/shared/lib/
 import type { ThreadNode } from "@/shared/lib/thread";
 import type { StreamHandlers } from "@/shared/stream/types";
 import CommentThread from "@/shared/views/CommentThread";
+import AttachmentList from "@/shared/stream/components/AttachmentList";
 import type { Post } from "@/shared/types/post.types";
 
 // ── edit modal ────────────────────────────────────────────────────────────────
@@ -395,6 +397,7 @@ export default function ArticleView() {
     if (rendered() && bodyRef) hydrateLatex(bodyRef);
   });
   const { toc, activeId } = useToc(rendered, () => bodyRef);
+  usePlyr(() => bodyRef, rendered);
 
   const isOwner = () => role() === "owner";
 
@@ -536,6 +539,11 @@ export default function ArticleView() {
                   // eslint-disable-next-line solid/no-innerhtml
                   innerHTML={rendered()}
                 />
+
+                {/* Attachments (files, video/audio, links) */}
+                <Show when={(d().article.attachments?.length ?? 0) > 0}>
+                  <AttachmentList attachments={d().article.attachments!} />
+                </Show>
 
                 {/* Reactions / action bar */}
                 <div class="flex items-center gap-1 pt-4 border-t border-rim flex-wrap">
