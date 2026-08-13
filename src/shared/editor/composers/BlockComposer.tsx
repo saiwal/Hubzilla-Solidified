@@ -1,4 +1,4 @@
-import { Show, onCleanup, createSignal, lazy } from "solid-js";
+import { Show, onCleanup, createSignal, createEffect, lazy } from "solid-js";
 import { useI18n } from "@/i18n";
 import { getCsrfToken } from "@/shared/lib/csrf";
 import { queryClient } from "@/shared/lib/query-client";
@@ -176,6 +176,25 @@ export default function BlockComposer(props: Props) {
     if (props.initial.mimetype) store.setMimetype(props.initial.mimetype as any);
   }
 
+  // ── Draft extra — ACL, which createComposerStore doesn't know about ──────
+  function buildDraftExtra(): Record<string, unknown> {
+    const mode = acl.mode();
+    const extra: Record<string, unknown> = { aclMode: mode };
+    if (mode === "custom") {
+      extra.allow = [...acl.allowEntries()];
+      extra.deny = [...acl.denyEntries()];
+    }
+    return extra;
+  }
+
+  createEffect(() => {
+    const extra = store.restoredExtra();
+    if (!extra) return;
+    if (typeof extra.aclMode === "string") acl.setMode(extra.aclMode as AclMode);
+    if (Array.isArray(extra.allow)) acl.setAllowEntries(new Set(extra.allow as string[]));
+    if (Array.isArray(extra.deny)) acl.setDenyEntries(new Set(extra.deny as string[]));
+  });
+
   // ── Mention + emoji autocomplete ─────────────────────────────────────────────
   const wiring = useMentionEmojiWiring({
     body: store.body,
@@ -300,7 +319,7 @@ export default function BlockComposer(props: Props) {
             {isEditing() ? t("editor.cancel_btn") : t("editor.discard")}
           </SecondaryButton>
           <Show when={store.body().trim()}>
-            <SecondaryButton onClick={() => void store.saveAsDraft()}>
+            <SecondaryButton onClick={() => void store.saveAsDraft(buildDraftExtra())}>
               <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 3v5H9V3m0 14h6" />

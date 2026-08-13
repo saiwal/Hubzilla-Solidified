@@ -24,8 +24,6 @@ export const post: RawDictionary["post"] = {
   import:               "Import",
   original:             "Original post",
   toggle_comments:      "Toggle comments",
-  toggle_flat:          "Switch to flat view",
-  toggle_threaded:      "Switch to threaded view",
   flat:                 "Flat",
   threaded:             "Threaded",
   flat_view:            "Flat view",
@@ -51,6 +49,8 @@ export const post: RawDictionary["post"] = {
   // loading
   loading_comments:     "Loading comments…",
   load_more_comments:   "Load more comments",
+  viewing_in_context:   "Viewing a comment in context",
+  show_all_comments:    "Show all comments",
   loading:              "Loading…",
   loading_source:       "Loading source…",
   // stats tabs

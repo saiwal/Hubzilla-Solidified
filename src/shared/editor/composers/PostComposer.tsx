@@ -270,6 +270,51 @@ const PostComposer: Component<ComposerProps> = (props) => {
   const wordCount = () => countWords(store.body());
   const charCount = () => store.body().length;
 
+  // ── Draft extra — the type-specific fields createComposerStore doesn't
+  // know about (ACL, expiry, location, delayed publish, no-comment, poll) ──
+  function buildDraftExtra(): Record<string, unknown> {
+    const mode = acl.mode();
+    const extra: Record<string, unknown> = {
+      aclMode: mode,
+      expiry: expiry(),
+      location: location(),
+      coord: coord(),
+      publishAt: publishAt(),
+      noComment: noComment(),
+    };
+    if (mode === "custom") {
+      extra.allow = [...acl.allowEntries()];
+      extra.deny = [...acl.denyEntries()];
+    }
+    if (poll.enabled()) {
+      extra.poll = { answers: poll.answers(), expireValue: poll.expireValue(), expireUnit: poll.expireUnit() };
+    }
+    return extra;
+  }
+
+  createEffect(() => {
+    const extra = store.restoredExtra();
+    if (!extra) return;
+    if (typeof extra.aclMode === "string") acl.setMode(extra.aclMode as AclMode);
+    if (Array.isArray(extra.allow)) acl.setAllowEntries(new Set(extra.allow as string[]));
+    if (Array.isArray(extra.deny)) acl.setDenyEntries(new Set(extra.deny as string[]));
+    if (typeof extra.expiry === "string") setExpiry(extra.expiry);
+    if (typeof extra.location === "string") setLocation(extra.location);
+    if (typeof extra.coord === "string") setCoord(extra.coord);
+    if (typeof extra.publishAt === "string") setPublishAt(extra.publishAt);
+    if (typeof extra.noComment === "boolean") setNoComment(extra.noComment);
+    const p = extra.poll as { answers: string[]; expireValue: string; expireUnit: string } | undefined;
+    if (p) {
+      poll.setEnabled(true);
+      p.answers.forEach((a, i) => {
+        while (poll.answers().length <= i) poll.addAnswer();
+        poll.updateAnswer(i, a);
+      });
+      poll.setExpireValue(p.expireValue);
+      poll.setExpireUnit(p.expireUnit);
+    }
+  });
+
   // ── Encrypt ─────────────────────────────────────────────────────────────────
   const enc = useEncrypt(() => store.body(), store.setBody);
 
@@ -458,7 +503,7 @@ const PostComposer: Component<ComposerProps> = (props) => {
                   {t("editor.discard")}
                 </SecondaryButton>
                 <Show when={store.body().trim()}>
-                  <SecondaryButton onClick={() => void store.saveAsDraft()}>
+                  <SecondaryButton onClick={() => void store.saveAsDraft(buildDraftExtra())}>
                     <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" />
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 3v5H9V3m0 14h6" />

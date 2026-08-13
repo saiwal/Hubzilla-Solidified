@@ -248,7 +248,11 @@ export default function ImageEditor(props: ImageEditorProps) {
       // comment), so a higher multiplier just upscales that capped bitmap
       // further and blurs it more; 1 = no extra upscale on top.
       savingPixelRatio:  1,
-      previewPixelRatio: 2,
+      // Konva rasterizes the on-canvas image once via .cache() at (fit-to-editor
+      // width) * previewPixelRatio, then just stretches that bitmap on zoom —
+      // it never re-renders from the source. Higher = sharper zoomed-in preview,
+      // at the cost of a bigger cached canvas.
+      previewPixelRatio: 4,
     });
 
     editor.render();

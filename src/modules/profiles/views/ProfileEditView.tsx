@@ -4,7 +4,7 @@ import { useParams, A } from "@solidjs/router";
 import { useI18n } from "@/i18n";
 import { toast } from "@/shared/store/toast";
 import { fetchProfile, saveProfile, uploadPhoto } from "../api/api";
-import type { Photo } from "@/modules/photos/api/api";
+import { fetchPhotoImage, type Photo } from "@/modules/photos/api/api";
 import { Section, Toggle, inputClass } from "@/modules/settings/store/FormHelpers";
 import PhotosPicker from "@/shared/editor/attachments/picker/PhotosPicker";
 import { currentNick } from "@/shared/store/auth-store";
@@ -134,7 +134,10 @@ export default function ProfileEditView() {
     if (type === "avatar") setAvatarPickerOpen(false);
     else setCoverPickerOpen(false);
     try {
-      const res = await fetch(photo.src, { credentials: "include" });
+      // photo.src from the picker's grid listing is a 320px thumbnail;
+      // fetch the detail record for the original-resolution src_full.
+      const detail = await fetchPhotoImage(currentNick() ?? "", photo.resource_id);
+      const res = await fetch(detail.src_full || photo.src, { credentials: "include" });
       const blob = await res.blob();
       const file = new File([blob], photo.filename || "photo.jpg", { type: blob.type || "image/jpeg" });
       if (type === "avatar") setAvatarFile(file);

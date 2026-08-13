@@ -8,9 +8,9 @@ import {
   lazy,
   Show,
   For,
+  type JSX,
 } from "solid-js";
 import { Portal } from "solid-js/web";
-import { useThreadMode } from "@/shared/store/thread-mode";
 import AuthorPopover from "./AuthorPopover";
 import type { ThreadNode } from "@/shared/lib/thread";
 import { countAllComments, isRootPost } from "@/shared/lib/thread";
@@ -26,8 +26,6 @@ import {
   MdFillKeyboard_arrow_down,
   MdFillKeyboard_arrow_up,
   MdFillShare,
-  MdFillFormat_list_bulleted,
-  MdFillAccount_tree,
   MdFillThumb_down,
   MdFillThumb_up,
   MdOutlineShare,
@@ -103,20 +101,6 @@ const EventCreatorModal = lazy(() => import("@/modules/calendar/widgets/EventCre
 export type { StreamHandlers as PostActions };
 
 const BODY_COLLAPSED_MAX_PX = 310;
-
-/** Recursively flatten a thread tree into a chronological list.
- *  Each node's children are zeroed out so CommentThread won't re-nest them. */
-function flattenThread(nodes: ThreadNode[]): ThreadNode[] {
-  const result: ThreadNode[] = [];
-  for (const node of nodes) {
-    result.push({ ...node, children: [] });
-    result.push(...flattenThread(node.children));
-  }
-  return result;
-}
-function hasNestedComments(nodes: ThreadNode[]): boolean {
-  return nodes.some((n) => n.children.length > 0);
-}
 
 function subtreeContainsUuid(nodes: ThreadNode[], uuid: string): boolean {
   for (const node of nodes) {
@@ -207,8 +191,19 @@ export default function PostCard(props: {
   seamless?: boolean;
   expandAll?: boolean;
   onViewContext?: () => void;
+  // Thread root's uuid, threaded down through nested CommentThread → PostCard
+  // instances. Unset means THIS card is the root (top-level post); set means
+  // this card is a comment, and (threaded mode only) "load more" on it pages
+  // that comment's own reply branch rather than the thread's root comments.
+  rootUuid?: string;
+  // Rendered right after the comment thread (and its "load more" button, if
+  // shown) — e.g. PostDetailModal's "viewing a comment in context" banner,
+  // which needs to sit where the viewer's scroll position actually is (past
+  // the comments) rather than at the top of the post, off-screen once
+  // they've scrolled down to the highlighted comment. Only meaningful on the
+  // root (full, non-compact) layout.
+  contextBanner?: JSX.Element;
 }) {
-  const threadMode = useThreadMode();
   const [replyOpen, setReplyOpen] = createSignal(false);
   const [replyQuote, setReplyQuote] = createSignal("");
   const [reshareOpen, setReshareOpen] = createSignal(false);
@@ -227,7 +222,6 @@ export default function PostCard(props: {
         !!props.highlightUuid &&
         subtreeContainsUuid(props.post.children, props.highlightUuid)),
   );
-  const [threaded, setThreaded] = createSignal(threadMode());
   const [commentsLoaded, setCommentsLoaded] = createSignal(
     props.post.children.length > 0,
   );
@@ -362,17 +356,24 @@ export default function PostCard(props: {
       ? parseEventData(props.post.body)
       : undefined);
 
-  // While more comment pages remain unfetched, trust the server aggregate
-  // rather than counting only what's loaded so far — otherwise the badge
-  // visibly shrinks (e.g. "20" instead of "150") the moment the first page
-  // loads. Once fully loaded, recount locally so optimistically-added
-  // comments (handleComment's temp node) show up instantly.
+  // While more comment pages remain unfetched, trust a stable total rather
+  // than counting only what's loaded so far — otherwise the badge visibly
+  // shrinks (e.g. "20" instead of "150") the moment the first page loads.
+  // That stable total is commentsTotal (this comment's own branch size) for
+  // a nested comment, or commentCount (the server aggregate) for the thread
+  // root — commentCount alone is NOT enough here, since it's structurally
+  // unreliable for non-root rows (see Post.commentCount's doc comment) and
+  // reads as 0 for a nested comment with pending replies, which used to hide
+  // its entire reply-count/expand toggle (and the "load more" chain under it)
+  // until "expand all" was used instead. Once fully loaded, recount locally
+  // so optimistically-added comments (handleComment's temp node) show up
+  // instantly.
   const totalComments = () =>
     props.post.hasMoreComments
-      ? (props.post.commentCount ?? 0)
+      ? (props.post.commentsTotal ?? props.post.commentCount ?? 0)
       : props.post.children.length > 0
         ? countAllComments(props.post.children)
-        : (props.post.commentCount ?? 0);
+        : (props.post.commentsTotal ?? props.post.commentCount ?? 0);
 
   // Folder: local users only, post must be in their stream (iid present)
   const canFolder = () => auth()?.isLocal === true && !!props.post.iid;
@@ -671,8 +672,10 @@ export default function PostCard(props: {
     if (!props.handlers.onLoadMoreComments || loadingMoreComments()) return;
     setLoadingMoreComments(true);
     try {
+      const isRoot = props.rootUuid === undefined;
+      const rootUuid = props.rootUuid ?? props.post.uuid;
       await props.handlers.onLoadMoreComments(
-        props.post.mid, props.post.uuid, commentsOffset(), commentOrder(),
+        rootUuid, props.post.mid, isRoot, commentsOffset(), commentOrder(),
       );
     } finally {
       setLoadingMoreComments(false);
@@ -958,8 +961,10 @@ export default function PostCard(props: {
     }
   }
 
-  const visibleComments = () =>
-    threaded() ? props.post.children : flattenThread(props.post.children);
+  // No runtime re-shaping needed: threaded mode fetches a real tree, list
+  // mode fetches already-flat comments (children: [] on every node) — see
+  // actions-store.ts's loadComments/loadMoreComments.
+  const visibleComments = () => props.post.children;
 
   // When a parent post requests expanding all nested threads, open this one.
   // Uses untrack so manual closes aren't overridden by a re-run of the effect.
@@ -1340,25 +1345,6 @@ export default function PostCard(props: {
             </button>
           </Show>
 
-          {/* Thread/flat toggle — compact, hidden when sub-comments collapsed */}
-          <Show when={showComments() && hasNestedComments(props.post.children)}>
-            <button
-              onClick={() => setThreaded((v) => !v)}
-              class="flex items-center gap-1 px-2 py-1 rounded-md text-xs
-                     text-subtle hover:bg-overlay hover:text-txt transition-colors"
-              title={
-                threaded() ? t("post.toggle_flat") : t("post.toggle_threaded")
-              }
-            >
-              <Show
-                when={threaded()}
-                fallback={<MdFillAccount_tree size={14} />}
-              >
-                <MdFillFormat_list_bulleted size={14} />
-              </Show>
-            </button>
-          </Show>
-
           {/* spacer keeps the trailing controls right-aligned even when the
               reply button is hidden (comments not allowed) */}
           <span class="ml-auto" />
@@ -1645,6 +1631,7 @@ export default function PostCard(props: {
             props.postAuthorAddress ?? props.post.authorAddress
           }
           expandAll={props.expandAll}
+          rootUuid={props.rootUuid ?? props.post.uuid}
         />
         <Show when={showComments() && props.post.hasMoreComments && props.handlers.onLoadMoreComments}>
           <div class="flex justify-center mt-2">
@@ -2101,19 +2088,7 @@ export default function PostCard(props: {
             <span>{totalComments()}</span>
           </button>
         </Show>
-        <Show when={showComments() && hasNestedComments(props.post.children)}>
-          <button
-            onClick={() => setThreaded((v) => !v)}
-            class="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm font-medium
-                   text-muted hover:bg-overlay hover:text-txt transition-colors"
-            title={
-              threaded() ? t("post.toggle_flat") : t("post.toggle_threaded")
-            }
-          >
-            <Show when={threaded()} fallback={<MdFillAccount_tree size={17} />}>
-              <MdFillFormat_list_bulleted size={17} />
-            </Show>
-          </button>
+        <Show when={showComments() && props.post.children.some((n) => n.children.length > 0)}>
           <button
             onClick={handleExpandAll}
             class="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm font-medium
@@ -2449,6 +2424,7 @@ export default function PostCard(props: {
         highlightUuid={props.highlightUuid}
         postAuthorAddress={props.post.authorAddress}
         expandAll={expandAll()}
+        rootUuid={props.rootUuid ?? props.post.uuid}
       />
       <Show when={showComments() && props.post.hasMoreComments && props.handlers.onLoadMoreComments}>
         <div class="flex justify-center mt-2">
@@ -2468,6 +2444,7 @@ export default function PostCard(props: {
           </button>
         </div>
       </Show>
+      {props.contextBanner}
 
       <Show when={rssImportedUuid()}>
         {(uuid) => (

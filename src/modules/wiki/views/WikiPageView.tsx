@@ -13,7 +13,7 @@ import { storageGet, storageDel } from "@/shared/lib/storage";
 import { saveServerDraft, deleteServerDraft } from "@/shared/editor/api/drafts";
 import type { SavedDraft } from "@/shared/editor/store/createComposerStore";
 import {
-  pageData, pageLoading, pageNotFound, editMode, draftContent, canWrite,
+  pageData, pageLoading, pageNotFound, editMode, draftContent, draftCommitMsg, canWrite,
   pages, currentWiki, pagesLoading,
   historyData, historyLoading, showHistory,
   previewRevision, previewHtml, previewLoading,
@@ -170,6 +170,7 @@ export default function WikiPageView() {
   const [saving, setSaving]         = createSignal(false);
   const [deleting, setDeleting]     = createSignal(false);
   const [loadedDraftId, setLoadedDraftId] = createSignal<string | null>(null);
+  const [loadedDraftCreated, setLoadedDraftCreated] = createSignal<number | null>(null);
   const [confirmDel, setConfirmDel] = createSignal(false);
   const [reverting, setReverting]   = createSignal<number | null>(null);
   const [renaming, setRenaming]     = createSignal(false);
@@ -219,7 +220,9 @@ export default function WikiPageView() {
       if (!pending) return;
       await storageDel(`pending-draft:${scope}`);
       setLoadedDraftId(pending.id);
-      enterEditModeWithContent(pending.body);
+      setLoadedDraftCreated(pending.created);
+      const commitMsg = (pending.extra as { commitMsg?: string } | null | undefined)?.commitMsg ?? "";
+      enterEditModeWithContent(pending.body, commitMsg);
     });
   });
 
@@ -237,6 +240,7 @@ export default function WikiPageView() {
       const draftId = loadedDraftId();
       if (draftId) {
         setLoadedDraftId(null);
+        setLoadedDraftCreated(null);
         void deleteServerDraft(draftId);
       }
       toggleEditMode();
@@ -249,13 +253,18 @@ export default function WikiPageView() {
     }
   }
 
-  async function handleSaveDraft(body: string) {
+  async function handleSaveDraft(body: string, commitMsg: string) {
     const now = Date.now();
     const scope = `wiki:${params.wikiName}:${params.pageName}`;
+    // Reuse the loaded draft's mid so this updates it in place instead of
+    // creating a new draft item every time — saveServerDraft() picks
+    // create-vs-update off serverMid.
+    const existingId = loadedDraftId();
     const serverMid = await saveServerDraft(
       {
-        id: "",
-        created: now,
+        id: existingId ?? "",
+        serverMid: existingId ?? undefined,
+        created: existingId ? (loadedDraftCreated() ?? now) : now,
         updated: now,
         preview: "",
         body,
@@ -264,12 +273,16 @@ export default function WikiPageView() {
         slug: "",
         category: "",
         mimetype: (pageData()?.page.mime_type ?? "text/bbcode") as SavedDraft["mimetype"],
+        extra: { commitMsg },
       },
       scope,
     );
     if (!serverMid) {
       toast.error(t("wiki.error_saving"));
+      return;
     }
+    setLoadedDraftId(serverMid);
+    setLoadedDraftCreated(existingId ? (loadedDraftCreated() ?? now) : now);
   }
 
   async function handleDelete() {
@@ -454,6 +467,7 @@ export default function WikiPageView() {
             <p class="text-muted text-xs mb-2">{t("wiki.page_new_hint")}</p>
             <WikiComposer
               initialBody={draftContent()}
+              initialCommitMsg={draftCommitMsg()}
               mimeType={currentWiki()?.mime_type ?? "text/bbcode"}
               saving={saving()}
               onSave={handleSave}
@@ -616,6 +630,7 @@ export default function WikiPageView() {
           <Show when={editMode()}>
             <WikiComposer
               initialBody={draftContent()}
+              initialCommitMsg={draftCommitMsg()}
               mimeType={pageData()?.page.mime_type ?? "text/bbcode"}
               saving={saving()}
               onSave={handleSave}

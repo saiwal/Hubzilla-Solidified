@@ -14,29 +14,58 @@ export const fetchItemDetail = (uuid: string) =>
   apiFetch(`${BASE}/${encodeId(uuid)}`).then(r => r.json());
 
 export interface FetchCommentsOpts {
-  /** Numeric = roots_limit (top-level comments per page, each with its ENTIRE reply subtree). 'all' = one-shot full-thread fetch (no pagination). */
+  /** Numeric = roots_limit (threaded) or limit (flat). 'all' = one-shot full-thread fetch (no pagination). */
   count?: number | 'all';
-  rootsOffset?: number;
   order?: CommentOrder;
+  // threaded mode (roots + per-branch initial slice)
+  rootsOffset?: number;
+  /** How many of each root comment's own earliest descendants to bundle in — defaults to `count`. */
+  branchLimit?: number;
+  // threaded mode: "load more replies" for one specific comment's subtree
+  branch?: string;
+  branchOffset?: number;
+  // list mode: flat pagination across all comments regardless of depth
+  flat?: boolean;
+  offset?: number;
   /** Fetch ancestors + a sibling window around this comment instead of a page of roots. */
   around?: string;
   before?: number;
   after?: number;
 }
 
+export interface CommentBranchMeta {
+  fetched: number;
+  next_offset: number;
+  total: number;
+  has_more: boolean;
+}
+
 export interface CommentsResponse {
   mid: string;
   total: number;
   comments: any[];
-  mode?: 'roots' | 'context';
-  // roots mode
+  mode?: 'roots' | 'branch' | 'flat' | 'context';
+  order?: CommentOrder;
+  // roots mode (threaded)
   roots_offset?: number;
   roots_limit?: number;
   roots_fetched?: number;
   next_roots_offset?: number;
   total_roots?: number;
-  order?: CommentOrder;
   has_more_roots?: boolean;
+  branch_limit?: number;
+  branches?: Record<string, CommentBranchMeta>;
+  // branch mode (threaded, "load more replies")
+  branch?: string;
+  branch_offset?: number;
+  // branch + flat modes share these
+  fetched?: number;
+  has_more?: boolean;
+  // flat mode (list)
+  offset?: number;
+  limit?: number;
+  next_offset?: number;
+  next_branch_offset?: number;
   // context mode
   target_mid?: string;
   target_found?: boolean;
@@ -47,10 +76,15 @@ export interface CommentsResponse {
 }
 
 export const fetchComments = (uuid: string, opts: FetchCommentsOpts = {}): Promise<CommentsResponse> => {
-  const { count = 'all', rootsOffset, order, around, before, after } = opts;
+  const { count = 'all', order, rootsOffset, branchLimit, branch, branchOffset, flat, offset, around, before, after } = opts;
   const params = new URLSearchParams();
   if (rootsOffset) params.set('roots_offset', String(rootsOffset));
   if (order) params.set('order', order);
+  if (branchLimit !== undefined) params.set('branch_limit', String(branchLimit));
+  if (branch) params.set('branch', branch);
+  if (branchOffset !== undefined) params.set('branch_offset', String(branchOffset));
+  if (flat) params.set('flat', '1');
+  if (offset) params.set('offset', String(offset));
   if (around) params.set('around', around);
   if (before !== undefined) params.set('before', String(before));
   if (after !== undefined) params.set('after', String(after));

@@ -86,13 +86,17 @@ const [pageLoading, setPageLoading]   = createSignal(false);
 const [pageNotFound, setPageNotFound] = createSignal(false);
 const [editMode, setEditMode]         = createSignal(false);
 const [draftContent, setDraftContent] = createSignal("");
+const [draftCommitMsg, setDraftCommitMsg] = createSignal("");
 
-export { pageData, pageLoading, pageNotFound, editMode, draftContent };
+export { pageData, pageLoading, pageNotFound, editMode, draftContent, draftCommitMsg };
 
 export function toggleEditMode(): void {
   const entering = !editMode();
   setEditMode(entering);
-  if (entering) setDraftContent(pageData()?.raw ?? "");
+  if (entering) {
+    setDraftContent(pageData()?.raw ?? "");
+    setDraftCommitMsg("");
+  }
 }
 
 export function updateDraft(v: string): void {
@@ -101,8 +105,9 @@ export function updateDraft(v: string): void {
 
 // Restores a saved draft (from the HQ DraftsWidget) straight into edit mode,
 // bypassing toggleEditMode()'s default of seeding from the live page content.
-export function enterEditModeWithContent(content: string): void {
+export function enterEditModeWithContent(content: string, commitMsg = ""): void {
   setDraftContent(content);
+  setDraftCommitMsg(commitMsg);
   setEditMode(true);
 }
 

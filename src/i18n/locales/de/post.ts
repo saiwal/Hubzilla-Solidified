@@ -24,8 +24,6 @@ export const post: RawDictionary["post"] = {
   import:               "Importieren",
   original:             "Ursprünglicher Beitrag",
   toggle_comments:      "Kommentare ein-/ausblenden",
-  toggle_flat:          "Zur flachen Ansicht wechseln",
-  toggle_threaded:      "Zur Thread-Ansicht wechseln",
   flat:                 "Flach",
   threaded:             "Thread",
   flat_view:            "Flache Ansicht",
@@ -51,6 +49,8 @@ export const post: RawDictionary["post"] = {
   // loading
   loading_comments:     "Kommentare werden geladen…",
   load_more_comments:   "Weitere Kommentare laden",
+  viewing_in_context:   "Kommentar im Kontext ansehen",
+  show_all_comments:    "Alle Kommentare anzeigen",
   loading:              "Lädt…",
   loading_source:       "Quelltext wird geladen…",
   // stats tabs

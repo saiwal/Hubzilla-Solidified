@@ -20,6 +20,9 @@ export interface AclState {
   setMode: (m: AclMode) => void;
   allowEntries: () => Set<string>;
   denyEntries: () => Set<string>;
+  /** Bulk-replace entries — used to restore ACL state from a saved draft. */
+  setAllowEntries: (entries: Set<string>) => void;
+  setDenyEntries: (entries: Set<string>) => void;
   toggleEntry: (entry: AclEntry, list: "allow" | "deny") => void;
   clearEntries: () => void;
   /** Resets mode to its initial value and clears entries. */
@@ -62,7 +65,12 @@ export function useAclState(initial?: AclStateOptions): AclState {
     clearEntries();
   }
 
-  return { mode, setMode, allowEntries, denyEntries, toggleEntry, clearEntries, reset };
+  return {
+    mode, setMode,
+    allowEntries, denyEntries,
+    setAllowEntries, setDenyEntries,
+    toggleEntry, clearEntries, reset,
+  };
 }
 
 /** Splits "{type}:{xid}" keys into contact/group id arrays for building a request payload. */

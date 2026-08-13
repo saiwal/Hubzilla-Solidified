@@ -58,6 +58,7 @@ export default function DisplaySection() {
     }
     if (d.scroll_style) setScrollStyle(d.scroll_style as ScrollStyle);
     if (d.comment_order) setCommentOrder(d.comment_order as CommentOrder);
+    if (d.thread_mode) setThreadMode(d.thread_mode === "threaded");
     if (d.corner_radius) {
       setCornerRadius(d.corner_radius as CornerRadius);
       applyCornerRadius(d.corner_radius as CornerRadius);

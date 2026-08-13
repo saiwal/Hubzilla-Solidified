@@ -64,11 +64,14 @@ export interface Post {
   coord?: string; // "lat lon" coordinates, when geotagged
   expires?: string; // UTC datetime the post self-destructs; unset = never
   children: Post[];
+  /** Server aggregate — reliable only on the thread root (the backend's comment_count subquery matches item.parent, which only holds for root rows). For a nested comment, use commentsTotal instead. */
   commentCount?: number;
-  /** True while more top-level comments remain unfetched — only meaningful on the thread root (comments are only ever paginated at the root level). */
+  /** True while more comments remain unfetched for this node — root comments (thread root) or, in threaded mode, this comment's own replies (a nested comment). */
   hasMoreComments?: boolean;
-  /** roots_offset cursor for this node's next "load more" call — only meaningful on the thread root. */
+  /** Cursor for this node's next "load more" call — roots_offset on the thread root, branch_offset on a nested comment. */
   commentsOffset?: number;
+  /** A nested comment's own reply-subtree size, from the threaded roots-page response's branch metadata — the nested-comment equivalent of commentCount (which is unreliable for non-root rows). Unset for the thread root. */
+  commentsTotal?: number;
   likeCount: number;
   categories?: string[];
   tags?: string[];

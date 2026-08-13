@@ -13,6 +13,7 @@ export default function CommentThread(props: {
   highlightUuid?: string;
   postAuthorAddress?: string;
   expandAll?: boolean;
+  rootUuid?: string;
 }) {
   const { t } = useI18n();
 
@@ -48,6 +49,7 @@ export default function CommentThread(props: {
                         highlightUuid={props.highlightUuid}
                         postAuthorAddress={props.postAuthorAddress}
                         expandAll={props.expandAll}
+                        rootUuid={props.rootUuid}
                       />
                     </Show>
                   </div>
@@ -61,6 +63,7 @@ export default function CommentThread(props: {
                   highlightUuid={props.highlightUuid}
                   postAuthorAddress={props.postAuthorAddress}
                   expandAll={props.expandAll}
+                  rootUuid={props.rootUuid}
                 />
               </Show>
             )}

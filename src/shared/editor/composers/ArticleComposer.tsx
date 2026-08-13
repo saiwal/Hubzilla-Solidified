@@ -1,4 +1,4 @@
-import { createSignal, Show, onCleanup, lazy } from "solid-js";
+import { createSignal, createEffect, Show, onCleanup, lazy } from "solid-js";
 import { DraftsList } from "../components/DraftsList";
 import { createComposerStore } from "../store/createComposerStore";
 import { useI18n } from "@/i18n";
@@ -200,6 +200,29 @@ export default function ArticleComposer(props: Props) {
     store.setBody(props.initial.body);
   }
 
+  // ── Draft extra — lang, series, and ACL, which createComposerStore
+  // doesn't know about ──
+  function buildDraftExtra(): Record<string, unknown> {
+    const mode = acl.mode();
+    const extra: Record<string, unknown> = { aclMode: mode, lang: lang(), series: series(), seriesOrder: seriesOrder() };
+    if (mode === "custom") {
+      extra.allow = [...acl.allowEntries()];
+      extra.deny = [...acl.denyEntries()];
+    }
+    return extra;
+  }
+
+  createEffect(() => {
+    const extra = store.restoredExtra();
+    if (!extra) return;
+    if (typeof extra.aclMode === "string") acl.setMode(extra.aclMode as AclMode);
+    if (Array.isArray(extra.allow)) acl.setAllowEntries(new Set(extra.allow as string[]));
+    if (Array.isArray(extra.deny)) acl.setDenyEntries(new Set(extra.deny as string[]));
+    if (typeof extra.lang === "string") setLang(extra.lang);
+    if (typeof extra.series === "string") setSeries(extra.series);
+    if (typeof extra.seriesOrder === "number") setSeriesOrder(extra.seriesOrder);
+  });
+
   // ── Mention + emoji autocomplete ─────────────────────────────────────────────
   const wiring = useMentionEmojiWiring({
     body: store.body,
@@ -375,7 +398,7 @@ export default function ArticleComposer(props: Props) {
               {isEditing() ? t("editor.cancel_btn") : t("editor.discard")}
             </SecondaryButton>
             <Show when={store.body().trim()}>
-              <SecondaryButton onClick={() => void store.saveAsDraft()}>
+              <SecondaryButton onClick={() => void store.saveAsDraft(buildDraftExtra())}>
                 <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" />
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 3v5H9V3m0 14h6" />

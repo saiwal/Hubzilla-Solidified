@@ -31,6 +31,7 @@ export async function saveServerDraft(
         mimetype: draft.mimetype,
         slug: draft.slug,
         category: draft.category,
+        extra: draft.extra ?? null,
         scope,
       }),
     });

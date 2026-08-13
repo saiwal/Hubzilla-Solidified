@@ -8,11 +8,12 @@ import SourceToggleButton from "../components/SourceToggleButton";
 
 interface Props {
   initialBody: string;
+  initialCommitMsg?: string;
   mimeType: string;
   saving: boolean;
   onSave: (body: string, commitMsg: string) => void;
   onCancel: () => void;
-  onSaveDraft?: (body: string) => void;
+  onSaveDraft?: (body: string, commitMsg: string) => void;
 }
 
 export default function WikiComposer(props: Props) {
@@ -21,7 +22,7 @@ export default function WikiComposer(props: Props) {
 
   const [body, setBody] = createSignal(props.initialBody);
   const [tab, setTab] = createSignal<EditorTab>("source");
-  const [commitMsg, setCommitMsg] = createSignal("");
+  const [commitMsg, setCommitMsg] = createSignal(props.initialCommitMsg ?? "");
 
   const mime = () => (props.mimeType as MimeType) ?? "text/bbcode";
 
@@ -62,7 +63,7 @@ export default function WikiComposer(props: Props) {
           <Show when={props.onSaveDraft && body().trim()}>
             <button
               type="button"
-              onClick={() => props.onSaveDraft!(body())}
+              onClick={() => props.onSaveDraft!(body(), commitMsg())}
               class="text-sm border border-rim text-muted hover:bg-elevated px-3 py-1.5 rounded-lg transition-colors"
             >
               {t("editor.save_draft")}

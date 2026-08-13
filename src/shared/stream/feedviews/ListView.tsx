@@ -689,7 +689,9 @@ function InboxRow(props: {
     if (!props.handlers.onLoadMoreComments || loadingMoreComments()) return;
     setLoadingMoreComments(true);
     try {
-      await props.handlers.onLoadMoreComments(p.mid, p.uuid, commentsOffset(), commentOrder());
+      // Inline thread view only exposes top-level "load more" — no per-branch
+      // buttons here, so this is always a roots/flat-page continuation.
+      await props.handlers.onLoadMoreComments(p.uuid, p.mid, true, commentsOffset(), commentOrder());
     } finally {
       setLoadingMoreComments(false);
     }

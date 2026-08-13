@@ -5,7 +5,7 @@ import { createQueryResource } from "@/shared/lib/createQueryResource";
 import PostCard from "@/shared/stream/components/PostCard";
 import type { StreamHandlers } from "@/shared/stream/types";
 import type { ThreadNode } from "@/shared/lib/thread";
-import { buildThreadTree, appendNewBranches } from "@/shared/lib/thread";
+import { buildThreadTree, appendNewBranches, mergeReplies, applyBranchMeta } from "@/shared/lib/thread";
 import type { Post } from "@/shared/types/post.types";
 import { mapActivityToPost } from "@/shared/lib/activity.mapper";
 import { useI18n } from "@/i18n";
@@ -18,13 +18,24 @@ import {
 import { toggleVerb, repeatItem, COMMENTS_PAGE_SIZE } from "@/shared/stream/store/actions-store";
 import { useCommentOrder } from "@/shared/store/comment-order";
 import type { CommentOrder } from "@/shared/store/comment-order";
+import { useThreadMode } from "@/shared/store/thread-mode";
 import { unblockChannel } from "@/shared/lib/blocklist-api";
 import { approveModerationItem, dropModerationItem } from "@/modules/moderate/api";
 
-// Root + a flat first page of comments, fetched separately (no highlight/
-// context mode here — this route has no target-comment param today; see
-// PostDetailModal for the sibling-window fetch used when opening a permalink
-// to a specific nested comment instead of the thread root).
+function flatNodes(posts: Post[]): ThreadNode[] {
+  return posts.map((p) => ({ ...p, children: [] }));
+}
+
+function updateNodeInTree(node: ThreadNode, mid: string, updater: (n: ThreadNode) => ThreadNode): ThreadNode {
+  if (node.mid === mid) return updater(node);
+  return { ...node, children: node.children.map((c) => updateNodeInTree(c, mid, updater)) };
+}
+
+// Root + a first page of comments (shape depends on the thread_mode setting
+// — threaded or flat), fetched separately (no highlight/context mode here —
+// this route has no target-comment param today; see PostDetailModal for the
+// sibling-window fetch used when opening a permalink to a specific nested
+// comment instead of the thread root).
 async function fetchPost(uuid: string): Promise<ThreadNode> {
   const rootRes = await fetch(`/spa/display/${uuid}`);
   if (!rootRes.ok) throw new Error(`HTTP ${rootRes.status}`);
@@ -34,18 +45,21 @@ async function fetchPost(uuid: string): Promise<ThreadNode> {
   const rawRoot = rootData.post;
 
   const order = useCommentOrder()();
-  const commentsResult = await fetchComments(rawRoot.uuid, {
-    count: COMMENTS_PAGE_SIZE,
-    order,
-  });
+  const threaded = useThreadMode()();
+  const commentsResult = threaded
+    ? await fetchComments(rawRoot.uuid, { count: COMMENTS_PAGE_SIZE, order })
+    : await fetchComments(rawRoot.uuid, { count: COMMENTS_PAGE_SIZE, flat: true, order });
 
   const rootPost: Post = mapActivityToPost(rawRoot);
-  const children = buildThreadTree((commentsResult.comments ?? []).map(mapActivityToPost), order);
+  const posts = (commentsResult.comments ?? []).map(mapActivityToPost);
+  const children = threaded
+    ? applyBranchMeta(buildThreadTree(posts, order), commentsResult.branches)
+    : flatNodes(posts);
   return {
     ...rootPost,
     children,
-    hasMoreComments: !!commentsResult.has_more_roots,
-    commentsOffset: commentsResult.next_roots_offset,
+    hasMoreComments: !!(threaded ? commentsResult.has_more_roots : commentsResult.has_more),
+    commentsOffset: threaded ? commentsResult.next_roots_offset : commentsResult.next_offset,
   };
 }
 
@@ -85,15 +99,42 @@ export default function PostView() {
   const [node, { refetch, mutate }] = createQueryResource("post", () => params.uuid, fetchPost);
   const [localReactions, setLocalReactions] = createSignal<Record<string, ReactionOverride>>({});
 
-  async function loadMoreComments(_mid: string, uuid: string, offset: number, order: CommentOrder): Promise<void> {
-    const result = await fetchComments(uuid, { count: COMMENTS_PAGE_SIZE, rootsOffset: offset, order });
-    const newPosts = (result.comments ?? []).map(mapActivityToPost);
-    mutate((prev) => prev && ({
-      ...prev,
-      children: appendNewBranches(prev.children, newPosts, order),
-      hasMoreComments: !!result.has_more_roots,
-      commentsOffset: result.next_roots_offset ?? offset,
-    }));
+  async function loadMoreComments(rootUuid: string, attachMid: string, isRoot: boolean, offset: number, order: CommentOrder): Promise<void> {
+    const existingChildren = findInTree(node(), attachMid)?.children ?? [];
+
+    if (!isRoot) {
+      const result = await fetchComments(rootUuid, { branch: attachMid, branchOffset: offset, branchLimit: COMMENTS_PAGE_SIZE });
+      const posts = (result.comments ?? []).map(mapActivityToPost);
+      mutate((prev) => prev && updateNodeInTree(prev, attachMid, (n) => ({
+        ...n,
+        children: mergeReplies(existingChildren, posts, attachMid),
+        hasMoreComments: !!result.has_more,
+        commentsOffset: result.next_branch_offset ?? offset,
+      })));
+      return;
+    }
+
+    if (useThreadMode()()) {
+      const result = await fetchComments(rootUuid, { count: COMMENTS_PAGE_SIZE, rootsOffset: offset, order });
+      const posts = (result.comments ?? []).map(mapActivityToPost);
+      mutate((prev) => prev && updateNodeInTree(prev, attachMid, (n) => ({
+        ...n,
+        children: applyBranchMeta(appendNewBranches(existingChildren, posts, order), result.branches),
+        hasMoreComments: !!result.has_more_roots,
+        commentsOffset: result.next_roots_offset ?? offset,
+      })));
+    } else {
+      const result = await fetchComments(rootUuid, { count: COMMENTS_PAGE_SIZE, offset, flat: true, order });
+      const posts = (result.comments ?? []).map(mapActivityToPost);
+      const existingMids = new Set(existingChildren.map((n) => n.mid));
+      const fresh = flatNodes(posts.filter((p) => !existingMids.has(p.mid)));
+      mutate((prev) => prev && updateNodeInTree(prev, attachMid, (n) => ({
+        ...n,
+        children: fresh.length ? [...existingChildren, ...fresh] : existingChildren,
+        hasMoreComments: !!result.has_more,
+        commentsOffset: result.next_offset ?? offset,
+      })));
+    }
   }
 
   const displayNode = createMemo((): ThreadNode | undefined => {

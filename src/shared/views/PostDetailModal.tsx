@@ -4,7 +4,7 @@ import { Portal } from "solid-js/web";
 import PostCard from "../stream/components/PostCard";
 import type { StreamHandlers } from "../stream/types";
 import type { ThreadNode } from "../lib/thread";
-import { buildThreadTree, appendNewBranches } from "../lib/thread";
+import { buildThreadTree, appendNewBranches, mergeReplies, applyBranchMeta } from "../lib/thread";
 import type { Post } from "../types/post.types";
 import { mapActivityToPost } from "../lib/activity.mapper";
 import { BiRegularX } from "solid-icons/bi";
@@ -13,16 +13,40 @@ import { apiDeleteItem, apiEditItem, apiToggleStar, fetchComments } from "@/shar
 import { toggleVerb, repeatItem, COMMENTS_PAGE_SIZE } from "@/shared/stream/store/actions-store";
 import { useCommentOrder } from "@/shared/store/comment-order";
 import type { CommentOrder } from "@/shared/store/comment-order";
+import { useThreadMode } from "@/shared/store/thread-mode";
 import { markItemSeen } from "@/shared/lib/markSeen";
 import { approveModerationItem, dropModerationItem } from "@/modules/moderate/api";
 
+function flatNodes(posts: Post[]): ThreadNode[] {
+  return posts.map((p) => ({ ...p, children: [] }));
+}
+
+function updateNodeInTree(node: ThreadNode, mid: string, updater: (n: ThreadNode) => ThreadNode): ThreadNode {
+  if (node.mid === mid) return updater(node);
+  return { ...node, children: node.children.map((c) => updateNodeInTree(c, mid, updater)) };
+}
+
 // Root + comments are fetched separately: the root always via /spa/display,
-// comments either as a flat first page (normal open) or, when `uuid` names a
-// comment nested inside the thread rather than the root itself (opened via an
-// in-body permalink click — see handleBodyClick below), as the ancestor +
-// sibling-window "context" fetch around that comment instead of the whole
-// thread.
-async function fetchPostDetail(uuid: string, order: CommentOrder): Promise<ThreadNode> {
+// comments either a first page (normal open, shape depends on the thread_mode
+// setting — threaded or flat) or, when `uuid` names a comment nested inside
+// the thread rather than the root itself (opened via an in-body permalink
+// click — see handleBodyClick below), as the ancestor + sibling-window
+// "context" fetch around that comment instead — always rendered hierarchically
+// regardless of thread_mode, since showing "this comment in context" is
+// inherently about its ancestor chain.
+interface PostDetailResult {
+  node: ThreadNode;
+  // True when this fetch used the ancestor + sibling-window "context" mode
+  // (uuid names a comment nested inside the thread, not the root itself) —
+  // meaning only that comment's immediate surroundings were loaded, not the
+  // rest of the thread. Callers use this to offer a "show all comments"
+  // affordance, since context mode has no "load more" of its own (see
+  // buildCommentContext's backend doc comment — it's deliberately scoped to
+  // one comment's context, not a paginated view).
+  isContext: boolean;
+}
+
+async function fetchPostDetail(uuid: string, order: CommentOrder, threaded: boolean): Promise<PostDetailResult> {
   const rootRes = await fetch(`/spa/display/${uuid}`);
   if (!rootRes.ok) throw new Error(`HTTP ${rootRes.status}`);
   const rootJson = await rootRes.json();
@@ -33,7 +57,9 @@ async function fetchPostDetail(uuid: string, order: CommentOrder): Promise<Threa
   const isHighlight = uuid !== rawRoot.uuid;
   const commentsResult = isHighlight
     ? await fetchComments(rawRoot.uuid, { around: uuid })
-    : await fetchComments(rawRoot.uuid, { count: COMMENTS_PAGE_SIZE, order });
+    : threaded
+      ? await fetchComments(rawRoot.uuid, { count: COMMENTS_PAGE_SIZE, order })
+      : await fetchComments(rawRoot.uuid, { count: COMMENTS_PAGE_SIZE, flat: true, order });
 
   // Viewing the thread is what "reads" it — the root's own unseen flag was
   // already cleared by the caller (e.g. MessageItem.handleClick), but
@@ -46,15 +72,20 @@ async function fetchPostDetail(uuid: string, order: CommentOrder): Promise<Threa
   }
 
   const rootPost: Post = mapActivityToPost(rawRoot);
-  const children = buildThreadTree(
-    (commentsResult.comments ?? []).map(mapActivityToPost),
-    isHighlight ? undefined : order,
-  );
+  const posts = (commentsResult.comments ?? []).map(mapActivityToPost);
+  const children = isHighlight
+    ? buildThreadTree(posts)
+    : threaded
+      ? applyBranchMeta(buildThreadTree(posts, order), commentsResult.branches)
+      : flatNodes(posts);
   return {
-    ...rootPost,
-    children,
-    hasMoreComments: !isHighlight && !!commentsResult.has_more_roots,
-    commentsOffset: isHighlight ? undefined : commentsResult.next_roots_offset,
+    node: {
+      ...rootPost,
+      children,
+      hasMoreComments: !isHighlight && !!(threaded ? commentsResult.has_more_roots : commentsResult.has_more),
+      commentsOffset: isHighlight ? undefined : (threaded ? commentsResult.next_roots_offset : commentsResult.next_offset),
+    },
+    isContext: isHighlight,
   };
 }
 
@@ -98,9 +129,16 @@ const PostDetailModal: Component<PostDetailModalProps> = (props) => {
   const [nodeError, setNodeError] = createSignal<Error | null>(null);
   const [nestedUuid, setNestedUuid] = createSignal<string | null>(null);
   const [localReactions, setLocalReactions] = createSignal<Record<string, ReactionOverride>>({});
+  // True while the current view is a narrow ancestor+siblings "context" fetch
+  // (opened via a notification or in-body permalink to a specific comment) —
+  // drives the "show all comments" banner, since that mode has no "load more"
+  // of its own to reach the rest of the thread.
+  const [isNarrowContext, setIsNarrowContext] = createSignal(false);
+  const [loadingFullThread, setLoadingFullThread] = createSignal(false);
 
   const { t } = useI18n();
   const commentOrder = useCommentOrder();
+  const threadMode = useThreadMode();
   let dialogRef!: HTMLDivElement;
   let scrollRef!: HTMLDivElement;
   onMount(() => scrollRef?.focus());
@@ -109,8 +147,9 @@ const PostDetailModal: Component<PostDetailModalProps> = (props) => {
     setNodeLoading(true);
     setNodeError(null);
     try {
-      const result = await fetchPostDetail(uuid, commentOrder());
-      setNodeData(() => result);
+      const { node, isContext } = await fetchPostDetail(uuid, commentOrder(), threadMode());
+      setNodeData(() => node);
+      setIsNarrowContext(isContext);
     } catch (e) {
       setNodeError(e instanceof Error ? e : new Error(String(e)));
     } finally {
@@ -118,15 +157,63 @@ const PostDetailModal: Component<PostDetailModalProps> = (props) => {
     }
   }
 
-  async function loadMoreComments(_mid: string, uuid: string, offset: number, order: CommentOrder): Promise<void> {
-    const result = await fetchComments(uuid, { count: COMMENTS_PAGE_SIZE, rootsOffset: offset, order });
-    const newPosts = (result.comments ?? []).map(mapActivityToPost);
-    setNodeData((prev) => prev && ({
-      ...prev,
-      children: appendNewBranches(prev.children, newPosts, order),
-      hasMoreComments: !!result.has_more_roots,
-      commentsOffset: result.next_roots_offset ?? offset,
-    }));
+  // Drops the narrow ancestor+siblings context view and re-fetches the
+  // thread normally (root-level pagination, respecting thread_mode) starting
+  // from page 1 — the target comment stays highlighted (highlightUuid below
+  // doesn't depend on which fetch mode was used) if it happens to be on that
+  // first page, but the point is letting the viewer browse the rest of the
+  // thread, not necessarily keeping the target in view.
+  async function loadFullThread() {
+    const rootUuid = nodeData()?.uuid;
+    if (!rootUuid || loadingFullThread()) return;
+    setLoadingFullThread(true);
+    try {
+      const { node, isContext } = await fetchPostDetail(rootUuid, commentOrder(), threadMode());
+      setNodeData(() => node);
+      setIsNarrowContext(isContext);
+    } catch (e) {
+      setNodeError(e instanceof Error ? e : new Error(String(e)));
+    } finally {
+      setLoadingFullThread(false);
+    }
+  }
+
+  async function loadMoreComments(rootUuid: string, attachMid: string, isRoot: boolean, offset: number, order: CommentOrder): Promise<void> {
+    const existingChildren = findInTree(nodeData(), attachMid)?.children ?? [];
+
+    if (!isRoot) {
+      const result = await fetchComments(rootUuid, { branch: attachMid, branchOffset: offset, branchLimit: COMMENTS_PAGE_SIZE });
+      const posts = (result.comments ?? []).map(mapActivityToPost);
+      setNodeData((prev) => prev && updateNodeInTree(prev, attachMid, (n) => ({
+        ...n,
+        children: mergeReplies(existingChildren, posts, attachMid),
+        hasMoreComments: !!result.has_more,
+        commentsOffset: result.next_branch_offset ?? offset,
+      })));
+      return;
+    }
+
+    if (threadMode()) {
+      const result = await fetchComments(rootUuid, { count: COMMENTS_PAGE_SIZE, rootsOffset: offset, order });
+      const posts = (result.comments ?? []).map(mapActivityToPost);
+      setNodeData((prev) => prev && updateNodeInTree(prev, attachMid, (n) => ({
+        ...n,
+        children: applyBranchMeta(appendNewBranches(existingChildren, posts, order), result.branches),
+        hasMoreComments: !!result.has_more_roots,
+        commentsOffset: result.next_roots_offset ?? offset,
+      })));
+    } else {
+      const result = await fetchComments(rootUuid, { count: COMMENTS_PAGE_SIZE, offset, flat: true, order });
+      const posts = (result.comments ?? []).map(mapActivityToPost);
+      const existingMids = new Set(existingChildren.map((n) => n.mid));
+      const fresh = flatNodes(posts.filter((p) => !existingMids.has(p.mid)));
+      setNodeData((prev) => prev && updateNodeInTree(prev, attachMid, (n) => ({
+        ...n,
+        children: fresh.length ? [...existingChildren, ...fresh] : existingChildren,
+        hasMoreComments: !!result.has_more,
+        commentsOffset: result.next_offset ?? offset,
+      })));
+    }
   }
 
   createEffect(on(() => props.uuid, (uuid) => { void loadNode(uuid); }));
@@ -412,6 +499,24 @@ const PostDetailModal: Component<PostDetailModalProps> = (props) => {
                   seamless
                   expandAll
                   handlers={wrappedHandlers ?? selfHandlers}
+                  contextBanner={
+                    <Show when={isNarrowContext()}>
+                      <div class="flex items-center justify-between gap-3 px-4 py-2 mb-3 rounded-xl bg-surface border border-rim text-xs text-muted">
+                        <span>{t("post.viewing_in_context")}</span>
+                        <button
+                          type="button"
+                          onClick={loadFullThread}
+                          disabled={loadingFullThread()}
+                          class="shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium
+                                 rounded-full border border-rim bg-base text-muted
+                                 hover:bg-overlay hover:text-txt transition-colors
+                                 disabled:opacity-60 disabled:cursor-not-allowed"
+                        >
+                          {loadingFullThread() ? t("post.loading") : t("post.show_all_comments")}
+                        </button>
+                      </div>
+                    </Show>
+                  }
                 />
               )}
             </Show>

@@ -12,11 +12,15 @@ export interface StreamHandlers {
     authorAvatar: string,
   ) => void;
   onLoadComments: (mid: string, uuid: string) => Promise<void>;
-  // Pages in the next batch of top-level comments for an already-loaded post
-  // (each with its whole reply subtree — comments are only ever paginated at
-  // the root level, never within a branch). Optional: consumers that fetch
-  // the whole thread upfront (some detail views) don't need it.
-  onLoadMoreComments?: (mid: string, uuid: string, offset: number, order: CommentOrder) => Promise<void>;
+  // Pages in the next batch of comments for an already-loaded node — either
+  // more top-level comments (isRoot) or, in threaded mode, more replies
+  // within one comment's own branch. rootUuid is always the thread root (the
+  // API's URL target); attachMid is the node — post root or a specific
+  // comment — to attach the fetched children to. Optional: consumers that
+  // fetch the whole thread upfront (some detail views) don't need it.
+  onLoadMoreComments?: (
+    rootUuid: string, attachMid: string, isRoot: boolean, offset: number, order: CommentOrder,
+  ) => Promise<void>;
   onStar?: (mid: string) => void;
   onPin?: (mid: string) => void;
   onDelete?: (mid: string) => Promise<void>;

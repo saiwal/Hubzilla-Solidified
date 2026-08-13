@@ -214,6 +214,27 @@ export default function WebpageComposer(props: Props) {
   const wordCount = () => countWords(store.body());
   const charCount = () => store.body().length;
 
+  // ── Draft extra — layout template + ACL, which createComposerStore
+  // doesn't know about ──
+  function buildDraftExtra(): Record<string, unknown> {
+    const mode = acl.mode();
+    const extra: Record<string, unknown> = { aclMode: mode, layoutTemplate: layoutTemplate() };
+    if (mode === "custom") {
+      extra.allow = [...acl.allowEntries()];
+      extra.deny = [...acl.denyEntries()];
+    }
+    return extra;
+  }
+
+  createEffect(() => {
+    const extra = store.restoredExtra();
+    if (!extra) return;
+    if (typeof extra.aclMode === "string") acl.setMode(extra.aclMode as AclMode);
+    if (Array.isArray(extra.allow)) acl.setAllowEntries(new Set(extra.allow as string[]));
+    if (Array.isArray(extra.deny)) acl.setDenyEntries(new Set(extra.deny as string[]));
+    if (typeof extra.layoutTemplate === "string") setLayoutTemplate(extra.layoutTemplate);
+  });
+
   const enc = useEncrypt(() => store.body(), store.setBody);
 
   if (props.initial) {
@@ -424,7 +445,7 @@ export default function WebpageComposer(props: Props) {
             {isEditing() ? t("editor.cancel_btn") : t("editor.discard")}
           </SecondaryButton>
           <Show when={store.body().trim()}>
-            <SecondaryButton onClick={() => void store.saveAsDraft()}>
+            <SecondaryButton onClick={() => void store.saveAsDraft(buildDraftExtra())}>
               <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2H7a2 2 0 01-2-2V5z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 3v5H9V3m0 14h6" />

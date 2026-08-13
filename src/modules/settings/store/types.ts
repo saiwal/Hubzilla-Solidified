@@ -14,6 +14,7 @@ export interface DisplaySettings {
   scroll_style: "endless" | "load_more";
   corner_radius: "none" | "sm" | "default" | "lg" | "xl";
   comment_order: "oldest_first" | "newest_first";
+  thread_mode: "threaded" | "flat";
   show_emoji_images: number; // 0 | 1
 }
 

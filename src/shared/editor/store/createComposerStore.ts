@@ -21,6 +21,10 @@ export type SavedDraft = {
   slug: string;
   category: string;
   mimetype: MimeType;
+  /** Composer-specific fields the shared store doesn't know about (ACL,
+   *  poll, layout template, article lang/series, wiki commit message, …).
+   *  Opaque here — each composer packs/unpacks its own shape. */
+  extra?: Record<string, unknown> | null;
 };
 
 /**
@@ -65,6 +69,14 @@ export function createComposerStore(
   );
   const [savedDrafts, setSavedDrafts] = createSignal<SavedDraft[]>([]);
   const [loadedDraftId, setLoadedDraftId] = createSignal<string | null>(null);
+  // Creation time of the currently-loaded draft, so re-saving it doesn't
+  // stomp its original `created` with "now" (cosmetic — see saveAsDraft).
+  const [loadedDraftCreated, setLoadedDraftCreated] = createSignal<number | null>(null);
+  // Set whenever a saved draft's `extra` bag is restored — either via
+  // loadSavedDraft() or the cross-navigation pending-draft below. Composers
+  // that pack type-specific fields into `extra` watch this to restore their
+  // own local signals (ACL, poll, layout template, …).
+  const [restoredExtra, setRestoredExtra] = createSignal<Record<string, unknown> | null>(null);
   // Prevents the autosave effect from running (and deleting the draft) before
   // the async storage read has had a chance to restore the previous body.
   const [initialized, setInitialized] = createSignal(false);
@@ -89,7 +101,9 @@ export function createComposerStore(
       setCategory(pending.category);
       setMimetype(pending.mimetype);
       setLoadedDraftId(pending.id);
+      setLoadedDraftCreated(pending.created);
       if (isEncryptedBody(pending.body)) setTab("source");
+      if (pending.extra) setRestoredExtra(pending.extra);
       await storageDel(PENDING_KEY);
     } else if (!options?.initialBody) {
       // Support both the new LocalDraft shape and the old plain-string format
@@ -150,6 +164,7 @@ export function createComposerStore(
       const draftId = loadedDraftId();
       if (draftId) {
         setLoadedDraftId(null);
+        setLoadedDraftCreated(null);
         void deleteSavedDraft(draftId);
       }
     } catch (err) {
@@ -169,6 +184,7 @@ export function createComposerStore(
     setCategory("");
     setError(null);
     setLoadedDraftId(null);
+    setLoadedDraftCreated(null);
     storageDel(DRAFT_KEY);
   }
 
@@ -181,11 +197,16 @@ export function createComposerStore(
       .slice(0, 80);
   }
 
-  async function saveAsDraft(): Promise<void> {
+  async function saveAsDraft(extra?: Record<string, unknown>): Promise<void> {
     const now = Date.now();
-    const tempDraft = {
-      id: "",
-      created: now,
+    // Reuse the loaded draft's mid so this updates it in place instead of
+    // creating a new draft item every time — saveServerDraft() picks
+    // create-vs-update off tempDraft.serverMid.
+    const existingId = loadedDraftId();
+    const tempDraft: SavedDraft = {
+      id: existingId ?? "",
+      serverMid: existingId ?? undefined,
+      created: existingId ? (loadedDraftCreated() ?? now) : now,
       updated: now,
       preview: makeDraftPreview(body()),
       body: body(),
@@ -194,6 +215,7 @@ export function createComposerStore(
       slug: slug(),
       category: category(),
       mimetype: mimetype(),
+      extra: extra ?? null,
     };
     const serverMid = await saveServerDraft(tempDraft, scope);
     if (!serverMid) {
@@ -201,7 +223,9 @@ export function createComposerStore(
       return;
     }
     const draft: SavedDraft = { ...tempDraft, id: serverMid, serverMid };
-    setSavedDrafts([draft, ...savedDrafts()]);
+    setLoadedDraftId(serverMid);
+    setLoadedDraftCreated(draft.created);
+    setSavedDrafts([draft, ...savedDrafts().filter((d) => d.id !== serverMid)]);
   }
 
   function loadSavedDraft(draft: SavedDraft): void {
@@ -212,7 +236,9 @@ export function createComposerStore(
     setCategory(draft.category);
     setMimetype(draft.mimetype);
     setLoadedDraftId(draft.id);
+    setLoadedDraftCreated(draft.created);
     setTab(isEncryptedBody(draft.body) ? "source" : "wysiwyg");
+    setRestoredExtra(draft.extra ?? null);
   }
 
   async function deleteSavedDraft(id: string): Promise<void> {
@@ -232,6 +258,7 @@ export function createComposerStore(
     error,
     tab, setTab,
     savedDrafts,
+    restoredExtra,
     // Actions
     submit,
     reset,

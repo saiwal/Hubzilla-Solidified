@@ -1,7 +1,7 @@
 // src/shared/stream/store/createStreamStore.ts
 import { createSignal } from "solid-js";
-import { buildThreadTree, appendNewBranches } from "@/shared/lib/thread";
-import type { ThreadNode, ThreadRootOrder } from "@/shared/lib/thread";
+import { buildThreadTree } from "@/shared/lib/thread";
+import type { ThreadNode } from "@/shared/lib/thread";
 import type { Post } from "@/shared/types/post.types";
 import { updateInterval } from "@/shared/store/auth-store";
 import { toast } from "@/shared/store/toast";
@@ -213,27 +213,18 @@ export function createStreamStore<P extends StreamParams>(
 
   // ── misc ────────────────────────────────────────────────────────────────────
 
-  function setNodeChildren(mid: string, children: ThreadNode[]) {
-    setPosts((prev) => updateNode(prev, mid, (n) => ({ ...n, children })));
-  }
-
-  // Appends a newly-fetched page of root-level comments (each with its whole
-  // reply subtree — comments are only ever paginated at the root level, see
-  // appendNewBranches' doc comment) to the thread root's children, and
-  // updates hasMoreComments/commentsOffset from that page's response meta.
-  // commentsOffset MUST advance here — leaving it unset means every "load
-  // more" click keeps requesting roots_offset=0, re-fetching (and silently
-  // deduping) the same first page forever.
-  function appendNodeChildren(
-    mid: string, newPosts: Post[], hasMoreComments: boolean, commentsOffset: number, order?: ThreadRootOrder,
-  ) {
+  // Sets a node's children plus its own pagination meta in one update.
+  // commentsOffset MUST be kept in sync here — leaving it stale means the
+  // next "load more" click keeps re-requesting an already-fetched page,
+  // which gets silently deduped away and looks like the button does nothing.
+  // Merge strategy (which thread.ts helper builds `children`) is the
+  // caller's call — see actions-store.ts's loadComments/loadMoreComments —
+  // since it differs by comment-view mode (threaded root page / threaded
+  // branch continuation / flat list page) and this store has no opinion on
+  // that.
+  function patchNodeChildren(mid: string, children: ThreadNode[], hasMoreComments: boolean, commentsOffset: number) {
     setPosts((prev) =>
-      updateNode(prev, mid, (n) => ({
-        ...n,
-        children: appendNewBranches(n.children, newPosts, order),
-        commentsOffset,
-        hasMoreComments,
-      })),
+      updateNode(prev, mid, (n) => ({ ...n, children, hasMoreComments, commentsOffset })),
     );
   }
 
@@ -292,7 +283,6 @@ export function createStreamStore<P extends StreamParams>(
     stopPolling,
     optimisticToggle,
     setPosts,
-    setNodeChildren,
-    appendNodeChildren,
+    patchNodeChildren,
   };
 }

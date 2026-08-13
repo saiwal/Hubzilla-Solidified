@@ -691,13 +691,13 @@ export type RawDictionary = {
     more_sharing: string; star: string; unstar: string; pin: string; unpin: string; pinned_indicator: string; follow: string; unfollow: string;
     follow_for_notifs: string; unfollow_post: string; statistics: string; post_statistics: string;
     view_source: string; import_post: string; import: string; original: string; toggle_comments: string;
-    toggle_flat: string; toggle_threaded: string; flat: string; threaded: string;
+    flat: string; threaded: string;
     flat_view: string; threaded_view: string; refresh: string; more_actions: string;
     reply: string; delete_post: string; delete: string; remove_from_feed: string; admin_delete: string;
     confirm: string; confirm_delete: string; confirm_remove_from_feed: string; confirm_admin_delete: string;
     op: string; op_title: string; new_badge: string;
     comments_singular: string; comments_plural: string;
-    loading_comments: string; load_more_comments: string; loading: string; loading_source: string;
+    loading_comments: string; load_more_comments: string; viewing_in_context: string; show_all_comments: string; loading: string; loading_source: string;
     likes: string; dislikes: string; repeats: string; no_activity: string;
     cached: string; generated: string; unknown: string;
     modal_title: string; modal_close: string; load_error: string;

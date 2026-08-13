@@ -12,7 +12,8 @@
 //   handleFileInFolder — requires Hubzilla folder/collection API integration
 
 import type { ThreadNode } from "@/shared/lib/thread";
-import { buildThreadTree } from "@/shared/lib/thread";
+import { buildThreadTree, appendNewBranches, mergeReplies, applyBranchMeta } from "@/shared/lib/thread";
+import type { Post } from "@/shared/types/post.types";
 import type { createStreamStore } from "./createStreamStore";
 import { updateNode } from "./createStreamStore";
 import { fetchComments, fetchItemDetail, apiDeleteItem, apiEditItem, apiToggleStar } from "@/shared/lib/item-api";
@@ -21,11 +22,26 @@ import { sanitizeHtml } from "@/shared/lib/sanitize";
 import { currentNick } from "@/shared/store/auth-store";
 import { useCommentOrder } from "@/shared/store/comment-order";
 import type { CommentOrder } from "@/shared/store/comment-order";
+import { useThreadMode } from "@/shared/store/thread-mode";
 
-// Top-level comments per page (each bundled with its ENTIRE reply subtree —
-// comments are only ever paginated at the root level, never within a branch).
-// Not user-configurable, only the load-more order is (see comment-order store).
+// Root comments per page (threaded mode) or comments per page (list/flat
+// mode) — not user-configurable, only comment order and view mode are (see
+// comment-order / thread-mode stores).
 export const COMMENTS_PAGE_SIZE = 5;
+
+function filterReactions(comments: any[] | undefined): any[] {
+  return (comments ?? []).filter((a: any) => !REACTION_VERBS.has(a.verb));
+}
+
+function flatNodes(posts: Post[]): ThreadNode[] {
+  return posts.map((p) => ({ ...p, children: [] }));
+}
+
+function appendFlatComments(existing: ThreadNode[], newPosts: Post[]): ThreadNode[] {
+  const existingMids = new Set(existing.map((n) => n.mid));
+  const fresh = flatNodes(newPosts.filter((p) => !existingMids.has(p.mid)));
+  return fresh.length ? [...existing, ...fresh] : existing;
+}
 
 type StreamStore = ReturnType<typeof createStreamStore>;
 
@@ -183,23 +199,50 @@ export function createActionHandlers(store: StreamStore) {
 
     async loadComments(mid: string, uuid: string): Promise<void> {
       const order = useCommentOrder()();
-      const result = await fetchComments(uuid, { count: COMMENTS_PAGE_SIZE, order });
-      const comments = (result.comments ?? []).filter(
-        (a: any) => !REACTION_VERBS.has(a.verb),
-      );
-      store.appendNodeChildren(
-        mid, comments.map(mapActivityToPost), !!result.has_more_roots, result.next_roots_offset ?? 0, order,
-      );
+      if (useThreadMode()()) {
+        const result = await fetchComments(uuid, { count: COMMENTS_PAGE_SIZE, order });
+        const posts = filterReactions(result.comments).map(mapActivityToPost);
+        const children = applyBranchMeta(buildThreadTree(posts, order), result.branches);
+        store.patchNodeChildren(mid, children, !!result.has_more_roots, result.next_roots_offset ?? 0);
+      } else {
+        const result = await fetchComments(uuid, { count: COMMENTS_PAGE_SIZE, flat: true, order });
+        const posts = filterReactions(result.comments).map(mapActivityToPost);
+        store.patchNodeChildren(mid, flatNodes(posts), !!result.has_more, result.next_offset ?? 0);
+      }
     },
 
-    async loadMoreComments(mid: string, uuid: string, offset: number, order: CommentOrder): Promise<void> {
-      const result = await fetchComments(uuid, { count: COMMENTS_PAGE_SIZE, rootsOffset: offset, order });
-      const comments = (result.comments ?? []).filter(
-        (a: any) => !REACTION_VERBS.has(a.verb),
-      );
-      store.appendNodeChildren(
-        mid, comments.map(mapActivityToPost), !!result.has_more_roots, result.next_roots_offset ?? offset, order,
-      );
+    // rootUuid: the thread root's uuid (always the URL target for the API
+    // call). attachMid: the node — post root or a specific comment — to
+    // attach fetched children to. isRoot: "load more root comments" (paginate
+    // top-level comments, threaded or flat) vs "load more replies" for one
+    // comment's own branch (threaded mode only — list mode never sets
+    // hasMoreComments on an individual comment, so this path is unreachable
+    // there).
+    async loadMoreComments(rootUuid: string, attachMid: string, isRoot: boolean, offset: number, order: CommentOrder): Promise<void> {
+      const node = findNode(store.posts(), attachMid);
+      const existingChildren = node?.children ?? [];
+
+      if (!isRoot) {
+        const result = await fetchComments(rootUuid, { branch: attachMid, branchOffset: offset, branchLimit: COMMENTS_PAGE_SIZE });
+        const posts = filterReactions(result.comments).map(mapActivityToPost);
+        store.patchNodeChildren(
+          attachMid, mergeReplies(existingChildren, posts, attachMid), !!result.has_more, result.next_branch_offset ?? offset,
+        );
+        return;
+      }
+
+      if (useThreadMode()()) {
+        const result = await fetchComments(rootUuid, { count: COMMENTS_PAGE_SIZE, rootsOffset: offset, order });
+        const posts = filterReactions(result.comments).map(mapActivityToPost);
+        const appended = applyBranchMeta(appendNewBranches(existingChildren, posts, order), result.branches);
+        store.patchNodeChildren(attachMid, appended, !!result.has_more_roots, result.next_roots_offset ?? offset);
+      } else {
+        const result = await fetchComments(rootUuid, { count: COMMENTS_PAGE_SIZE, offset, flat: true, order });
+        const posts = filterReactions(result.comments).map(mapActivityToPost);
+        store.patchNodeChildren(
+          attachMid, appendFlatComments(existingChildren, posts), !!result.has_more, result.next_offset ?? offset,
+        );
+      }
     },
 
     async handleRefresh(mid: string, uuid: string): Promise<void> {
@@ -222,11 +265,12 @@ export function createActionHandlers(store: StreamStore) {
       // Reload comments only if they were already fetched
       const node = findNode(store.posts(), mid);
       if (node && node.children.length > 0) {
-        const result = await fetchComments(uuid);
-        const comments = (result.comments ?? []).filter(
-          (a: any) => !REACTION_VERBS.has(a.verb),
-        );
-        store.setNodeChildren(mid, buildThreadTree(comments.map(mapActivityToPost), useCommentOrder()()));
+        const result = await fetchComments(uuid); // 'all' — full unpaginated refetch
+        const posts = filterReactions(result.comments).map(mapActivityToPost);
+        const order = useCommentOrder()();
+        const children = useThreadMode()() ? buildThreadTree(posts, order) : flatNodes(posts);
+        // Full refetch — nothing more to page in until the user next asks.
+        store.patchNodeChildren(mid, children, false, 0);
       }
     },
   };
