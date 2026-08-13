@@ -405,6 +405,16 @@
   border-radius: 0 !important;
 }
 
+/* [footer]...[/footer] BBCode (bbcode.ts) renders as this div, embedded
+   inline inside the post body HTML — style it as a separated footer note. */
+.prose .wall-item-footer {
+  margin-top: 1.5em;
+  padding-top: 0.5em;
+  border-top: 1px solid var(--color-rim);
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
 /* !important on height/width: remote/legacy-federated custom emoji (e.g. from
    Mastodon-style instances that bake fixed dimensions into their own <img>
    tags) may arrive with an inline height="20"/"50" — here in our own renderer

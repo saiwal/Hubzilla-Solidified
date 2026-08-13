@@ -175,7 +175,7 @@ function bbExtractImages(body: string): ExtractImagesResult {
     const placeholder = `[$#saved_image${idx}#$]`;
     const zCls = tag === "z" ? ' class="zrl"' : "";
     const cleanAlt = escapeHtml(alt.trim());
-    images[idx] = `<img${zCls} style="max-width: 100%;" src="${src.trim()}" alt="${cleanAlt}" title="${cleanAlt}" loading="eager" />`;
+    images[idx] = `<img${zCls} style="max-width: 100%;" src="${src.trim()}" alt="${cleanAlt}" title="${cleanAlt}" loading="lazy" />`;
     idx++;
     return placeholder;
   });
@@ -193,7 +193,7 @@ function bbReplaceImages(body: string, images: string[]): string {
     } else {
       result = result.replace(
         `[$#saved_image${i}#$]`,
-        `<img src="${img}" alt="Image/photo" loading="eager" />`
+        `<img src="${img}" alt="Image/photo" loading="lazy" />`
       );
     }
   });
@@ -453,7 +453,7 @@ function bbImgOptions(
     const imgSrc = attributes.trim();
     const altText = src.trim();
     const zCls = tagName === "z" ? " zrl" : "";
-    return `<img class="${zCls.trim()}" style="max-width: 100%;" src="${imgSrc}" alt="${escapeHtml(altText)}" title="${escapeHtml(altText)}" loading="eager" />`;
+    return `<img class="${zCls.trim()}" style="max-width: 100%;" src="${imgSrc}" alt="${escapeHtml(altText)}" title="${escapeHtml(altText)}" loading="lazy" />`;
   }
 
   let width = attr("width");
@@ -486,7 +486,7 @@ function bbImgOptions(
   const titleAttr = escapeHtml(title);
   const classAttr = escapeHtml(cls || zClass);
 
-  return `<img style="${style}" alt="${altAttr}" title="${titleAttr}" class="${classAttr}" src="${src}" loading="eager" />`;
+  return `<img style="${style}" alt="${altAttr}" title="${titleAttr}" class="${classAttr}" src="${src}" loading="lazy" />`;
 }
 
 // ---------------------------------------------------------------------------
@@ -1053,22 +1053,22 @@ export function bbcode(text: string, options: BbcodeOptions = {}): string {
   // plain [img]url[/img]
   text = text.replace(
     /\[img\](.*?)\[\/img\]/gi,
-    `<img style="max-width: 100%;" src="$1" alt="Image/photo" loading="eager" />`
+    `<img style="max-width: 100%;" src="$1" alt="Image/photo" loading="lazy" />`
   );
   // [img=url]alt[/img]
   text = text.replace(
     /\[img=http(.*?)\](.*?)\[\/img\]/gi,
-    `<img style="max-width: 100%;" src="http$1" alt="$2" title="$2" loading="eager" />`
+    `<img style="max-width: 100%;" src="http$1" alt="$2" title="$2" loading="lazy" />`
   );
   // [zmg]url[/zmg]
   text = text.replace(
     /\[zmg\](.*?)\[\/zmg\]/gi,
-    `<img class="zrl" style="max-width: 100%;" src="$1" alt="Image/photo" loading="eager" />`
+    `<img class="zrl" style="max-width: 100%;" src="$1" alt="Image/photo" loading="lazy" />`
   );
   // [zmg=url]alt[/zmg]
   text = text.replace(
     /\[zmg=http(.*?)\](.*?)\[\/zmg\]/gi,
-    `<img class="zrl" style="max-width: 100%;" src="http$1" alt="$2" title="$2" loading="eager" />`
+    `<img class="zrl" style="max-width: 100%;" src="http$1" alt="$2" title="$2" loading="lazy" />`
   );
 
   // [img options] / [zmg options]
