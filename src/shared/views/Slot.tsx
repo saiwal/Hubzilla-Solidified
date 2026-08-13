@@ -31,8 +31,6 @@ import {
   templateEntriesFor,
   pageTemplateEntriesFor,
   saveTemplateSlots,
-  templateName,
-  templateUsageCount,
 } from "@/shared/store/widget-templates";
 import { toast } from "@/shared/store/toast";
 import { helpable } from "@/shared/lib/helpable";
@@ -332,13 +330,6 @@ const Slot: Component<SlotProps> = (props) => {
           </For>
         }
       >
-        <Show when={props.templateId && templateUsageCount(props.templateId) > 1}>
-          <p class="text-xs text-amber-600 bg-amber-500/10 border border-amber-500/30 rounded-lg px-2 py-1.5 mb-2">
-            {t("widgets.template_shared_notice")
-              .replace("{{name}}", templateName(props.templateId!) ?? "")
-              .replace("{{count}}", String(templateUsageCount(props.templateId!)))}
-          </p>
-        </Show>
         <WidgetArrangementEditor
           entries={localEntries()}
           availableWidgets={availableWidgets()}
@@ -422,13 +413,6 @@ const Slot: Component<SlotProps> = (props) => {
                 )}
               </For>
             </div>
-            <Show when={props.templateId && templateUsageCount(props.templateId) > 1}>
-              <p class="text-xs text-amber-600 bg-amber-500/10 border border-amber-500/30 rounded-lg px-2 py-1.5 mb-2">
-                {t("widgets.template_shared_notice")
-                  .replace("{{name}}", templateName(props.templateId!) ?? "")
-                  .replace("{{count}}", String(templateUsageCount(props.templateId!)))}
-              </p>
-            </Show>
             <WidgetPickerFooter
               availableWidgets={availableWidgets()}
               pickerOpen={pickerOpen()}

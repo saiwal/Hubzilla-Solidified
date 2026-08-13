@@ -118,7 +118,7 @@ export const widgets: RawDictionary["widgets"] = {
   none_to_add:   "No more widgets available for this page.",
   save_failed:   "Couldn't save the widget layout.",
   slot_header:   "Header",
-  slot_gridtop:  "Top of page",
+  slot_gridtop:  "Grid Top",
   slot_right:    "Sidebar",
   slot_footer:   "Footer",
   slot_content_top:    "Above content",

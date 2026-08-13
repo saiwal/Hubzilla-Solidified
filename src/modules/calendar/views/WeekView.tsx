@@ -22,7 +22,7 @@ function nowY() {
 }
 
 export default function WeekView(props: Props) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const todayK = todayKey();
 
   const weekDates = createMemo(() => {
@@ -80,7 +80,7 @@ export default function WeekView(props: Props) {
                 onClick={() => props.onDayClick(date)}
               >
                 <div class="text-[0.625rem] font-medium text-muted uppercase">
-                  {d.toLocaleDateString(undefined, { weekday: "short" })}
+                  {d.toLocaleDateString(locale(), { weekday: "short" })}
                 </div>
                 <div
                   class={`text-sm font-bold mx-auto w-7 h-7 flex items-center justify-center
@@ -101,7 +101,7 @@ export default function WeekView(props: Props) {
           style={{ "grid-template-columns": `${TIME_W}px 1fr`, display: "grid" }}
         >
           <div class="border-r border-rim text-[0.625rem] text-muted flex items-center justify-end pr-2">
-            all‑day
+            {t("calendar.all_day")}
           </div>
           <div
             class="relative"
@@ -208,7 +208,7 @@ export default function WeekView(props: Props) {
                       const color = item.event.calendarColor;
                       const top = eventTopPx(item.event.start);
                       const height = eventHeightPx(item.event.start, item.event.end);
-                      const startLbl = new Date(item.event.start).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+                      const startLbl = new Date(item.event.start).toLocaleTimeString(locale(), { hour: "numeric", minute: "2-digit" });
                       return (
                         <div
                           data-ev

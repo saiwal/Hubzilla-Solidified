@@ -37,7 +37,7 @@ import {
   editingWidgets,
   setEditingWidgets,
 } from "@/shared/store/widget-layout";
-import { loadTemplates } from "@/shared/store/widget-templates";
+import { loadTemplates, templateUsageCount, templateName } from "@/shared/store/widget-templates";
 import { useOnlineStatus } from "./shared/lib/useOnlineStatus";
 import NavUtilities from "./shared/views/NavUtilities";
 import ChannelSwitcher, { ChannelSwitcherTiles } from "./shared/views/ChannelSwitcher";
@@ -271,6 +271,13 @@ const Layout: ParentComponent = (props) => {
   const isLocalUser = () =>
     viewerRole() === "owner" || viewerRole() === "local";
 
+  // Shown once per page (not once per templated slot — see Slot.tsx, which
+  // used to render this same notice separately in header/gridTop/contentTop/
+  // footer/right).
+  const showsTemplateNotice = createMemo(
+    () => !!pageTemplateId() && editingWidgets() && isOwner() && templateUsageCount(pageTemplateId()!) > 1,
+  );
+
   // "Navigation Channel Select" feature: expands the "channels" nav entry
   // into an inline multi-channel switcher instead of linking to /manage.
   const channelSwitcherActive = () => isOwner() && navChannelSelectEnabled();
@@ -368,7 +375,7 @@ const Layout: ParentComponent = (props) => {
           <Show when={!hidesNavChrome()}>
           <aside
             aria-label={t("layout.navigation")}
-            class="hidden lg:flex flex-col w-56 shrink-0 relative z-20
+            class="hidden lg:flex flex-col w-[224px] shrink-0 relative z-20
                    bg-surface border-r border-rim py-3 px-2"
           >
             {/* Brand */}
@@ -489,6 +496,13 @@ const Layout: ParentComponent = (props) => {
                   : ""}
               </span>
               <Show when={!hidesWidgetSlots()}>
+                <Show when={showsTemplateNotice()}>
+                  <p class="text-xs text-amber-600 bg-amber-500/10 border border-amber-500/30 rounded-lg px-2 py-1.5 mb-2">
+                    {t("widgets.template_shared_notice")
+                      .replace("{{name}}", templateName(pageTemplateId()!) ?? "")
+                      .replace("{{count}}", String(templateUsageCount(pageTemplateId()!)))}
+                  </p>
+                </Show>
                 <Slot name="header" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
                 <Slot name="gridTop" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
                 <Slot name="contentTop" moduleId={activeModuleId()} templateId={pageTemplateId()} editable />
@@ -576,7 +590,7 @@ const Layout: ParentComponent = (props) => {
             aria-hidden={!isXl() && !rightOpen()}
             tabindex="0"
             class={`
-              fixed inset-y-0 right-0 z-40 w-72 shrink-0 p-4 pb-20 lg:pb-4 overflow-y-auto
+              fixed inset-y-0 right-0 z-40 w-[288px] shrink-0 p-4 pb-20 lg:pb-4 overflow-y-auto
               flex flex-col gap-4
               bg-surface border-l border-rim
               transform transition-transform duration-300 ease-in-out

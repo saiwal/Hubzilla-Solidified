@@ -125,12 +125,12 @@ export function eventOnDay(ev: CalEvent, day: string): boolean {
   return s <= day && e >= day;
 }
 
-function fmtDayKey(dateStr: string): string {
-  return new Date(dateStr + "T00:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric" });
+function fmtDayKey(dateStr: string, locale: string): string {
+  return new Date(dateStr + "T00:00:00").toLocaleDateString(locale, { month: "short", day: "numeric" });
 }
 
-function fmtClockTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+function fmtClockTime(iso: string, locale: string): string {
+  return new Date(iso).toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" });
 }
 
 /**
@@ -139,7 +139,7 @@ function fmtClockTime(iso: string): string {
  * fall on different calendar days, so a multi-day event doesn't read as a
  * same-day one.
  */
-export function fmtEventRange(ev: CalEvent): string {
+export function fmtEventRange(ev: CalEvent, locale: string, allDayLabel: string): string {
   const startDay = ev.allDay ? ev.start.slice(0, 10) : localDay(ev.start);
   let endDay = ev.end ? (ev.allDay ? ev.end.slice(0, 10) : localDay(ev.end)) : startDay;
   // CalDAV all-day events use exclusive DTEND (next day) — normalize to inclusive.
@@ -147,11 +147,11 @@ export function fmtEventRange(ev: CalEvent): string {
   const spansDays = endDay !== startDay;
 
   if (ev.allDay) {
-    return spansDays ? `${fmtDayKey(startDay)} – ${fmtDayKey(endDay)}` : "All day";
+    return spansDays ? `${fmtDayKey(startDay, locale)} – ${fmtDayKey(endDay, locale)}` : allDayLabel;
   }
-  if (ev.nofinish || !ev.end) return fmtClockTime(ev.start);
-  if (!spansDays) return `${fmtClockTime(ev.start)} → ${fmtClockTime(ev.end)}`;
-  return `${fmtDayKey(startDay)}, ${fmtClockTime(ev.start)} → ${fmtDayKey(endDay)}, ${fmtClockTime(ev.end)}`;
+  if (ev.nofinish || !ev.end) return fmtClockTime(ev.start, locale);
+  if (!spansDays) return `${fmtClockTime(ev.start, locale)} → ${fmtClockTime(ev.end, locale)}`;
+  return `${fmtDayKey(startDay, locale)}, ${fmtClockTime(ev.start, locale)} → ${fmtDayKey(endDay, locale)}, ${fmtClockTime(ev.end, locale)}`;
 }
 
 /**

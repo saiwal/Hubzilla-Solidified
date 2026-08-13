@@ -28,7 +28,7 @@ const ThemeToggle = () => {
         ref={setTriggerRef}
         onClick={toggle}
         title={t("ui.theme")}
-        class={`p-2 rounded-lg transition-colors text-muted hover:bg-elevated hover:text-txt
+        class={`p-[8px] rounded-lg transition-colors text-muted hover:bg-elevated hover:text-txt
                 ${open() ? "bg-elevated text-txt" : ""}`}
       >
         <BiRegularPalette size={18} />

@@ -9,7 +9,7 @@ export default function HelpTrigger() {
   return (
     <button
       onClick={() => helpMode() ? exit() : enter()}
-      class={`px-3 py-2 rounded-lg  hover:opacity-80 text-sm transition-colors
+      class={`px-[12px] py-[8px] rounded-lg  hover:opacity-80 text-sm transition-colors
         ${helpMode()
           ? "bg-accent-muted text-accent"
           : "text-muted hover:bg-elevated"

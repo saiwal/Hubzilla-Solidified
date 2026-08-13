@@ -10,8 +10,8 @@ interface Props {
   events: CalEvent[];
 }
 
-function fmtDateHeader(dateStr: string): string {
-  return new Date(dateStr + "T00:00:00").toLocaleDateString(undefined, {
+function fmtDateHeader(dateStr: string, locale: string): string {
+  return new Date(dateStr + "T00:00:00").toLocaleDateString(locale, {
     weekday: "long",
     month: "long",
     day: "numeric",
@@ -19,7 +19,7 @@ function fmtDateHeader(dateStr: string): string {
 }
 
 export default function ListView(props: Props) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [expandedId, setExpandedId] = createSignal<number | null>(null);
 
   const todayStr = isoDateStr(new Date());
@@ -54,7 +54,7 @@ export default function ListView(props: Props) {
             <div>
               <div class="flex items-center gap-2 mb-2 sticky top-0 bg-base py-1 z-10">
                 <span class={`text-sm font-semibold shrink-0 ${dateStr === todayStr ? "text-accent" : "text-txt"}`}>
-                  {fmtDateHeader(dateStr)}
+                  {fmtDateHeader(dateStr, locale())}
                 </span>
                 <Show when={dateStr === todayStr}>
                   <span class="text-xs font-medium px-1.5 py-0.5 rounded-full bg-accent text-accent-fg shrink-0">
@@ -87,7 +87,7 @@ export default function ListView(props: Props) {
                             {ev.title || t("calendar.no_title")}
                           </p>
                           <p class="text-xs text-muted mt-0.5">
-                            {fmtEventRange(ev)}
+                            {fmtEventRange(ev, locale(), t("calendar.all_day"))}
                           </p>
                           <Show when={ev.location}>
                             <p class="flex items-center gap-1 text-xs text-muted mt-0.5">

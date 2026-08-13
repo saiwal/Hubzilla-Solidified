@@ -40,6 +40,7 @@ import { apiFetch } from "@/shared/lib/fetch";
 import { createQueryResource } from "@/shared/lib/createQueryResource";
 import { resolveNotifyPath, connectionRequestId } from "@/shared/lib/notifyLink";
 import { openConnectionRequestModal } from "@/shared/store/connection-request-modal";
+import { relativeTime } from "@/shared/lib/relativeTime";
 const PostDetailModal = lazy(() => import("@/shared/views/PostDetailModal"));
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -89,18 +90,18 @@ const DISPLAY_ORDER = [
   "register",
 ];
 
-type BucketMeta = { label: string; Icon: any; href?: string };
+type BucketMeta = { labelKey: string | null; Icon: any; href?: string };
 const KNOWN_META: Record<string, BucketMeta> = {
-  network: { label: "Network", Icon: MdFillWifi, href: "/network" },
-  dm: { label: "Messages", Icon: MdFillMail, href: "/hq" },
-  home: { label: "Channel", Icon: MdFillHome, href: "/channel" },
-  notify: { label: "Alerts", Icon: MdFillNotifications, href: "/notify" },
-  intros: { label: "Intros", Icon: MdFillPeople, href: "/directory/connections" },
-  forums: { label: "Forums", Icon: MdFillForum },
-  pubs: { label: "Public", Icon: MdFillPublic },
-  files: { label: "Files", Icon: MdFillInsert_drive_file },
-  all_events: { label: "Events", Icon: MdFillEvent, href: "/cdav/calendar" },
-  register: { label: "Signups", Icon: MdFillApp_registration },
+  network: { labelKey: "notify.bucket_network", Icon: MdFillWifi, href: "/network" },
+  dm: { labelKey: "notify.bucket_dm", Icon: MdFillMail, href: "/hq" },
+  home: { labelKey: "notify.bucket_home", Icon: MdFillHome, href: "/channel" },
+  notify: { labelKey: "notify.bucket_notify", Icon: MdFillNotifications, href: "/notify" },
+  intros: { labelKey: "notify.bucket_intros", Icon: MdFillPeople, href: "/directory/connections" },
+  forums: { labelKey: "notify.bucket_forums", Icon: MdFillForum },
+  pubs: { labelKey: "notify.bucket_pubs", Icon: MdFillPublic },
+  files: { labelKey: "notify.bucket_files", Icon: MdFillInsert_drive_file },
+  all_events: { labelKey: "notify.bucket_all_events", Icon: MdFillEvent, href: "/cdav/calendar" },
+  register: { labelKey: "notify.bucket_register", Icon: MdFillApp_registration },
 };
 
 // ── API ───────────────────────────────────────────────────────────────────────
@@ -257,23 +258,6 @@ function getDisplayUuid(n: HzNotification): string | null {
   }
 }
 
-function relativeTime(when?: string): string {
-  if (!when) return "";
-  // Enotify::format() (Zotlabs/Lib/Enotify.php) converts `created` from UTC to
-  // the server's configured local timezone before sending it as `when` — so it
-  // must be parsed as local time here, not UTC (no "Z" suffix).
-  // Exception: Enotify::format_all_events() sends `when` as an already
-  // human-formatted string ("8 AM Friday January 18 [today]"), not a
-  // parseable datetime — pass those through as-is instead of "NaNd ago".
-  const d = new Date(when.replace(" ", "T"));
-  if (isNaN(d.getTime())) return when;
-  const diff = Math.max(0, Math.floor((Date.now() - d.getTime()) / 1000));
-  if (diff < 60) return "just now";
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
-}
-
 function stripHtml(html?: string): string {
   if (!html) return "";
   const div = document.createElement("div");
@@ -306,6 +290,7 @@ function NotifRow(props: {
   onNotifySeen: (nid: number) => void;
   onOpenModal: (uuid: string) => void;
 }) {
+  const { t } = useI18n();
   const [hidden, setHidden] = createSignal(false);
   const uuid = () => getDisplayUuid(props.n);
   const navigate = useNavigate();
@@ -317,7 +302,7 @@ function NotifRow(props: {
   });
   const when = () => {
     tick();
-    return relativeTime(props.n.when);
+    return relativeTime(props.n.when, t);
   };
 
   const dismiss = () => {
@@ -390,7 +375,7 @@ function NotifRow(props: {
       <Show when={props.n.b64mid}>
         <button
           onClick={handleDismiss}
-          title="Mark read"
+          title={t("notify.mark_read")}
           class="shrink-0 mt-1.5 p-0.5 rounded text-subtle
                  hover:text-muted hover:bg-elevated transition-colors
                  opacity-100 md:opacity-0 md:group-hover:opacity-100 focus:opacity-100"
@@ -419,9 +404,10 @@ function StreamSection(props: {
   const { t } = useI18n();
   const open = () => props.open;
   const meta = KNOWN_META[props.id] ?? {
-    label: props.id,
+    labelKey: null,
     Icon: MdFillNotifications,
   };
+  const label = () => (meta.labelKey ? t(meta.labelKey as any) : props.id);
 
   const isForums = () => props.id === "forums";
   const needsFetch = () => STATIC_FETCHABLE.has(props.id) || isForums();
@@ -466,13 +452,13 @@ function StreamSection(props: {
       >
         <span class="flex items-center gap-1.5 text-xs font-semibold text-txt">
           <meta.Icon class="w-3.5 h-3.5 shrink-0" />
-          <Show when={meta.href} fallback={<span>{meta.label}</span>}>
+          <Show when={meta.href} fallback={<span>{label()}</span>}>
             <a
               href={meta.href}
               onClick={(e) => e.stopPropagation()}
               class="hover:underline"
             >
-              {meta.label}
+              {label()}
             </a>
           </Show>
         </span>
@@ -558,6 +544,7 @@ function NoticeRow(props: {
   entry: HqNoticeEntry;
   onOpen: (uuid: string) => void;
 }) {
+  const { t } = useI18n();
   const handleClick = (e: MouseEvent) => {
     const connId = connectionRequestId(props.entry.href);
     if (connId) {
@@ -594,7 +581,7 @@ function NoticeRow(props: {
           <span>{decodeHtmlEntities(props.entry.summary)}</span>
         </p>
         <p class="text-[0.625rem] text-muted mt-0.5">
-          {relativeTime(props.entry.created)}
+          {relativeTime(props.entry.created, t)}
         </p>
       </div>
     </a>
@@ -778,6 +765,7 @@ function AnnouncementsSection(props: {
 type ConnStatus = "connecting" | "live" | "polling" | "error";
 
 function StatusDot(props: { status: ConnStatus }) {
+  const { t } = useI18n();
   const cls = () =>
     ({
       connecting: "text-yellow-400 animate-pulse",
@@ -787,10 +775,10 @@ function StatusDot(props: { status: ConnStatus }) {
     })[props.status];
   const title = () =>
     ({
-      connecting: "Connecting…",
-      live: "Live",
-      polling: "Polling",
-      error: "Disconnected",
+      connecting: t("notify.conn_connecting"),
+      live: t("notify.conn_live"),
+      polling: t("notify.conn_polling"),
+      error: t("notify.conn_disconnected"),
     })[props.status];
 
   const IconComponent =
@@ -898,7 +886,7 @@ export default function NotificationsAside() {
     if (fromSsePush) {
       for (const { key, n } of freshNotifs) {
         const meta = KNOWN_META[key];
-        showDesktopNotification(n.name || meta?.label || "Hubzilla", {
+        showDesktopNotification(n.name || (meta?.labelKey ? t(meta.labelKey as any) : "") || t("notify.fallback_sender"), {
           body: stripHtml(n.message),
           icon: n.photo,
           tag: n.b64mid ?? `${key}-${n.notify_id ?? ""}`,

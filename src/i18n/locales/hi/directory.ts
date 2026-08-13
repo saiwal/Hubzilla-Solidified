@@ -7,6 +7,8 @@ export const directory: RawDictionary["directory"] = {
   suggestions:          "सुझाव",
   privacy_groups:       "गोपनीयता समूह",
   roles:                "भूमिकाएँ",
+  contact_roles:        "संपर्क भूमिकाएँ",
+  people_groups:        "लोग और समूह",
   mutual:               "पारस्परिक",
   mutuals:              "पारस्परिक",
   public_forum:         "सार्वजनिक फ़ोरम",

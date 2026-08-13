@@ -27,7 +27,7 @@ function EditHint(props: { text: string }) {
 }
 
 export default function ArticleTeaserWidget(props: WidgetProps) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const nick = usePageNick();
   const uuid = () => String(props.config?.uuid ?? "");
 
@@ -54,7 +54,7 @@ export default function ArticleTeaserWidget(props: WidgetProps) {
               <div class="px-4 py-3">
                 <h4 class="text-sm font-semibold text-txt">{a().title}</h4>
                 <p class="text-[0.625rem] text-muted mt-0.5">
-                  {new Date(a().created).toLocaleDateString()}
+                  {new Date(a().created).toLocaleDateString(locale())}
                 </p>
                 <p class="text-sm text-txt mt-2">{excerpt(a().summary || a().body)}</p>
               </div>

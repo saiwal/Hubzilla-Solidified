@@ -34,7 +34,7 @@ function ArticleModal(props: { uid: number; nick: string; onClose: () => void })
 }
 
 export default function ArticlesHeaderWidget() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const auth = useAuth();
   const role = useViewerRole();
   const nick = usePageNick();
@@ -143,7 +143,7 @@ export default function ArticlesHeaderWidget() {
             </Show>
             <Show when={activeDbegin()}>
               <span class="font-medium text-accent">
-                {new Date(activeDbegin() + "T00:00:00").toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" })}
+                {new Date(activeDbegin() + "T00:00:00").toLocaleDateString(locale(), { month: "long", day: "numeric", year: "numeric" })}
               </span>
             </Show>
             <button

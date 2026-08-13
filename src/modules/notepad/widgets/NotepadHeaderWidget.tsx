@@ -4,7 +4,7 @@ import { MdFillSearch, MdFillClose } from "solid-icons/md";
 import { useI18n } from "@/i18n";
 
 export default function NotepadHeaderWidget() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const activeTag = () => String(searchParams.tag ?? "");
@@ -105,7 +105,7 @@ export default function NotepadHeaderWidget() {
             <Show when={activeDbegin()}>
               <span>
                 {new Date(`${activeDbegin()}T00:00:00`).toLocaleDateString(
-                  undefined,
+                  locale(),
                   {
                     month: "long",
                     year: "numeric",

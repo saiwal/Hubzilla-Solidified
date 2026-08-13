@@ -28,7 +28,7 @@ function nowY() {
 }
 
 export default function DayView(props: Props) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const todayK = todayKey();
 
   const dateStr = createMemo(() => isoDateStr(props.date));
@@ -71,7 +71,7 @@ export default function DayView(props: Props) {
   onMount(() => scrollRef?.scrollTo({ top: 7 * HOUR_H - 16 }));
 
   const dayLabel = createMemo(() =>
-    props.date.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })
+    props.date.toLocaleDateString(locale(), { weekday: "long", month: "long", day: "numeric" })
   );
 
   return (
@@ -167,9 +167,9 @@ export default function DayView(props: Props) {
                 const height = Math.min(rawH, 24 * HOUR_H - top);
                 const crossesMidnight = rawH > height;
                 const fmt = { hour: "numeric", minute: "2-digit" } as const;
-                const startLbl = new Date(item.event.start).toLocaleTimeString(undefined, fmt);
+                const startLbl = new Date(item.event.start).toLocaleTimeString(locale(), fmt);
                 const endLbl = item.event.end
-                  ? new Date(item.event.end).toLocaleTimeString(undefined, fmt)
+                  ? new Date(item.event.end).toLocaleTimeString(locale(), fmt)
                   : null;
                 return (
                   <div

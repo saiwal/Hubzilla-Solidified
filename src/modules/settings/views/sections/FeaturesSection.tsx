@@ -76,7 +76,7 @@ export default function FeaturesSection() {
       if (NAV_AFFECTING_FEATURES.has(name)) refetchNavData();
     },
     onError: () => {
-      toast.error("Failed to toggle feature");
+      toast.error(t("settings.feat_toggle_failed"));
     },
   }));
 

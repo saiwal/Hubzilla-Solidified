@@ -73,13 +73,8 @@ export async function fetchArchiveDays(params: {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
-
-function monthName(m: number) {
-  return MONTH_NAMES[m - 1] ?? String(m);
+function monthName(m: number, locale: string) {
+  return new Intl.DateTimeFormat(locale, { month: "long" }).format(new Date(2000, m - 1, 1));
 }
 
 function pad2(n: number) {
@@ -147,7 +142,7 @@ export interface ArchiveWidgetProps {
 // ---------------------------------------------------------------------------
 
 const ArchiveWidget: Component<ArchiveWidgetProps> = (props) => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   const [remote] = createQueryResource(
     "stream-archive",
@@ -245,7 +240,7 @@ const ArchiveWidget: Component<ArchiveWidgetProps> = (props) => {
                                       "text-txt": !active(),
                                     }}
                                   >
-                                    {monthName(mo.month)}
+                                    {monthName(mo.month, locale())}
                                   </span>
                                   <span class="text-xs text-muted shrink-0">{mo.count}</span>
                                 </button>

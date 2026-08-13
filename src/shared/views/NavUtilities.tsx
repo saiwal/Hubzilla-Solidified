@@ -39,7 +39,7 @@ export default function NavUtilities(props: NavUtilitiesProps) {
         onUserMenuToggle={props.onUserMenuToggle}
       />
 
-      <div class="mt-3 pt-2 border-t border-rim flex items-center gap-0.5 px-1 justify-evenly">
+      <div class="mt-3 pt-2 border-t border-rim flex items-center gap-[2px] px-[4px] justify-evenly">
         <div use:helpable="nav.language">
           <LanguageSwitcher />
         </div>
@@ -52,7 +52,7 @@ export default function NavUtilities(props: NavUtilitiesProps) {
             aria-pressed={editingWidgets()}
             aria-label={editingWidgets() ? t("widgets.done_editing") : t("widgets.edit_layout")}
             title={editingWidgets() ? t("widgets.done_editing") : t("widgets.edit_layout")}
-            class={`p-2 rounded-lg transition-colors ${
+            class={`p-[8px] rounded-lg transition-colors ${
               editingWidgets()
                 ? "bg-accent text-accent-fg"
                 : "text-muted hover:bg-elevated hover:text-txt"
@@ -68,7 +68,7 @@ export default function NavUtilities(props: NavUtilitiesProps) {
             onClick={() => openFeedModal(pageNick())}
             title={t("widgets.rss_feeds")}
             aria-label={t("widgets.rss_feeds")}
-            class="inline-flex items-center justify-center p-2 rounded-lg text-muted hover:bg-elevated hover:text-txt transition-colors"
+            class="inline-flex items-center justify-center p-[8px] rounded-lg text-muted hover:bg-elevated hover:text-txt transition-colors"
           >
             <BiRegularRss size={18} />
           </button>
@@ -80,7 +80,7 @@ export default function NavUtilities(props: NavUtilitiesProps) {
           <A
             href="/siteinfo"
             title={t("ui.site_info")}
-            class="inline-flex items-center justify-center p-2 rounded-lg text-muted hover:bg-elevated hover:text-txt transition-colors"
+            class="inline-flex items-center justify-center p-[8px] rounded-lg text-muted hover:bg-elevated hover:text-txt transition-colors"
           >
             <BiRegularInfoCircle size={18} />
           </A>

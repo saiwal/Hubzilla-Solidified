@@ -25,8 +25,8 @@ function renderBody(body: string, mimetype: string): string {
   }
 }
 
-function fmtDate(iso: string): string {
-  return new Date(iso.replace(" ", "T") + "Z").toLocaleDateString(undefined, {
+function fmtDate(iso: string, locale: string): string {
+  return new Date(iso.replace(" ", "T") + "Z").toLocaleDateString(locale, {
     year: "numeric", month: "short", day: "numeric",
   });
 }
@@ -38,7 +38,7 @@ function NoteCard(props: {
   confirmingDelete: boolean;
   onCancelDelete: () => void;
 }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   let bodyRef: HTMLDivElement | undefined;
   const [expanded, setExpanded] = createSignal(false);
@@ -100,7 +100,7 @@ function NoteCard(props: {
       </Show>
 
       <div class="flex items-center justify-between text-xs text-muted">
-        <span>{fmtDate(props.note.edited || props.note.created)}</span>
+        <span>{fmtDate(props.note.edited || props.note.created, locale())}</span>
 
         <Show
           when={!props.confirmingDelete}

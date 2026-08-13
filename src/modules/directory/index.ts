@@ -3,22 +3,22 @@ import { useI18n } from "@/i18n";
 import type { SubPageItem } from "@/shared/views/SubPageLayout";
 
 export const CONNECTIONS_ITEMS: SubPageItem[] = [
-  { path: "connections", label: "Connections", context: "owner", requiresApp: "/connections" },
-  { path: "contact-roles", label: "Contact roles", context: "owner", requiresApp: "/permcats" },
+  { path: "connections", label: () => useI18n().t("directory.connections"), context: "owner", requiresApp: "/connections" },
+  { path: "contact-roles", label: () => useI18n().t("directory.contact_roles"), context: "owner", requiresApp: "/permcats" },
   {
     path: "privacy-groups",
-    label: "Privacy groups",
+    label: () => useI18n().t("directory.privacy_groups"),
     context: "owner",
     dividerAfter: true,
     requiresApp: "/group",
   },
   {
     path: "people",
-    label: "People & Groups",
+    label: () => useI18n().t("directory.people_groups"),
     context: "all",
   },
-  { path: "suggest", label: "Suggestions", context: ["local", "owner"], requiresApp: "/suggest" },
-  { path: "hubs", label: "Hubs", context: "all" },
+  { path: "suggest", label: () => useI18n().t("directory.suggestions"), context: ["local", "owner"], requiresApp: "/suggest" },
+  { path: "hubs", label: () => useI18n().t("directory.hubs"), context: "all" },
 ];
 
 const subRoutes = CONNECTIONS_ITEMS.map((item) => ({

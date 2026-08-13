@@ -23,12 +23,15 @@ import {
   type ArchiveWidgetProps,
 } from "./ArchiveWidget";
 
-const WEEKDAY_LABELS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+// 2000-01-02 is a Sunday — anchor for building a Sun-first weekday label row.
+function weekdayLabels(locale: string): string[] {
+  const fmt = new Intl.DateTimeFormat(locale, { weekday: "short" });
+  return Array.from({ length: 7 }, (_, i) => fmt.format(new Date(2000, 0, 2 + i)));
+}
 
-const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
+function monthName(month: number, locale: string): string {
+  return new Intl.DateTimeFormat(locale, { month: "long" }).format(new Date(2000, month - 1, 1));
+}
 
 function daysInMonth(year: number, month: number): number {
   return new Date(year, month, 0).getDate();
@@ -56,7 +59,7 @@ function CalendarSkeleton() {
 }
 
 const ArchiveGridWidget: Component<ArchiveCalendarProps> = (props) => {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   const today = new Date();
   const initial = parseYearMonth(props.activeDbegin ?? "")
@@ -152,7 +155,7 @@ const ArchiveGridWidget: Component<ArchiveCalendarProps> = (props) => {
             disabled={isCurrentMonth()}
             class="flex-1 text-center text-sm font-medium text-txt rounded py-1 transition-colors disabled:cursor-default hover:enabled:bg-elevated"
           >
-            {MONTH_NAMES[viewMonth() - 1]} {viewYear()}
+            {monthName(viewMonth(), locale())} {viewYear()}
           </button>
 
           <button
@@ -182,7 +185,7 @@ const ArchiveGridWidget: Component<ArchiveCalendarProps> = (props) => {
         <div class="px-3 pb-3">
           {/* Weekday header */}
           <div class="grid grid-cols-7 gap-1 mb-1">
-            <For each={WEEKDAY_LABELS}>
+            <For each={weekdayLabels(locale())}>
               {(label) => (
                 <div class="text-center text-[0.625rem] font-medium text-muted">{label}</div>
               )}
@@ -201,7 +204,7 @@ const ArchiveGridWidget: Component<ArchiveCalendarProps> = (props) => {
                     type="button"
                     disabled={count() === 0}
                     onClick={() => props.onDayClick?.(viewYear(), viewMonth(), day)}
-                    title={count() > 0 ? `${MONTH_NAMES[viewMonth() - 1]} ${day}, ${viewYear()} — ${count()}` : undefined}
+                    title={count() > 0 ? `${monthName(viewMonth(), locale())} ${day}, ${viewYear()} — ${count()}` : undefined}
                     class="aspect-square rounded-lg flex flex-col items-center justify-center gap-0.5 transition-colors"
                     classList={{
                       "bg-accent-muted": active(),

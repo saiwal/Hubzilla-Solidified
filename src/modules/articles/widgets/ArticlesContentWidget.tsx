@@ -35,8 +35,8 @@ function excerpt(post: Post, maxLen = 200): { text: string; fromSummary: boolean
   return { text, fromSummary: false };
 }
 
-function formatDate(iso: string): string {
-  return new Date(iso.replace(" ", "T") + "Z").toLocaleDateString(undefined, {
+function formatDate(iso: string, locale: string): string {
+  return new Date(iso.replace(" ", "T") + "Z").toLocaleDateString(locale, {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -46,7 +46,7 @@ function formatDate(iso: string): string {
 // ── card ──────────────────────────────────────────────────────────────────────
 
 function ArticleCard(props: { post: Post; nick: string; onOpen: () => void; onShare?: () => void }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const ex = () => excerpt(props.post);
   const [linkCopied, setLinkCopied] = createSignal(false);
 
@@ -68,7 +68,7 @@ function ArticleCard(props: { post: Post; nick: string; onOpen: () => void; onSh
     >
       <h2 class="text-lg font-semibold text-txt leading-snug
                  group-hover:text-accent transition-colors">
-        {props.post.title || "(Untitled)"}
+        {props.post.title || t("articles.untitled")}
       </h2>
 
       <Show when={ex().text}>
@@ -102,7 +102,7 @@ function ArticleCard(props: { post: Post; nick: string; onOpen: () => void; onSh
       </Show>
 
       <div class="flex items-center gap-3 pt-1 text-xs text-muted">
-        <span>{formatDate(props.post.created)}</span>
+        <span>{formatDate(props.post.created, locale())}</span>
         <span>·</span>
         <span>{props.post.authorName}</span>
         <Show when={props.post.likeCount > 0}>

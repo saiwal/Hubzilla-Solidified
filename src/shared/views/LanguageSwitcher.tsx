@@ -19,7 +19,7 @@ const LanguageSwitcher = () => {
         ref={setTriggerRef}
         onClick={toggle}
         title={t("ui.language")}
-        class={`p-2 rounded-lg transition-colors text-muted hover:bg-elevated hover:text-txt
+        class={`p-[8px] rounded-lg transition-colors text-muted hover:bg-elevated hover:text-txt
                 ${open() ? "bg-elevated text-txt" : ""}`}
       >
         <span class="text-xs font-semibold uppercase tracking-wide">{locale()}</span>

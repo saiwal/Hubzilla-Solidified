@@ -177,7 +177,7 @@ export default function ArticleView() {
   const role = useViewerRole();
   const auth = useAuth();
   const navViewer = useNavViewer();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const navigate = useNavigate();
 
   const [data, { refetch }] = createQueryResource(
@@ -477,7 +477,7 @@ export default function ArticleView() {
                 <header class="space-y-2 border-b border-rim pb-4">
                   <div class="flex items-center gap-2 flex-wrap">
                     <h1 class="text-3xl font-bold leading-tight text-txt">
-                      {d().article.title || "(Untitled)"}
+                      {d().article.title || t("articles.untitled")}
                     </h1>
                     <Show when={d().article.lang}>
                       <span class="px-1.5 py-0.5 rounded text-xs font-medium bg-elevated text-muted uppercase">
@@ -494,7 +494,7 @@ export default function ArticleView() {
                   <p class="text-sm text-muted">
                     {new Date(
                       d().article.created.replace(" ", "T") + "Z",
-                    ).toLocaleDateString(undefined, {
+                    ).toLocaleDateString(locale(), {
                       year: "numeric", month: "long", day: "numeric",
                     })}
                     {" "}{t("articles.by")}{" "}

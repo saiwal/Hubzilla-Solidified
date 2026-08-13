@@ -8,26 +8,13 @@ import { markNotifySeen } from "@/shared/lib/markSeen";
 import { resolveNotifyPath, connectionRequestId } from "@/shared/lib/notifyLink";
 import { openConnectionRequestModal } from "@/shared/store/connection-request-modal";
 import { fetchNotifications, type NotificationEntry } from "../api";
+import { relativeTime } from "@/shared/lib/relativeTime";
 
 async function markAllSeen(): Promise<void> {
   const res = await fetch("/notifications?markRead=notify", {
     credentials: "include",
   });
   if (!res.ok) throw new Error("Failed to mark all seen");
-}
-
-function relativeTime(when?: string): string {
-  if (!when) return "";
-  // Enotify::format_all_events() sends `when` as an already human-formatted
-  // string ("8 AM Friday January 18 [today]"), not a parseable datetime —
-  // pass those through as-is instead of "NaNd ago".
-  const d = new Date(when.replace(" ", "T"));
-  if (isNaN(d.getTime())) return when;
-  const diff = Math.max(0, Math.floor((Date.now() - d.getTime()) / 1000));
-  if (diff < 60) return "just now";
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
 }
 
 export default function NotificationsListView() {
@@ -183,7 +170,7 @@ export default function NotificationsListView() {
                   </p>
                   <div class="flex items-center gap-1.5 mt-0.5">
                     <p class="text-xs text-muted">
-                      {relativeTime(entry.when)}
+                      {relativeTime(entry.when, t)}
                     </p>
                     <Show when={!entry.seen}>
                       <span class="text-[0.625rem] font-bold text-accent uppercase tracking-wide">

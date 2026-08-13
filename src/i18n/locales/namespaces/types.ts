@@ -1072,6 +1072,7 @@ export type RawDictionary = {
     feat_toggle_off:     string;
     feat_load_error:     string;
     feat_no_features:    string;
+    feat_toggle_failed:  string;
     manage_profiles:     string;
     // Common actions
     save:       string;
@@ -1375,6 +1376,8 @@ export type RawDictionary = {
     suggestions:          string;
     privacy_groups:       string;
     roles:                string;
+    contact_roles:        string;
+    people_groups:        string;
     mutual:               string;
     mutuals:              string;
     public_forum:         string;
@@ -2475,6 +2478,26 @@ export type RawDictionary = {
     all_title:      string;
     mark_all_seen:  string;
     new:            string;
+    time_just_now:    string;
+    time_minutes_ago: string;
+    time_hours_ago:   string;
+    time_days_ago:    string;
+    mark_read:        string;
+    bucket_network:   string;
+    bucket_dm:        string;
+    bucket_home:      string;
+    bucket_notify:    string;
+    bucket_intros:    string;
+    bucket_forums:    string;
+    bucket_pubs:      string;
+    bucket_files:     string;
+    bucket_all_events: string;
+    bucket_register:  string;
+    conn_connecting:  string;
+    conn_live:        string;
+    conn_polling:     string;
+    conn_disconnected: string;
+    fallback_sender:  string;
   };
   moderate: {
     title:                   string;

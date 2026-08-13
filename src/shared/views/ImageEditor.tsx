@@ -125,6 +125,45 @@ export interface ImageEditorProps {
   onCancel: () => void;
 }
 
+// Filerobot bakes edits onto a canvas sized to fit the on-screen editor
+// (see DesignLayer.cache() in the library), then scales that bitmap back up
+// to the source's native resolution on save — so its own export is capped by
+// whatever fits your browser window, not the source photo's real detail.
+// For a plain crop (no rotate/flip/filter/finetune/annotation/explicit resize)
+// we can do better: redo the crop ourselves straight from the untouched
+// source file at full resolution, using the crop rect Filerobot reports
+// mapped from "shown" (on-screen) coordinates back to native pixels.
+async function cropFromSource(
+  objectUrl: string,
+  crop: { x?: number; y?: number; width?: number; height?: number },
+  shown: { width: number; height: number },
+): Promise<Blob | null> {
+  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const el = new Image();
+    el.onload = () => resolve(el);
+    el.onerror = () => reject(new Error("image load failed"));
+    el.src = objectUrl;
+  }).catch(() => null);
+  if (!img || !shown.width || !shown.height) return null;
+
+  const scaleX = img.naturalWidth / shown.width;
+  const scaleY = img.naturalHeight / shown.height;
+  const sx = Math.round((crop.x ?? 0) * scaleX);
+  const sy = Math.round((crop.y ?? 0) * scaleY);
+  const sw = Math.round((crop.width ?? shown.width) * scaleX);
+  const sh = Math.round((crop.height ?? shown.height) * scaleY);
+  if (sw <= 0 || sh <= 0) return null;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = sw;
+  canvas.height = sh;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+
+  return new Promise((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.92));
+}
+
 export default function ImageEditor(props: ImageEditorProps) {
   let container!: HTMLDivElement;
   let editor: InstanceType<typeof FilerobotImageEditor> | null = null;
@@ -152,17 +191,33 @@ export default function ImageEditor(props: ImageEditorProps) {
       theme: buildTheme(),
       defaultSavedImageName: "",
 
-      onSave: async (savedImageData) => {
+      onSave: async (savedImageData, designState) => {
         let blob: Blob | null = null;
 
-        if (savedImageData.imageCanvas) {
+        const adj = designState?.adjustments;
+        const isPlainCrop =
+          !!adj &&
+          !adj.rotation &&
+          !adj.isFlippedX &&
+          !adj.isFlippedY &&
+          !designState?.filter &&
+          !designState?.finetunes?.length &&
+          !(designState?.annotations && Object.keys(designState.annotations).length) &&
+          !designState?.resize?.width &&
+          !designState?.resize?.height;
+
+        if (isPlainCrop && designState?.shownImageDimensions) {
+          blob = await cropFromSource(objectUrl, adj!.crop, designState.shownImageDimensions);
+        }
+
+        if (!blob && savedImageData.imageCanvas) {
           // Wrap callback in a Promise so onSave waits before resolving.
           // Without this, the async function resolves with undefined before
           // toBlob fires, which causes Filerobot to throw an unhandled rejection.
           blob = await new Promise<Blob | null>((resolve) => {
             savedImageData.imageCanvas!.toBlob(resolve, "image/jpeg", 0.92);
           });
-        } else if (savedImageData.imageBase64) {
+        } else if (!blob && savedImageData.imageBase64) {
           blob = await fetch(savedImageData.imageBase64)
             .then((r) => r.blob())
             .catch(() => null);
@@ -186,7 +241,13 @@ export default function ImageEditor(props: ImageEditorProps) {
       defaultTabId:   TABS.ADJUST,
       defaultToolId:  TOOLS.CROP,
 
-      savingPixelRatio:  4,
+      // Only affects the Filerobot-canvas fallback below (rotate/flip/filter/
+      // annotate/explicit-resize saves) — plain crops bypass this via
+      // cropFromSource. Filerobot's own export is already capped by the
+      // on-screen editor size regardless of this value (see cropFromSource's
+      // comment), so a higher multiplier just upscales that capped bitmap
+      // further and blurs it more; 1 = no extra upscale on top.
+      savingPixelRatio:  1,
       previewPixelRatio: 2,
     });
 

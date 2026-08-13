@@ -12,10 +12,10 @@ import { useI18n } from "@/i18n";
 import { MdFillEvent } from "solid-icons/md";
 import { fetchEvents, type CalEvent } from "../api";
 
-function eventDate(ev: CalEvent): string {
+function eventDate(ev: CalEvent, locale: string): string {
   const d = new Date(ev.start);
   if (isNaN(d.getTime())) return ev.start;
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: "medium",
     ...(ev.allDay ? {} : { timeStyle: "short" }),
   }).format(d);
@@ -32,7 +32,7 @@ function EditHint(props: { text: string }) {
 }
 
 export default function EventCardWidget(props: WidgetProps) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const nick = usePageNick();
   const uri = () => String(props.config?.uri ?? "");
 
@@ -62,7 +62,7 @@ export default function EventCardWidget(props: WidgetProps) {
                 <MdFillEvent size={18} class="text-accent shrink-0 mt-0.5" />
                 <div class="min-w-0 flex-1">
                   <p class="text-sm font-medium text-txt">{ev().title}</p>
-                  <p class="text-xs text-muted mt-0.5">{eventDate(ev())}</p>
+                  <p class="text-xs text-muted mt-0.5">{eventDate(ev(), locale())}</p>
                   <Show when={ev().location}>
                     <p class="text-xs text-muted mt-0.5 truncate">{ev().location}</p>
                   </Show>

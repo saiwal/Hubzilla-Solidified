@@ -99,7 +99,7 @@ export default function SeriesView() {
                     href={articlePath(nick(), article)}
                     class="flex-1 min-w-0 truncate text-sm font-medium text-txt hover:text-accent transition-colors"
                   >
-                    {article.title || "(Untitled)"}
+                    {article.title || t("articles.untitled")}
                   </A>
                   <Show when={isOwner()}>
                     <div class="flex items-center gap-0.5 shrink-0">

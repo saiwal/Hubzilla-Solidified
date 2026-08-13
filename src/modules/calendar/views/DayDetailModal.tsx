@@ -17,8 +17,8 @@ import { deleteEvent } from "../api";
 import EventCreatorModal from "../widgets/EventCreatorModal";
 import { fmtEventRange } from "./calUtils";
 
-function fmtFullDate(iso: string) {
-  return new Date(iso).toLocaleDateString(undefined, {
+function fmtFullDate(iso: string, locale: string) {
+  return new Date(iso).toLocaleDateString(locale, {
     weekday: "long",
     year: "numeric",
     month: "long",
@@ -36,7 +36,7 @@ interface Props {
 }
 
 export default function DayDetailModal(props: Props) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const auth = useAuth();
   // New events always go to the viewer's own calendar — creation requires a
   // local channel on this server, same as CalView's header button.
@@ -52,7 +52,7 @@ export default function DayDetailModal(props: Props) {
   onCleanup(() => window.removeEventListener("keydown", onKeyDown));
 
   const dateLabel = () =>
-    new Date(props.date + "T00:00:00").toLocaleDateString(undefined, {
+    new Date(props.date + "T00:00:00").toLocaleDateString(locale(), {
       weekday: "long",
       month: "long",
       day: "numeric",
@@ -141,7 +141,7 @@ export default function DayDetailModal(props: Props) {
                         {ev.title || t("calendar.no_title")}
                       </p>
                       <p class="text-xs text-muted mt-0.5">
-                        {fmtEventRange(ev)}
+                        {fmtEventRange(ev, locale(), t("calendar.all_day"))}
                       </p>
                       <Show when={ev.location}>
                         <p class="flex items-center gap-1 text-xs text-muted mt-0.5">
@@ -196,7 +196,7 @@ export default function DayDetailModal(props: Props) {
 
 function EventDetailPanel(props: { event: CalEvent; onEdit: () => void; onDeleted: () => void }) {
   const ev = props.event;
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [confirming, setConfirming] = createSignal(false);
   const [deleting, setDeleting] = createSignal(false);
   const sanitized = () =>
@@ -218,10 +218,10 @@ function EventDetailPanel(props: { event: CalEvent; onEdit: () => void; onDelete
   return (
     <div class="mt-1 ml-3 bg-base border border-rim/60 rounded-xl p-3.5 space-y-2">
       <div class="text-xs text-muted space-y-0.5">
-        <p>{fmtFullDate(ev.start)}</p>
+        <p>{fmtFullDate(ev.start, locale())}</p>
         <Show when={!ev.allDay}>
           <p>
-            {fmtEventRange(ev)}
+            {fmtEventRange(ev, locale(), t("calendar.all_day"))}
             {ev.timezone !== "UTC" ? ` (${ev.timezone})` : ""}
           </p>
         </Show>

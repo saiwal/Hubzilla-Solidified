@@ -8,6 +8,8 @@ export const directory: RawDictionary["directory"] = {
   suggestions:          "Vorschläge",
   privacy_groups:       "Privatsphäre-Gruppen",
   roles:                "Rollen",
+  contact_roles:        "Kontaktrollen",
+  people_groups:        "Personen & Gruppen",
   // DirectoryCard
   mutual:               "gemeinsam",
   mutuals:              "gemeinsame",

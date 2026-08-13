@@ -38,7 +38,7 @@ function rangeForView(view: ViewType, anchor: Date): CalRange {
 
 export default function CalendarContentWidget() {
   const nick = usePageNick();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const auth = useAuth();
   // New events always go to the viewer's own calendar, regardless of whose
   // /cal/:nick page is open — creation requires a local channel on this server.
@@ -76,14 +76,14 @@ export default function CalendarContentWidget() {
     const v = viewType();
     if (v === "month")
       return new Date(d.getFullYear(), d.getMonth(), 1)
-        .toLocaleDateString(undefined, { month: "long", year: "numeric" });
+        .toLocaleDateString(locale(), { month: "long", year: "numeric" });
     if (v === "week") {
       const s = startOfWeek(d, isFeatureEnabled("cal_first_day"));
       const e = addDays(s, 6);
-      return `${s.toLocaleDateString(undefined, { month: "short", day: "numeric" })} – ${e.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}`;
+      return `${s.toLocaleDateString(locale(), { month: "short", day: "numeric" })} – ${e.toLocaleDateString(locale(), { month: "short", day: "numeric", year: "numeric" })}`;
     }
     if (v === "list") return t("calendar.upcoming_events") as string;
-    return d.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+    return d.toLocaleDateString(locale(), { weekday: "long", month: "long", day: "numeric", year: "numeric" });
   });
 
   function handleDayClick(date: string) {
