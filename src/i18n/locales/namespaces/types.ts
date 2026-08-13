@@ -697,11 +697,12 @@ export type RawDictionary = {
     confirm: string; confirm_delete: string; confirm_remove_from_feed: string; confirm_admin_delete: string;
     op: string; op_title: string; new_badge: string;
     comments_singular: string; comments_plural: string;
-    loading_comments: string; loading: string; loading_source: string;
+    loading_comments: string; load_more_comments: string; loading: string; loading_source: string;
     likes: string; dislikes: string; repeats: string; no_activity: string;
     cached: string; generated: string; unknown: string;
     modal_title: string; modal_close: string; load_error: string;
     deleted_comment: string;
+    parent_not_loaded: string;
     // Folder save
     save_to_folder: string; new_folder_placeholder: string; add_folder: string; no_folders_yet: string;
     expand_all: string;
@@ -1138,6 +1139,10 @@ export type RawDictionary = {
     scroll_style_hint:       string;
     scroll_style_endless:    string;
     scroll_style_load_more:  string;
+    comment_order:           string;
+    comment_order_hint:      string;
+    comment_order_oldest:    string;
+    comment_order_newest:    string;
     show_emoji_images:       string;
     show_emoji_images_hint:  string;
     bg_image_url:            string;

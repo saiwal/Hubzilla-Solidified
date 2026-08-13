@@ -1,7 +1,7 @@
 // src/shared/stream/store/createStreamStore.ts
 import { createSignal } from "solid-js";
-import { buildThreadTree } from "@/shared/lib/thread";
-import type { ThreadNode } from "@/shared/lib/thread";
+import { buildThreadTree, appendNewBranches } from "@/shared/lib/thread";
+import type { ThreadNode, ThreadRootOrder } from "@/shared/lib/thread";
 import type { Post } from "@/shared/types/post.types";
 import { updateInterval } from "@/shared/store/auth-store";
 import { toast } from "@/shared/store/toast";
@@ -217,6 +217,26 @@ export function createStreamStore<P extends StreamParams>(
     setPosts((prev) => updateNode(prev, mid, (n) => ({ ...n, children })));
   }
 
+  // Appends a newly-fetched page of root-level comments (each with its whole
+  // reply subtree — comments are only ever paginated at the root level, see
+  // appendNewBranches' doc comment) to the thread root's children, and
+  // updates hasMoreComments/commentsOffset from that page's response meta.
+  // commentsOffset MUST advance here — leaving it unset means every "load
+  // more" click keeps requesting roots_offset=0, re-fetching (and silently
+  // deduping) the same first page forever.
+  function appendNodeChildren(
+    mid: string, newPosts: Post[], hasMoreComments: boolean, commentsOffset: number, order?: ThreadRootOrder,
+  ) {
+    setPosts((prev) =>
+      updateNode(prev, mid, (n) => ({
+        ...n,
+        children: appendNewBranches(n.children, newPosts, order),
+        commentsOffset,
+        hasMoreComments,
+      })),
+    );
+  }
+
   function flushNewPosts() {
     setPosts((prev) => [...newPosts(), ...prev]);
     setNewPosts([]);
@@ -273,5 +293,6 @@ export function createStreamStore<P extends StreamParams>(
     optimisticToggle,
     setPosts,
     setNodeChildren,
+    appendNodeChildren,
   };
 }

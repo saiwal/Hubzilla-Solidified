@@ -30,5 +30,5 @@ export function loadNetwork(params?: NetworkParams) { return store.load(params);
 export const {
   handleLike, handleDislike, handleRepeat,
   handleStar, handleDelete, handleEdit,
-  handleComment, loadComments, handleRefresh,
+  handleComment, loadComments, loadMoreComments, handleRefresh,
 } = createActionHandlers(store);

@@ -4,34 +4,58 @@ import { Portal } from "solid-js/web";
 import PostCard from "../stream/components/PostCard";
 import type { StreamHandlers } from "../stream/types";
 import type { ThreadNode } from "../lib/thread";
-import { buildThreadTree } from "../lib/thread";
+import { buildThreadTree, appendNewBranches } from "../lib/thread";
 import type { Post } from "../types/post.types";
 import { mapActivityToPost } from "../lib/activity.mapper";
 import { BiRegularX } from "solid-icons/bi";
 import { useI18n } from "@/i18n";
-import { apiDeleteItem, apiEditItem, apiToggleStar } from "@/shared/lib/item-api";
-import { toggleVerb, repeatItem } from "@/shared/stream/store/actions-store";
+import { apiDeleteItem, apiEditItem, apiToggleStar, fetchComments } from "@/shared/lib/item-api";
+import { toggleVerb, repeatItem, COMMENTS_PAGE_SIZE } from "@/shared/stream/store/actions-store";
+import { useCommentOrder } from "@/shared/store/comment-order";
+import type { CommentOrder } from "@/shared/store/comment-order";
 import { markItemSeen } from "@/shared/lib/markSeen";
 import { approveModerationItem, dropModerationItem } from "@/modules/moderate/api";
 
-async function fetchDisplay(uuid: string): Promise<ThreadNode> {
-  const res = await fetch(`/spa/display/${uuid}`);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const json = await res.json();
-  const data = json.data ?? json;
-  if (data.error) throw new Error(data.error);
-  const rawItems: any[] = [data.post, ...data.comments];
+// Root + comments are fetched separately: the root always via /spa/display,
+// comments either as a flat first page (normal open) or, when `uuid` names a
+// comment nested inside the thread rather than the root itself (opened via an
+// in-body permalink click — see handleBodyClick below), as the ancestor +
+// sibling-window "context" fetch around that comment instead of the whole
+// thread.
+async function fetchPostDetail(uuid: string, order: CommentOrder): Promise<ThreadNode> {
+  const rootRes = await fetch(`/spa/display/${uuid}`);
+  if (!rootRes.ok) throw new Error(`HTTP ${rootRes.status}`);
+  const rootJson = await rootRes.json();
+  const rootData = rootJson.data ?? rootJson;
+  if (rootData.error) throw new Error(rootData.error);
+  const rawRoot = rootData.post;
+
+  const isHighlight = uuid !== rawRoot.uuid;
+  const commentsResult = isHighlight
+    ? await fetchComments(rawRoot.uuid, { around: uuid })
+    : await fetchComments(rawRoot.uuid, { count: COMMENTS_PAGE_SIZE, order });
+
   // Viewing the thread is what "reads" it — the root's own unseen flag was
   // already cleared by the caller (e.g. MessageItem.handleClick), but
   // replies/comments never go through that path, so their unseen flags
   // would otherwise never clear (see HQ message-badge bug: badge kept
   // reappearing for threads with unseen replies).
-  for (const raw of rawItems) {
+  if (rawRoot?.item_unseen && rawRoot?.uuid) markItemSeen(rawRoot.uuid);
+  for (const raw of commentsResult.comments ?? []) {
     if (raw?.item_unseen && raw?.uuid) markItemSeen(raw.uuid);
   }
-  const all: Post[] = rawItems.map(mapActivityToPost);
-  const tree = buildThreadTree(all);
-  return tree[0];
+
+  const rootPost: Post = mapActivityToPost(rawRoot);
+  const children = buildThreadTree(
+    (commentsResult.comments ?? []).map(mapActivityToPost),
+    isHighlight ? undefined : order,
+  );
+  return {
+    ...rootPost,
+    children,
+    hasMoreComments: !isHighlight && !!commentsResult.has_more_roots,
+    commentsOffset: isHighlight ? undefined : commentsResult.next_roots_offset,
+  };
 }
 
 type ReactionOverride = {
@@ -76,6 +100,7 @@ const PostDetailModal: Component<PostDetailModalProps> = (props) => {
   const [localReactions, setLocalReactions] = createSignal<Record<string, ReactionOverride>>({});
 
   const { t } = useI18n();
+  const commentOrder = useCommentOrder();
   let dialogRef!: HTMLDivElement;
   let scrollRef!: HTMLDivElement;
   onMount(() => scrollRef?.focus());
@@ -84,13 +109,24 @@ const PostDetailModal: Component<PostDetailModalProps> = (props) => {
     setNodeLoading(true);
     setNodeError(null);
     try {
-      const result = await fetchDisplay(uuid);
+      const result = await fetchPostDetail(uuid, commentOrder());
       setNodeData(() => result);
     } catch (e) {
       setNodeError(e instanceof Error ? e : new Error(String(e)));
     } finally {
       setNodeLoading(false);
     }
+  }
+
+  async function loadMoreComments(_mid: string, uuid: string, offset: number, order: CommentOrder): Promise<void> {
+    const result = await fetchComments(uuid, { count: COMMENTS_PAGE_SIZE, rootsOffset: offset, order });
+    const newPosts = (result.comments ?? []).map(mapActivityToPost);
+    setNodeData((prev) => prev && ({
+      ...prev,
+      children: appendNewBranches(prev.children, newPosts, order),
+      hasMoreComments: !!result.has_more_roots,
+      commentsOffset: result.next_roots_offset ?? offset,
+    }));
   }
 
   createEffect(on(() => props.uuid, (uuid) => { void loadNode(uuid); }));
@@ -163,6 +199,7 @@ const PostDetailModal: Component<PostDetailModalProps> = (props) => {
       refetch();
     },
     onLoadComments: () => Promise.resolve(),
+    onLoadMoreComments: loadMoreComments,
     onStar(mid) {
       const found = findInTree(nodeData(), mid);
       if (!found?.iid) return;
@@ -243,6 +280,9 @@ const PostDetailModal: Component<PostDetailModalProps> = (props) => {
           refetch();
         },
         onLoadComments: (mid, uuid) => props.handlers!.onLoadComments(mid, uuid),
+        // Not delegated to props.handlers: that targets the parent feed's
+        // stream store, not this modal's own local nodeData tree.
+        onLoadMoreComments: loadMoreComments,
         // Root edits go through the parent feed handler so its copy stays in
         // sync; comments usually aren't in the feed store, so edit directly.
         onEdit: async (mid: string, body: string, title?: string) => {

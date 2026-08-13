@@ -4,6 +4,7 @@ import type { ThreadNode } from "@/shared/lib/thread";
 import { countAllComments, flattenThread, isRootPost } from "@/shared/lib/thread";
 import { useThreadMode } from "@/shared/store/thread-mode";
 import { REACTION_VERBS } from "@/shared/stream/store/actions-store";
+import { useCommentOrder } from "@/shared/store/comment-order";
 import type { StreamHandlers } from "../types";
 import formatPostDate from "@/shared/lib/date";
 import { useI18n } from "@/i18n";
@@ -13,7 +14,7 @@ import { markItemSeen } from "@/shared/lib/markSeen";
 import CommentComposer from "@/shared/editor/composers/CommentComposer";
 import { useAuth } from "@/shared/store/auth-store";
 import { useListBehavior } from "@/shared/store/list-behavior";
-import { MdOutlineSchedule, MdOutlineTimer, MdFillPush_pin, MdOutlineReply } from "solid-icons/md";
+import { MdOutlineSchedule, MdOutlineTimer, MdFillPush_pin, MdOutlineReply, MdFillKeyboard_arrow_down, MdOutlineRefresh } from "solid-icons/md";
 import { isDirectMessage as isDM, DmBadge, DmRecipients } from "@/shared/stream/components/DmMeta";
 import { parseEventData } from "@/shared/lib/activity.mapper";
 
@@ -636,6 +637,9 @@ function InboxRow(props: {
     p.children.length > 0,
   );
   const [commentsLoading, setCommentsLoading] = createSignal(false);
+  const commentsOffset = () => p.commentsOffset ?? 0;
+  const [loadingMoreComments, setLoadingMoreComments] = createSignal(false);
+  const commentOrder = useCommentOrder();
   const { locale, t } = useI18n();
   let rowRef!: HTMLDivElement;
 
@@ -654,8 +658,11 @@ function InboxRow(props: {
     onCleanup(() => observer.disconnect());
   });
 
+  // Same rationale as PostCard's totalComments(): trust the server aggregate
+  // while more comment pages remain unfetched, or the badge undercounts as
+  // soon as the first page loads.
   const replyCount = () =>
-    p.children.length > 0
+    !p.hasMoreComments && p.children.length > 0
       ? flattenThread(p).filter((n) => !REACTION_VERBS.has(n.verb ?? ""))
           .length - 1
       : (p.commentCount ?? 0);
@@ -675,6 +682,16 @@ function InboxRow(props: {
       } finally {
         setCommentsLoading(false);
       }
+    }
+  }
+
+  async function loadMoreComments() {
+    if (!props.handlers.onLoadMoreComments || loadingMoreComments()) return;
+    setLoadingMoreComments(true);
+    try {
+      await props.handlers.onLoadMoreComments(p.mid, p.uuid, commentsOffset(), commentOrder());
+    } finally {
+      setLoadingMoreComments(false);
     }
   }
 
@@ -848,6 +865,21 @@ function InboxRow(props: {
             handlers={props.handlers}
             profileUid={props.profileUid}
           />
+          <Show when={p.hasMoreComments && props.handlers.onLoadMoreComments}>
+            <button
+              type="button"
+              onClick={loadMoreComments}
+              disabled={loadingMoreComments()}
+              class="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium
+                     text-muted hover:bg-overlay hover:text-txt transition-colors
+                     border-t border-rim disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              <Show when={!loadingMoreComments()} fallback={<MdOutlineRefresh size={13} class="animate-spin" />}>
+                <MdFillKeyboard_arrow_down size={13} />
+              </Show>
+              {loadingMoreComments() ? t("post.loading") : t("post.load_more_comments")}
+            </button>
+          </Show>
         </Show>
       </div>
     </div>

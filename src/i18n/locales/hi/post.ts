@@ -46,6 +46,7 @@ export const post: RawDictionary["post"] = {
   comments_singular:    "टिप्पणी",
   comments_plural:      "टिप्पणियाँ",
   loading_comments:     "टिप्पणियाँ लोड हो रही हैं…",
+  load_more_comments:   "और टिप्पणियाँ लोड करें",
   loading:              "लोड हो रहा है…",
   loading_source:       "स्रोत लोड हो रहा है…",
   likes:                "पसंद",
@@ -59,6 +60,7 @@ export const post: RawDictionary["post"] = {
   modal_close:          "बंद करें",
   load_error:           "पोस्ट लोड करने में विफल",
   deleted_comment:      "[टिप्पणी हटाई गई]",
+  parent_not_loaded:    "[यहाँ न दिखाई गई किसी टिप्पणी का उत्तर]",
   // Folder save
   save_to_folder:        "फ़ोल्डर में सहेजें",
   new_folder_placeholder: "नए फ़ोल्डर का नाम…",

@@ -65,6 +65,10 @@ export interface Post {
   expires?: string; // UTC datetime the post self-destructs; unset = never
   children: Post[];
   commentCount?: number;
+  /** True while more top-level comments remain unfetched — only meaningful on the thread root (comments are only ever paginated at the root level). */
+  hasMoreComments?: boolean;
+  /** roots_offset cursor for this node's next "load more" call — only meaningful on the thread root. */
+  commentsOffset?: number;
   likeCount: number;
   categories?: string[];
   tags?: string[];

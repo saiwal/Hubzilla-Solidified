@@ -50,6 +50,7 @@ export const post: RawDictionary["post"] = {
   comments_plural:      "Kommentare",
   // loading
   loading_comments:     "Kommentare werden geladen…",
+  load_more_comments:   "Weitere Kommentare laden",
   loading:              "Lädt…",
   loading_source:       "Quelltext wird geladen…",
   // stats tabs
@@ -67,6 +68,7 @@ export const post: RawDictionary["post"] = {
   modal_close:          "Schließen",
   load_error:           "Beitrag konnte nicht geladen werden",
   deleted_comment:      "[Kommentar gelöscht]",
+  parent_not_loaded:    "[Antwort auf einen hier nicht angezeigten Kommentar]",
   // Folder save
   save_to_folder:        "In Ordner speichern",
   new_folder_placeholder: "Neuer Ordnername…",

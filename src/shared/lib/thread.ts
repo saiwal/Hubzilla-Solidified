@@ -21,7 +21,9 @@ function makeDeletedPlaceholder(mid: string, attachToMid: string, created: strin
   };
 }
 
-export function buildThreadTree(posts: Post[]): ThreadNode[] {
+export type ThreadRootOrder = "oldest_first" | "newest_first";
+
+export function buildThreadTree(posts: Post[], rootOrder?: ThreadRootOrder): ThreadNode[] {
   const map = new Map<string, ThreadNode>();
   const roots: ThreadNode[] = [];
 
@@ -70,12 +72,19 @@ export function buildThreadTree(posts: Post[]): ThreadNode[] {
     }
   });
 
+  // Nested replies are always shown oldest-first (a conversation reads top to
+  // bottom) — only the TOP-level roots respect rootOrder.
   const sortChildrenAsc = (nodes: ThreadNode[]): ThreadNode[] =>
     nodes
       .sort((a, b) => new Date(a.created).getTime() - new Date(b.created).getTime())
       .map((node) => ({ ...node, children: sortChildrenAsc(node.children) }));
 
-  return roots.map((node) => ({ ...node, children: sortChildrenAsc(node.children) }));
+  const sign = rootOrder === "newest_first" ? -1 : 1;
+  const sortedRoots = rootOrder
+    ? [...roots].sort((a, b) => sign * (new Date(a.created).getTime() - new Date(b.created).getTime()))
+    : roots;
+
+  return sortedRoots.map((node) => ({ ...node, children: sortChildrenAsc(node.children) }));
 }
 
 export function flattenThread(node: ThreadNode): Post[] {
@@ -86,6 +95,37 @@ export const REACTION_VERBS = new Set(['Like', 'Dislike', 'Announce', 'Accept', 
 
 export function isDeletedStub(node: Pick<Post, 'flags'>): boolean {
   return node.flags.includes('deleted') || node.flags.includes('deleted_placeholder');
+}
+
+// True only for a SERVER-CONFIRMED deletion (the parent mid was looked up in
+// the DB with item_deleted=1). False for makeDeletedPlaceholder's client-side
+// guess, which just means "this reply's parent isn't in the current batch" —
+// true for a genuinely deleted parent, but ALSO true for one that's simply on
+// a page/branch not fetched yet. Callers that render a "deleted" claim should
+// check this rather than isDeletedStub, so an unfetched (not deleted) parent
+// doesn't get mislabeled.
+export function isConfirmedDeleted(node: Pick<Post, 'flags'>): boolean {
+  return node.flags.includes('deleted');
+}
+
+// Appends a newly-fetched page of root-level comments (each carrying its
+// ENTIRE reply subtree — comments are only ever paginated at the root level,
+// never within a branch, see the backend's getComments doc comment) to an
+// existing children array. Safe as a plain tree-build + append, unlike a
+// generic merge: since every branch in newPosts is fetched complete, none of
+// its nodes reference a parent living outside this same batch, so
+// buildThreadTree(newPosts) can never mistake "fetched on an earlier page"
+// for "deleted" the way a partial/sliced batch could.
+// rootOrder only affects how the NEW batch's own top-level roots sort among
+// themselves — pages are always appended after what's already there, which is
+// correct for both directions: oldest_first accumulates older pages below
+// newer ones in fetch order, newest_first accumulates progressively older
+// pages below the newest ones already shown.
+export function appendNewBranches(existingChildren: ThreadNode[], newPosts: Post[], rootOrder?: ThreadRootOrder): ThreadNode[] {
+  const existingMids = new Set(existingChildren.flatMap(flattenThread).map((p) => p.mid));
+  const freshBranches = buildThreadTree(newPosts, rootOrder).filter((n) => !existingMids.has(n.mid));
+  if (!freshBranches.length) return existingChildren;
+  return [...existingChildren, ...freshBranches];
 }
 
 export function countAllComments(nodes: ThreadNode[]): number {

@@ -60,7 +60,7 @@ export async function loadChannel(nickname: string, params?: ChannelParams) {
 export const {
   handleLike, handleDislike, handleRepeat,
   handleStar, handleDelete, handleEdit,
-  handleComment, loadComments, handleRefresh,
+  handleComment, loadComments, loadMoreComments, handleRefresh,
 } = createActionHandlers(store);
 
 // ── pin/unpin — channel-wall-only, refetches page 1 rather than optimistic
@@ -92,6 +92,7 @@ export const streamHandlers: StreamHandlers = {
   onRepeat:        handleRepeat,
   onComment:       handleComment,
   onLoadComments:  loadComments,
+  onLoadMoreComments: loadMoreComments,
   onStar:          handleStar,
   onPin:           handlePin,
   onDelete:        handleDelete,

@@ -6,6 +6,7 @@ import { applyTypography, type FontSize, type FontFamily } from "@/shared/lib/ty
 import { useThreadMode, setThreadMode } from "@/shared/store/thread-mode";
 import { useListBehavior, setListBehavior, type ListBehavior } from "@/shared/store/list-behavior";
 import { useScrollStyle, setScrollStyle, type ScrollStyle } from "@/shared/store/scroll-style";
+import { useCommentOrder, setCommentOrder, type CommentOrder } from "@/shared/store/comment-order";
 import { applyCornerRadius, type CornerRadius } from "@/shared/lib/corner-radius";
 import { useBgUrl, useBgFit, setBgUrl, setBgFit } from "@/shared/lib/background";
 import { setEmojiAsImages } from "@/shared/store/emoji-as-images";
@@ -21,6 +22,7 @@ export default function DisplaySection() {
   const threadMode = useThreadMode();
   const listBehavior = useListBehavior();
   const scrollStyle = useScrollStyle();
+  const commentOrder = useCommentOrder();
   const { customColors, updateCustomColors } = useTheme();
 
   const [previewSize, setPreviewSize] = createSignal<FontSize>("medium");
@@ -55,6 +57,7 @@ export default function DisplaySection() {
       initTheme(d.color_scheme as ThemeId, d.custom_theme_colors);
     }
     if (d.scroll_style) setScrollStyle(d.scroll_style as ScrollStyle);
+    if (d.comment_order) setCommentOrder(d.comment_order as CommentOrder);
     if (d.corner_radius) {
       setCornerRadius(d.corner_radius as CornerRadius);
       applyCornerRadius(d.corner_radius as CornerRadius);
@@ -353,6 +356,27 @@ export default function DisplaySection() {
                     class="accent-accent cursor-pointer"
                   />
                   <span class="text-sm text-txt capitalize">{mode}</span>
+                </label>
+              ))}
+            </div>
+          </Field>
+
+          {/* Comment order */}
+          <Field label={t("settings.comment_order")} hint={t("settings.comment_order_hint")}>
+            <div class="flex gap-4">
+              {(["oldest_first", "newest_first"] as const).map((mode) => (
+                <label class="flex items-center gap-1.5 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="comment_order"
+                    value={mode}
+                    checked={commentOrder() === mode}
+                    onChange={() => setCommentOrder(mode)}
+                    class="accent-accent cursor-pointer"
+                  />
+                  <span class="text-sm text-txt">
+                    {mode === "oldest_first" ? t("settings.comment_order_oldest") : t("settings.comment_order_newest")}
+                  </span>
                 </label>
               ))}
             </div>

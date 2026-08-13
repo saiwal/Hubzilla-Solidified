@@ -1,4 +1,5 @@
 // src/shared/stream/types.ts
+import type { CommentOrder } from "@/shared/store/comment-order";
 
 export interface StreamHandlers {
   onLike: (mid: string) => void;
@@ -11,6 +12,11 @@ export interface StreamHandlers {
     authorAvatar: string,
   ) => void;
   onLoadComments: (mid: string, uuid: string) => Promise<void>;
+  // Pages in the next batch of top-level comments for an already-loaded post
+  // (each with its whole reply subtree — comments are only ever paginated at
+  // the root level, never within a branch). Optional: consumers that fetch
+  // the whole thread upfront (some detail views) don't need it.
+  onLoadMoreComments?: (mid: string, uuid: string, offset: number, order: CommentOrder) => Promise<void>;
   onStar?: (mid: string) => void;
   onPin?: (mid: string) => void;
   onDelete?: (mid: string) => Promise<void>;

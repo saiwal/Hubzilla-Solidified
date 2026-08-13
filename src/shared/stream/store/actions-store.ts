@@ -6,7 +6,7 @@
 //
 // Actions defined here:
 //   handleLike · handleDislike · handleRepeat · handleStar · handleDelete
-//   handleComment · loadComments
+//   handleComment · loadComments · loadMoreComments
 //
 // Planned (not yet implemented):
 //   handleFileInFolder — requires Hubzilla folder/collection API integration
@@ -19,6 +19,13 @@ import { fetchComments, fetchItemDetail, apiDeleteItem, apiEditItem, apiToggleSt
 import { mapActivityToPost } from "@/shared/lib/activity.mapper";
 import { sanitizeHtml } from "@/shared/lib/sanitize";
 import { currentNick } from "@/shared/store/auth-store";
+import { useCommentOrder } from "@/shared/store/comment-order";
+import type { CommentOrder } from "@/shared/store/comment-order";
+
+// Top-level comments per page (each bundled with its ENTIRE reply subtree —
+// comments are only ever paginated at the root level, never within a branch).
+// Not user-configurable, only the load-more order is (see comment-order store).
+export const COMMENTS_PAGE_SIZE = 5;
 
 type StreamStore = ReturnType<typeof createStreamStore>;
 
@@ -175,12 +182,24 @@ export function createActionHandlers(store: StreamStore) {
     },
 
     async loadComments(mid: string, uuid: string): Promise<void> {
-      const result = await fetchComments(uuid);
+      const order = useCommentOrder()();
+      const result = await fetchComments(uuid, { count: COMMENTS_PAGE_SIZE, order });
       const comments = (result.comments ?? []).filter(
         (a: any) => !REACTION_VERBS.has(a.verb),
       );
-      const nodes = buildThreadTree(comments.map(mapActivityToPost));
-      store.setNodeChildren(mid, nodes);
+      store.appendNodeChildren(
+        mid, comments.map(mapActivityToPost), !!result.has_more_roots, result.next_roots_offset ?? 0, order,
+      );
+    },
+
+    async loadMoreComments(mid: string, uuid: string, offset: number, order: CommentOrder): Promise<void> {
+      const result = await fetchComments(uuid, { count: COMMENTS_PAGE_SIZE, rootsOffset: offset, order });
+      const comments = (result.comments ?? []).filter(
+        (a: any) => !REACTION_VERBS.has(a.verb),
+      );
+      store.appendNodeChildren(
+        mid, comments.map(mapActivityToPost), !!result.has_more_roots, result.next_roots_offset ?? offset, order,
+      );
     },
 
     async handleRefresh(mid: string, uuid: string): Promise<void> {
@@ -207,7 +226,7 @@ export function createActionHandlers(store: StreamStore) {
         const comments = (result.comments ?? []).filter(
           (a: any) => !REACTION_VERBS.has(a.verb),
         );
-        store.setNodeChildren(mid, buildThreadTree(comments.map(mapActivityToPost)));
+        store.setNodeChildren(mid, buildThreadTree(comments.map(mapActivityToPost), useCommentOrder()()));
       }
     },
   };

@@ -19,6 +19,7 @@ import CommentThread from "@/shared/views/CommentThread";
 import formatPostDate from "@/shared/lib/date";
 import { markItemSeen } from "@/shared/lib/markSeen";
 import { scrollHighlightIntoView } from "@/shared/lib/scrollHighlightIntoView";
+import { useCommentOrder } from "@/shared/store/comment-order";
 import {
   MdFillBar_chart,
   MdFillChat,
@@ -231,6 +232,11 @@ export default function PostCard(props: {
     props.post.children.length > 0,
   );
   const [commentsLoading, setCommentsLoading] = createSignal(false);
+  // Derived, not local state: only ever meaningful on the thread root (only
+  // top-level comments are paginated — see actions-store's appendNodeChildren).
+  const commentsOffset = () => props.post.commentsOffset ?? 0;
+  const [loadingMoreComments, setLoadingMoreComments] = createSignal(false);
+  const commentOrder = useCommentOrder();
   const [deleteConfirming, setDeleteConfirming] = createSignal(false);
   const [isEditing, setIsEditing] = createSignal(false);
   const [editBody, setEditBody] = createSignal("");
@@ -356,10 +362,17 @@ export default function PostCard(props: {
       ? parseEventData(props.post.body)
       : undefined);
 
+  // While more comment pages remain unfetched, trust the server aggregate
+  // rather than counting only what's loaded so far — otherwise the badge
+  // visibly shrinks (e.g. "20" instead of "150") the moment the first page
+  // loads. Once fully loaded, recount locally so optimistically-added
+  // comments (handleComment's temp node) show up instantly.
   const totalComments = () =>
-    props.post.children.length > 0
-      ? countAllComments(props.post.children)
-      : (props.post.commentCount ?? 0);
+    props.post.hasMoreComments
+      ? (props.post.commentCount ?? 0)
+      : props.post.children.length > 0
+        ? countAllComments(props.post.children)
+        : (props.post.commentCount ?? 0);
 
   // Folder: local users only, post must be in their stream (iid present)
   const canFolder = () => auth()?.isLocal === true && !!props.post.iid;
@@ -651,6 +664,18 @@ export default function PostCard(props: {
       }
     } else {
       persistShow(!showComments());
+    }
+  }
+
+  async function loadMoreComments() {
+    if (!props.handlers.onLoadMoreComments || loadingMoreComments()) return;
+    setLoadingMoreComments(true);
+    try {
+      await props.handlers.onLoadMoreComments(
+        props.post.mid, props.post.uuid, commentsOffset(), commentOrder(),
+      );
+    } finally {
+      setLoadingMoreComments(false);
     }
   }
 
@@ -1621,6 +1646,24 @@ export default function PostCard(props: {
           }
           expandAll={props.expandAll}
         />
+        <Show when={showComments() && props.post.hasMoreComments && props.handlers.onLoadMoreComments}>
+          <div class="flex justify-center mt-2">
+            <button
+              type="button"
+              onClick={loadMoreComments}
+              disabled={loadingMoreComments()}
+              class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium
+                     rounded-full border border-rim bg-surface text-muted
+                     hover:bg-overlay hover:text-txt transition-colors
+                     disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              <Show when={!loadingMoreComments()} fallback={<MdOutlineRefresh size={13} class="animate-spin" />}>
+                <MdFillKeyboard_arrow_down size={13} />
+              </Show>
+              {loadingMoreComments() ? t("post.loading") : t("post.load_more_comments")}
+            </button>
+          </div>
+        </Show>
       </div>
     );
   }
@@ -2407,6 +2450,24 @@ export default function PostCard(props: {
         postAuthorAddress={props.post.authorAddress}
         expandAll={expandAll()}
       />
+      <Show when={showComments() && props.post.hasMoreComments && props.handlers.onLoadMoreComments}>
+        <div class="flex justify-center mt-2">
+          <button
+            type="button"
+            onClick={loadMoreComments}
+            disabled={loadingMoreComments()}
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium
+                   rounded-full border border-rim bg-surface text-muted
+                   hover:bg-overlay hover:text-txt transition-colors
+                   disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            <Show when={!loadingMoreComments()} fallback={<MdOutlineRefresh size={14} class="animate-spin" />}>
+              <MdFillKeyboard_arrow_down size={14} />
+            </Show>
+            {loadingMoreComments() ? t("post.loading") : t("post.load_more_comments")}
+          </button>
+        </div>
+      </Show>
 
       <Show when={rssImportedUuid()}>
         {(uuid) => (

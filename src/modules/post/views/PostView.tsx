@@ -5,7 +5,7 @@ import { createQueryResource } from "@/shared/lib/createQueryResource";
 import PostCard from "@/shared/stream/components/PostCard";
 import type { StreamHandlers } from "@/shared/stream/types";
 import type { ThreadNode } from "@/shared/lib/thread";
-import { buildThreadTree } from "@/shared/lib/thread";
+import { buildThreadTree, appendNewBranches } from "@/shared/lib/thread";
 import type { Post } from "@/shared/types/post.types";
 import { mapActivityToPost } from "@/shared/lib/activity.mapper";
 import { useI18n } from "@/i18n";
@@ -13,20 +13,40 @@ import {
   apiDeleteItem,
   apiEditItem,
   apiToggleStar,
+  fetchComments,
 } from "@/shared/lib/item-api";
-import { toggleVerb, repeatItem } from "@/shared/stream/store/actions-store";
+import { toggleVerb, repeatItem, COMMENTS_PAGE_SIZE } from "@/shared/stream/store/actions-store";
+import { useCommentOrder } from "@/shared/store/comment-order";
+import type { CommentOrder } from "@/shared/store/comment-order";
 import { unblockChannel } from "@/shared/lib/blocklist-api";
 import { approveModerationItem, dropModerationItem } from "@/modules/moderate/api";
 
+// Root + a flat first page of comments, fetched separately (no highlight/
+// context mode here — this route has no target-comment param today; see
+// PostDetailModal for the sibling-window fetch used when opening a permalink
+// to a specific nested comment instead of the thread root).
 async function fetchPost(uuid: string): Promise<ThreadNode> {
-  const res = await fetch(`/spa/display/${uuid}`);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const json = await res.json();
-  const data = json.data ?? json;
-  if (data.error) throw new Error(data.error);
-  const all: Post[] = [data.post, ...data.comments].map(mapActivityToPost);
-  const tree = buildThreadTree(all);
-  return tree[0];
+  const rootRes = await fetch(`/spa/display/${uuid}`);
+  if (!rootRes.ok) throw new Error(`HTTP ${rootRes.status}`);
+  const rootJson = await rootRes.json();
+  const rootData = rootJson.data ?? rootJson;
+  if (rootData.error) throw new Error(rootData.error);
+  const rawRoot = rootData.post;
+
+  const order = useCommentOrder()();
+  const commentsResult = await fetchComments(rawRoot.uuid, {
+    count: COMMENTS_PAGE_SIZE,
+    order,
+  });
+
+  const rootPost: Post = mapActivityToPost(rawRoot);
+  const children = buildThreadTree((commentsResult.comments ?? []).map(mapActivityToPost), order);
+  return {
+    ...rootPost,
+    children,
+    hasMoreComments: !!commentsResult.has_more_roots,
+    commentsOffset: commentsResult.next_roots_offset,
+  };
 }
 
 type ReactionOverride = {
@@ -62,8 +82,19 @@ export default function PostView() {
   const navigate = useNavigate();
   const { t } = useI18n();
 
-  const [node, { refetch }] = createQueryResource("post", () => params.uuid, fetchPost);
+  const [node, { refetch, mutate }] = createQueryResource("post", () => params.uuid, fetchPost);
   const [localReactions, setLocalReactions] = createSignal<Record<string, ReactionOverride>>({});
+
+  async function loadMoreComments(_mid: string, uuid: string, offset: number, order: CommentOrder): Promise<void> {
+    const result = await fetchComments(uuid, { count: COMMENTS_PAGE_SIZE, rootsOffset: offset, order });
+    const newPosts = (result.comments ?? []).map(mapActivityToPost);
+    mutate((prev) => prev && ({
+      ...prev,
+      children: appendNewBranches(prev.children, newPosts, order),
+      hasMoreComments: !!result.has_more_roots,
+      commentsOffset: result.next_roots_offset ?? offset,
+    }));
+  }
 
   const displayNode = createMemo((): ThreadNode | undefined => {
     const n = node();
@@ -125,6 +156,7 @@ export default function PostView() {
       refetch();
     },
     onLoadComments: () => Promise.resolve(),
+    onLoadMoreComments: loadMoreComments,
     onStar(mid) {
       const found = findInTree(node(), mid);
       if (!found?.iid) return;

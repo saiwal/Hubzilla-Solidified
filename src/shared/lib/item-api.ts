@@ -1,5 +1,6 @@
 // src/shared/lib/item-api.ts
 import { apiFetch } from './fetch';
+import type { CommentOrder } from '../store/comment-order';
 
 const BASE = '/spa/item';
 
@@ -12,8 +13,50 @@ function encodeId(uuid: string): string {
 export const fetchItemDetail = (uuid: string) =>
   apiFetch(`${BASE}/${encodeId(uuid)}`).then(r => r.json());
 
-export const fetchComments = (uuid: string, count: number | 'all' = 'all') =>
-  apiFetch(`${BASE}/${encodeId(uuid)}/comments/${count}`).then(r => r.json());
+export interface FetchCommentsOpts {
+  /** Numeric = roots_limit (top-level comments per page, each with its ENTIRE reply subtree). 'all' = one-shot full-thread fetch (no pagination). */
+  count?: number | 'all';
+  rootsOffset?: number;
+  order?: CommentOrder;
+  /** Fetch ancestors + a sibling window around this comment instead of a page of roots. */
+  around?: string;
+  before?: number;
+  after?: number;
+}
+
+export interface CommentsResponse {
+  mid: string;
+  total: number;
+  comments: any[];
+  mode?: 'roots' | 'context';
+  // roots mode
+  roots_offset?: number;
+  roots_limit?: number;
+  roots_fetched?: number;
+  next_roots_offset?: number;
+  total_roots?: number;
+  order?: CommentOrder;
+  has_more_roots?: boolean;
+  // context mode
+  target_mid?: string;
+  target_found?: boolean;
+  ancestor_mids?: string[];
+  sibling_thr_parent?: string;
+  has_more_before?: boolean;
+  has_more_after?: boolean;
+}
+
+export const fetchComments = (uuid: string, opts: FetchCommentsOpts = {}): Promise<CommentsResponse> => {
+  const { count = 'all', rootsOffset, order, around, before, after } = opts;
+  const params = new URLSearchParams();
+  if (rootsOffset) params.set('roots_offset', String(rootsOffset));
+  if (order) params.set('order', order);
+  if (around) params.set('around', around);
+  if (before !== undefined) params.set('before', String(before));
+  if (after !== undefined) params.set('after', String(after));
+  const qs = params.toString();
+  return apiFetch(`${BASE}/${encodeId(uuid)}/comments/${count}${qs ? `?${qs}` : ''}`).then(r => r.json());
+};
 
 export const fetchLikes    = (uuid: string) =>
   apiFetch(`${BASE}/${encodeId(uuid)}/likes`).then(r => r.json());
