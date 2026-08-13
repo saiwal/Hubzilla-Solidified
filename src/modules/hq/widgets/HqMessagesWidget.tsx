@@ -42,7 +42,7 @@ export default function HqMessagesWidget() {
   return (
     <div
       class="bg-surface rounded-2xl border border-rim flex flex-col overflow-hidden shadow-sm"
-      style={{ height: "480px" }}
+      style={{ "max-height": "480px" }}
     >
       <div class="px-2.5 pt-2.5 pb-1.5 shrink-0 flex items-center justify-between gap-2 border-b border-rim">
         <div class="flex items-center gap-1 shrink-0">

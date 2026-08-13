@@ -94,6 +94,9 @@ export default function PageView() {
       {/* Page content */}
       <Show when={!detail.loading && detail()}>
         <div class="xl:flex xl:gap-8">
+          {/* ── TOC — sticky sidebar on xl+, sticky collapsed launcher below xl ── */}
+          <ArticleToc entries={toc()} activeId={activeId()} label={t("webpages.on_this_page")} />
+
           <article class="min-w-0 flex-1 max-w-none xl:max-w-3xl bg-surface rounded-xl border border-rim p-6 space-y-4">
             <Show when={detail()!.title}>
               <h1 class="text-2xl font-bold text-txt">{detail()!.title}</h1>
@@ -106,9 +109,6 @@ export default function PageView() {
               innerHTML={rendered()}
             />
           </article>
-
-          {/* ── TOC — fixed sidebar on xl+, floating collapsed launcher below xl ── */}
-          <ArticleToc entries={toc()} activeId={activeId()} label={t("webpages.on_this_page")} />
         </div>
       </Show>
     </div>

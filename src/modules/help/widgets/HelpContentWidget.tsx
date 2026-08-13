@@ -82,6 +82,11 @@ export default function HelpContentWidget() {
   return (
     <div class="relative max-w-5xl mx-auto py-4">
       <div class="xl:flex xl:gap-8">
+        {/* ── TOC — sticky sidebar on xl+, sticky collapsed launcher below xl ── */}
+        <Show when={!query()}>
+          <ArticleToc entries={toc()} activeId={activeId()} label={t("help.on_this_page")} />
+        </Show>
+
         {/* ── Content ── */}
         <article class="min-w-0 flex-1 max-w-none xl:max-w-3xl space-y-5">
           <Show
@@ -157,11 +162,6 @@ export default function HelpContentWidget() {
             </Show>
           </Show>
         </article>
-
-        {/* ── TOC — fixed sidebar on xl+, floating collapsed launcher below xl ── */}
-        <Show when={!query()}>
-          <ArticleToc entries={toc()} activeId={activeId()} label={t("help.on_this_page")} />
-        </Show>
       </div>
     </div>
   );

@@ -1,9 +1,11 @@
 // src/shared/views/ArticleToc.tsx
 // Drop-in table-of-contents for long-form content (articles, help topics,
-// webpages, …). Renders as a fixed sidebar column on xl+ and as a
-// collapsed floating launcher (top-right) below xl. Place it as a sibling
-// of the content column inside an `xl:flex xl:gap-8` container — the
-// floating part is fixed-position so its DOM location doesn't matter.
+// webpages, …). Renders as a sticky sidebar column on xl+ and as a sticky
+// collapsed launcher below xl. Place it as a sibling of the content column
+// inside an `xl:flex xl:gap-8` container, BEFORE that column in JSX — both
+// pieces are position:sticky now, so DOM order drives the below-xl stacked
+// position (the launcher must precede the content to sit above it); the
+// xl+ sidebar stays visually last via `order-last` regardless.
 import { createSignal, Show, For } from "solid-js";
 import { MdOutlineToc } from "solid-icons/md";
 import type { TocEntry } from "@/shared/lib/useToc";
@@ -43,12 +45,12 @@ function TocLinks(props: {
   );
 }
 
-// ── xl+ fixed sidebar ────────────────────────────────────────────────────────
+// ── xl+ sticky sidebar ───────────────────────────────────────────────────────
 
 function FixedToc(props: { entries: TocEntry[]; activeId: string; label: string }) {
   return (
     <nav
-      class="xl:fixed xl:top-[calc(var(--hz-header-h,0px)+6rem)] xl:w-52"
+      class="xl:sticky xl:top-6 xl:w-52"
       aria-label={props.label}
     >
       <span class="text-xs font-semibold uppercase tracking-wide text-muted">
@@ -67,47 +69,47 @@ function FloatingToc(props: { entries: TocEntry[]; activeId: string; label: stri
   const [open, setOpen] = createSignal(false);
 
   return (
-    <div
-      class="xl:hidden fixed top-[calc(var(--hz-header-h,0px)+5rem)] right-4 z-40 flex flex-col items-end"
-    >
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open()}
-        aria-label={props.label}
-        class="w-11 h-11 rounded-full flex items-center justify-center
-               bg-elevated border border-rim shadow-lg hover:shadow-xl
-               text-muted hover:text-txt transition-all"
-      >
-        <MdOutlineToc size={20} />
-      </button>
-      <Show when={open()}>
-        <div
-          class="mt-2 w-64 max-w-[calc(100vw-2rem)] max-h-[60vh] overflow-y-auto
-                 bg-surface border border-rim rounded-xl shadow-2xl p-3"
+    <div class="xl:hidden sticky top-2 z-10 mb-3 flex justify-end">
+      <div class="flex flex-col items-end">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open()}
+          aria-label={props.label}
+          class="w-11 h-11 rounded-full flex items-center justify-center
+                 bg-elevated border border-rim shadow-lg hover:shadow-xl
+                 text-muted hover:text-txt transition-all"
         >
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold uppercase tracking-wide text-muted">
-              {props.label}
-            </span>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              aria-label="Close table of contents"
-              class="p-1 rounded text-muted hover:bg-elevated hover:text-txt transition-colors"
-            >
-              ✕
-            </button>
+          <MdOutlineToc size={20} />
+        </button>
+        <Show when={open()}>
+          <div
+            class="mt-2 w-64 max-w-[calc(100vw-2rem)] max-h-[60vh] overflow-y-auto
+                   bg-surface border border-rim rounded-xl shadow-2xl p-3"
+          >
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-semibold uppercase tracking-wide text-muted">
+                {props.label}
+              </span>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Close table of contents"
+                class="p-1 rounded text-muted hover:bg-elevated hover:text-txt transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            <div class="space-y-0.5">
+              <TocLinks
+                entries={props.entries}
+                activeId={props.activeId}
+                onNavigate={() => setOpen(false)}
+              />
+            </div>
           </div>
-          <div class="space-y-0.5">
-            <TocLinks
-              entries={props.entries}
-              activeId={props.activeId}
-              onNavigate={() => setOpen(false)}
-            />
-          </div>
-        </div>
-      </Show>
+        </Show>
+      </div>
     </div>
   );
 }
@@ -117,10 +119,10 @@ function FloatingToc(props: { entries: TocEntry[]; activeId: string; label: stri
 export default function ArticleToc(props: { entries: TocEntry[]; activeId: string; label: string }) {
   return (
     <Show when={props.entries.length > 1}>
-      <aside class="hidden xl:block shrink-0 w-52">
+      <FloatingToc entries={props.entries} activeId={props.activeId} label={props.label} />
+      <aside class="hidden xl:block xl:order-last shrink-0 w-52">
         <FixedToc entries={props.entries} activeId={props.activeId} label={props.label} />
       </aside>
-      <FloatingToc entries={props.entries} activeId={props.activeId} label={props.label} />
     </Show>
   );
 }

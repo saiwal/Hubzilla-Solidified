@@ -47,7 +47,7 @@ registerModule({
       id: "blocks.pomodoro",
       label: () => useI18n().t("widgets.pomodoro"),
       loader: () => import("./widgets/PomodoroWidget"),
-      slot: "right",
+      slot: ["right", "gridTop"],
       defaultModules: [],
       contexts: "any",
       multiInstance: true,

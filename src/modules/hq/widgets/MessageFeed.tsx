@@ -128,7 +128,7 @@ export const MessageFeed: Component<{ type: MessageType; bare?: boolean }> = (pr
     >
       <div
         class="bg-surface rounded-2xl border border-rim flex flex-col overflow-hidden shadow-sm"
-        style={{ height: "480px" }}
+        style={{ "max-height": "480px" }}
       >
         {body}
       </div>

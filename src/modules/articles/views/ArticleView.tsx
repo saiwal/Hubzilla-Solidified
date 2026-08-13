@@ -406,6 +406,9 @@ export default function ArticleView() {
       <Show when={!data.loading && data()} fallback={<ArticleViewSkeleton />}>
         {(d) => (
           <div class="xl:flex xl:gap-8">
+            {/* ── TOC — sticky sidebar on xl+, sticky collapsed launcher below xl ── */}
+            <ArticleToc entries={toc()} activeId={activeId()} label={t("articles.on_this_page")} />
+
             {/* ── Article ── */}
             <article class="min-w-0 flex-1 max-w-none xl:max-w-3xl space-y-6">
               {/* Back link */}
@@ -686,9 +689,6 @@ export default function ArticleView() {
                 </section>
               </Show>
             </article>
-
-            {/* ── TOC — fixed sidebar on xl+, floating collapsed launcher below xl ── */}
-            <ArticleToc entries={toc()} activeId={activeId()} label={t("articles.on_this_page")} />
           </div>
         )}
       </Show>
