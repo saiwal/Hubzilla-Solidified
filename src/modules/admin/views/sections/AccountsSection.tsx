@@ -329,7 +329,11 @@ function AccountEditModal(props: {
             >
               <option value="">{t("admin.unrestricted_label")}</option>
               <For each={classes()?.classes ?? []}>
-                {(c) => <option value={c.name}>{c.name}</option>}
+                {(c) => (
+                  <option value={c.name}>
+                    {c.name}{c.properties.price ? ` (${c.properties.price.toFixed(2)}/mo)` : ""}
+                  </option>
+                )}
               </For>
             </select>
           </div>

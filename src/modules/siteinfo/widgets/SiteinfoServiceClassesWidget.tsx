@@ -26,6 +26,9 @@ export default function SiteinfoServiceClassesWidget() {
                     <Show when={cls.is_default}>
                       <Chip label={t("ui.siteinfo_default_badge")} variant="info" />
                     </Show>
+                    <Show when={cls.price !== null}>
+                      <span class="ml-auto text-sm font-medium text-txt">{cls.price!.toFixed(2)}/mo</span>
+                    </Show>
                   </div>
                   <div class="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1 text-xs text-muted">
                     <div>{t("ui.siteinfo_photo_limit")}: {formatLimit(cls.photo_upload_limit)}</div>

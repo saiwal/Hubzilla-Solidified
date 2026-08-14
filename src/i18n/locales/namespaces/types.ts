@@ -2273,6 +2273,7 @@ export type RawDictionary = {
     prop_chatrooms:   string;
     prop_chatters_inroom: string;
     prop_access_tokens: string;
+    prop_price: string;
     security_title:   string;
     security_desc:    string;
     site_title:       string;

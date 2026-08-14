@@ -110,6 +110,7 @@ export const admin: RawDictionary["admin"] = {
   prop_chatrooms:   "चैट रूम",
   prop_chatters_inroom: "प्रति रूम चैटर",
   prop_access_tokens: "अतिथि एक्सेस टोकन",
+  prop_price: "मूल्य (प्रति माह)",
   security_title:   "सुरक्षा",
   security_desc:    "पहुँच नियंत्रण, सामग्री फ़िल्टरिंग और HTTP सुरक्षा हेडर।",
   site_title:       "साइट",

@@ -82,7 +82,7 @@ function summarizeProps(props: ServiceClassProperties, t: (k: any) => string): s
     const v = props[def.key];
     if (!v) continue;
     const label = t(`admin.${def.labelKey}` as any);
-    const value = def.unit === "bytes" ? humanBytes(v) : String(v);
+    const value = def.unit === "bytes" ? humanBytes(v) : def.unit === "price" ? v.toFixed(2) : String(v);
     parts.push(`${label}: ${value}`);
     if (parts.length >= 3) break;
   }
@@ -314,10 +314,11 @@ function ServiceClassModal(props: {
                       <input
                         type="number"
                         min="0"
+                        step={def.unit === "price" ? "0.01" : "1"}
                         value={values()[def.key] ?? ""}
                         onInput={(e) => setValue(def.key, e.currentTarget.value)}
                         class={inputCls}
-                        placeholder={t("admin.unlimited_hint")}
+                        placeholder={def.unit === "price" ? "0.00" : t("admin.unlimited_hint")}
                       />
                     }
                   >

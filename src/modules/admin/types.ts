@@ -128,6 +128,7 @@ export interface ServiceClassProperties {
   chatrooms?: number;
   chatters_inroom?: number;
   access_tokens?: number;
+  price?: number; // monthly cost, e.g. 9.99; site currency, no per-class currency
 }
 
 export interface AdminServiceClass {
@@ -148,7 +149,7 @@ export interface AdminServiceClasses {
 export interface ServiceClassPropDef {
   key: keyof ServiceClassProperties;
   labelKey: string; // i18n key under `admin`
-  unit: "bytes" | "count" | "minutes";
+  unit: "bytes" | "count" | "minutes" | "price";
 }
 
 export const SERVICE_CLASS_PROP_DEFS: ServiceClassPropDef[] = [
@@ -163,6 +164,7 @@ export const SERVICE_CLASS_PROP_DEFS: ServiceClassPropDef[] = [
   { key: "chatrooms", labelKey: "prop_chatrooms", unit: "count" },
   { key: "chatters_inroom", labelKey: "prop_chatters_inroom", unit: "count" },
   { key: "access_tokens", labelKey: "prop_access_tokens", unit: "count" },
+  { key: "price", labelKey: "prop_price", unit: "price" },
 ];
 
 // ── Channels ──────────────────────────────────────────────────────────────────

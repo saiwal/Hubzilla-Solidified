@@ -7,6 +7,7 @@ export type ServiceClass = {
   total_channels: number | null;
   total_items: number | null;
   total_identities: number | null;
+  price: number | null; // per month, site currency; null = free/unset
 };
 
 export type SiteInfo = {
