@@ -3,14 +3,11 @@ import { generateSW } from 'workbox-build';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import { ASSET_WEB_PATH, SW_OUT_DIR_REL } from './theme.config.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const ASSET_WEB_PATH = '/view/theme/solidified/assets';
-const OUT_DIR = path.resolve(
-  __dirname,
-  '../hz-ddev/core/view/theme/solidified/assets'
-);
+const OUT_DIR = path.resolve(__dirname, SW_OUT_DIR_REL);
 
 const { count, size } = await generateSW({
   swDest: path.join(OUT_DIR, 'sw.js'),

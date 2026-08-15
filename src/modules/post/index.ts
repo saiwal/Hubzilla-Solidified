@@ -1,5 +1,5 @@
 // src/modules/post/index.ts
-import { registerModule } from "@/shared/lib/module-registry";
+import { registerModule } from "@utsukta/spa-core/module-registry";
 
 registerModule({
   id: "post",

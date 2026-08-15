@@ -1,6 +1,6 @@
-import type { Post } from "@/shared/types/post.types.ts";
-import { mapActivityToPost } from "@/shared/lib/activity.mapper.ts";
-import { apiFetch } from "@/shared/lib/fetch";
+import type { Post } from "@utsukta/spa-core/types/post.types";
+import { mapActivityToPost } from "@utsukta/spa-core/lib/activity.mapper";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
 const HIDDEN_VERBS = new Set(['Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept']);
 
 function shouldDisplay(a: any): boolean {
@@ -225,4 +225,4 @@ export {
   apiToggleStar,
   apiEditItem,
   apiDeleteItem,
-} from '@/shared/lib/item-api';
+} from '@utsukta/spa-core/lib/item-api';

@@ -1,10 +1,10 @@
 // src/shared/stream/store/createStreamStore.ts
 import { createSignal } from "solid-js";
-import { buildThreadTree } from "@/shared/lib/thread";
-import type { ThreadNode } from "@/shared/lib/thread";
-import type { Post } from "@/shared/types/post.types";
-import { updateInterval } from "@/shared/store/auth-store";
-import { toast } from "@/shared/store/toast";
+import { buildThreadTree } from "@utsukta/spa-core/lib/thread";
+import type { ThreadNode } from "@utsukta/spa-core/lib/thread";
+import type { Post } from "@utsukta/spa-core/types/post.types";
+import { updateInterval } from "@utsukta/spa-core/store/auth-store";
+import { toast } from "@utsukta/spa-core/store/toast";
 
 export interface StreamResult {
   items: Post[];
@@ -62,11 +62,17 @@ export function createStreamStore<P extends StreamParams>(
 
   let currentOffset = 0;
   let pollTimer: ReturnType<typeof setTimeout> | null = null;
+  let pollGeneration = 0;
   const activated = new Set<string>();
 
   // ── polling ─────────────────────────────────────────────────────────────────
 
+  // pollGeneration guards against orphaned poll chains: if stopPolling() runs
+  // while a tick is already mid-flight (inside the await below), clearTimeout
+  // can't cancel it — without this check that tick's schedule() call would
+  // re-arm a new timer nothing can ever cancel again.
   function stopPolling() {
+    pollGeneration++;
     if (pollTimer !== null) {
       clearTimeout(pollTimer);
       pollTimer = null;
@@ -98,9 +104,12 @@ export function createStreamStore<P extends StreamParams>(
 
   function startPolling() {
     stopPolling();
+    const generation = pollGeneration;
     const schedule = () => {
       pollTimer = setTimeout(async () => {
+        if (generation !== pollGeneration) return;
         if (document.visibilityState === "visible") await checkForNew();
+        if (generation !== pollGeneration) return;
         schedule();
       }, updateInterval());
     };
@@ -137,7 +146,11 @@ export function createStreamStore<P extends StreamParams>(
     return { threads: [], offset, more, result };
   }
 
+  let loadInFlight = false;
+
   async function load(newParams?: P) {
+    if (loadInFlight) return;
+    loadInFlight = true;
     if (newParams !== undefined) setParams(() => newParams);
     setLoading(true);
     setHasMore(true);
@@ -159,6 +172,7 @@ export function createStreamStore<P extends StreamParams>(
       toast.error("Failed to load posts. Check your connection and try again.");
     } finally {
       setLoading(false);
+      loadInFlight = false;
     }
   }
 

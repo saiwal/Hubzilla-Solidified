@@ -2,10 +2,10 @@ import { A } from "@solidjs/router";
 import { createEffect, createMemo, createSignal, lazy, on, onCleanup, Show, For } from "solid-js";
 import { Portal } from "solid-js/web";
 import { useNavigate, useLocation } from "@solidjs/router";
-import { usePageNick } from "@/shared/store/site-config";
-import { useI18n } from "@/i18n";
-import { useAuth } from "@/shared/store/auth-store";
-import { useNavViewer } from "@/shared/store/nav-store";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
+import { useNavViewer } from "@utsukta/spa-core/store/nav-store";
 import {
   photos, albums, albumName, detail, loading, albumsLoading, albumsError, canWrite,
   loadSummary, loadAlbum, loadImage, loadAlbums,
@@ -45,12 +45,12 @@ import CommentComposer from "@/shared/editor/composers/CommentComposer";
 import PostComposer from "@/shared/editor/composers/PostComposer";
 import CommentThread from "@/shared/views/CommentThread";
 import AclEditor from "../components/AclEditor";
-import { buildThreadTree } from "@/shared/lib/thread";
-import type { ThreadNode } from "@/shared/lib/thread";
+import { buildThreadTree } from "@utsukta/spa-core/lib/thread";
+import type { ThreadNode } from "@utsukta/spa-core/lib/thread";
 import type { StreamHandlers } from "@/shared/stream/types";
 import type { PhotoComment } from "../api/api";
 import { uploadPhotoEdit, uploadNewPhoto } from "../api/api";
-import { toast } from "@/shared/store/toast";
+import { toast } from "@utsukta/spa-core/store/toast";
 
 const ImageEditor = lazy(() => import("@/shared/views/ImageEditor"));
 

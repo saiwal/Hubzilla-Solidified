@@ -3,7 +3,7 @@
 // backend, no config: purely a client-side content block.
 
 import { createSignal } from "solid-js";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { IoShuffleOutline } from "solid-icons/io";
 
 const QUOTES: [string, string][] = [

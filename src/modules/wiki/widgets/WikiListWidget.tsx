@@ -1,8 +1,8 @@
 // src/modules/wiki/widgets/WikiListWidget.tsx
 import { createEffect, createMemo, For, Show } from "solid-js";
 import { A } from "@solidjs/router";
-import { useI18n } from "@/i18n";
-import { usePageNick } from "@/shared/store/site-config";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
 import { MdFillLock } from "solid-icons/md";
 import { wikis, wikisLoading, wikisError, loadWikis } from "../store";
 

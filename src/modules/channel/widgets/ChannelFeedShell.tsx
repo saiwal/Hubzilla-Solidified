@@ -1,9 +1,9 @@
 // src/modules/channel/widgets/ChannelFeedShell.tsx
 import { createEffect, createSignal, onCleanup, Show, type Component, type JSX } from "solid-js";
 import { useSearchParams, useNavigate } from "@solidjs/router";
-import { useI18n } from "@/i18n";
-import { useScrollStyle } from "@/shared/store/scroll-style";
-import { usePageNick, useViewerRole } from "@/shared/store/site-config";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { useScrollStyle } from "@utsukta/spa-core/store/scroll-style";
+import { usePageNick, useViewerRole } from "@utsukta/spa-core/store/site-config";
 import {
   loading,
   hasMore,
@@ -15,12 +15,12 @@ import {
   loadChannel,
   loadMore,
   flushNewPosts,
-  stopPolling,
+  resetPosts,
 } from "../store";
 import type { ChannelParams } from "../api";
 import { MdFillSearch, MdFillClose, MdFillCreate, MdFillMail } from "solid-icons/md";
 import { lazy } from "solid-js";
-import { useAuth } from "@/shared/store/auth-store";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
 const PostComposer = lazy(() => import("@/shared/editor/composers/PostComposer"));
 
 // Toolbar/search/pagination/composer chrome shared by `channel.feed` and its
@@ -97,7 +97,7 @@ export default function ChannelFeedShell(props: {
     loadChannel(nick(), p);
   });
 
-  onCleanup(() => stopPolling());
+  onCleanup(() => resetPosts());
 
   let sentinel!: HTMLDivElement;
   createEffect(() => {

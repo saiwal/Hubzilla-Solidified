@@ -1,10 +1,10 @@
 // src/shared/stream/feedviews/FeedView.tsx
 import { For, Show, createSignal } from "solid-js";
-import type { ThreadNode } from "@/shared/lib/thread";
+import type { ThreadNode } from "@utsukta/spa-core/lib/thread";
 import type { StreamHandlers } from "../types";
 import PostCard from "../components/PostCard";
 import PostDetailModal from "@/shared/views/PostDetailModal";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export function FeedPlaceholder() {
   return (

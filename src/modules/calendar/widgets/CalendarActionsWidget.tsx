@@ -1,10 +1,10 @@
 import { createSignal, Show } from "solid-js";
-import { useI18n } from "@/i18n";
-import { toast } from "@/shared/store/toast";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { toast } from "@utsukta/spa-core/store/toast";
 import EventCreatorModal from "./EventCreatorModal";
 import { importCalendar } from "../api";
 import { nick as calNick, range as calRange, loadCalendar, monthRange } from "../store";
-import { usePageNick } from "@/shared/store/site-config";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
 
 export default function CalendarActionsWidget() {
   const { t } = useI18n();

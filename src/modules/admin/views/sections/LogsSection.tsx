@@ -1,9 +1,9 @@
 import { createSignal, createMemo, createEffect, For, Show, batch } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import SubPageContent from "@/shared/views/SubPageContent";
 import { fetchAdminLogs, saveLogSettings } from "../../api";
 import type { LogEntry, LogLevel } from "../../types";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 const LOG_LEVELS: { label: string; value: number }[] = [
   { label: "Normal",  value: 0 },

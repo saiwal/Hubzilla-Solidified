@@ -1,6 +1,6 @@
 import { createSignal } from 'solid-js';
 import { fetchWebpages, deleteWebPage, fetchBlocks, deleteBlock, type WebPage, type Block } from './api';
-import { toast } from "@/shared/store/toast";
+import { toast } from "@utsukta/spa-core/store/toast";
 
 // Module-level singletons — survive navigation by design.
 // loadWebpages() guards against redundant fetches when store is already populated

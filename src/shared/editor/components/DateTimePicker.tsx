@@ -1,7 +1,7 @@
 import { createSignal, createMemo, For, Show, onCleanup, type JSX } from "solid-js";
 import { Portal } from "solid-js/web";
 import { MdOutlineSchedule } from "solid-icons/md";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 interface Props {
   /** "" or local "YYYY-MM-DDTHH:mm" (same contract as <input type="datetime-local">) */

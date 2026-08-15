@@ -1,7 +1,7 @@
 import { createSignal, Show, Switch, Match } from "solid-js";
 import { A } from "@solidjs/router";
-import { toast } from "@/shared/store/toast";
-import { useI18n } from "@/i18n";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 type Mode = "file" | "migrate";
 
@@ -23,7 +23,7 @@ export default function ImportChannelView() {
 
     setBusy(true);
     try {
-      const { getCsrfToken } = await import("@/shared/lib/csrf");
+      const { getCsrfToken } = await import("@utsukta/spa-core/lib/csrf");
       const token = await getCsrfToken().catch(() => "");
 
       const fd = new FormData();
@@ -60,7 +60,7 @@ export default function ImportChannelView() {
 
     setBusy(true);
     try {
-      const { apiFetch } = await import("@/shared/lib/fetch");
+      const { apiFetch } = await import("@utsukta/spa-core/lib/fetch");
       const res = await apiFetch("/spa/portability/migrate", {
         method: "POST",
         body: JSON.stringify({

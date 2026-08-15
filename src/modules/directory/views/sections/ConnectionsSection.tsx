@@ -12,11 +12,11 @@ import Tooltip from "@/shared/views/Tooltip";
 import DMComposer from "@/shared/editor/composers/DMComposer";
 import { createRoom } from "@/modules/chat/api";
 import { MdOutlineEdit, MdOutlineEmail, MdOutlineChat_bubble } from "solid-icons/md";
-import { useAuth } from "@/shared/store/auth-store";
-import { useNavViewer, useInstalledApps } from "@/shared/store/nav-store";
-import { isAppInstalled } from "@/shared/lib/module-registry";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
+import { useNavViewer, useInstalledApps } from "@utsukta/spa-core/store/nav-store";
+import { isAppInstalled } from "@utsukta/spa-core/module-registry";
 import { useNavigate } from "@solidjs/router";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 

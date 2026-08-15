@@ -4,7 +4,7 @@ import type { EditorCapabilities, EditorTab, MimeType } from "../types/editor.ty
 import EditorToolbar from "./EditorToolbar";
 import { sourceToHtml, hydrateShareEmbeds, hydrateLatexEmbeds } from "./sourceToHtml";
 import { htmlToSource } from "./htmlToSource";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 interface Props {
   body: string;

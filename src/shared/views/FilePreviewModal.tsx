@@ -2,10 +2,10 @@ import { createEffect, createResource, createSignal, For, lazy, onCleanup, Show,
 import { Portal } from "solid-js/web";
 import { marked } from "marked";
 import { MdFillOpen_in_full, MdFillClose_fullscreen, MdOutlineEdit } from "solid-icons/md";
-import { classifyPreview, TEXT_PREVIEW_MAX_BYTES } from "@/shared/lib/filePreview";
-import { sanitizeHtml } from "@/shared/lib/sanitize";
-import { toast } from "@/shared/store/toast";
-import { mountPlyr } from "@/shared/lib/usePlyr";
+import { classifyPreview, TEXT_PREVIEW_MAX_BYTES } from "@utsukta/spa-core/lib/filePreview";
+import { sanitizeHtml } from "@utsukta/spa-core/lib/sanitize";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { mountPlyr } from "@utsukta/spa-core/lib/usePlyr";
 
 const ImageEditor = lazy(() => import("@/shared/views/ImageEditor"));
 const VideoEditor = lazy(() =>

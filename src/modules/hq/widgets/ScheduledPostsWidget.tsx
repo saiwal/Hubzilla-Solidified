@@ -1,7 +1,7 @@
 import { createSignal, For, Show, onMount, lazy } from "solid-js";
 import { MdOutlineSchedule } from "solid-icons/md";
-import { apiFetch } from "@/shared/lib/fetch";
-import { useI18n } from "@/i18n";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 const PostDetailModal = lazy(() => import("@/shared/views/PostDetailModal"));
 

@@ -1,10 +1,10 @@
 // src/modules/notify/views/NotifyRedirectView.tsx
 import { createEffect, createSignal, Show } from "solid-js";
 import { useParams, useNavigate } from "@solidjs/router";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { resolveNotify } from "../api";
-import { resolveNotifyPath, connectionRequestId } from "@/shared/lib/notifyLink";
-import { openConnectionRequestModal } from "@/shared/store/connection-request-modal";
+import { resolveNotifyPath, connectionRequestId } from "@utsukta/spa-core/lib/notifyLink";
+import { openConnectionRequestModal } from "@utsukta/spa-core/store/connection-request-modal";
 
 export default function NotifyRedirectView() {
   const params = useParams<{ id: string }>();

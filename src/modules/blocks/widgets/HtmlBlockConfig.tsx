@@ -5,10 +5,10 @@
 // at a time; existing instances with just { title, html } keep working as-is.
 
 import { createSignal, createMemo, For, Show } from "solid-js";
-import type { WidgetConfigProps } from "@/shared/types/module.types";
-import { useI18n } from "@/i18n";
-import { usePageNick } from "@/shared/store/site-config";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import type { WidgetConfigProps } from "@utsukta/spa-core/types/module.types";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { fetchBlocks } from "@/modules/webpages/api";
 
 const MAX_HTML = 1800;

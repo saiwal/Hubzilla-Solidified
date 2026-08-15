@@ -1,4 +1,4 @@
-import { apiFetch } from "@/shared/lib/fetch";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
 import type { AccountSettings, ChannelSettings, DisplaySettings, LocationEntry, NotificationSettings } from "../store/types";
 
 // ── Display ──────────────────────────────────────────────────────────────────

@@ -1,8 +1,8 @@
 import { createSignal, createEffect } from "solid-js";
-import { toast } from "@/shared/store/toast";
-import { storageGet, storageSet, storageDel } from "@/shared/lib/storage";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { storageGet, storageSet, storageDel } from "@utsukta/spa-core/lib/storage";
 import { listServerDrafts, saveServerDraft, deleteServerDraft } from "../api/drafts";
-import { isEncryptedBody } from "@/shared/lib/postCrypto";
+import { isEncryptedBody } from "@utsukta/spa-core/lib/postCrypto";
 import type { MimeType, ComposerMeta } from "../types/editor.types";
 
 export type SubmitFn = (body: string, meta: ComposerMeta) => Promise<void>;

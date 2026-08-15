@@ -1,7 +1,7 @@
 import { Show, lazy } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { fetchConnectionById } from "@/modules/directory/connections/api";
-import { useConnectionRequestModal } from "@/shared/store/connection-request-modal";
+import { useConnectionRequestModal } from "@utsukta/spa-core/store/connection-request-modal";
 
 const ConnectionEditorModal = lazy(() => import("./ConnectionEditorModal"));
 

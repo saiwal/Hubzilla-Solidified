@@ -1,22 +1,22 @@
 // src/shared/stream/feedviews/ListView.tsx
 import { For, Show, createSignal, lazy, onMount, onCleanup } from "solid-js";
-import type { ThreadNode } from "@/shared/lib/thread";
-import { countAllComments, flattenThread, isRootPost } from "@/shared/lib/thread";
-import { useThreadMode } from "@/shared/store/thread-mode";
+import type { ThreadNode } from "@utsukta/spa-core/lib/thread";
+import { countAllComments, flattenThread, isRootPost } from "@utsukta/spa-core/lib/thread";
+import { useThreadMode } from "@utsukta/spa-core/store/thread-mode";
 import { REACTION_VERBS } from "@/shared/stream/store/actions-store";
-import { useCommentOrder } from "@/shared/store/comment-order";
+import { useCommentOrder } from "@utsukta/spa-core/store/comment-order";
 import type { StreamHandlers } from "../types";
-import formatPostDate from "@/shared/lib/date";
-import { useI18n } from "@/i18n";
+import formatPostDate from "@utsukta/spa-core/lib/date";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import DOMPurify from "dompurify";
-import { handleNsfwToggleClick } from "@/shared/lib/nsfw";
-import { markItemSeen } from "@/shared/lib/markSeen";
+import { handleNsfwToggleClick } from "@utsukta/spa-core/lib/nsfw";
+import { markItemSeen } from "@utsukta/spa-core/lib/markSeen";
 import CommentComposer from "@/shared/editor/composers/CommentComposer";
-import { useAuth } from "@/shared/store/auth-store";
-import { useListBehavior } from "@/shared/store/list-behavior";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
+import { useListBehavior } from "@utsukta/spa-core/store/list-behavior";
 import { MdOutlineSchedule, MdOutlineTimer, MdFillPush_pin, MdOutlineReply, MdFillKeyboard_arrow_down, MdOutlineRefresh } from "solid-icons/md";
 import { isDirectMessage as isDM, DmBadge, DmRecipients } from "@/shared/stream/components/DmMeta";
-import { parseEventData } from "@/shared/lib/activity.mapper";
+import { parseEventData } from "@utsukta/spa-core/lib/activity.mapper";
 
 const PostDetailModal = lazy(() => import("@/shared/views/PostDetailModal"));
 

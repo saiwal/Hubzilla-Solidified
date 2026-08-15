@@ -9,7 +9,7 @@
 
 import { type Component } from "solid-js";
 import { MdOutlineCode } from "solid-icons/md";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import type { EditorTab } from "../types/editor.types";
 
 export interface SourceToggleButtonProps {

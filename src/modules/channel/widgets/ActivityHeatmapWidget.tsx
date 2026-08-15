@@ -3,10 +3,10 @@
 // already filtered through item_permissions_sql server-side).
 
 import { For, Show, createMemo, createEffect } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { apiFetch } from "@/shared/lib/fetch";
-import { usePageNick } from "@/shared/store/site-config";
-import { useI18n } from "@/i18n";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 interface ActivityData {
   days: number;

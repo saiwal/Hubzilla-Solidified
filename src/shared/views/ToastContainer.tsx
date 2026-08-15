@@ -1,7 +1,7 @@
 import { For, type Component } from "solid-js";
 import { Portal } from "solid-js/web";
-import { toasts, dismiss, type Toast, type ToastType } from "@/shared/store/toast";
-import { useI18n } from "@/i18n";
+import { toasts, dismiss, type Toast, type ToastType } from "@utsukta/spa-core/store/toast";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 

@@ -2,10 +2,10 @@
 // server-side via GET /spa/rss-feed — browsers can't fetch cross-origin feeds.
 
 import { For, Show } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import type { WidgetProps } from "@/shared/types/module.types";
-import { editingWidgets } from "@/shared/store/widget-layout";
-import { useI18n } from "@/i18n";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import type { WidgetProps } from "@utsukta/spa-core/types/module.types";
+import { editingWidgets } from "@utsukta/spa-core/store/widget-layout";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 interface FeedItem {
   title: string;

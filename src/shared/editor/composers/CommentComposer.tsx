@@ -1,12 +1,12 @@
 import { Show, onCleanup } from "solid-js";
-import { apiFetch } from "@/shared/lib/fetch";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
 import { createComposerStore } from "../store/createComposerStore";
 import RichEditor from "../core/RichEditor";
 import { CAPABILITIES } from "../types/editor.types";
-import { useAuth, currentNick } from "@/shared/store/auth-store";
-import { useNavViewer } from "@/shared/store/nav-store";
+import { useAuth, currentNick } from "@utsukta/spa-core/store/auth-store";
+import { useNavViewer } from "@utsukta/spa-core/store/nav-store";
 import { MdOutlinePerson } from "solid-icons/md";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { useMentionEmojiWiring } from "@/shared/editor/mention/useMentionEmojiWiring";
 import MentionEmojiPopups from "@/shared/editor/mention/MentionEmojiPopups";
 import AttachmentBar from "../attachments/AttachmentBar";

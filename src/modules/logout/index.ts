@@ -1,5 +1,5 @@
-import { registerModule } from "@/shared/lib/module-registry";
-import { useI18n } from "@/i18n";
+import { registerModule } from "@utsukta/spa-core/module-registry";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 registerModule({
   id: "logout",

@@ -4,7 +4,7 @@ import {
 } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import { MdFillLock, MdFillLock_open } from "solid-icons/md";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { fetchMessages, sendMessage } from "../api";
 import type { ChatMessage } from "../api";
 import { pinnedRooms, unpinRoom, type PinnedRoom } from "../store";

@@ -1,6 +1,6 @@
 import { createSignal } from "solid-js";
-import { useI18n } from "@/i18n";
-import { encryptBody, isEncryptedBody, decryptPayload, extractCryptPayload } from "@/shared/lib/postCrypto";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { encryptBody, isEncryptedBody, decryptPayload, extractCryptPayload } from "@utsukta/spa-core/lib/postCrypto";
 
 /**
  * Shared encrypt state + logic for all composers.

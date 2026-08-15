@@ -7,7 +7,7 @@
  */
 
 import { createSignal, createMemo } from "solid-js";
-import { getEmojiMap, type EmojiEntry } from "@/shared/store/emoji-store";
+import { getEmojiMap, type EmojiEntry } from "@utsukta/spa-core/store/emoji-store";
 import { getCaretRect } from "../mention/useMention";
 
 export type { EmojiEntry };

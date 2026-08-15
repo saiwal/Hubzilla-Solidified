@@ -1,16 +1,16 @@
 // src/modules/channel/views/ProfileView.tsx
 import { createSignal, Show, For } from "solid-js";
 import { A } from "@solidjs/router";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { usePageNick, useViewerRole } from "@/shared/store/site-config";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { usePageNick, useViewerRole } from "@utsukta/spa-core/store/site-config";
 import { MdFillLocation_on, MdFillPublic, MdFillRss_feed } from "solid-icons/md";
-import { apiFetch } from "@/shared/lib/fetch";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
 import { addConnection } from "@/modules/directory/people/api";
-import { useI18n } from "@/i18n";
-import { bbcodeToHtml } from "@/shared/lib/bbcode";
-import { sanitizeHtml } from "@/shared/lib/sanitize";
-import { oembedResolver } from "@/shared/lib/oembedResolver";
-import { openFeedModal } from "@/shared/store/feed-modal";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { bbcodeToHtml } from "@utsukta/spa-core/lib/bbcode";
+import { sanitizeHtml } from "@utsukta/spa-core/lib/sanitize";
+import { oembedResolver } from "@utsukta/spa-core/lib/oembedResolver";
+import { openFeedModal } from "@utsukta/spa-core/store/feed-modal";
 
 type ChannelProfile = {
   channel_name: string;

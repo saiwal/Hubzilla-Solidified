@@ -1,13 +1,13 @@
 // src/modules/pubstream/store.ts
 import { createSignal, batch } from "solid-js";
-import { toast } from "@/shared/store/toast";
+import { toast } from "@utsukta/spa-core/store/toast";
 import { fetchPubstream, type PubstreamMeta } from "./api";
-import type { Post } from "@/shared/types/post.types";
-import { buildThreadTree } from "@/shared/lib/thread";
-import type { ThreadNode } from "@/shared/lib/thread";
-import { bbcodeToHtml } from "@/shared/lib/bbcode";
-import { sanitizeHtml } from "@/shared/lib/sanitize";
-import { storageGet, storageSet } from "@/shared/lib/storage";
+import type { Post } from "@utsukta/spa-core/types/post.types";
+import { buildThreadTree } from "@utsukta/spa-core/lib/thread";
+import type { ThreadNode } from "@utsukta/spa-core/lib/thread";
+import { bbcodeToHtml } from "@utsukta/spa-core/lib/bbcode";
+import { sanitizeHtml } from "@utsukta/spa-core/lib/sanitize";
+import { storageGet, storageSet } from "@utsukta/spa-core/lib/storage";
 import type { ViewMode } from "@/shared/stream/types";
 
 // ── Constants ──────────────────────────────────────────────────────────────

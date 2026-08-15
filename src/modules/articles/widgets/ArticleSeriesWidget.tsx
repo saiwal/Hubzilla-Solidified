@@ -7,9 +7,9 @@
 
 import { For, Show } from "solid-js";
 import { A } from "@solidjs/router";
-import { useI18n } from "@/i18n";
-import { usePageNick } from "@/shared/store/site-config";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 
 interface SeriesItem {
   name: string;

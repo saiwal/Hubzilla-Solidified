@@ -1,9 +1,9 @@
 import { type JSX, Show, createMemo, createSignal, createEffect } from "solid-js";
 import { useLocation, useNavigate, A } from "@solidjs/router";
-import { useViewerRole } from "@/shared/store/site-config";
-import { useInstalledApps } from "@/shared/store/nav-store";
-import { isAppInstalled } from "@/shared/lib/module-registry";
-import { useI18n } from "@/i18n";
+import { useViewerRole } from "@utsukta/spa-core/store/site-config";
+import { useInstalledApps } from "@utsukta/spa-core/store/nav-store";
+import { isAppInstalled } from "@utsukta/spa-core/module-registry";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export type SubPageContext = "owner" | "local" | "remote" | "anonymous" | "all";
 

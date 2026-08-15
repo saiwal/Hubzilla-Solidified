@@ -1,11 +1,11 @@
 import { For, Show, createMemo } from "solid-js";
 import { Portal } from "solid-js/web";
-import { useTheme } from "../lib/useTheme";
-import { THEMES } from "../types/theme.types";
+import { useTheme } from "@utsukta/spa-core/lib/useTheme";
+import { THEMES } from "@utsukta/spa-core/types/theme.types";
 import { BiRegularPalette } from "solid-icons/bi";
-import { useDropdown } from "../lib/useDropdown";
-import { Motion, Presence, scalePreset } from "../lib/motion-presets";
-import { useI18n } from "@/i18n";
+import { useDropdown } from "@utsukta/spa-core/lib/useDropdown";
+import { Motion, Presence, scalePreset } from "@utsukta/spa-core/lib/motion-presets";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 const ThemeToggle = () => {
   const { t } = useI18n();

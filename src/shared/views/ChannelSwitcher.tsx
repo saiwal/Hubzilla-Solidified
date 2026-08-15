@@ -1,10 +1,10 @@
 import { For, Show } from "solid-js";
 import { A } from "@solidjs/router";
-import type { NavChannel } from "@/shared/lib/nav-api";
+import type { NavChannel } from "@utsukta/spa-core/lib/nav-api";
 import { getNavIcon } from "./NavItem";
 import { doSwitchChannel } from "@/modules/manage/store";
-import { Motion, Presence, slideDownPreset } from "@/shared/lib/motion-presets";
-import { useI18n } from "@/i18n";
+import { Motion, Presence, slideDownPreset } from "@utsukta/spa-core/lib/motion-presets";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 interface ChannelSwitcherProps {
   channels: NavChannel[];

@@ -2,13 +2,13 @@
 import { createSignal, createEffect, Show, For } from "solid-js";
 import { useParams, A } from "@solidjs/router";
 import { BiRegularChevronUp, BiRegularChevronDown, BiRegularEdit } from "solid-icons/bi";
-import { useI18n } from "@/i18n";
-import { toast } from "@/shared/store/toast";
-import { useViewerRole, usePageNick } from "@/shared/store/site-config";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { useViewerRole, usePageNick } from "@utsukta/spa-core/store/site-config";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { fetchSeriesDetail, renameSeries, reorderSeries } from "../api";
 import { articlePath } from "../lib/articleLinks";
-import type { Post } from "@/shared/types/post.types";
+import type { Post } from "@utsukta/spa-core/types/post.types";
 
 export default function SeriesView() {
   const params = useParams<{ nick: string; name: string }>();

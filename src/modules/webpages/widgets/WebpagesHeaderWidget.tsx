@@ -1,7 +1,7 @@
 import { Show } from 'solid-js';
 import { A } from '@solidjs/router';
-import { usePageNick, useViewerRole } from '@/shared/store/site-config';
-import { useI18n } from '@/i18n';
+import { usePageNick, useViewerRole } from '@utsukta/spa-core/store/site-config';
+import { useI18n } from '@utsukta/spa-core/i18n';
 import { useIsWebpagesList } from '../lib/isWebpagesList';
 
 export default function WebpagesHeaderWidget() {

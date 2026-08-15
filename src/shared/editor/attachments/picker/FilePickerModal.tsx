@@ -9,7 +9,7 @@ import FilesPicker from "./FilesPicker";
 import type { FileMeta } from "@/modules/files/api";
 import type { Photo } from "@/modules/photos/api/api";
 import type { AttachmentAccept } from "../AttachmentBar";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 type Tab = "photos" | "files";
 

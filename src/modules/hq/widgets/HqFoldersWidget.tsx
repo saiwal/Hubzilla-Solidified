@@ -1,5 +1,5 @@
-import { useI18n } from "@/i18n";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { createMemo, createSignal, For, Show, lazy, type Component } from "solid-js";
 import { FOLDER_ICON_PATH, TYPE_ICON_PATH, type ViewMode } from "./MessageList";
 

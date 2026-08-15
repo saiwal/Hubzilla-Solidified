@@ -1,6 +1,6 @@
 import { createSignal, onCleanup, onMount, Show, For } from "solid-js";
-import { useI18n } from "@/i18n";
-import { currentNick } from "@/shared/store/auth-store";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { currentNick } from "@utsukta/spa-core/store/auth-store";
 import { davDirPath, uploadFile, listFolder, type FileMeta } from "@/modules/files/api";
 import { MdOutlineMovie, MdFillCheck, MdFillFolder } from "solid-icons/md";
 

@@ -1,8 +1,8 @@
 import { createSignal, createMemo, For, Show, type Component } from "solid-js";
 import { Portal } from "solid-js/web";
 import { MdFillFolder } from "solid-icons/md";
-import { useI18n } from "@/i18n";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { listFolder, moveItem, copyItem } from "../api";
 import type { FileMeta } from "../api";
 

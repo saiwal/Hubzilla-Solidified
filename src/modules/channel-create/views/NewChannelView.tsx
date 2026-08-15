@@ -1,17 +1,17 @@
 import { createSignal, createEffect, on, onCleanup, createMemo, For, Show, Switch, Match } from "solid-js";
 import { A } from "@solidjs/router";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import {
   fetchNewChannelMeta,
   fetchNameSuggestion,
   checkNickname,
   createChannel,
 } from "../api/api";
-import type { ThemeId } from "@/shared/types/theme.types";
-import type { FontSize } from "@/shared/lib/typography";
-import type { CornerRadius } from "@/shared/lib/corner-radius";
-import { toast } from "@/shared/store/toast";
-import { useI18n } from "@/i18n";
+import type { ThemeId } from "@utsukta/spa-core/types/theme.types";
+import type { FontSize } from "@utsukta/spa-core/lib/typography";
+import type { CornerRadius } from "@utsukta/spa-core/lib/corner-radius";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import IdentityStep from "./steps/IdentityStep";
 import ProtocolsStep from "./steps/ProtocolsStep";
 import IntegrationsStep from "./steps/IntegrationsStep";

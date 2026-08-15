@@ -1,9 +1,9 @@
 import { createSignal, Show, For } from "solid-js";
 import { A, useNavigate } from "@solidjs/router";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { useI18n } from "@/i18n";
-import { toast } from "@/shared/store/toast";
-import { apiFetch } from "@/shared/lib/fetch";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
 import {
   fetchProfiles,
   createProfile,

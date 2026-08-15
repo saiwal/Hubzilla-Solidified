@@ -1,5 +1,5 @@
 import { createEffect, createSignal, onMount, onCleanup, Show, For } from 'solid-js';
-import { usePageNick } from '@/shared/store/site-config';
+import { usePageNick } from '@utsukta/spa-core/store/site-config';
 import {
   MdFillShopping_cart,
   MdOutlineAdd_shopping_cart,
@@ -22,7 +22,7 @@ import {
 import { wallUpload } from '@/modules/files/api';
 import { fetchAlbums, fetchPhotoAlbum } from '@/modules/photos/api/api';
 import type { Album, Photo } from '@/modules/photos/api/api';
-import { toast } from '@/shared/store/toast';
+import { toast } from '@utsukta/spa-core/store/toast';
 import {
   nick, tab, switchTab,
   catalogWithQty, loading, cartItems, cartSubtotal, isCheckedOut,
@@ -39,8 +39,8 @@ import {
   loadManagedCatalog, saveCatalogItemAction, deleteCatalogItemAction, toggleCatalogItemAction,
 } from '../store';
 import type { PaymentSettings, CatalogItemInput } from '../api';
-import { useI18n } from '@/i18n';
-import { useViewerRole } from '@/shared/store/site-config';
+import { useI18n } from '@utsukta/spa-core/i18n';
+import { useViewerRole } from '@utsukta/spa-core/store/site-config';
 
 export default function CartContentWidget() {
   const pageNick = usePageNick();

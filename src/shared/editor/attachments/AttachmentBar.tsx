@@ -9,7 +9,7 @@ import AttachmentPreview from "./AttachmentPreview";
 import type { Attachment, AttachmentStore } from "./types";
 import type { FileMeta } from "@/modules/files/api";
 import type { Photo } from "@/modules/photos/api/api";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import SourceToggleButton from "../components/SourceToggleButton";
 import type { EditorTab } from "../types/editor.types";
 

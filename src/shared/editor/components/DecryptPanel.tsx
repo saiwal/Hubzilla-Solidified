@@ -1,7 +1,7 @@
 import { Show, type Component } from "solid-js";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import type { useEncrypt } from "../useEncrypt";
-import { getPayloadHint, extractCryptPayload } from "@/shared/lib/postCrypto";
+import { getPayloadHint, extractCryptPayload } from "@utsukta/spa-core/lib/postCrypto";
 
 type EncryptState = ReturnType<typeof useEncrypt>;
 

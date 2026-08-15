@@ -1,5 +1,5 @@
 import TagWidget from "@/shared/stream/components/TagWidget";
-import { usePageNick } from "@/shared/store/site-config";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
 import { activeTag, setArticleFilter } from "../store";
 
 export default function ArticleTagWidget() {

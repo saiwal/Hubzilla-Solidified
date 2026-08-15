@@ -1,9 +1,9 @@
 // src/modules/articles/views/SeriesIndexView.tsx
 import { Show, For } from "solid-js";
 import { useParams, A } from "@solidjs/router";
-import { useI18n } from "@/i18n";
-import { usePageNick } from "@/shared/store/site-config";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { fetchSeriesList } from "../api";
 
 export default function SeriesIndexView() {

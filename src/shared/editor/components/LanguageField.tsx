@@ -6,8 +6,8 @@
  */
 
 import { Show, For, type Component } from "solid-js";
-import { useI18n } from "@/i18n";
-import { LANGUAGE_CODES, languageLabel } from "@/shared/lib/languages";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { LANGUAGE_CODES, languageLabel } from "@utsukta/spa-core/lib/languages";
 import { underlineFieldClass } from "../lib/fieldStyles";
 
 export interface LanguageFieldProps {

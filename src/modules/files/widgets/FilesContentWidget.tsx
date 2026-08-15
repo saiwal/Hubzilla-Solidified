@@ -5,10 +5,10 @@ import {
   Show,
   type Component,
 } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { toast } from "@/shared/store/toast";
-import { useI18n } from "@/i18n";
-import { usePageNick, useViewerRole } from "@/shared/store/site-config";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { usePageNick, useViewerRole } from "@utsukta/spa-core/store/site-config";
 import {
   MdFillFolder,
   MdFillAdd,
@@ -39,7 +39,7 @@ import RenameModal from "../views/RenameModal";
 import MoveCopyModal from "../views/MoveCopyModal";
 import CategoriesModal from "../views/CategoriesModal";
 import FilePreviewModal from "@/shared/views/FilePreviewModal";
-import { classifyPreview } from "@/shared/lib/filePreview";
+import { classifyPreview } from "@utsukta/spa-core/lib/filePreview";
 
 type ModalKind = "info" | "rename" | "moveCopy" | "categories";
 

@@ -2,13 +2,13 @@
 import { createSignal, For, Show } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import DOMPurify from "dompurify";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { useI18n } from "@/i18n";
-import { markNotifySeen } from "@/shared/lib/markSeen";
-import { resolveNotifyPath, connectionRequestId } from "@/shared/lib/notifyLink";
-import { openConnectionRequestModal } from "@/shared/store/connection-request-modal";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { markNotifySeen } from "@utsukta/spa-core/lib/markSeen";
+import { resolveNotifyPath, connectionRequestId } from "@utsukta/spa-core/lib/notifyLink";
+import { openConnectionRequestModal } from "@utsukta/spa-core/store/connection-request-modal";
 import { fetchNotifications, type NotificationEntry } from "../api";
-import { relativeTime } from "@/shared/lib/relativeTime";
+import { relativeTime } from "@utsukta/spa-core/lib/relativeTime";
 
 async function markAllSeen(): Promise<void> {
   const res = await fetch("/notifications?markRead=notify", {

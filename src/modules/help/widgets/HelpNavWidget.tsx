@@ -1,8 +1,8 @@
 // src/modules/help/widgets/HelpNavWidget.tsx
 import { createSignal, createEffect, Show, For } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { useLocation, A } from "@solidjs/router";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { fetchNav, type NavNode } from "../api";
 
 function NavItem(props: {

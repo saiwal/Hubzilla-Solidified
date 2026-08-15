@@ -2,18 +2,18 @@ import { createSignal, createEffect, Show, onCleanup, type JSX } from "solid-js"
 import { Portal } from "solid-js/web";
 import { createMediaQuery } from "@solid-primitives/media";
 import { MdOutlinePerson, MdOutlinePerson_add, MdOutlineEdit, MdOutlineEmail, MdOutlineChat_bubble, MdOutlineCheck, MdOutlineBlock, MdOutlineGavel } from "solid-icons/md";
-import { useAuth, isAdmin } from "@/shared/store/auth-store";
-import { useNavViewer, useInstalledApps } from "@/shared/store/nav-store";
-import { isAppInstalled } from "@/shared/lib/module-registry";
+import { useAuth, isAdmin } from "@utsukta/spa-core/store/auth-store";
+import { useNavViewer, useInstalledApps } from "@utsukta/spa-core/store/nav-store";
+import { isAppInstalled } from "@utsukta/spa-core/module-registry";
 import { addConnection } from "@/modules/directory/people/api";
 import { fetchConnectionByAddress } from "@/modules/directory/connections/api";
 import type { Connection } from "@/modules/directory/connections/api";
 import ConnectionEditorModal from "@/shared/views/ConnectionEditorModal";
 import DMComposer from "@/shared/editor/composers/DMComposer";
 import { createRoom } from "@/modules/chat/api";
-import { blockChannel, blockChannelFromSite } from "@/shared/lib/blocklist-api";
+import { blockChannel, blockChannelFromSite } from "@utsukta/spa-core/lib/blocklist-api";
 import { useNavigate } from "@solidjs/router";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 interface Props {
   name: string;

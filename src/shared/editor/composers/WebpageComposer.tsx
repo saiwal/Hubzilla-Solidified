@@ -1,16 +1,16 @@
 import { Show, onCleanup, createSignal, createEffect, For, lazy } from "solid-js";
-import { useI18n } from "@/i18n";
-import { useTemplates, loadTemplates, createTemplate, templateChrome } from "@/shared/store/widget-templates";
-import { queryClient } from "@/shared/lib/query-client";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { useTemplates, loadTemplates, createTemplate, templateChrome } from "@utsukta/spa-core/store/widget-templates";
+import { queryClient } from "@utsukta/spa-core/lib/query-client";
 import TemplateNameForm from "@/shared/views/TemplateNameForm";
 import { setCurrentPageTemplateId } from "@/modules/webpages/store";
-import { editingWidgets, setEditingWidgets } from "@/shared/store/widget-layout";
+import { editingWidgets, setEditingWidgets } from "@utsukta/spa-core/store/widget-layout";
 import { MdFillAdd, MdOutlineEdit, MdFillCheck } from "solid-icons/md";
 import { createComposerStore } from "../store/createComposerStore";
 import { DraftsList } from "../components/DraftsList";
 import RichEditor from "../core/RichEditor";
 import { CAPABILITIES } from "../types/editor.types";
-import { getCsrfToken } from "@/shared/lib/csrf";
+import { getCsrfToken } from "@utsukta/spa-core/lib/csrf";
 import { useEncrypt } from "../useEncrypt";
 import EncryptToggle from "../components/EncryptToggle";
 // Lazy: these panels are only ever shown once a user opts into encrypting or
@@ -19,7 +19,7 @@ import EncryptToggle from "../components/EncryptToggle";
 // initial bundle.
 const EncryptPanel = lazy(() => import("../components/EncryptPanel"));
 const DecryptPanel = lazy(() => import("../components/DecryptPanel"));
-import { isFeatureEnabled } from "@/shared/store/auth-store";
+import { isFeatureEnabled } from "@utsukta/spa-core/store/auth-store";
 import AttachmentBar from "../attachments/AttachmentBar";
 import { createAttachmentStore } from "../attachments/useAttachments";
 import { bbcodeToInsert } from "../attachments/insertHelpers";

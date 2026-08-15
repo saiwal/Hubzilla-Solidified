@@ -6,7 +6,7 @@
  */
 
 import { Show, type Component } from "solid-js";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { underlineFieldClass } from "../lib/fieldStyles";
 
 export interface SeriesFieldProps {

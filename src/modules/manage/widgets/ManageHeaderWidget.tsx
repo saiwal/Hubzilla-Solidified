@@ -1,6 +1,6 @@
 import { A } from "@solidjs/router";
 import { useManageData } from "../store";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export default function ManageHeaderWidget() {
   const { t } = useI18n();

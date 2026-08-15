@@ -1,5 +1,5 @@
 import { createSignal, onMount, Show } from "solid-js";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import type { AclEntry } from "@/shared/editor/components/AclPicker";
 import AclPicker, { entryKey, type AclMode } from "@/shared/editor/components/AclPicker";
 import { fetchAcl, saveAcl } from "../api/api";

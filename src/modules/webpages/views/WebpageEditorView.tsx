@@ -1,7 +1,7 @@
 import { createResource, Show } from "solid-js";
 import { useParams, useNavigate, A } from "@solidjs/router";
-import { useAuth } from "@/shared/store/auth-store";
-import { useI18n } from "@/i18n";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import WebpageComposer from "@/shared/editor/composers/WebpageComposer";
 import { fetchWebPageByIid } from "../api";
 import { loadWebpages } from "../store";

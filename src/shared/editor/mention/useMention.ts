@@ -12,7 +12,7 @@
  */
 
 import { createSignal, createMemo, createEffect, on } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { fetchConnections, type AclConnection } from "@/modules/network/api";
 
 // ── Types ─────────────────────────────────────────────────────────────────────

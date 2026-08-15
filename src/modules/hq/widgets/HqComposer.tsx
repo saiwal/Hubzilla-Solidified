@@ -7,19 +7,19 @@ import {
   MdOutlineFormat_italic,
   MdOutlineFormat_underlined,
 } from "solid-icons/md";
-import { toast } from "@/shared/store/toast";
-import { useAuth } from "@/shared/store/auth-store";
-import { useNavViewer } from "@/shared/store/nav-store";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
+import { useNavViewer } from "@utsukta/spa-core/store/nav-store";
 import { motion } from "solid-motionone";
 import PostComposer from "@/shared/editor/composers/PostComposer";
 import { sourceToHtml } from "@/shared/editor/core/sourceToHtml";
 import { htmlToSource } from "@/shared/editor/core/htmlToSource";
 import AclPicker, { entryKey, type AclMode, type AclEntry } from "@/shared/editor/components/AclPicker";
-import { storageGet, storageSet, storageDel } from "@/shared/lib/storage";
-import { getCsrfToken } from "@/shared/lib/csrf";
+import { storageGet, storageSet, storageDel } from "@utsukta/spa-core/lib/storage";
+import { getCsrfToken } from "@utsukta/spa-core/lib/csrf";
 import { useMentionEmojiWiring } from "@/shared/editor/mention/useMentionEmojiWiring";
 import MentionEmojiPopups from "@/shared/editor/mention/MentionEmojiPopups";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 void motion;
 
 const DRAFT_KEY = "hz_hq_draft";

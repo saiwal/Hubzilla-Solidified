@@ -6,14 +6,14 @@
 
 import { createSignal, createMemo, For, Show, type Component } from "solid-js";
 import { Portal } from "solid-js/web";
-import { useI18n } from "@/i18n";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { fetchCategories, type CategoryItem } from "@/shared/stream/components/CategoryWidget";
 import { fetchTags, type TagItem } from "@/shared/stream/components/TagWidget";
 import { MdOutlineContent_copy as MdOutlineContentCopy, MdOutlineCheck } from "solid-icons/md";
 import { BiRegularLinkExternal, BiRegularRss } from "solid-icons/bi";
-import { useInstalledApps } from "@/shared/store/nav-store";
-import { isAppInstalled } from "@/shared/lib/module-registry";
+import { useInstalledApps } from "@utsukta/spa-core/store/nav-store";
+import { isAppInstalled } from "@utsukta/spa-core/module-registry";
 
 interface Props {
   channelNick: string;

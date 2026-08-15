@@ -3,18 +3,18 @@ import { type Component, createEffect, createMemo, createSignal, on, Show, onMou
 import { Portal } from "solid-js/web";
 import PostCard from "../stream/components/PostCard";
 import type { StreamHandlers } from "../stream/types";
-import type { ThreadNode } from "../lib/thread";
-import { buildThreadTree, appendNewBranches, mergeReplies, applyBranchMeta } from "../lib/thread";
-import type { Post } from "../types/post.types";
-import { mapActivityToPost } from "../lib/activity.mapper";
+import type { ThreadNode } from "@utsukta/spa-core/lib/thread";
+import { buildThreadTree, appendNewBranches, mergeReplies, applyBranchMeta } from "@utsukta/spa-core/lib/thread";
+import type { Post } from "@utsukta/spa-core/types/post.types";
+import { mapActivityToPost } from "@utsukta/spa-core/lib/activity.mapper";
 import { BiRegularX } from "solid-icons/bi";
-import { useI18n } from "@/i18n";
-import { apiDeleteItem, apiEditItem, apiToggleStar, fetchComments } from "@/shared/lib/item-api";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { apiDeleteItem, apiEditItem, apiToggleStar, fetchComments } from "@utsukta/spa-core/lib/item-api";
 import { toggleVerb, repeatItem, COMMENTS_PAGE_SIZE } from "@/shared/stream/store/actions-store";
-import { useCommentOrder } from "@/shared/store/comment-order";
-import type { CommentOrder } from "@/shared/store/comment-order";
-import { useThreadMode } from "@/shared/store/thread-mode";
-import { markItemSeen } from "@/shared/lib/markSeen";
+import { useCommentOrder } from "@utsukta/spa-core/store/comment-order";
+import type { CommentOrder } from "@utsukta/spa-core/store/comment-order";
+import { useThreadMode } from "@utsukta/spa-core/store/thread-mode";
+import { markItemSeen } from "@utsukta/spa-core/lib/markSeen";
 import { approveModerationItem, dropModerationItem } from "@/modules/moderate/api";
 
 function flatNodes(posts: Post[]): ThreadNode[] {

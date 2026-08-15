@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/solid-query";
-import { toast } from "@/shared/store/toast";
+import { toast } from "@utsukta/spa-core/store/toast";
 
 /**
  * Generic hook for a settings section form.

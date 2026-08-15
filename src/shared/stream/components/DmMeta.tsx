@@ -1,7 +1,7 @@
 import { Show } from "solid-js";
 import { BiRegularEnvelope } from "solid-icons/bi";
-import { useI18n } from "@/i18n";
-import type { Post } from "@/shared/types/post.types";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import type { Post } from "@utsukta/spa-core/types/post.types";
 
 export function isDirectMessage(post: Pick<Post, "flags">): boolean {
   return post.flags.includes("direct_message");

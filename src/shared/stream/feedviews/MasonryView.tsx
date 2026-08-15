@@ -8,19 +8,19 @@ import {
   onCleanup,
   lazy,
 } from "solid-js";
-import { splitIntoColumns, useColumnCount as useMasonryColumnCount } from "@/shared/lib/masonry";
-import type { ThreadNode } from "@/shared/lib/thread";
-import { countAllComments, isRootPost } from "@/shared/lib/thread";
+import { splitIntoColumns, useColumnCount as useMasonryColumnCount } from "@utsukta/spa-core/lib/masonry";
+import type { ThreadNode } from "@utsukta/spa-core/lib/thread";
+import { countAllComments, isRootPost } from "@utsukta/spa-core/lib/thread";
 import type { StreamHandlers } from "../types";
 const PostDetailModal = lazy(() => import("@/shared/views/PostDetailModal"));
-import formatPostDate from "@/shared/lib/date";
-import { useI18n } from "@/i18n";
+import formatPostDate from "@utsukta/spa-core/lib/date";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import DOMPurify from "dompurify";
 import EventCard from "@/shared/stream/components/EventCard";
-import { parseEventData } from "@/shared/lib/activity.mapper";
-import { markItemSeen } from "@/shared/lib/markSeen";
+import { parseEventData } from "@utsukta/spa-core/lib/activity.mapper";
+import { markItemSeen } from "@utsukta/spa-core/lib/markSeen";
 import { MdOutlineSchedule, MdOutlineTimer, MdFillPush_pin, MdOutlineReply } from "solid-icons/md";
-import { useAuth } from "@/shared/store/auth-store";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
 import { isDirectMessage as isDM, DmBadge, DmRecipients } from "@/shared/stream/components/DmMeta";
 function useColumnCount(el: () => HTMLElement | undefined): () => number {
   return useMasonryColumnCount(el, 16, 3);

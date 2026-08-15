@@ -8,10 +8,10 @@ import {
   MdFillDelete,
 } from "solid-icons/md";
 import DOMPurify from "dompurify";
-import { bbcodeToHtml } from "@/shared/lib/bbcode";
-import { useI18n } from "@/i18n";
-import { useAuth } from "@/shared/store/auth-store";
-import { toast } from "@/shared/store/toast";
+import { bbcodeToHtml } from "@utsukta/spa-core/lib/bbcode";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
+import { toast } from "@utsukta/spa-core/store/toast";
 import type { CalEvent } from "../api";
 import { deleteEvent } from "../api";
 import EventCreatorModal from "../widgets/EventCreatorModal";

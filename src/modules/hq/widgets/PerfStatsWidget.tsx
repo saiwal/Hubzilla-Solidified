@@ -1,7 +1,7 @@
-import { isAdmin } from "@/shared/store/auth-store";
+import { isAdmin } from "@utsukta/spa-core/store/auth-store";
 import { createSignal, createEffect, on, onCleanup, onMount, For, Show } from "solid-js";
-import { toast } from "@/shared/store/toast";
-import { useI18n } from "@/i18n";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 interface PerfStats {
   loadavg: [number, number, number];

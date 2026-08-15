@@ -1,7 +1,7 @@
 import { For, Show } from "solid-js";
 import { useNavigate } from "@solidjs/router";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { useI18n } from "@/i18n";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { fetchAllBookmarks, deleteBookmark, type BookmarkMenu, type BookmarkItem } from "../api";
 import { resetChatBookmarks } from "@/modules/chat/bookmarks";
 

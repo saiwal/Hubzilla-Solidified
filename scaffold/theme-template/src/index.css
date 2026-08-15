@@ -1,0 +1,370 @@
+/*
+ * Starting point copied from hubzilla-spa's own src/index.css. Most of this
+ * file is NOT Tailwind-specific or solidified-branded — it's CSS for class
+ * names that @utsukta/spa-core's bbcode.ts bakes into rendered post/comment
+ * HTML (.bb-share, .bb-nsfw-*, .bb-event, .bb-latex-img, img.emoji, the
+ * rich-editor [contenteditable] rules). Any theme rendering spa-core content
+ * needs equivalent rules for these class names, in whatever CSS framework it
+ * uses — dropping this file's content wholesale will leave posts/comments/
+ * reveal-panels/the editor visibly broken, not just unbranded.
+ *
+ * Safe to swap out entirely: the @theme block below (maps --color-* vars to
+ * Tailwind tokens) and everything under styles/ (actual color values, fonts).
+ * If you're not using Tailwind, drop the @import/@plugin lines and the
+ * @theme/@custom-variant blocks, keep the class-name rules, translate their
+ * `var(--color-*)` references to your own framework's tokens.
+ */
+@import "tailwindcss";
+@import "./styles/theme.css";
+@import "./styles/fonts.css";
+@plugin "@tailwindcss/typography";
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(0.75rem); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes hz-routing {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Enable class-based dark mode */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Collapses multi-column layouts back to one column once the user's font-size
+   setting (typography.ts) makes columns too narrow to hold their text next
+   to a control without overlap — independent of viewport width. */
+@custom-variant font-scaled (&:where([data-font-size="large"] *, [data-font-size="xl"] *));
+
+.hz-app-root {
+  background-image:
+    linear-gradient(
+      color-mix(in srgb, var(--color-base) 75%, transparent),
+      color-mix(in srgb, var(--color-base) 75%, transparent)
+    ),
+    var(--hz-bg-image, none);
+  background-size:     auto, var(--hz-bg-size, auto);
+  background-repeat:   no-repeat, var(--hz-bg-repeat, repeat);
+  background-position: top left, var(--hz-bg-pos, top left);
+}
+@layer base {
+  body {
+    font-family: var(--hz-font-family, ui-sans-serif, system-ui, -apple-system, sans-serif);
+  }
+
+  .post-body {
+    overflow-x: hidden;
+  }
+  .post-body pre {
+    overflow-x: auto;
+    max-width: 100%;
+  }
+
+  /* ── Reshared post card ─────────────────────────────────────── */
+  .bb-share {
+    margin-top: 0.75rem;
+    border: 1px solid var(--color-rim);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background-color: var(--color-overlay);
+  }
+  .bb-share br { display: none; }
+
+  .bb-share-header {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--color-rim);
+  }
+
+  .share-avatar {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 9999px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .share-avatar-init {
+    background-color: var(--color-accent-muted);
+    color: var(--color-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.5rem;
+    font-weight: 700;
+  }
+
+  .bb-share-name {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-txt);
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+  .bb-share-name:hover { text-decoration: underline; }
+
+  .bb-share-sep {
+    color: var(--color-subtle);
+    font-size: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .bb-share-date {
+    font-size: 0.6875rem;
+    color: var(--color-subtle);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .bb-share-link {
+    margin-left: auto;
+    flex-shrink: 0;
+    color: var(--color-subtle);
+    display: flex;
+    align-items: center;
+    transition: color 0.15s;
+  }
+  .bb-share-link:hover { color: var(--color-accent); }
+
+  .bb-share-body {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+    font-style: normal;
+  }
+  .bb-share-body > p:first-child { margin-top: 0; }
+  .bb-share-body > p:last-child  { margin-bottom: 0; }
+
+  /* Compact [share=id] placeholder (editor preview) */
+  .bb-share-compact {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+  }
+
+  /* Protected share embed inside the WYSIWYG editor — renders the reshared
+     content read-only; the bbcode mapping lives in its data attributes */
+  .bb-share-embed {
+    user-select: none;
+    cursor: default;
+    margin: 0.375rem 0;
+  }
+  .bb-share-embed .bb-share { margin-top: 0; }
+
+  /* ── Event card rendered from [event-summary]/[event-description]/…
+     bbcode — only reached when a reshared event's body is quoted inside a
+     .bb-share; a top-level event post uses the richer EventCard component
+     instead. ────────────────────────────────────────────────────────── */
+  .bb-event {
+    border: 1px solid var(--color-rim);
+    border-radius: 0.625rem;
+    padding: 0.625rem 0.75rem;
+    background-color: var(--color-surface);
+  }
+  .bb-event br { display: none; }
+  .bb-event-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-txt);
+  }
+  .bb-event-date {
+    font-size: 0.75rem;
+    color: var(--color-muted);
+    margin-top: 0.125rem;
+  }
+  .bb-event-desc {
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+    margin-top: 0.375rem;
+  }
+
+  /* LaTeX equation rendered to an image (post/comment composer — federated
+     content can't rely on client-side KaTeX). Tailwind's preflight sets
+     `img { display: block }`, which both breaks inline flow with
+     surrounding text and defeats `text-align:center` on the [center]-wrapped
+     block-equation case, so it's overridden back to inline-block here. */
+  .bb-latex-img {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  /* ── NSFW / content-warning reveal panel ─────────────────────
+     Muted card, quiet by default — accent color only appears on
+     hover/interaction. See the unlayered block below for the
+     font-size/weight reset needed when this lands inside a title
+     (the title container bolds *all* of its direct children). */
+  .bb-nsfw {
+    margin: 0.375rem 0;
+  }
+  .bb-nsfw-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--color-rim);
+    background-color: var(--color-overlay);
+    color: var(--color-muted);
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, opacity 0.15s;
+  }
+  .bb-nsfw-toggle:hover {
+    border-color: var(--color-accent);
+    color: var(--color-txt);
+  }
+  .bb-nsfw[data-revealed] .bb-nsfw-toggle {
+    opacity: 0.6;
+  }
+  .bb-nsfw-icon {
+    display: flex;
+    flex-shrink: 0;
+  }
+  .bb-nsfw-icon svg {
+    width: 1rem;
+    height: 1rem;
+  }
+  .bb-nsfw-icon-open {
+    display: none;
+  }
+  .bb-nsfw[data-revealed] .bb-nsfw-icon-open {
+    display: block;
+  }
+  .bb-nsfw[data-revealed] .bb-nsfw-icon-closed {
+    display: none;
+  }
+  .bb-nsfw-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .bb-nsfw-action {
+    flex-shrink: 0;
+    font-weight: 600;
+    color: var(--color-accent);
+  }
+  .bb-nsfw-content {
+    margin-top: 0.5rem;
+    animation: bb-nsfw-fade-in 0.15s ease;
+  }
+  @keyframes bb-nsfw-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+}
+
+/* Unlayered — wins over the title container's `[&>*]:font-bold
+   [&>*]:tracking-tight [&>*]:text-lg` (PostCard.tsx), which would
+   otherwise bleed into an nsfw card rendered in place of a title. */
+.bb-nsfw-toggle {
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+  letter-spacing: normal !important;
+}
+.bb-nsfw-action {
+  font-weight: 600 !important;
+}
+
+/* ── Rich editor WYSIWYG content ─────────────────────────────────── */
+/* Tailwind v4 preflight resets list-style, heading sizes, and padding — restore them
+   inside the contenteditable surface so what you see matches what you get. */
+.rich-editor [contenteditable] ul { list-style: disc; padding-left: 1.25rem; }
+.rich-editor [contenteditable] ol { list-style: decimal; padding-left: 1.25rem; }
+.rich-editor [contenteditable] li { margin: 0.125rem 0; }
+.rich-editor [contenteditable] h1 { font-size: 1.5rem; font-weight: 700; line-height: 1.3; margin: 0.25rem 0; }
+.rich-editor [contenteditable] h2 { font-size: 1.25rem; font-weight: 700; line-height: 1.3; margin: 0.25rem 0; }
+.rich-editor [contenteditable] h3 { font-size: 1.125rem; font-weight: 600; line-height: 1.3; margin: 0.125rem 0; }
+.rich-editor [contenteditable] h4 { font-size: 1rem; font-weight: 600; }
+.rich-editor [contenteditable] blockquote { border-left: 2px solid var(--color-rim); padding-left: 0.75rem; margin: 0.25rem 0; color: var(--color-muted); }
+.rich-editor [contenteditable] pre { background: var(--color-overlay); border-radius: 0.375rem; padding: 0.5rem; font-family: ui-monospace, monospace; font-size: 0.875rem; margin: 0.25rem 0; overflow-x: auto; }
+.rich-editor [contenteditable] pre code { background: transparent; padding: 0; border-radius: 0; }
+.rich-editor [contenteditable] code { background: var(--color-overlay); border-radius: 0.25rem; padding: 0.0625rem 0.25rem; font-family: ui-monospace, monospace; font-size: 0.75rem; }
+.rich-editor [contenteditable] s,
+.rich-editor [contenteditable] strike { text-decoration: line-through; }
+.rich-editor [contenteditable] a { color: var(--color-accent); text-decoration: underline; }
+.rich-editor [contenteditable] mark { background-color: yellow; color: #000; }
+.rich-editor [contenteditable] table { border-collapse: collapse; }
+.rich-editor [contenteditable] th,
+.rich-editor [contenteditable] td { border: 1px solid var(--color-rim); padding: 0.25rem 0.5rem; }
+.rich-editor [contenteditable] th { font-weight: 600; background: var(--color-elevated); }
+
+@theme {
+  /* backgrounds */
+  --color-base:     var(--color-base);
+  --color-surface:  var(--color-surface);
+  --color-elevated: var(--color-elevated);
+  --color-overlay:  var(--color-overlay);
+
+  /* text */
+  --color-txt:    var(--color-txt);
+  --color-muted:  var(--color-muted);
+  --color-subtle: var(--color-subtle);
+
+  /* borders */
+  --color-rim:        var(--color-rim);
+  --color-rim-strong: var(--color-rim-strong);
+
+  /* accent */
+  --color-accent:       var(--color-accent);
+  --color-accent-muted: var(--color-accent-muted);
+  --color-accent-txt:   var(--color-accent-txt);
+  --color-accent-fg:    var(--color-accent-fg);
+
+  /* --radius-xl: var(--radius-xl); */
+}
+
+/* Unlayered — wins over @layer components (typography plugin).
+   Code blocks use theme variables so they're readable on all themes. */
+.prose pre {
+  background-color: var(--color-surface) !important;
+  color: var(--color-txt) !important;
+}
+.prose pre code {
+  background-color: transparent !important;
+  color: inherit !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* [footer]...[/footer] BBCode (bbcode.ts) renders as this div, embedded
+   inline inside the post body HTML — style it as a separated footer note. */
+.prose .wall-item-footer {
+  margin-top: 1.5em;
+  padding-top: 0.5em;
+  border-top: 1px solid var(--color-rim);
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+/* !important on height/width: remote/legacy-federated custom emoji (e.g. from
+   Mastodon-style instances that bake fixed dimensions into their own <img>
+   tags) may arrive with an inline height="20"/"50" — here in our own renderer
+   the class must win over that inline style so emoji stay relative to text
+   size. */
+img.emoji {
+  height: 1.2em !important;
+  width: auto !important;
+  vertical-align: text-bottom;
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+img.emoji:hover {
+  transform: scale(2.2);
+  position: relative;
+  z-index: 1;
+}
+img.emoji.single-emoji {
+  height: 3em !important;
+}
+img.emoji.single-emoji:hover {
+  transform: scale(1.6);
+}

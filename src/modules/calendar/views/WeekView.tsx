@@ -4,8 +4,8 @@ import {
   HOUR_H, localDay, startOfWeek, addDays, isoDateStr, todayKey,
   weekLayout, columnLayout, eventTopPx, eventHeightPx,
 } from "./calUtils";
-import { useI18n } from "@/i18n";
-import { isFeatureEnabled } from "@/shared/store/auth-store";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { isFeatureEnabled } from "@utsukta/spa-core/store/auth-store";
 
 interface Props {
   anchor: Date;

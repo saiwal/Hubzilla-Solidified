@@ -1,7 +1,7 @@
 // shared/views/EventCard.tsx
 import { Show } from "solid-js";
-import type { EventData } from "../lib/parseEventBBCode";
-import { formatEventDate } from "../lib/parseEventBBCode";
+import type { EventData } from "@utsukta/spa-core/lib/parseEventBBCode";
+import { formatEventDate } from "@utsukta/spa-core/lib/parseEventBBCode";
 
 export default function EventCard(props: { event: EventData }) {
 	const e = props.event;

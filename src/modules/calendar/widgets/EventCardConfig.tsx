@@ -2,10 +2,10 @@
 // upcoming events (default feed window).
 
 import { createSignal, For } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import type { WidgetConfigProps } from "@/shared/types/module.types";
-import { usePageNick } from "@/shared/store/site-config";
-import { useI18n } from "@/i18n";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import type { WidgetConfigProps } from "@utsukta/spa-core/types/module.types";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { fetchEvents } from "../api";
 
 export default function EventCardConfig(props: WidgetConfigProps) {

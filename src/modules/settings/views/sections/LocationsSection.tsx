@@ -1,8 +1,8 @@
 import { Show, For, createSignal } from "solid-js";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/solid-query";
-import { toast } from "@/shared/store/toast";
+import { toast } from "@utsukta/spa-core/store/toast";
 import SubPageContent from "@/shared/views/SubPageContent";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { fetchLocations, locationAction, type LocationAction } from "../../api/api";
 import type { LocationEntry } from "../../store/types";
 import {

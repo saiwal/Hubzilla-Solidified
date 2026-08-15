@@ -1,7 +1,7 @@
 import { Show, type Component } from "solid-js";
 import { Portal } from "solid-js/web";
-import { useI18n } from "@/i18n";
-import { toast } from "@/shared/store/toast";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { toast } from "@utsukta/spa-core/store/toast";
 import { davPath } from "../api";
 import type { FileMeta } from "../api";
 

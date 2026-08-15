@@ -5,14 +5,14 @@ import HelpTrigger from "./HelpTrigger";
 import { A } from "@solidjs/router";
 import { BiRegularInfoCircle, BiRegularRss } from "solid-icons/bi";
 import { MdFillCheck, MdOutlineEdit } from "solid-icons/md";
-import type { NavViewer, NavActions } from "@/shared/lib/nav-api";
+import type { NavViewer, NavActions } from "@utsukta/spa-core/lib/nav-api";
 import Usermenu from "./UserMenu";
-import { useI18n } from "@/i18n";
-import { helpable } from "@/shared/lib/helpable";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { helpable } from "@utsukta/spa-core/lib/helpable";
 void helpable;
-import { useViewerRole, usePageNick } from "@/shared/store/site-config";
-import { editingWidgets, setEditingWidgets } from "@/shared/store/widget-layout";
-import { openFeedModal } from "@/shared/store/feed-modal";
+import { useViewerRole, usePageNick } from "@utsukta/spa-core/store/site-config";
+import { editingWidgets, setEditingWidgets } from "@utsukta/spa-core/store/widget-layout";
+import { openFeedModal } from "@utsukta/spa-core/store/feed-modal";
 
 const CHANNEL_CONTEXT_MODULES = ["channel", "profile", "articles"];
 

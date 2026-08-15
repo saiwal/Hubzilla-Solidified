@@ -12,10 +12,10 @@ import {
   widgetAllowedIn,
   widgetSlots,
   type RegisteredWidget,
-} from "@/shared/lib/module-registry";
-import { useInstalledApps } from "@/shared/store/nav-store";
-import { disabledFrontendModules } from "@/shared/store/disabled-frontend-modules";
-import { useViewerRole } from "@/shared/store/site-config";
+} from "@utsukta/spa-core/module-registry";
+import { useInstalledApps } from "@utsukta/spa-core/store/nav-store";
+import { disabledFrontendModules } from "@utsukta/spa-core/store/disabled-frontend-modules";
+import { useViewerRole } from "@utsukta/spa-core/store/site-config";
 import {
   layoutFor,
   pageLayoutFor,
@@ -26,17 +26,17 @@ import {
   entryConfig,
   makeInstanceKey,
   type LayoutEntry,
-} from "@/shared/store/widget-layout";
+} from "@utsukta/spa-core/store/widget-layout";
 import {
   templateEntriesFor,
   pageTemplateEntriesFor,
   saveTemplateSlots,
-} from "@/shared/store/widget-templates";
-import { toast } from "@/shared/store/toast";
-import { helpable } from "@/shared/lib/helpable";
+} from "@utsukta/spa-core/store/widget-templates";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { helpable } from "@utsukta/spa-core/lib/helpable";
 void helpable;
-import { splitIntoColumns, useColumnCount } from "@/shared/lib/masonry";
-import { useI18n } from "@/i18n";
+import { splitIntoColumns, useColumnCount } from "@utsukta/spa-core/lib/masonry";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import WidgetArrangementEditor, {
   WidgetCard,
   WidgetPickerFooter,
@@ -44,7 +44,7 @@ import WidgetArrangementEditor, {
   widgetHelpTarget,
   type ResolvedEntry,
 } from "./WidgetArrangementEditor";
-import type { WidgetSlotName } from "../types/module.types";
+import type { WidgetSlotName } from "@utsukta/spa-core/types/module.types";
 
 interface SlotProps {
   name: WidgetSlotName;

@@ -1,7 +1,7 @@
 import { createSignal, Show } from "solid-js";
 import { useSearchParams } from "@solidjs/router";
 import { MdFillSearch, MdFillClose } from "solid-icons/md";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export default function NotepadHeaderWidget() {
   const { t, locale } = useI18n();

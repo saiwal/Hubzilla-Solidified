@@ -1,7 +1,7 @@
 // src/shared/views/HelpTrigger.tsx
-import { useHelpMode } from "@/shared/store/help-mode";
+import { useHelpMode } from "@utsukta/spa-core/store/help-mode";
 import { MdFillLive_help } from "solid-icons/md";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export default function HelpTrigger() {
   const { t } = useI18n();

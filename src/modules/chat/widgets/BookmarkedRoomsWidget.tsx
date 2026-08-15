@@ -1,8 +1,8 @@
 // src/modules/chat/widgets/BookmarkedRoomsWidget.tsx
 import { For, Show, onMount } from "solid-js";
 import { useNavigate } from "@solidjs/router";
-import { useI18n } from "@/i18n";
-import { isLocalUser } from "@/shared/store/auth-store";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { isLocalUser } from "@utsukta/spa-core/store/auth-store";
 import {
   bookmarks,
   loading,

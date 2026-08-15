@@ -10,7 +10,7 @@ import {
   MdOutlineDownload,
   MdOutlineDelete,
 } from "solid-icons/md";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { downloadUrl } from "../api";
 import type { FileMeta } from "../api";
 

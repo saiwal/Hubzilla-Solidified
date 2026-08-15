@@ -2,8 +2,8 @@
 // Shared reactive state for chat room bookmarks (used by widget + room view).
 
 import { createSignal, batch } from "solid-js";
-import { apiFetch } from "@/shared/lib/fetch";
-import { isLocalUser } from "@/shared/store/auth-store";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
+import { isLocalUser } from "@utsukta/spa-core/store/auth-store";
 
 export interface ChatBookmark {
   id: number;

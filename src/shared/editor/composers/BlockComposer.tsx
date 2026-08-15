@@ -1,7 +1,7 @@
 import { Show, onCleanup, createSignal, createEffect, lazy } from "solid-js";
-import { useI18n } from "@/i18n";
-import { getCsrfToken } from "@/shared/lib/csrf";
-import { queryClient } from "@/shared/lib/query-client";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { getCsrfToken } from "@utsukta/spa-core/lib/csrf";
+import { queryClient } from "@utsukta/spa-core/lib/query-client";
 import { createComposerStore } from "../store/createComposerStore";
 import { DraftsList } from "../components/DraftsList";
 import RichEditor from "../core/RichEditor";
@@ -14,7 +14,7 @@ import EncryptToggle from "../components/EncryptToggle";
 // initial bundle.
 const EncryptPanel = lazy(() => import("../components/EncryptPanel"));
 const DecryptPanel = lazy(() => import("../components/DecryptPanel"));
-import { isFeatureEnabled } from "@/shared/store/auth-store";
+import { isFeatureEnabled } from "@utsukta/spa-core/store/auth-store";
 import AttachmentBar from "../attachments/AttachmentBar";
 import { createAttachmentStore } from "../attachments/useAttachments";
 import { bbcodeToInsert } from "../attachments/insertHelpers";

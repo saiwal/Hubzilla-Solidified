@@ -2,7 +2,7 @@
 import { createSignal, Show } from "solid-js";
 import { useLocation, useNavigate, useSearchParams, A } from "@solidjs/router";
 import { MdFillSearch, MdFillClose } from "solid-icons/md";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export default function HelpChooserWidget() {
   const { t } = useI18n();

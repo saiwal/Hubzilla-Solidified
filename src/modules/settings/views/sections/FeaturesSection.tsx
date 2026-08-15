@@ -1,11 +1,11 @@
 import { Show, For, createMemo } from "solid-js";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/solid-query";
 import SubPageContent from "@/shared/views/SubPageContent";
-import { apiFetch } from "@/shared/lib/fetch";
-import { toast } from "@/shared/store/toast";
-import { refetchNavData } from "@/shared/store/nav-store";
-import { setFeatureEnabled } from "@/shared/store/auth-store";
-import { useI18n } from "@/i18n";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { refetchNavData } from "@utsukta/spa-core/store/nav-store";
+import { setFeatureEnabled } from "@utsukta/spa-core/store/auth-store";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 interface FeatureEntry {
   name: string;

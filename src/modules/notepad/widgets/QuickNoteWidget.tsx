@@ -1,8 +1,8 @@
 import { A } from "@solidjs/router";
 import { MdOutlineEdit_note } from "solid-icons/md";
-import { useAuth } from "@/shared/store/auth-store";
-import { useI18n } from "@/i18n";
-import { toast } from "@/shared/store/toast";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { toast } from "@utsukta/spa-core/store/toast";
 import NoteComposer from "@/shared/editor/composers/NoteComposer";
 
 // Lets you jot a private note from any page's sidebar without navigating to

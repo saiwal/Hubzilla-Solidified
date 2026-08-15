@@ -8,7 +8,7 @@
  */
 
 import { createSignal, For, Show, type Component } from "solid-js";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import type { AclEntry } from "@/modules/network/api";
 import { entryKey } from "./AclPicker";
 import { useConnectionSearch } from "./useConnectionSearch";

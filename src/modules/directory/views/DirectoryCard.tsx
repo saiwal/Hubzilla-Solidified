@@ -2,8 +2,8 @@
 import { Show, For, createSignal, type Component } from "solid-js";
 import { addConnection, censorEntry, type DirectoryEntry } from "../people/api";
 import { isDirectoryAdmin, setEntryCensored } from "../people/store";
-import { toast } from "@/shared/store/toast";
-import { useI18n } from "@/i18n";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { MdFillCheck } from "solid-icons/md";
 
 interface Props {

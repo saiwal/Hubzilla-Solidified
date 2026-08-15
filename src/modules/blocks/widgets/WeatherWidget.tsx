@@ -7,11 +7,11 @@ import {
   WiFog, WiDayRain, WiNightAltRain, WiDayShowers, WiNightAltShowers,
   WiDaySnow, WiNightAltSnow, WiDayThunderstorm, WiNightAltThunderstorm, WiNa,
 } from "solid-icons/wi";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { apiFetch } from "@/shared/lib/fetch";
-import type { WidgetProps } from "@/shared/types/module.types";
-import { editingWidgets } from "@/shared/store/widget-layout";
-import { useI18n } from "@/i18n";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
+import type { WidgetProps } from "@utsukta/spa-core/types/module.types";
+import { editingWidgets } from "@utsukta/spa-core/store/widget-layout";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 interface WeatherData {
   label: string;

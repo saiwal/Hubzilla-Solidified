@@ -1,16 +1,16 @@
 import { Show, For, createSignal, createMemo } from "solid-js";
-import { toast } from "@/shared/store/toast";
+import { toast } from "@utsukta/spa-core/store/toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/solid-query";
 import SubPageContent from "@/shared/views/SubPageContent";
-import { apiFetch } from "@/shared/lib/fetch";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
 import { getNavIcon, biToNavIcon } from "@/shared/views/NavItem";
 import { MdOutlineSettings } from "solid-icons/md";
-import { refetchNavData } from "@/shared/store/nav-store";
-import { useI18n } from "@/i18n";
-import { appLabel } from "@/shared/lib/app-labels";
+import { refetchNavData } from "@utsukta/spa-core/store/nav-store";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { appLabel } from "@utsukta/spa-core/lib/app-labels";
 import NsfwConfigModal from "./NsfwConfigModal";
-import { getFrontendToggleableModules } from "@/shared/lib/module-registry";
-import { disabledFrontendModules, setFrontendModuleEnabled } from "@/shared/store/disabled-frontend-modules";
+import { getFrontendToggleableModules } from "@utsukta/spa-core/module-registry";
+import { disabledFrontendModules, setFrontendModuleEnabled } from "@utsukta/spa-core/store/disabled-frontend-modules";
 
 interface AppEntry {
   name: string;

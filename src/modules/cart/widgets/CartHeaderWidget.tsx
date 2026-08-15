@@ -1,6 +1,6 @@
 import { Show } from "solid-js";
-import { useI18n } from "@/i18n";
-import { useViewerRole } from "@/shared/store/site-config";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { useViewerRole } from "@utsukta/spa-core/store/site-config";
 import { cartCount, tab, switchTab } from "../store";
 
 export default function CartHeaderWidget() {

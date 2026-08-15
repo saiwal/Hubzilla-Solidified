@@ -1,8 +1,8 @@
 // src/shared/views/RemoteAuthBanner.tsx
 import { type Component, Show, createSignal, lazy, Suspense } from "solid-js";
 import { Portal } from "solid-js/web";
-import type { ViewerRole } from "../store/site-config.ts";
-import { useI18n } from "@/i18n";
+import type { ViewerRole } from "@utsukta/spa-core/store/site-config";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { MdOutlinePublic, MdOutlineVisibility } from "solid-icons/md";
 import { BiRegularX } from "solid-icons/bi";
 

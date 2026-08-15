@@ -1,5 +1,5 @@
 import { createSignal, For, Show, batch } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import SubPageContent from "@/shared/views/SubPageContent";
 import {
   fetchAdminProfileFields,

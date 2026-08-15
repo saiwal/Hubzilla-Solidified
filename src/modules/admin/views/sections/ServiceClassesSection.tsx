@@ -1,5 +1,5 @@
 import { createSignal, For, Show } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import SubPageContent from "@/shared/views/SubPageContent";
 import {
   fetchAdminServiceClasses,
@@ -9,7 +9,7 @@ import {
   setDefaultServiceClass,
 } from "../../api";
 import { SERVICE_CLASS_PROP_DEFS, type AdminServiceClass, type ServiceClassProperties } from "../../types";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 const EMPTY_PROPS: ServiceClassProperties = {};
 

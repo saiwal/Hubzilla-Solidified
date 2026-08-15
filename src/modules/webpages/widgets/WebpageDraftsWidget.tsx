@@ -1,8 +1,8 @@
 import { Show } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import DraftsWidgetBase from "@/shared/editor/components/DraftsWidgetBase";
-import { useViewerRole, usePageNick } from "@/shared/store/site-config";
-import { useI18n } from "@/i18n";
+import { useViewerRole, usePageNick } from "@utsukta/spa-core/store/site-config";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 // ── Scope helpers ─────────────────────────────────────────────────────────────
 // Webpage drafts carry scope "webpage:new" or "webpage:edit:<uuid>"

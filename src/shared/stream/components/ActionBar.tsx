@@ -1,6 +1,6 @@
 // src/shared/stream/components/ActionBar.tsx
 import { Show } from "solid-js";
-import type { ThreadNode } from "@/shared/lib/thread";
+import type { ThreadNode } from "@utsukta/spa-core/lib/thread";
 import type { StreamHandlers } from "../types";
 
 export default function ActionBar(props: {

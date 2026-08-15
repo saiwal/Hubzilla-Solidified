@@ -1,8 +1,8 @@
 import { createEffect, onCleanup, Show, For, Switch, Match } from "solid-js";
 import { useSearchParams } from "@solidjs/router";
-import { useAuth } from "@/shared/store/auth-store";
-import { useI18n } from "@/i18n";
-import { useScrollStyle } from "@/shared/store/scroll-style";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { useScrollStyle } from "@utsukta/spa-core/store/scroll-style";
 import StreamList from "@/shared/stream/feedviews/StreamList";
 import type { StreamHandlers } from "@/shared/stream/types";
 import { ListPlaceholder } from "@/shared/stream/feedviews/ListView";
@@ -45,6 +45,8 @@ export default function NetworkContentWidget() {
     resetPosts();
     loadNetwork(parseNetworkParams(searchParams));
   });
+
+  onCleanup(() => resetPosts());
 
   createEffect(() => {
     if (scrollStyle() !== "endless") return;

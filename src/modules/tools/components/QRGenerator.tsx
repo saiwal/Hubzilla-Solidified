@@ -1,7 +1,7 @@
 import { createSignal, createEffect, on } from "solid-js";
-import { toast } from "@/shared/store/toast";
+import { toast } from "@utsukta/spa-core/store/toast";
 import QRCode from "qrcode";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export function QRGenerator() {
   const { t } = useI18n();

@@ -1,4 +1,4 @@
-import { registerModule } from "@/shared/lib/module-registry";
+import { registerModule } from "@utsukta/spa-core/module-registry";
 
 // No requiresAuth guard: an account that has never created a channel has no
 // local_channel() yet, so auth-store's isLoggedIn (which requires an active

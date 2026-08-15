@@ -1,5 +1,5 @@
-import { apiFetch } from "@/shared/lib/fetch";
-import type { StreamAttachment } from "@/shared/types/post.types";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
+import type { StreamAttachment } from "@utsukta/spa-core/types/post.types";
 
 export type Note = {
   id: number;

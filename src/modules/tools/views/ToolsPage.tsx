@@ -1,7 +1,7 @@
 import { createMemo, Suspense } from "solid-js";
 import { Dynamic } from "solid-js/web";
 import { useLocation } from "@solidjs/router";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import SubPageLayout from "@/shared/views/SubPageLayout";
 import type { SubPageItem } from "@/shared/views/SubPageLayout";
 import { TOOLS } from "../tools-registry";

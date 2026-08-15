@@ -1,61 +1,30 @@
-import {
-  type ParentComponent,
-  createSignal,
-  Show,
-  createMemo,
-  createEffect,
-  on,
-  ErrorBoundary,
-  Suspense,
-} from "solid-js";
+import { type ParentComponent, Show, ErrorBoundary, Suspense } from "solid-js";
 import { For } from "solid-js";
-import { A, useLocation, useIsRouting } from "@solidjs/router";
+import { A } from "@solidjs/router";
 import NavItem, { getNavIcon } from "./shared/views/NavItem";
-import {
-  useNav,
-  useNavActionItems,
-  navItemHelpTarget,
-} from "./shared/lib/useNav";
-import { helpable } from "./shared/lib/helpable";
+import { navItemHelpTarget } from "@utsukta/spa-core/lib/useNav";
+import { helpable } from "@utsukta/spa-core/lib/helpable";
 void helpable;
-import { moduleIdForPath, getModule } from "./shared/lib/module-registry";
-import { createDragReorder } from "./shared/lib/useDragReorder";
-import { commitNavOrder } from "./shared/store/nav-order";
-import type { NavItemDef } from "./shared/types/module.types";
+import { useLayoutChrome } from "@utsukta/spa-core/lib/useLayoutChrome";
 import Slot from "./shared/views/Slot";
 import SiteCredits from "./shared/views/SiteCredits";
 import RemoteAuthBanner from "./shared/views/RemoteAuthBanner";
-import { useViewerRole, useSubjectNick } from "./shared/store/site-config";
-import { useChannelTheme } from "./shared/lib/useChannelTheme";
 import HelpOverlay from "./shared/views/HelpOverlay";
 import {
   MdFillChevron_right,
   MdFillMore_horiz,
   MdFillApps,
 } from "solid-icons/md";
-import {
-  editingWidgets,
-  setEditingWidgets,
-} from "@/shared/store/widget-layout";
-import { loadTemplates, templateUsageCount, templateName } from "@/shared/store/widget-templates";
-import { useOnlineStatus } from "./shared/lib/useOnlineStatus";
+import { editingWidgets } from "@utsukta/spa-core/store/widget-layout";
+import { templateUsageCount, templateName } from "@utsukta/spa-core/store/widget-templates";
 import NavUtilities from "./shared/views/NavUtilities";
 import ChannelSwitcher, { ChannelSwitcherTiles } from "./shared/views/ChannelSwitcher";
-import { notifCount } from "@/shared/lib/notificationCount";
-import { createMediaQuery } from "@solid-primitives/media";
-import {
-  useNavActions,
-  useNavViewer,
-  useNavData,
-  useNavChannels,
-  useNavChannelSelectEnabled,
-  setNavNick,
-} from "./shared/store/nav-store";
+import { notifCount } from "@utsukta/spa-core/lib/notificationCount";
 import { motion } from "solid-motionone";
 import ToastContainer from "@/shared/views/ToastContainer";
 import ConnectionRequestModalHost from "@/shared/views/ConnectionRequestModalHost";
 import FeedModalHost from "@/shared/views/FeedModalHost";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { usePWA } from "@/pwa";
 import DOMPurify from "dompurify";
 void motion;
@@ -124,188 +93,45 @@ function MobileTab(props: {
 const Layout: ParentComponent = (props) => {
   const { t } = useI18n();
   usePWA();
-  const [rightOpen, setRightOpen] = createSignal(false);
-  const [moreOpen, setMoreOpen] = createSignal(false);
-  const [actionsOpen, setActionsOpen] = createSignal(false);
-  const [channelMenuOpen, setChannelMenuOpen] = createSignal(false);
 
-  const subjectNick = useSubjectNick();
-  createEffect(() => setNavNick(subjectNick()));
-  useChannelTheme(subjectNick);
-  const actionItems = useNavActionItems();
-  const location = useLocation();
-  const navItems = useNav(subjectNick);
-  const viewerRole = useViewerRole();
-  const online = useOnlineStatus();
-  const isRouting = useIsRouting();
-  const navViewer = useNavViewer();
-  const navActions = useNavActions();
-  const navData = useNavData();
-  const navChannels = useNavChannels();
-  const navChannelSelectEnabled = useNavChannelSelectEnabled();
-
-  const isXl = createMediaQuery("(min-width: 1280px)");
-  const reducedMotion = window.matchMedia(
-    "(prefers-reduced-motion: reduce)",
-  ).matches;
-
-  let mainRef!: HTMLElement;
-  let morePanelRef!: HTMLDivElement;
-  let moreButtonRef!: HTMLButtonElement;
-  let panelButtonRef!: HTMLButtonElement;
-  let rightPanelRef!: HTMLElement;
-  const [showScrollTop, setShowScrollTop] = createSignal(false);
-  const onMainScroll = () => setShowScrollTop(mainRef.scrollTop > 300);
-
-  createEffect(() => {
-    if (moreOpen())
-      requestAnimationFrame(() => {
-        morePanelRef?.querySelector<HTMLElement>("a, button")?.focus();
-      });
-  });
-  createEffect(() => {
-    if (rightOpen() && !isXl())
-      requestAnimationFrame(() => rightPanelRef?.focus());
-  });
-  createEffect(
-    on(
-      rightOpen,
-      (isOpen, prevOpen) => {
-        if (prevOpen && !isOpen) panelButtonRef?.focus();
-      },
-      { defer: true },
-    ),
-  );
-  createEffect(
-    on(
-      moreOpen,
-      (isOpen, prevOpen) => {
-        if (prevOpen && !isOpen) moreButtonRef?.focus();
-      },
-      { defer: true },
-    ),
-  );
-  // The desktop action-items panel now renders as an overlay anchored above
-  // NavUtilities (see aside markup below) rather than pushing content inline,
-  // so it must be closed explicitly on navigation or it'd stay floating over
-  // the sidebar on the next page.
-  createEffect(
-    on(
-      () => location.pathname,
-      () => setActionsOpen(false),
-      { defer: true },
-    ),
-  );
-
-  // `mainRef` is the one persistent scroll container for every routed
-  // module (Layout itself never unmounts across navigations), so without
-  // this a module opens still scrolled to wherever the previous module
-  // left off.
-  createEffect(
-    on(
-      () => location.pathname,
-      () => {
-        mainRef.scrollTop = 0;
-        setShowScrollTop(false);
-      },
-      { defer: true },
-    ),
-  );
-
-  const activeModuleId = createMemo(() => moduleIdForPath(location.pathname));
-
-  // A module may register a reactive pageTemplate() (e.g. a webpage's
-  // assigned layout template) to have its editable regions resolve from that
-  // named template instead of the module-level layout. Applies uniformly to
-  // every slot already `editable` below (header/gridTop/right/footer) — a
-  // template is one named arrangement spanning all of an item's regions, not
-  // just the sidebar. See ModuleDef.pageTemplate / Slot's templateId.
-  const pageTemplateId = createMemo(() => getModule(activeModuleId())?.pageTemplate?.() ?? undefined);
-
-  // "zen" hides all app chrome (nav, sidebars, widget slots, mobile bars).
-  // "focus" hides only the nav rail/sidebars/mobile bars, keeping the
-  // header/gridTop/contentTop/footer widget slots visible on the page.
-  // "wide" hides only the right widget sidebar (and its FAB/panel toggle
-  // controls), keeping the nav rail, mobile bars, and widget slots as-is.
-  // "compact" hides the nav rail AND the mobile drawer/bottom tab bar (so
-  // there's no in-nav way to open the right sidebar on mobile) — a
-  // dedicated floating toggle covers that instead. See ModuleDef.pageChrome.
-  const chromeMode = createMemo(() => getModule(activeModuleId())?.pageChrome?.() ?? "default");
-  // Desktop left nav rail + mobile drawer/bottom tab bar (and their backdrop).
-  const hidesNavChrome = createMemo(
-    () => chromeMode() === "zen" || chromeMode() === "focus" || chromeMode() === "compact",
-  );
-  const hidesRightSidebar = createMemo(
-    () => chromeMode() === "zen" || chromeMode() === "focus" || chromeMode() === "wide",
-  );
-  const hidesWidgetSlots = createMemo(() => chromeMode() === "zen");
-  // "compact" hides the bottom tab bar's own sidebar-panel toggle, so the FAB
-  // (normally lg-only, since the tab bar covers mobile) must also show on
-  // mobile there — it's the only remaining way to open the right sidebar.
-  const showsMobileSidebarFab = createMemo(() => chromeMode() === "compact");
-
-  // Own templates' names/entries are already available at boot, but usage
-  // counts (used by the "shared by N pages" notice in Slot.tsx) are
-  // deliberately not part of the boot payload — fetch them once, centrally,
-  // when edit mode starts on a templated page, rather than once per
-  // templated slot on that page.
-  createEffect(() => {
-    if (pageTemplateId() && editingWidgets()) void loadTemplates();
-  });
-
-  createEffect(() => {
-    const mod = getModule(activeModuleId());
-    const label = mod?.navItem?.label;
-    const resolved = typeof label === "function" ? label() : label;
-    document.title = resolved ? `${resolved} · Hubzilla` : "Hubzilla";
-  });
-
-  const closeAll = () => {
-    setRightOpen(false);
-    setMoreOpen(false);
-    setActionsOpen(false);
-    setChannelMenuOpen(false);
-  };
-
-  const isOwner = () => viewerRole() === "owner";
-  const isLocalUser = () =>
-    viewerRole() === "owner" || viewerRole() === "local";
-
-  // Shown once per page (not once per templated slot — see Slot.tsx, which
-  // used to render this same notice separately in header/gridTop/contentTop/
-  // footer/right).
-  const showsTemplateNotice = createMemo(
-    () => !!pageTemplateId() && editingWidgets() && isOwner() && templateUsageCount(pageTemplateId()!) > 1,
-  );
-
-  // "Navigation Channel Select" feature: expands the "channels" nav entry
-  // into an inline multi-channel switcher instead of linking to /manage.
-  const channelSwitcherActive = () => isOwner() && navChannelSelectEnabled();
-
-  // Widget editing targets your own layout — leave edit mode when the page
-  // stops being yours (e.g. navigating to someone else's channel).
-  createEffect(() => {
-    if (!isOwner()) setEditingWidgets(false);
-  });
-
-  const isMedium = createMediaQuery("(min-width: 768px)");
-  const bottomLimit = () => (isMedium() ? 8 : 4);
-  const bottomItems = () => navItems().slice(0, bottomLimit());
-  const overflowItems = () => navItems().slice(bottomLimit());
-
-  // Drag-to-reorder — one instance per surface the nav is rendered in. Each
-  // commits into the same persisted order (nav-order.ts), replacing only the
-  // positions of the items visible in that surface.
-  const getItemKey = (item: NavItemDef) => item.path;
-  const desktopNavDrag = createDragReorder(navItems, getItemKey, (order) =>
-    commitNavOrder(navItems(), order),
-  );
-  const bottomTabDrag = createDragReorder(bottomItems, getItemKey, (order) =>
-    commitNavOrder(navItems(), order),
-  );
-  const moreDrawerDrag = createDragReorder(overflowItems, getItemKey, (order) =>
-    commitNavOrder(navItems(), order),
-  );
+  const {
+    rightOpen, setRightOpen,
+    moreOpen, setMoreOpen,
+    actionsOpen, setActionsOpen,
+    channelMenuOpen, setChannelMenuOpen,
+    subjectNick,
+    actionItems,
+    viewerRole,
+    online,
+    isRouting,
+    navViewer,
+    navActions,
+    navData,
+    navChannels,
+    isXl,
+    reducedMotion,
+    mainRef, setMainRef,
+    setMorePanelRef,
+    setMoreButtonRef,
+    setPanelButtonRef,
+    setRightPanelRef,
+    showScrollTop,
+    onMainScroll,
+    activeModuleId,
+    pageTemplateId,
+    hidesNavChrome,
+    hidesRightSidebar,
+    hidesWidgetSlots,
+    showsMobileSidebarFab,
+    closeAll,
+    isLocalUser,
+    showsTemplateNotice,
+    channelSwitcherActive,
+    overflowItems,
+    desktopNavDrag,
+    bottomTabDrag,
+    moreDrawerDrag,
+  } = useLayoutChrome();
 
   return (
     <div class="fixed inset-0 bg-base text-txt hz-app-root">
@@ -485,7 +311,7 @@ const Layout: ParentComponent = (props) => {
           ═══════════════════════════════════════════════════════ */}
           <main
             id="main-content"
-            ref={mainRef}
+            ref={setMainRef}
             onScroll={onMainScroll}
             class="flex-1 overflow-y-auto p-4 lg:p-6 pb-16 lg:pb-6 relative flex flex-col"
           >
@@ -546,7 +372,7 @@ const Layout: ParentComponent = (props) => {
               <Show when={showScrollTop()}>
                 <button
                   onClick={() =>
-                    mainRef.scrollTo({ top: 0, behavior: "smooth" })
+                    mainRef()?.scrollTo({ top: 0, behavior: "smooth" })
                   }
                   class="sticky bottom-2 lg:bottom-14 xl:bottom-2 self-end z-10
                          w-10 h-10 rounded-full flex items-center justify-center
@@ -585,7 +411,7 @@ const Layout: ParentComponent = (props) => {
           <Show when={!hidesRightSidebar()}>
           <aside
             id="right-sidebar"
-            ref={rightPanelRef}
+            ref={setRightPanelRef}
             aria-label="Sidebar panel"
             aria-hidden={!isXl() && !rightOpen()}
             tabindex="0"
@@ -624,7 +450,7 @@ const Layout: ParentComponent = (props) => {
           <Show when={!hidesNavChrome()}>
           <nav
             id="more-drawer"
-            ref={morePanelRef}
+            ref={setMorePanelRef}
             aria-label={t("layout.more")}
             aria-hidden={!moreOpen()}
             class={`
@@ -839,7 +665,7 @@ const Layout: ParentComponent = (props) => {
 
             {/* <Show when={moreItems().length > 0}> */}
             <button
-              ref={moreButtonRef}
+              ref={setMoreButtonRef}
               onClick={() => {
                 setMoreOpen((o) => !o);
                 setRightOpen(false);
@@ -862,7 +688,7 @@ const Layout: ParentComponent = (props) => {
 
             <Show when={!hidesRightSidebar()}>
             <button
-              ref={panelButtonRef}
+              ref={setPanelButtonRef}
               onClick={() => {
                 setRightOpen((o) => !o);
                 setMoreOpen(false);

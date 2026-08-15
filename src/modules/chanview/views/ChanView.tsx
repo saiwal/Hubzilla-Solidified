@@ -1,16 +1,16 @@
 import { createSignal, Show, For } from "solid-js";
 import { useSearchParams } from "@solidjs/router";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { apiFetch } from "@/shared/lib/fetch";
-import { useAuth } from "@/shared/store/auth-store";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
 import { addConnection } from "@/modules/directory/people/api";
-import { sanitizeHtml } from "@/shared/lib/sanitize";
-import { bbcodeToHtml } from "@/shared/lib/bbcode";
-import { oembedResolver } from "@/shared/lib/oembedResolver";
+import { sanitizeHtml } from "@utsukta/spa-core/lib/sanitize";
+import { bbcodeToHtml } from "@utsukta/spa-core/lib/bbcode";
+import { oembedResolver } from "@utsukta/spa-core/lib/oembedResolver";
 import { fetchConnectionByAddress } from "@/modules/directory/connections/api";
 import type { Connection } from "@/modules/directory/connections/api";
 import ConnectionEditorModal from "@/shared/views/ConnectionEditorModal";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import {
   MdOutlinePerson_add,
   MdOutlineEdit,

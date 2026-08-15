@@ -1,5 +1,5 @@
 import CategoryWidget from "@/shared/stream/components/CategoryWidget";
-import { usePageNick } from "@/shared/store/site-config";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
 import { activeCategory, setArticleFilter } from "../store";
 
 export default function ArticleCategoryWidget() {

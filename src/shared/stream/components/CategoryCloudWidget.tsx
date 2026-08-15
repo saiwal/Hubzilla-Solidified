@@ -4,9 +4,9 @@
 // post count, instead of the row list in CategoryWidget. Same API and props.
 
 import { type Component, createEffect, For, on, Show } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { useI18n } from "@/i18n";
-import { toast } from "@/shared/store/toast";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { toast } from "@utsukta/spa-core/store/toast";
 import {
   fetchCategories,
   type CategoryItem,

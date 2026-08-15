@@ -1,7 +1,7 @@
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { createSignal, Show, type Component } from "solid-js";
 import { MdOutlineEdit, MdOutlineMail, MdOutlineRefresh } from "solid-icons/md";
-import { useAuth } from "@/shared/store/auth-store";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
 import PostComposer from "@/shared/editor/composers/PostComposer";
 import DMComposer from "@/shared/editor/composers/DMComposer";
 import { FEED_META, MessageList, type MessageType } from "./MessageList";

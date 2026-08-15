@@ -7,11 +7,11 @@ import {
   MdOutlineBook,
   MdOutlineArticle,
 } from "solid-icons/md";
-import { useAuth } from "@/shared/store/auth-store";
-import { usePageNick } from "@/shared/store/site-config";
-import { useInstalledApps } from "@/shared/store/nav-store";
-import { isModuleActive, isAppInstalled } from "@/shared/lib/module-registry";
-import { useI18n } from "@/i18n";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
+import { useInstalledApps } from "@utsukta/spa-core/store/nav-store";
+import { isModuleActive, isAppInstalled } from "@utsukta/spa-core/module-registry";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import PostComposer from "@/shared/editor/composers/PostComposer";
 import DMComposer from "@/shared/editor/composers/DMComposer";
 import ArticleComposerModal from "@/shared/editor/composers/ArticleComposerModal";

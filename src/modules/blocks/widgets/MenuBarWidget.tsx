@@ -5,13 +5,13 @@
 
 import { createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import { createMediaQuery } from "@solid-primitives/media";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import type { WidgetProps } from "@/shared/types/module.types";
-import { usePageNick } from "@/shared/store/site-config";
-import { editingWidgets } from "@/shared/store/widget-layout";
-import { useI18n } from "@/i18n";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import type { WidgetProps } from "@utsukta/spa-core/types/module.types";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
+import { editingWidgets } from "@utsukta/spa-core/store/widget-layout";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { MdFillClose, MdFillExpand_more, MdFillMenu } from "solid-icons/md";
-import { fetchMenuTree } from "@/shared/lib/menus";
+import { fetchMenuTree } from "@utsukta/spa-core/lib/menus";
 import { MenuAccordion, MenuLink } from "./menu-shared";
 
 const topItemClass =

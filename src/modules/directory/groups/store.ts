@@ -1,6 +1,6 @@
 // modules/directory/groups/store.ts
 import { createSignal } from "solid-js";
-import { toast } from "@/shared/store/toast";
+import { toast } from "@utsukta/spa-core/store/toast";
 import type { PrivacyGroup, GroupDetail } from "./api";
 import {
   fetchGroups,

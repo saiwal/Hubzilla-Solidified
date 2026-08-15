@@ -1,5 +1,5 @@
 import { Show, createEffect, onCleanup, onMount, createSignal, Switch, Match, For } from "solid-js";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import {
   threads,
   posts,
@@ -15,7 +15,7 @@ import {
   viewMode,
   changeView,
 } from "../store";
-import { apiDeleteItem } from "@/shared/lib/item-api";
+import { apiDeleteItem } from "@utsukta/spa-core/lib/item-api";
 import { MasonryPlaceholder } from "@/shared/stream/feedviews/MasonryView";
 import { ListPlaceholder } from "@/shared/stream/feedviews/ListView";
 import { FeedPlaceholder } from "@/shared/stream/feedviews/FeedView";
@@ -24,7 +24,7 @@ import { ViewSwitcher } from "@/shared/stream/filters";
 import type { StreamHandlers } from "@/shared/stream/types";
 import { toggleVerb, repeatItem } from "@/shared/stream/store/actions-store";
 import { MdFillPublic, MdFillSearch, MdFillClose } from "solid-icons/md";
-import { useScrollStyle } from "@/shared/store/scroll-style";
+import { useScrollStyle } from "@utsukta/spa-core/store/scroll-style";
 
 // ── iid lookup from the pubstream flat posts signal ────────────────────────
 function iidForMid(mid: string): number {

@@ -1,7 +1,7 @@
 import { For, Show, createSignal, createMemo } from 'solid-js';
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { fetchPubsites, type PubSite } from '../../hubs/api';
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 const ACCESS_STYLES: Record<string, string> = {
   free:   'bg-accent-muted text-accent',

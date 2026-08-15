@@ -1,6 +1,6 @@
 import { createSignal, Show, type Component } from "solid-js";
 import { Portal } from "solid-js/web";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { useCategoryTags } from "@/shared/editor/components/useCategoryTags";
 import CategoryTagsField from "@/shared/editor/components/CategoryTagsField";
 import { getCategories, setCategories as saveCategories } from "../api";

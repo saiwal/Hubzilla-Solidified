@@ -2,8 +2,8 @@ import { Show, For } from 'solid-js';
 import { A } from '@solidjs/router';
 import { MdFillShopping_cart, MdFillStore, MdFillReceipt_long } from 'solid-icons/md';
 import { cartCount, cartItems, nick, sellerOrders } from '../store';
-import { useI18n } from '@/i18n';
-import { useViewerRole } from '@/shared/store/site-config';
+import { useI18n } from '@utsukta/spa-core/i18n';
+import { useViewerRole } from '@utsukta/spa-core/store/site-config';
 
 export default function CartWidget() {
   const { t } = useI18n();

@@ -1,10 +1,10 @@
 import { createEffect, Show, For, createSignal, createMemo } from "solid-js";
 import { A } from "@solidjs/router";
-import { usePageNick } from "@/shared/store/site-config";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
 import { wikis, wikisLoading, isOwner, wikisError, loadWikis, resetWikis, patchWiki } from "../store";
 import { deleteWiki, fetchWikiAcl, saveWikiAcl } from "../api";
-import { toast } from "@/shared/store/toast";
-import { useI18n } from "@/i18n";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import AclPicker, { entryKey, type AclMode, type AclEntry } from "@/shared/editor/components/AclPicker";
 import { MdFillLock, MdFillLock_open, MdFillDelete } from "solid-icons/md";
 import { useIsWikiList } from "../lib/isWikiList";

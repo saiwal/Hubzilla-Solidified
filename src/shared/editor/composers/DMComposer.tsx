@@ -24,11 +24,11 @@ import MentionEmojiPopups from "../mention/MentionEmojiPopups";
 import { PrimarySubmitButton, SecondaryButton, IconButton } from "../components/buttons";
 import AttachmentBar from "../attachments/AttachmentBar";
 import { createAttachmentStore } from "../attachments/useAttachments";
-import { currentNick } from "@/shared/store/auth-store";
+import { currentNick } from "@utsukta/spa-core/store/auth-store";
 import { bbcodeToInsert, patchInsertedAlt } from "../attachments/insertHelpers";
-import { isFeatureEnabled } from "@/shared/store/auth-store";
-import { useI18n } from "@/i18n";
-import { getCsrfToken } from "@/shared/lib/csrf";
+import { isFeatureEnabled } from "@utsukta/spa-core/store/auth-store";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { getCsrfToken } from "@utsukta/spa-core/lib/csrf";
 import { useEncrypt } from "../useEncrypt";
 import EncryptToggle from "../components/EncryptToggle";
 // Lazy: these panels are only ever shown once a user opts into encrypting or

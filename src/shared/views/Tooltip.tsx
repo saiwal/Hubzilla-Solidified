@@ -1,7 +1,7 @@
 import { createSignal, Show, createEffect, type ParentComponent } from "solid-js";
 import { Portal } from "solid-js/web";
 import { motion } from "solid-motionone";
-import { useFloating } from "../lib/useFloating";
+import { useFloating } from "@utsukta/spa-core/lib/useFloating";
 import type { Placement } from "@floating-ui/dom";
 
 // Keep `motion` directive alive for tree-shaking

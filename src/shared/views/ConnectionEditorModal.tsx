@@ -1,6 +1,6 @@
 import { createSignal, createResource, createEffect, For, Show } from "solid-js";
 import { Portal } from "solid-js/web";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import type { Connection } from "@/modules/directory/connections/api";
 import {
   updateConnection, deleteConnection, refreshConnection, approveConnection,
@@ -9,7 +9,7 @@ import {
 import { fetchGroups } from "@/modules/directory/groups/api";
 import { toggleMember } from "@/modules/directory/groups/api";
 import { fetchProfiles } from "@/modules/profiles/api/api";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 interface Props {
   connection: Connection;

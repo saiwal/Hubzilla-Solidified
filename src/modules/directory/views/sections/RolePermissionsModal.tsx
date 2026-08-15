@@ -1,8 +1,8 @@
 import { createSignal, createMemo, For, Show } from "solid-js";
 import { Portal } from "solid-js/web";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { fetchPermcatDetail, updatePermcatPerms } from "../../connections/api";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 interface Props {
   name: string;

@@ -1,7 +1,7 @@
 import { Show } from "solid-js";
 import DOMPurify from "dompurify";
-import { bbcode } from "@/shared/lib/bbcode";
-import { useI18n } from "@/i18n";
+import { bbcode } from "@utsukta/spa-core/lib/bbcode";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { useSiteinfo, Section, Centered } from "./shared";
 
 export default function SiteinfoAdminWidget() {

@@ -4,10 +4,10 @@ import {
   For,
   type Component,
 } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { listFolder } from "@/modules/files/api";
 import type { FileMeta } from "@/modules/files/api";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export type FilesPickerAccept = "files" | "photos" | "both";
 

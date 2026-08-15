@@ -1,6 +1,6 @@
 // src/modules/network/store.ts
 import { createSignal } from "solid-js";
-import { storageGet, storageSet } from "@/shared/lib/storage";
+import { storageGet, storageSet } from "@utsukta/spa-core/lib/storage";
 import { createStreamStore } from "@/shared/stream/store/createStreamStore";
 import { fetchNetworkStream } from "./api";
 import type { NetworkParams } from "./api";

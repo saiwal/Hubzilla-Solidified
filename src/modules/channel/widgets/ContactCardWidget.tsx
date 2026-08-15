@@ -4,12 +4,12 @@
 
 import { Show, For, createSignal } from "solid-js";
 import { A } from "@solidjs/router";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { apiFetch } from "@/shared/lib/fetch";
-import { usePageNick, useViewerRole } from "@/shared/store/site-config";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
+import { usePageNick, useViewerRole } from "@utsukta/spa-core/store/site-config";
 import { connectToChannel } from "@/modules/directory/connections/api";
-import { toast } from "@/shared/store/toast";
-import { useI18n } from "@/i18n";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { MdFillLocation_on, MdFillPublic } from "solid-icons/md";
 
 interface ProfileData {

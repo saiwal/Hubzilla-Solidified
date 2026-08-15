@@ -1,6 +1,6 @@
 import { onCleanup } from "solid-js";
-import { toast } from "@/shared/store/toast";
-import { useI18n } from "@/i18n";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export function usePWA() {
   const { t } = useI18n();

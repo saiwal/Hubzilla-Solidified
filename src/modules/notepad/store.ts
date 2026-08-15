@@ -1,6 +1,6 @@
 import { createSignal } from "solid-js";
 import { fetchNotes, deleteNote, type Note, type NoteFilters } from "./api";
-import { toast } from "@/shared/store/toast";
+import { toast } from "@utsukta/spa-core/store/toast";
 
 const PAGE_SIZE = 20;
 

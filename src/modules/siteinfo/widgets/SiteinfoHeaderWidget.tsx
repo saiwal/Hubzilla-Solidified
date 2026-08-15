@@ -1,6 +1,6 @@
 import { Show } from "solid-js";
-import { useI18n } from "@/i18n";
-import { useNavData } from "@/shared/store/nav-store";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { useNavData } from "@utsukta/spa-core/store/nav-store";
 import { useSiteinfo, RegistrationBadge, Centered } from "./shared";
 
 export default function SiteinfoHeaderWidget() {

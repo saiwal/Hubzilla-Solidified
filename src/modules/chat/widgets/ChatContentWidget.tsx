@@ -1,7 +1,7 @@
 import { createEffect, Show, For, on } from "solid-js";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { useNavigate } from "@solidjs/router";
-import { usePageNick } from "@/shared/store/site-config";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
 import {
   rooms,
   roomsLoading,
@@ -17,7 +17,7 @@ import {
   MdFillSchedule,
   MdOutlineTimer,
 } from "solid-icons/md";
-import formatPostDate from "@/shared/lib/date";
+import formatPostDate from "@utsukta/spa-core/lib/date";
 import { useIsChatRoomsList } from "../lib/isChatRoomsList";
 
 function formatExpiry(minutes: number, neverLabel: string, expiresLabel: string): string {

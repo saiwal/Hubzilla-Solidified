@@ -1,8 +1,8 @@
 import { For, Show, createMemo, createSignal } from "solid-js";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { MdFillLocation_on, MdFillOpen_in_new } from "solid-icons/md";
 import DOMPurify from "dompurify";
-import { bbcodeToHtml } from "@/shared/lib/bbcode";
+import { bbcodeToHtml } from "@utsukta/spa-core/lib/bbcode";
 import type { CalEvent } from "../api";
 import { isoDateStr, localDay, fmtEventRange } from "./calUtils";
 

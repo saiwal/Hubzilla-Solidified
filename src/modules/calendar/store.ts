@@ -6,7 +6,7 @@
 
 import { createSignal } from "solid-js";
 import { fetchEvents } from "./api";
-import { toast } from "@/shared/store/toast";
+import { toast } from "@utsukta/spa-core/store/toast";
 import type { CalEvent, CalRange } from "./api";
 
 // ── nick ──────────────────────────────────────────────────────────────────────

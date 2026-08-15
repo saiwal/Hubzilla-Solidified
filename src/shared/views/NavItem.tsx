@@ -1,8 +1,8 @@
 import { A, useLocation } from "@solidjs/router";
 import type { Component, JSX } from "solid-js";
 import { Show } from "solid-js";
-import { useI18n } from "@/i18n";
-import { biToNavIcon } from "@/shared/lib/nav-api";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { biToNavIcon } from "@utsukta/spa-core/lib/nav-api";
 export { biToNavIcon };
 import {
   MdFillHome,

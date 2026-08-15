@@ -1,6 +1,6 @@
 import { createSignal, For, Show } from "solid-js";
-import type { StreamAttachment } from "@/shared/types/post.types";
-import { classifyPreview } from "@/shared/lib/filePreview";
+import type { StreamAttachment } from "@utsukta/spa-core/types/post.types";
+import { classifyPreview } from "@utsukta/spa-core/lib/filePreview";
 import FilePreviewModal from "@/shared/views/FilePreviewModal";
 
 function safeDecode(s: string): string {

@@ -1,6 +1,6 @@
 import { Show, type Component } from "solid-js";
-import { useI18n } from "@/i18n";
-import { isEncryptedBody } from "@/shared/lib/postCrypto";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { isEncryptedBody } from "@utsukta/spa-core/lib/postCrypto";
 import type { useEncrypt } from "../useEncrypt";
 import { ToggleButton } from "./buttons";
 

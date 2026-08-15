@@ -1,8 +1,8 @@
 // src/shared/stream/components/PollCard.tsx
 import { createSignal, For, Show } from "solid-js";
-import { useAuth } from "@/shared/store/auth-store";
-import { apiVotePoll } from "@/shared/lib/item-api";
-import type { PollData } from "@/shared/types/post.types";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
+import { apiVotePoll } from "@utsukta/spa-core/lib/item-api";
+import type { PollData } from "@utsukta/spa-core/types/post.types";
 
 function formatEndTime(iso: string): string {
   try {

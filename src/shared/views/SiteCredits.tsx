@@ -4,11 +4,11 @@
 // user-removable.
 
 import { Show } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { fetchSiteInfo } from "@/modules/siteinfo/api";
-import { THEMES } from "@/shared/types/theme.types";
-import { useTheme } from "@/shared/lib/useTheme";
-import { useI18n } from "@/i18n";
+import { THEMES } from "@utsukta/spa-core/types/theme.types";
+import { useTheme } from "@utsukta/spa-core/lib/useTheme";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export default function SiteCredits() {
   const { t } = useI18n();

@@ -1,6 +1,6 @@
 import { createResource, Show } from "solid-js";
 import { useParams, useNavigate, A } from "@solidjs/router";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import BlockComposer from "@/shared/editor/composers/BlockComposer";
 import { fetchBlockByIid } from "../api";
 import { loadBlocks } from "../store";

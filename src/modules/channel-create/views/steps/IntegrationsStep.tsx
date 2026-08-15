@@ -1,6 +1,6 @@
 import { For, Show } from "solid-js";
 import type { IntegrationApp } from "../../api/api";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { MdFillCheck } from "solid-icons/md";
 import { getNavIcon, biToNavIcon } from "@/shared/views/NavItem";
 

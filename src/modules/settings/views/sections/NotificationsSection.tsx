@@ -3,7 +3,7 @@ import SubPageContent from "@/shared/views/SubPageContent";
 import { fetchNotificationSettings, saveNotificationSettings } from "../../api/api";
 import { useSectionForm } from "../../store/useSectionForm";
 import { SaveBar, Group, SwitchRow } from "../../store/FormHelpers";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import {
   MdOutlineCampaign,
   MdOutlineEmail,
@@ -16,13 +16,13 @@ import {
   desktopNotifySupported,
   enableDesktopNotify,
   disableDesktopNotify,
-} from "@/shared/lib/desktopNotify";
+} from "@utsukta/spa-core/lib/desktopNotify";
 import {
   isPushSupported,
   getCurrentPushSubscription,
   subscribeToPush,
   unsubscribeFromPush,
-} from "@/shared/lib/webPush";
+} from "@utsukta/spa-core/lib/webPush";
 
 const NOTIFY_FIELDS = [
   "notify1","notify2","notify3","notify4","notify5",

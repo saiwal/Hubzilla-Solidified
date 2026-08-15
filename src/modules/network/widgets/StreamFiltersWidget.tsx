@@ -17,12 +17,12 @@ import {
   MdFillPoll,
 } from "solid-icons/md";
 import { createSignal, createEffect, For, Show } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { useI18n } from "@/i18n";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { loadNetwork, resetPosts } from "../store";
 import { fetchFolders, fetchForums, parseNetworkParams } from "../api";
-import { useInstalledApps } from "@/shared/store/nav-store";
-import { isAppInstalled } from "@/shared/lib/module-registry";
+import { useInstalledApps } from "@utsukta/spa-core/store/nav-store";
+import { isAppInstalled } from "@utsukta/spa-core/module-registry";
 import { fetchGroups, type PrivacyGroup } from "@/modules/directory/groups/api";
 
 const CHIPS = [

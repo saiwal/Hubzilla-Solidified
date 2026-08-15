@@ -7,15 +7,15 @@
 
 import { createMemo, Show } from "solid-js";
 import DOMPurify from "dompurify";
-import type { WidgetProps } from "@/shared/types/module.types";
-import { editingWidgets } from "@/shared/store/widget-layout";
-import { useI18n } from "@/i18n";
-import { usePageNick } from "@/shared/store/site-config";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import type { WidgetProps } from "@utsukta/spa-core/types/module.types";
+import { editingWidgets } from "@utsukta/spa-core/store/widget-layout";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { fetchBlockByName } from "@/modules/webpages/api";
-import { renderBody } from "@/shared/lib/renderBody";
-import { handleNsfwToggleClick } from "@/shared/lib/nsfw";
-import { handleDecryptClick } from "@/shared/lib/decrypt-click";
+import { renderBody } from "@utsukta/spa-core/lib/renderBody";
+import { handleNsfwToggleClick } from "@utsukta/spa-core/lib/nsfw";
+import { handleDecryptClick } from "@utsukta/spa-core/lib/decrypt-click";
 
 export default function HtmlBlockWidget(props: WidgetProps) {
   const { t } = useI18n();

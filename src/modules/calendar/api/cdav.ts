@@ -1,4 +1,4 @@
-import { getCsrfToken } from "@/shared/lib/csrf";
+import { getCsrfToken } from "@utsukta/spa-core/lib/csrf";
 
 export interface CdavCalendar {
   id: number | "channel_calendar";

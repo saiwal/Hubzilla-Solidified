@@ -1,25 +1,25 @@
 // src/modules/post/views/PostView.tsx
 import { createMemo, createSignal, Show } from "solid-js";
 import { useNavigate, useParams } from "@solidjs/router";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import PostCard from "@/shared/stream/components/PostCard";
 import type { StreamHandlers } from "@/shared/stream/types";
-import type { ThreadNode } from "@/shared/lib/thread";
-import { buildThreadTree, appendNewBranches, mergeReplies, applyBranchMeta } from "@/shared/lib/thread";
-import type { Post } from "@/shared/types/post.types";
-import { mapActivityToPost } from "@/shared/lib/activity.mapper";
-import { useI18n } from "@/i18n";
+import type { ThreadNode } from "@utsukta/spa-core/lib/thread";
+import { buildThreadTree, appendNewBranches, mergeReplies, applyBranchMeta } from "@utsukta/spa-core/lib/thread";
+import type { Post } from "@utsukta/spa-core/types/post.types";
+import { mapActivityToPost } from "@utsukta/spa-core/lib/activity.mapper";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import {
   apiDeleteItem,
   apiEditItem,
   apiToggleStar,
   fetchComments,
-} from "@/shared/lib/item-api";
+} from "@utsukta/spa-core/lib/item-api";
 import { toggleVerb, repeatItem, COMMENTS_PAGE_SIZE } from "@/shared/stream/store/actions-store";
-import { useCommentOrder } from "@/shared/store/comment-order";
-import type { CommentOrder } from "@/shared/store/comment-order";
-import { useThreadMode } from "@/shared/store/thread-mode";
-import { unblockChannel } from "@/shared/lib/blocklist-api";
+import { useCommentOrder } from "@utsukta/spa-core/store/comment-order";
+import type { CommentOrder } from "@utsukta/spa-core/store/comment-order";
+import { useThreadMode } from "@utsukta/spa-core/store/thread-mode";
+import { unblockChannel } from "@utsukta/spa-core/lib/blocklist-api";
 import { approveModerationItem, dropModerationItem } from "@/modules/moderate/api";
 
 function flatNodes(posts: Post[]): ThreadNode[] {

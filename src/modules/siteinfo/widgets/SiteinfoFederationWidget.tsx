@@ -1,5 +1,5 @@
 import { Show, For } from "solid-js";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { useSiteinfo, Section, Chip, Centered } from "./shared";
 
 export default function SiteinfoFederationWidget() {

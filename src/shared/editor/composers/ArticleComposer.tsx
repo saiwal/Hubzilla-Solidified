@@ -1,10 +1,10 @@
 import { createSignal, createEffect, Show, onCleanup, lazy } from "solid-js";
 import { DraftsList } from "../components/DraftsList";
 import { createComposerStore } from "../store/createComposerStore";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import RichEditor from "../core/RichEditor";
 import { CAPABILITIES } from "../types/editor.types";
-import { apiFetch } from "@/shared/lib/fetch";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
 import AclPicker from "../components/AclPicker";
 import { useEncrypt } from "../useEncrypt";
 import EncryptToggle from "../components/EncryptToggle";
@@ -14,7 +14,7 @@ import EncryptToggle from "../components/EncryptToggle";
 // initial bundle.
 const EncryptPanel = lazy(() => import("../components/EncryptPanel"));
 const DecryptPanel = lazy(() => import("../components/DecryptPanel"));
-import { isFeatureEnabled } from "@/shared/store/auth-store";
+import { isFeatureEnabled } from "@utsukta/spa-core/store/auth-store";
 import { useMentionEmojiWiring } from "../mention/useMentionEmojiWiring";
 import MentionEmojiPopups from "../mention/MentionEmojiPopups";
 import AttachmentBar from "../attachments/AttachmentBar";

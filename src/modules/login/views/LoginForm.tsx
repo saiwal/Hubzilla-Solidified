@@ -1,9 +1,9 @@
 import { createSignal, onMount } from "solid-js";
 import { A } from "@solidjs/router";
 import { fetchLoginToken, submitLogin, submitRmagic } from "../api/api";
-import { toast } from "@/shared/store/toast";
-import { useI18n } from "@/i18n";
-import { useNavData } from "@/shared/store/nav-store";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { useNavData } from "@utsukta/spa-core/store/nav-store";
 
 interface LoginFormProps {
   // Path on this site to land on after login. Defaults to /hq for local

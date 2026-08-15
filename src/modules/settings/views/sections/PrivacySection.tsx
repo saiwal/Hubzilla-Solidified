@@ -1,9 +1,9 @@
 import { Show } from "solid-js";
 import SubPageContent from "@/shared/views/SubPageContent";
-import { apiFetch } from "@/shared/lib/fetch";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
 import { useSectionForm } from "../../store/useSectionForm";
 import { SaveBar, Group, SwitchRow } from "../../store/FormHelpers";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { MdOutlineTune } from "solid-icons/md";
 
 interface PrivacyData {

@@ -12,14 +12,14 @@ import {
 } from "solid-js";
 import { Portal } from "solid-js/web";
 import AuthorPopover from "./AuthorPopover";
-import type { ThreadNode } from "@/shared/lib/thread";
-import { countAllComments, isRootPost } from "@/shared/lib/thread";
+import type { ThreadNode } from "@utsukta/spa-core/lib/thread";
+import { countAllComments, isRootPost } from "@utsukta/spa-core/lib/thread";
 import type { StreamHandlers } from "../types";
 import CommentThread from "@/shared/views/CommentThread";
-import formatPostDate from "@/shared/lib/date";
-import { markItemSeen } from "@/shared/lib/markSeen";
-import { scrollHighlightIntoView } from "@/shared/lib/scrollHighlightIntoView";
-import { useCommentOrder } from "@/shared/store/comment-order";
+import formatPostDate from "@utsukta/spa-core/lib/date";
+import { markItemSeen } from "@utsukta/spa-core/lib/markSeen";
+import { scrollHighlightIntoView } from "@utsukta/spa-core/lib/scrollHighlightIntoView";
+import { useCommentOrder } from "@utsukta/spa-core/store/comment-order";
 import {
   MdFillBar_chart,
   MdFillChat,
@@ -59,7 +59,7 @@ import {
   MdOutlineVisibility,
   MdOutlineEvent,
 } from "solid-icons/md";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { BiRegularLinkExternal, BiSolidShareAlt } from "solid-icons/bi";
 import { isDirectMessage as isDM, DmBadge, DmRecipientsPC, DmRecipients } from "./DmMeta";
 const CommentComposer = lazy(
@@ -73,10 +73,10 @@ const PostComposer = lazy(
   () => import("@/shared/editor/composers/PostComposer"),
 );
 import DOMPurify from "dompurify";
-import { handleNsfwToggleClick } from "@/shared/lib/nsfw";
-import { handleDecryptClick } from "@/shared/lib/decrypt-click";
+import { handleNsfwToggleClick } from "@utsukta/spa-core/lib/nsfw";
+import { handleDecryptClick } from "@utsukta/spa-core/lib/decrypt-click";
 import { fetchPendingReactions, type PendingItem } from "@/modules/moderate/api";
-import { useAuth } from "@/shared/store/auth-store";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
 import {
   apiFollowPost,
   apiUnfollowPost,
@@ -84,17 +84,17 @@ import {
   apiSaveToFolder,
   apiFetchComposeSource,
   apiAddToCalendar,
-} from "@/shared/lib/item-api";
+} from "@utsukta/spa-core/lib/item-api";
 import { fetchFolders } from "@/modules/network/api";
 import EventCard from "./EventCard";
 import PollCard from "./PollCard";
-import { parseEventData } from "@/shared/lib/activity.mapper";
-import type { EventData } from "@/shared/types/post.types";
+import { parseEventData } from "@utsukta/spa-core/lib/activity.mapper";
+import type { EventData } from "@utsukta/spa-core/types/post.types";
 import AttachmentList from "./AttachmentList";
-import { apiFetch } from "@/shared/lib/fetch";
-import { usePlyr } from "@/shared/lib/usePlyr";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
+import { usePlyr } from "@utsukta/spa-core/lib/usePlyr";
 import { fetchEvents, type CalEvent } from "@/modules/calendar/api";
-import { toast } from "@/shared/store/toast";
+import { toast } from "@utsukta/spa-core/store/toast";
 const PostDetailModal = lazy(() => import("@/shared/views/PostDetailModal"));
 const EventCreatorModal = lazy(() => import("@/modules/calendar/widgets/EventCreatorModal"));
 

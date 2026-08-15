@@ -1,8 +1,8 @@
 import { type Component, type Accessor, type JSX, For, Show } from "solid-js";
-import { getLazy, type RegisteredWidget } from "@/shared/lib/module-registry";
-import { helpable } from "@/shared/lib/helpable";
+import { getLazy, type RegisteredWidget } from "@utsukta/spa-core/module-registry";
+import { helpable } from "@utsukta/spa-core/lib/helpable";
 void helpable;
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import {
   MdFillAdd,
   MdFillClose,

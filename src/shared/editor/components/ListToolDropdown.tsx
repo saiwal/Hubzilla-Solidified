@@ -7,7 +7,7 @@
 
 import { createSignal, Show, onMount, onCleanup } from "solid-js";
 import { MdOutlineFormat_list_bulleted, MdOutlineFormat_list_numbered } from "solid-icons/md";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export type ListKind = "bullet" | "number" | "alpha";
 

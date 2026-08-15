@@ -1,6 +1,6 @@
 // src/modules/network/views/PostActions.tsx
 import { Show } from "solid-js";
-import { useAuth } from "@/shared/store/auth-store";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
 import {
   handleLike,
   handleDislike,
@@ -8,7 +8,7 @@ import {
   handleStar,
   handleDelete,
 } from "../store";
-import type { ThreadNode } from "@/shared/lib/thread";
+import type { ThreadNode } from "@utsukta/spa-core/lib/thread";
 import {
   MdOutlineThumb_up,
   MdOutlineThumb_down,

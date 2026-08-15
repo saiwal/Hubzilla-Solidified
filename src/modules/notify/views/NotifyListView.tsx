@@ -2,12 +2,12 @@
 import { For, Show } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import DOMPurify from "dompurify";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { useI18n } from "@/i18n";
-import { markNotifySeen } from "@/shared/lib/markSeen";
-import { resolveNotifyPath, connectionRequestId } from "@/shared/lib/notifyLink";
-import { openConnectionRequestModal } from "@/shared/store/connection-request-modal";
-import { relativeTime } from "@/shared/lib/relativeTime";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { markNotifySeen } from "@utsukta/spa-core/lib/markSeen";
+import { resolveNotifyPath, connectionRequestId } from "@utsukta/spa-core/lib/notifyLink";
+import { openConnectionRequestModal } from "@utsukta/spa-core/store/connection-request-modal";
+import { relativeTime } from "@utsukta/spa-core/lib/relativeTime";
 
 interface NotifyEntry {
   notify_id?: number;

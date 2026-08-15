@@ -1,6 +1,6 @@
 // settings/store/FormHelpers.tsx
 import { Show, type JSX } from "solid-js";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export function SaveBar(props: { saving: boolean }) {
   const { t } = useI18n();

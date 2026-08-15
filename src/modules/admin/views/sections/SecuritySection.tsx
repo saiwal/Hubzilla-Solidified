@@ -3,7 +3,7 @@ import SubPageContent from "@/shared/views/SubPageContent";
 import { fetchAdminSecurity, saveAdminSecurity } from "../../api";
 import { useSectionForm } from "@/modules/settings/store/useSectionForm";
 import type { AdminSecurity } from "../../types";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export default function SecuritySection() {
   const { t } = useI18n();

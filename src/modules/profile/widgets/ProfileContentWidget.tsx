@@ -1,5 +1,5 @@
-import { useI18n } from "@/i18n";
-import { usePageNick } from "@/shared/store/site-config";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
 import ProfileView from "@/modules/channel/views/ProfileView";
 
 export default function ProfileContentWidget() {

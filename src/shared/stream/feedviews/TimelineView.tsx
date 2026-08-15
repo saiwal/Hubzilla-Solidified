@@ -1,13 +1,13 @@
 // src/shared/stream/feedviews/TimelineView.tsx
 import { For, Show, createMemo, createSignal } from "solid-js";
-import type { ThreadNode } from "@/shared/lib/thread";
-import { countAllComments } from "@/shared/lib/thread";
+import type { ThreadNode } from "@utsukta/spa-core/lib/thread";
+import { countAllComments } from "@utsukta/spa-core/lib/thread";
 import type { StreamHandlers } from "../types";
 import PostDetailModal from "@/shared/views/PostDetailModal";
 import { excerptOf, firstImageSrc } from "./postExcerpt";
-import { useAuth } from "@/shared/store/auth-store";
-import { useI18n } from "@/i18n";
-import formatPostDate from "@/shared/lib/date";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import formatPostDate from "@utsukta/spa-core/lib/date";
 import { MdFillPush_pin } from "solid-icons/md";
 
 type Entry =

@@ -1,5 +1,5 @@
 import { createSignal, For, createMemo } from "solid-js";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 type Category = {
   label: string;

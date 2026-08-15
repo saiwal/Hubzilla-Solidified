@@ -1,5 +1,5 @@
 import { For, Show, type Component } from "solid-js";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import type { PollState } from "./usePollState";
 
 export interface PollPanelProps {

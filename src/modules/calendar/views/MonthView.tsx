@@ -1,8 +1,8 @@
 import { For, Show, createMemo } from "solid-js";
 import type { CalEvent } from "../api";
 import { weeksForMonth, weekLayout, todayKey } from "./calUtils";
-import { useI18n } from "@/i18n";
-import { isFeatureEnabled } from "@/shared/store/auth-store";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { isFeatureEnabled } from "@utsukta/spa-core/store/auth-store";
 
 const LANE_H = 22;
 const DAY_NUM_H = 30;

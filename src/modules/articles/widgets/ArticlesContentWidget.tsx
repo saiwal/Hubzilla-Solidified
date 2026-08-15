@@ -1,15 +1,15 @@
-import { createEffect, createSignal, Show, For, Index } from "solid-js";
+import { createEffect, createSignal, onCleanup, Show, For, Index } from "solid-js";
 import { MdOutlineArticle, MdOutlineShare, MdOutlineContent_copy } from "solid-icons/md";
 import { BiRegularCheck } from "solid-icons/bi";
 import { useNavigate } from "@solidjs/router";
-import { useI18n } from "@/i18n";
-import { toast } from "@/shared/store/toast";
-import { useAuth } from "@/shared/store/auth-store";
-import { usePageNick } from "@/shared/store/site-config";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
 import PostComposer from "@/shared/editor/composers/PostComposer";
-import { hydrateLatex } from "@/shared/lib/hydrateLatex";
+import { hydrateLatex } from "@utsukta/spa-core/lib/hydrateLatex";
 import { posts, loading, hasMore, loadArticles, resetPosts, loadMore } from "../store";
-import type { Post } from "@/shared/types/post.types";
+import type { Post } from "@utsukta/spa-core/types/post.types";
 import { articlePath, articleShareUrl, buildArticleShareBody } from "../lib/articleLinks";
 import { useIsArticlesList } from "../lib/isArticlesList";
 
@@ -173,6 +173,8 @@ export default function ArticlesContentWidget() {
     resetPosts();
     loadArticles(nick());
   });
+
+  onCleanup(() => resetPosts());
 
   const goToArticle = (post: Post) => {
     navigate(articlePath(nick(), post));

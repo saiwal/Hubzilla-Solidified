@@ -42,12 +42,12 @@ import SummaryField from "../components/SummaryField";
 import { PrimarySubmitButton, SecondaryButton, ToggleButton, IconButton } from "../components/buttons";
 import AttachmentBar from "../attachments/AttachmentBar";
 import { createAttachmentStore } from "../attachments/useAttachments";
-import { currentNick, isFeatureEnabled } from "@/shared/store/auth-store";
+import { currentNick, isFeatureEnabled } from "@utsukta/spa-core/store/auth-store";
 import { bbcodeToInsert, patchInsertedAlt } from "../attachments/insertHelpers";
 import type { FileAcl } from "@/modules/files/api";
-import { useI18n } from "@/i18n";
-import { toast } from "@/shared/store/toast";
-import { getCsrfToken } from "@/shared/lib/csrf";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { getCsrfToken } from "@utsukta/spa-core/lib/csrf";
 import { useEncrypt } from "../useEncrypt";
 import EncryptToggle from "../components/EncryptToggle";
 // Lazy: these panels are only ever shown once a user opts into encrypting or

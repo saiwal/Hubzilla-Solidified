@@ -12,14 +12,14 @@ import {
   type Component,
   type JSX,
 } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { Portal } from "solid-js/web";
 import { fetchConnections } from "@/modules/network/api";
 import type { AclEntry } from "@/modules/network/api";
 import { useConnectionSearch } from "./useConnectionSearch";
-import { useDropdown } from "@/shared/lib/useDropdown";
+import { useDropdown } from "@utsukta/spa-core/lib/useDropdown";
 import { motion } from "solid-motionone";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { MdOutlinePublic, MdFillLock, MdOutlineTune, MdFillCheck, MdOutlineGroup, MdOutlinePerson, MdFillPerson } from "solid-icons/md";
 void motion;
 

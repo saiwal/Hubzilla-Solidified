@@ -2,9 +2,9 @@
 import { Show, Suspense } from "solid-js";
 import { Portal } from "solid-js/web";
 import { marked } from "marked";
-import { useHelpMode, type DocType } from "@/shared/store/help-mode";
-import { useDocs } from "@/shared/lib/useDocs";
-import { useI18n } from "@/i18n";
+import { useHelpMode, type DocType } from "@utsukta/spa-core/store/help-mode";
+import { useDocs } from "@utsukta/spa-core/lib/useDocs";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export default function HelpOverlay() {
   const { t } = useI18n();
@@ -107,7 +107,7 @@ function DocContent(props: { target: string }) {
     // Relative image srcs in the markdown are relative to that same directory.
     const slashIdx = module().lastIndexOf("/");
     const topicDir = slashIdx === -1 ? "" : module().slice(0, slashIdx);
-    const assetBase = `/view/theme/solidified/docs/${docType()}/${locale()}/${topicDir ? topicDir + "/" : ""}`;
+    const assetBase = `/view/theme/${__THEME_SLUG__}/docs/${docType()}/${locale()}/${topicDir ? topicDir + "/" : ""}`;
 
     return html.replace(
       /(<img\s[^>]*src=")(?!https?:\/\/|data:|\/)(.*?)(")/gi,

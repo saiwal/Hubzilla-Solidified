@@ -1,6 +1,6 @@
 import { createSignal, For, onCleanup, Show } from "solid-js";
 import { MdFillImage, MdFillCheck, MdFillFolder } from "solid-icons/md";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import SharedImageEditor from "@/shared/views/ImageEditor";
 import {
   fetchPhotoSummary,
@@ -9,7 +9,7 @@ import {
   type Photo,
   type Album,
 } from "@/modules/photos/api/api";
-import { currentNick } from "@/shared/store/auth-store";
+import { currentNick } from "@utsukta/spa-core/store/auth-store";
 
 export function ImageEditor() {
   const { t } = useI18n();

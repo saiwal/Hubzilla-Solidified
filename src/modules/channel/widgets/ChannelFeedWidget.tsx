@@ -1,6 +1,6 @@
 // src/modules/channel/widgets/ChannelFeedWidget.tsx
 import { For, Show, Switch, Match } from "solid-js";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { useSearchParams } from "@solidjs/router";
 import {
   posts,

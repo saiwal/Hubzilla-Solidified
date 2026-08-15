@@ -37,7 +37,7 @@ export interface SetDefaultResult {
 
 // ── Fetch ─────────────────────────────────────────────────────────────────────
 // modules/manage/api.ts
-import { apiFetch } from '@/shared/lib/fetch';
+import { apiFetch } from '@utsukta/spa-core/lib/fetch';
 
 export async function fetchManageApi(): Promise<ManageApiResponse> {
   const res = await apiFetch('/spa/manage');

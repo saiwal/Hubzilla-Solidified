@@ -1,9 +1,9 @@
 import { For, Show } from "solid-js";
-import type { ThreadNode } from "../lib/thread";
-import { isDeletedStub, isConfirmedDeleted } from "../lib/thread";
+import type { ThreadNode } from "@utsukta/spa-core/lib/thread";
+import { isDeletedStub, isConfirmedDeleted } from "@utsukta/spa-core/lib/thread";
 import type { StreamHandlers } from "../stream/types";
 import PostCard from "../stream/components/PostCard";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export default function CommentThread(props: {
   comments: ThreadNode[];

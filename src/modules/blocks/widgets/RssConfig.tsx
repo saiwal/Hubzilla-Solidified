@@ -1,8 +1,8 @@
 // Settings form for RssWidget instances: feed URL + how many items to show.
 
 import { createSignal, For } from "solid-js";
-import type { WidgetConfigProps } from "@/shared/types/module.types";
-import { useI18n } from "@/i18n";
+import type { WidgetConfigProps } from "@utsukta/spa-core/types/module.types";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 const COUNTS = [3, 5, 10];
 

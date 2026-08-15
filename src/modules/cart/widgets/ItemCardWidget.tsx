@@ -3,12 +3,12 @@
 
 import { createSignal, Show } from "solid-js";
 import { A } from "@solidjs/router";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import type { WidgetProps } from "@/shared/types/module.types";
-import { usePageNick } from "@/shared/store/site-config";
-import { editingWidgets } from "@/shared/store/widget-layout";
-import { toast } from "@/shared/store/toast";
-import { useI18n } from "@/i18n";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import type { WidgetProps } from "@utsukta/spa-core/types/module.types";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
+import { editingWidgets } from "@utsukta/spa-core/store/widget-layout";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { MdFillAdd_shopping_cart, MdFillShopping_cart } from "solid-icons/md";
 import { fetchCatalog, addItem, type CatalogItem } from "../api";
 

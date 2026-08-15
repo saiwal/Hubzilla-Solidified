@@ -4,9 +4,9 @@
 // this is a productivity tool for the page owner, not page content.
 
 import { createSignal, onCleanup, onMount } from "solid-js";
-import type { WidgetProps } from "@/shared/types/module.types";
-import { toast } from "@/shared/store/toast";
-import { useI18n } from "@/i18n";
+import type { WidgetProps } from "@utsukta/spa-core/types/module.types";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 type Phase = "work" | "break";
 

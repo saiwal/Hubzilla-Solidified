@@ -2,8 +2,8 @@
 // All are multiInstance + configurable and live only in user layouts
 // (defaultModules: []), placeable on any module's pages.
 
-import { registerModule } from "@/shared/lib/module-registry";
-import { useI18n } from "@/i18n";
+import { registerModule } from "@utsukta/spa-core/module-registry";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 registerModule({
   id: "blocks",

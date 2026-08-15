@@ -1,6 +1,6 @@
-import { mapActivityToPost } from "@/shared/lib/activity.mapper";
-import type { Post } from "@/shared/types/post.types";
-import { apiFetch } from "@/shared/lib/fetch";
+import { mapActivityToPost } from "@utsukta/spa-core/lib/activity.mapper";
+import type { Post } from "@utsukta/spa-core/types/post.types";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
 
 export interface ArticleListResponse {
   meta: { offset: number; limit: number; root_count: number };

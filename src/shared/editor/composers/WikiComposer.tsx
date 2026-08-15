@@ -1,5 +1,5 @@
 import { createSignal, Show } from "solid-js";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import RichEditor from "../core/RichEditor";
 import { CAPABILITIES } from "../types/editor.types";
 import type { MimeType, EditorTab } from "../types/editor.types";

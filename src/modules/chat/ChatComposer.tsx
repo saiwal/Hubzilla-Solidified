@@ -3,9 +3,9 @@ import { createSignal, createEffect, Show, onCleanup, lazy } from "solid-js";
 import { createComposerStore } from "@/shared/editor/store/createComposerStore";
 import RichEditor from "@/shared/editor/core/RichEditor";
 import { CAPABILITIES } from "@/shared/editor/types/editor.types";
-import { useI18n } from "@/i18n";
-import { encryptBody } from "@/shared/lib/postCrypto";
-import { isFeatureEnabled } from "@/shared/store/auth-store";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { encryptBody } from "@utsukta/spa-core/lib/postCrypto";
+import { isFeatureEnabled } from "@utsukta/spa-core/store/auth-store";
 import {
   useMention,
   getWysiwygMentionQuery,
@@ -19,9 +19,9 @@ import {
 } from "@/shared/editor/emoji/useEmoji";
 import EmojiPopup from "@/shared/editor/emoji/EmojiPopup";
 import EmojiPicker from "@/shared/editor/emoji/EmojiPicker";
-import { emojiEntryToImg } from "@/shared/lib/emojify";
+import { emojiEntryToImg } from "@utsukta/spa-core/lib/emojify";
 import { sendChatMessage, roomName, roomAcl } from "./store";
-import { currentNick } from "@/shared/store/auth-store";
+import { currentNick } from "@utsukta/spa-core/store/auth-store";
 import { uploadChatMedia } from "./chatAttach";
 import { htmlToSource } from "@/shared/editor/core/htmlToSource";
 import {

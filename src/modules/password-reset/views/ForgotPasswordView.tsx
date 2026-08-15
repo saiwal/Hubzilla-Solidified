@@ -1,8 +1,8 @@
 import { createSignal, onMount, Show } from "solid-js";
 import { A } from "@solidjs/router";
 import { fetchPasswordResetToken, requestPasswordReset } from "../api/api";
-import { toast } from "@/shared/store/toast";
-import { useI18n } from "@/i18n";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export default function ForgotPasswordView() {
   const { t } = useI18n();

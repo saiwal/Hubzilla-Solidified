@@ -1,14 +1,14 @@
 import { Show, lazy } from "solid-js";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { createComposerStore } from "../store/createComposerStore";
 import RichEditor from "../core/RichEditor";
 import { CAPABILITIES } from "../types/editor.types";
-import { apiFetch } from "@/shared/lib/fetch";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
 import SourceToggleButton from "../components/SourceToggleButton";
 import AttachmentBar from "../attachments/AttachmentBar";
 import { createAttachmentStore } from "../attachments/useAttachments";
 import { bbcodeToInsert, patchInsertedAlt } from "../attachments/insertHelpers";
-import { currentNick, isFeatureEnabled } from "@/shared/store/auth-store";
+import { currentNick, isFeatureEnabled } from "@utsukta/spa-core/store/auth-store";
 import { useEncrypt } from "../useEncrypt";
 import EncryptToggle from "../components/EncryptToggle";
 // Lazy: only fetched once the user opts into encrypting or decrypting — see

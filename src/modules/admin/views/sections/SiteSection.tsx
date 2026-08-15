@@ -1,13 +1,13 @@
 import { createSignal, Show } from "solid-js";
 import { A } from "@solidjs/router";
 import { useQueryClient } from "@tanstack/solid-query";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import SubPageContent from "@/shared/views/SubPageContent";
 import { fetchAdminSite, saveAdminSite, fetchAdminThemes, uploadSiteLogo, removeSiteLogo } from "../../api";
 import { useSectionForm } from "@/modules/settings/store/useSectionForm";
 import type { AdminSite } from "../../types";
-import { useI18n } from "@/i18n";
-import { toast } from "@/shared/store/toast";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { toast } from "@utsukta/spa-core/store/toast";
 
 const REGISTER_POLICIES = [
   { value: 0, label: "Closed – no new registrations" },

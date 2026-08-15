@@ -1,0 +1,13 @@
+/*
+ * Blank starting point — solidified's fonts.css defines @font-face rules for
+ * a "Nunito" font (files under public/fonts/, served at
+ * /view/theme/<slug>/assets/fonts/... in both dev and prod). That's not
+ * copied here since the font files themselves aren't.
+ *
+ * Note: @utsukta/spa-core/lib/typography.ts's FONT_FAMILIES map includes a
+ * "nunito" option (`"Nunito", ..., sans-serif`) — shared infrastructure, not
+ * templated per theme. If you don't ship a matching @font-face here, picking
+ * that option in Settings just falls through to the generic sans-serif
+ * fallback in the stack (not broken, just not actually Nunito). Add your own
+ * @font-face rules here for whatever fonts this theme uses.
+ */

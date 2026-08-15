@@ -1,5 +1,5 @@
-import { apiFetch } from "@/shared/lib/fetch";
-import { getCsrfToken } from "@/shared/lib/csrf";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
+import { getCsrfToken } from "@utsukta/spa-core/lib/csrf";
 import type {
   AdminSummary, AdminSite, AdminAccount, AdminPendingAccount,
   AdminChannel, AdminSecurity, AdminFeatures, AdminAddon, AdminTheme,

@@ -3,9 +3,9 @@ import {
   createSignal, createEffect, createMemo, onMount,
   Show, For
 } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { toast } from "@/shared/store/toast";
-import { useI18n } from "@/i18n";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { useParams, A, useNavigate } from "@solidjs/router";
 import { Portal } from "solid-js/web";
 import { fetchArticle, deleteArticle } from "../api";
@@ -14,15 +14,15 @@ import ArticleComposer from "@/shared/editor/composers/ArticleComposer";
 import ArticleComposerModal from "@/shared/editor/composers/ArticleComposerModal";
 import CommentComposer from "@/shared/editor/composers/CommentComposer";
 import PostComposer from "@/shared/editor/composers/PostComposer";
-import { languageLabel } from "@/shared/lib/languages";
+import { languageLabel } from "@utsukta/spa-core/lib/languages";
 import DOMPurify from "dompurify";
-import { hydrateLatex } from "@/shared/lib/hydrateLatex";
-import { useToc } from "@/shared/lib/useToc";
-import { usePlyr } from "@/shared/lib/usePlyr";
+import { hydrateLatex } from "@utsukta/spa-core/lib/hydrateLatex";
+import { useToc } from "@utsukta/spa-core/lib/useToc";
+import { usePlyr } from "@utsukta/spa-core/lib/usePlyr";
 import ArticleToc from "@/shared/views/ArticleToc";
-import { usePageNick, useViewerRole } from "@/shared/store/site-config";
-import { useAuth } from "@/shared/store/auth-store";
-import { useNavViewer } from "@/shared/store/nav-store";
+import { usePageNick, useViewerRole } from "@utsukta/spa-core/store/site-config";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
+import { useNavViewer } from "@utsukta/spa-core/store/nav-store";
 import { BiRegularEdit, BiRegularTrash, BiRegularCheck } from "solid-icons/bi";
 import {
   MdOutlineThumb_up,
@@ -32,16 +32,16 @@ import {
   MdOutlineContent_copy,
   MdOutlineTranslate,
 } from "solid-icons/md";
-import { apiToggleLike, apiToggleDislike, apiDeleteItem, apiEditItem } from "@/shared/lib/item-api";
-import { bbcodeToHtml } from "@/shared/lib/bbcode";
-import { oembedResolver } from "@/shared/lib/oembedResolver";
-import { sanitizeHtml } from "@/shared/lib/sanitize";
-import { buildThreadTree, countAllComments, REACTION_VERBS } from "@/shared/lib/thread";
-import type { ThreadNode } from "@/shared/lib/thread";
+import { apiToggleLike, apiToggleDislike, apiDeleteItem, apiEditItem } from "@utsukta/spa-core/lib/item-api";
+import { bbcodeToHtml } from "@utsukta/spa-core/lib/bbcode";
+import { oembedResolver } from "@utsukta/spa-core/lib/oembedResolver";
+import { sanitizeHtml } from "@utsukta/spa-core/lib/sanitize";
+import { buildThreadTree, countAllComments, REACTION_VERBS } from "@utsukta/spa-core/lib/thread";
+import type { ThreadNode } from "@utsukta/spa-core/lib/thread";
 import type { StreamHandlers } from "@/shared/stream/types";
 import CommentThread from "@/shared/views/CommentThread";
 import AttachmentList from "@/shared/stream/components/AttachmentList";
-import type { Post } from "@/shared/types/post.types";
+import type { Post } from "@utsukta/spa-core/types/post.types";
 
 // ── edit modal ────────────────────────────────────────────────────────────────
 

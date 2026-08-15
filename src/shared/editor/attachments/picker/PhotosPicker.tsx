@@ -4,10 +4,10 @@ import {
   For,
   type Component,
 } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { fetchAlbums, fetchPhotoAlbum } from "@/modules/photos/api/api";
 import type { Photo, Album } from "@/modules/photos/api/api";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 interface Props {
   nick: string;

@@ -1,13 +1,13 @@
 import { createSignal, For, Show, onMount } from "solid-js";
 import { useNavigate } from "@solidjs/router";
-import { storageSet, storageDel } from "@/shared/lib/storage";
+import { storageSet, storageDel } from "@utsukta/spa-core/lib/storage";
 import type { SavedDraft } from "@/shared/editor/store/createComposerStore";
 import { listServerDrafts, deleteServerDraft } from "@/shared/editor/api/drafts";
 import PostComposer from "@/shared/editor/composers/PostComposer";
 import ArticleComposerModal from "@/shared/editor/composers/ArticleComposerModal";
 import NoteComposerModal from "@/shared/editor/composers/NoteComposerModal";
-import { useAuth } from "@/shared/store/auth-store";
-import { useI18n } from "@/i18n";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { MdFillDelete } from "solid-icons/md";
 
 const DRAFT_TYPES = "post,article,webpage,wiki,note";

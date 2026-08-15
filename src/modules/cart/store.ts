@@ -16,7 +16,7 @@ import {
   markOrderPaid as apiMarkPaid, addOrderNote as apiAddNote,
   fulfillOrderItem as apiFulfill, cancelOrderItem as apiCancel,
 } from './api';
-import { toast } from '@/shared/store/toast';
+import { toast } from '@utsukta/spa-core/store/toast';
 
 // ── State ─────────────────────────────────────────────────────────────────────
 

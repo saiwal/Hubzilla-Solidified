@@ -1,7 +1,7 @@
 // src/modules/channel/api.ts
-import { apiFetch } from "@/shared/lib/fetch";
-import { mapActivityToPost } from "@/shared/lib/activity.mapper";
-// import type { Post } from "@/shared/types/post.types";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
+import { mapActivityToPost } from "@utsukta/spa-core/lib/activity.mapper";
+// import type { Post } from "@utsukta/spa-core/types/post.types";
 import type { StreamResult } from "@/shared/stream/store/createStreamStore";
 
 export type ChannelParams = {

@@ -5,8 +5,8 @@
 
 import { createSignal, createMemo, For, Show, onMount, onCleanup, createEffect } from "solid-js";
 import { MdOutlineEmoji_emotions } from "solid-icons/md";
-import { getEmojiMap, type EmojiEntry } from "@/shared/store/emoji-store";
-import { useI18n } from "@/i18n";
+import { getEmojiMap, type EmojiEntry } from "@utsukta/spa-core/store/emoji-store";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export interface EmojiPickerProps {
   onSelect: (entry: EmojiEntry) => void;

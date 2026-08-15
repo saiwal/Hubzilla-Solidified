@@ -3,7 +3,7 @@ import { For, Show } from "solid-js";
 import { nick, posts, loading, loadingMore, streamHandlers } from "../store";
 import { fetchChannelPosts } from "../api";
 import { fetchCategories } from "@/shared/stream/components/CategoryWidget";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import NewspaperView, {
   type CategoryGroup,
   NewspaperPlaceholder,

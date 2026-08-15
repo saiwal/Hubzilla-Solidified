@@ -1,12 +1,12 @@
 // Shared UI pieces for the Hubzilla-menu widgets (MenuBarWidget /
 // MenuTreeWidget): safe href resolution and the recursive accordion list used
 // wherever the menu renders vertically (sidebar widget, collapsed mobile bar).
-// API types and fetchers live in @/shared/lib/menus.
+// API types and fetchers live in @utsukta/spa-core/lib/menus.
 
 import { createSignal, For, Show, type JSX } from "solid-js";
 import { A } from "@solidjs/router";
 import { MdFillExpand_more, MdFillOpen_in_new } from "solid-icons/md";
-import type { MenuTreeItem } from "@/shared/lib/menus";
+import type { MenuTreeItem } from "@utsukta/spa-core/lib/menus";
 
 export type ResolvedHref =
   | { kind: "internal"; path: string }

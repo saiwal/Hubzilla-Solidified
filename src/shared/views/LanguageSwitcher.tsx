@@ -1,7 +1,7 @@
-import { useI18n, LOCALES, type Locale } from "@/i18n/index";
+import { useI18n, LOCALES, type Locale } from "@utsukta/spa-core/i18n/index";
 import { For, Show } from "solid-js";
-import { Motion, Presence, scalePreset } from "../lib/motion-presets";
-import { useDropdown } from "../lib/useDropdown";
+import { Motion, Presence, scalePreset } from "@utsukta/spa-core/lib/motion-presets";
+import { useDropdown } from "@utsukta/spa-core/lib/useDropdown";
 
 const LanguageSwitcher = () => {
   const { t, locale, setLocale } = useI18n();

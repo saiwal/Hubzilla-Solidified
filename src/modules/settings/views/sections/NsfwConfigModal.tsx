@@ -1,9 +1,9 @@
 import { createSignal, Show } from "solid-js";
 import { Portal } from "solid-js/web";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { apiFetch } from "@/shared/lib/fetch";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
 import { inputClass } from "../../store/FormHelpers";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 interface NsfwSettings {
   nsfw_words: string;

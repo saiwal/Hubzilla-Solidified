@@ -1,5 +1,5 @@
 import CategoryCloudWidget from "@/shared/stream/components/CategoryCloudWidget";
-import { usePageNick } from "@/shared/store/site-config";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
 import { useSearchParams } from "@solidjs/router";
 
 export default function ChannelCategoryCloudWidget() {

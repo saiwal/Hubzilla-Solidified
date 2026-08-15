@@ -4,9 +4,9 @@
 // Response: { data: { categories: { name: string; slug: string; count: number }[] } }
 
 import { type Component, createEffect, on, For, Show } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { useI18n } from "@/i18n";
-import { toast } from "@/shared/store/toast";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { toast } from "@utsukta/spa-core/store/toast";
 
 // ---------------------------------------------------------------------------
 // Types

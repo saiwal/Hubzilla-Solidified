@@ -2,7 +2,7 @@ import { lazy, createMemo, Suspense, Show } from "solid-js";
 import { Dynamic } from "solid-js/web";
 import { useLocation, Navigate } from "@solidjs/router";
 import SubPageLayout from "@/shared/views/SubPageLayout";
-import { useAuth } from "@/shared/store/auth-store";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
 import { ADMIN_ITEMS } from "../index";
 
 const SECTIONS: Record<string, ReturnType<typeof lazy>> = {

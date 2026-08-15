@@ -1,18 +1,18 @@
 import { createResource, createSignal, lazy, Show } from "solid-js";
 import { Portal } from "solid-js/web";
 import { useParams, A } from "@solidjs/router";
-import { useI18n } from "@/i18n";
-import { toast } from "@/shared/store/toast";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { toast } from "@utsukta/spa-core/store/toast";
 import { fetchProfile, saveProfile, uploadPhoto } from "../api/api";
 import { fetchPhotoImage, type Photo } from "@/modules/photos/api/api";
 import { Section, Toggle, inputClass } from "@/modules/settings/store/FormHelpers";
 import PhotosPicker from "@/shared/editor/attachments/picker/PhotosPicker";
-import { currentNick } from "@/shared/store/auth-store";
+import { currentNick } from "@utsukta/spa-core/store/auth-store";
 import RichEditor from "@/shared/editor/core/RichEditor";
 import SourceToggleButton from "@/shared/editor/components/SourceToggleButton";
 import { CAPABILITIES } from "@/shared/editor/types/editor.types";
 import type { EditorTab } from "@/shared/editor/types/editor.types";
-import { isAnimatedImage } from "@/shared/lib/isAnimatedImage";
+import { isAnimatedImage } from "@utsukta/spa-core/lib/isAnimatedImage";
 
 // Lazy-loaded so Filerobot + React don't inflate the profile chunk
 const ImageEditor = lazy(() => import("@/shared/views/ImageEditor"));

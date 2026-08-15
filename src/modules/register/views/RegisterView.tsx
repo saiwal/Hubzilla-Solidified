@@ -1,10 +1,10 @@
 import { createSignal, Show, Switch, Match } from "solid-js";
 import { A } from "@solidjs/router";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { fetchRegisterConfig, submitRegister } from "../api/api";
-import { toast } from "@/shared/store/toast";
-import { useI18n } from "@/i18n";
-import { useNavData } from "@/shared/store/nav-store";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { useNavData } from "@utsukta/spa-core/store/nav-store";
 
 export default function RegisterView() {
   const { t } = useI18n();

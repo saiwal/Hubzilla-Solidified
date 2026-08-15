@@ -8,7 +8,7 @@
 // xl+ sidebar stays visually last via `order-last` regardless.
 import { createSignal, Show, For } from "solid-js";
 import { MdOutlineToc } from "solid-icons/md";
-import type { TocEntry } from "@/shared/lib/useToc";
+import type { TocEntry } from "@utsukta/spa-core/lib/useToc";
 
 function indentClass(level: number, minLevel: number): string {
   const d = level - minLevel;

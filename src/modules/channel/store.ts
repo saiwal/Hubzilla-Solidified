@@ -1,12 +1,12 @@
 // src/modules/channel/store.ts
 import { createSignal } from "solid-js";
-import { storageGet, storageSet } from "@/shared/lib/storage";
+import { storageGet, storageSet } from "@utsukta/spa-core/lib/storage";
 import { createStreamStore } from "@/shared/stream/store/createStreamStore";
 import { fetchChannelPosts } from "./api";
 import type { ChannelParams, ChannelStreamResult } from "./api";
 import { createActionHandlers, findNode } from "@/shared/stream/store/actions-store";
-import { apiTogglePin } from "@/shared/lib/item-api";
-import { toast } from "@/shared/store/toast";
+import { apiTogglePin } from "@utsukta/spa-core/lib/item-api";
+import { toast } from "@utsukta/spa-core/store/toast";
 import type { ViewMode, StreamHandlers } from "@/shared/stream/types";
 
 // ── nick signal (channel-specific) ───────────────────────────────────────────

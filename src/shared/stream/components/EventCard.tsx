@@ -1,10 +1,10 @@
 // src/shared/stream/components/EventCard.tsx
 import { createSignal, Show } from "solid-js";
-import { useI18n } from "@/i18n";
-import { useAuth } from "@/shared/store/auth-store";
-import { apiRsvpAttend, apiRsvpDecline, apiRsvpMaybe } from "@/shared/lib/item-api";
-import type { ThreadNode } from "@/shared/lib/thread";
-import type { EventData } from "@/shared/types/post.types";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
+import { apiRsvpAttend, apiRsvpDecline, apiRsvpMaybe } from "@utsukta/spa-core/lib/item-api";
+import type { ThreadNode } from "@utsukta/spa-core/lib/thread";
+import type { EventData } from "@utsukta/spa-core/types/post.types";
 
 function formatEventDate(iso: string, locale: string): string {
   if (!iso) return "";

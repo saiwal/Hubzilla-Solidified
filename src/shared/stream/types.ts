@@ -1,5 +1,5 @@
 // src/shared/stream/types.ts
-import type { CommentOrder } from "@/shared/store/comment-order";
+import type { CommentOrder } from "@utsukta/spa-core/store/comment-order";
 
 export interface StreamHandlers {
   onLike: (mid: string) => void;

@@ -1,6 +1,6 @@
 import { Show } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { useI18n } from "@/i18n";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { fetchAllBookmarks, type BookmarkMenu } from "../api";
 
 export default function BookmarksHeaderWidget() {

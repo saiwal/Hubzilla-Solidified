@@ -2,7 +2,7 @@
 
 import { createSignal } from "solid-js";
 import { fetchDirectory } from "./api";
-import { toast } from "@/shared/store/toast";
+import { toast } from "@utsukta/spa-core/store/toast";
 import type { DirectoryEntry, DirectoryParams } from "./api";
 
 // ── State ─────────────────────────────────────────────────────────────────────

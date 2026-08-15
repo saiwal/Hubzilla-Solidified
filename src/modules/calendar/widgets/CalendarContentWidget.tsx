@@ -1,9 +1,9 @@
 import {
   createEffect, createSignal, createMemo, Show,
 } from "solid-js";
-import { usePageNick } from "@/shared/store/site-config";
-import { useAuth, isFeatureEnabled } from "@/shared/store/auth-store";
-import { useI18n } from "@/i18n";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
+import { useAuth, isFeatureEnabled } from "@utsukta/spa-core/store/auth-store";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { MdFillChevron_left, MdFillChevron_right } from "solid-icons/md";
 import {
   events, loading, loadCalendar, monthRange, calendarRefreshVersion,

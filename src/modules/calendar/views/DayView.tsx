@@ -4,7 +4,7 @@ import {
   HOUR_H, isoDateStr, todayKey,
   columnLayout, eventTopPx, eventHeightPx,
 } from "./calUtils";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 interface Props {
   date: Date;

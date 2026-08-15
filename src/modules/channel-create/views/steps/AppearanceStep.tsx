@@ -1,8 +1,8 @@
 import { For, Show } from "solid-js";
-import { THEMES, type ThemeId } from "@/shared/types/theme.types";
-import { FONT_SIZES, FONT_FAMILIES, type FontSize } from "@/shared/lib/typography";
-import { RADIUS_MAP, type CornerRadius } from "@/shared/lib/corner-radius";
-import { useI18n } from "@/i18n";
+import { THEMES, type ThemeId } from "@utsukta/spa-core/types/theme.types";
+import { FONT_SIZES, FONT_FAMILIES, type FontSize } from "@utsukta/spa-core/lib/typography";
+import { RADIUS_MAP, type CornerRadius } from "@utsukta/spa-core/lib/corner-radius";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { MdFillCheck } from "solid-icons/md";
 
 const FONT_SIZE_OPTS: { value: FontSize; labelKey: string }[] = [

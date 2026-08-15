@@ -1,6 +1,6 @@
-import { registerModule } from "@/shared/lib/module-registry";
-import { useI18n } from "@/i18n";
-import { usePageNick } from "@/shared/store/site-config";
+import { registerModule } from "@utsukta/spa-core/module-registry";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
 
 registerModule({
   id: "cart",

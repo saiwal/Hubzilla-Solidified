@@ -1,6 +1,6 @@
-import { markItemSeen } from '@/shared/lib/markSeen';
-import { apiFetch } from '@/shared/lib/fetch';
-import { useI18n } from "@/i18n";
+import { markItemSeen } from '@utsukta/spa-core/lib/markSeen';
+import { apiFetch } from '@utsukta/spa-core/lib/fetch';
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { MdOutlineWarning } from "solid-icons/md";
 import {
   createSignal,

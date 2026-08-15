@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -10,9 +13,11 @@
     "build:all": "vite build && node build-sw.mjs",
     "watch": "vite build --watch",
     "typecheck": "tsc -b --watch",
-    "games:download": "node scripts/download-puzzles.mjs"
+    "games:download": "node scripts/download-puzzles.mjs",
+    "theme:create": "node scripts/create-theme.mjs"
   },
   "dependencies": {
+    "@utsukta/spa-core": "*",
     "@bbob/html": "^4.3.1",
     "@bbob/parser": "^4.3.1",
     "@floating-ui/dom": "^1.7.6",

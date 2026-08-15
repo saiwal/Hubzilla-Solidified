@@ -3,8 +3,8 @@ import { Show, For, type Component, createEffect, createSignal, on } from "solid
 import { Portal } from "solid-js/web";
 import type { DirectoryEntry } from "../people/api";
 import { connectToChannel } from "../connections/api";
-import { toast } from "@/shared/store/toast";
-import { useI18n } from "@/i18n";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { MdFillCheck } from "solid-icons/md";
 
 interface Props {

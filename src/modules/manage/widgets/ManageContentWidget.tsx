@@ -7,7 +7,7 @@ import {
 } from "../store";
 import type { ManagedChannel, ManagedDelegate } from "../api";
 import { buildDelegateSwitchUrl } from "../api";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 // ── ChannelCard ───────────────────────────────────────────────────────────────
 

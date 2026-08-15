@@ -1,5 +1,5 @@
 import { createSignal, For, Show, onMount } from "solid-js";
-import { storageSet } from "@/shared/lib/storage";
+import { storageSet } from "@utsukta/spa-core/lib/storage";
 import type { SavedDraft } from "../store/createComposerStore";
 import { listServerDrafts, deleteServerDraft } from "../api/drafts";
 import { MdFillDelete } from "solid-icons/md";

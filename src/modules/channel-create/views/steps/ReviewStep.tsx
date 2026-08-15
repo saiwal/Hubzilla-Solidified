@@ -1,7 +1,7 @@
 import { Show } from "solid-js";
 import type { ChannelRole } from "../../api/api";
-import { THEMES, type ThemeId } from "@/shared/types/theme.types";
-import { useI18n } from "@/i18n";
+import { THEMES, type ThemeId } from "@utsukta/spa-core/types/theme.types";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export default function ReviewStep(props: {
   name: string;

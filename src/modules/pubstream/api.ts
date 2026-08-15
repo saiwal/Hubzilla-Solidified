@@ -1,5 +1,5 @@
 // src/modules/pubstream/api.ts
-import type { Post } from "@/shared/types/post.types";
+import type { Post } from "@utsukta/spa-core/types/post.types";
 
 export interface PubstreamMeta {
   firehose: boolean;

@@ -2,8 +2,8 @@
 // Shared text/image extraction for the card-based feed views (Newspaper,
 // Timeline, Scrapbook) — none of them render the full post body via
 // PostCard, so they each need a plain-text teaser and an optional hero image.
-import type { Post } from "@/shared/types/post.types";
-import { parseEventData } from "@/shared/lib/activity.mapper";
+import type { Post } from "@utsukta/spa-core/types/post.types";
+import { parseEventData } from "@utsukta/spa-core/lib/activity.mapper";
 
 function stripHtml(html: string): string {
   const raw = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();

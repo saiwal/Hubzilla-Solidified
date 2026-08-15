@@ -1,10 +1,10 @@
 import { Show, For, createSignal, createEffect } from "solid-js";
 import { A } from "@solidjs/router";
 import { useQuery } from "@tanstack/solid-query";
-import { toast } from "@/shared/store/toast";
+import { toast } from "@utsukta/spa-core/store/toast";
 import SubPageContent from "@/shared/views/SubPageContent";
-import { apiFetch } from "@/shared/lib/fetch";
-import { useI18n } from "@/i18n";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 interface PortabilityMeta {
   export_enabled: boolean;

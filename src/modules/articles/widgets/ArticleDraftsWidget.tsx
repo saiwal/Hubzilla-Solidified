@@ -1,10 +1,10 @@
 import { createSignal, Show } from "solid-js";
-import { storageDel } from "@/shared/lib/storage";
+import { storageDel } from "@utsukta/spa-core/lib/storage";
 import DraftsWidgetBase, { type DraftEntry, type DraftsWidgetApi } from "@/shared/editor/components/DraftsWidgetBase";
 import ArticleComposerModal from "@/shared/editor/composers/ArticleComposerModal";
-import { useAuth } from "@/shared/store/auth-store";
-import { useViewerRole, usePageNick } from "@/shared/store/site-config";
-import { useI18n } from "@/i18n";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
+import { useViewerRole, usePageNick } from "@utsukta/spa-core/store/site-config";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { resetPosts, loadArticles } from "../store";
 
 // ── Scope helpers ─────────────────────────────────────────────────────────────

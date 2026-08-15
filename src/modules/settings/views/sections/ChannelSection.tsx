@@ -4,7 +4,7 @@ import SubPageContent from "@/shared/views/SubPageContent";
 import { fetchChannelSettings, saveChannelSettings } from "../../api/api";
 import { useSectionForm } from "../../store/useSectionForm";
 import { SaveBar, Group, Field, SwitchRow, inputClass } from "../../store/FormHelpers";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { MdOutlineFilter_alt, MdOutlineManage_accounts, MdOutlineShield, MdOutlineTune } from "solid-icons/md";
 
 interface PermRow {

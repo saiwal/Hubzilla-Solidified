@@ -1,8 +1,8 @@
 // Settings form for PomodoroWidget instances: focus and break durations.
 
 import { createSignal, For } from "solid-js";
-import type { WidgetConfigProps } from "@/shared/types/module.types";
-import { useI18n } from "@/i18n";
+import type { WidgetConfigProps } from "@utsukta/spa-core/types/module.types";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 const WORK_OPTIONS = [15, 25, 45, 60];
 const BREAK_OPTIONS = [5, 10, 15];

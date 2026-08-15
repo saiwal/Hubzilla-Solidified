@@ -1,6 +1,6 @@
 import { For, Show } from "solid-js";
 import type { SavedDraft } from "../store/createComposerStore";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 function timeAgo(ms: number): string {
   const diff = Date.now() - ms;

@@ -5,7 +5,7 @@ import {
   type Component,
 } from "solid-js";
 import { Portal } from "solid-js/web";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import SharedImageEditor from "@/shared/views/ImageEditor";
 import { VideoEditor } from "@/modules/tools/components/VideoEditor";
 

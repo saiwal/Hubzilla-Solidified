@@ -1,20 +1,20 @@
 // src/shared/stream/feedviews/NewspaperView.tsx
 import { For, Show, createMemo, createSignal } from "solid-js";
-import type { ThreadNode } from "@/shared/lib/thread";
-import { countAllComments } from "@/shared/lib/thread";
+import type { ThreadNode } from "@utsukta/spa-core/lib/thread";
+import { countAllComments } from "@utsukta/spa-core/lib/thread";
 import type { StreamHandlers } from "../types";
 import PostDetailModal from "@/shared/views/PostDetailModal";
 import EventCard from "../components/EventCard";
-import { parseEventData } from "@/shared/lib/activity.mapper";
+import { parseEventData } from "@utsukta/spa-core/lib/activity.mapper";
 import { excerptOf, firstImageSrc } from "./postExcerpt";
-import type { Post } from "@/shared/types/post.types";
-import { usePageNick } from "@/shared/store/site-config";
-import { useAuth } from "@/shared/store/auth-store";
-import { useI18n } from "@/i18n";
-import formatPostDate from "@/shared/lib/date";
+import type { Post } from "@utsukta/spa-core/types/post.types";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import formatPostDate from "@utsukta/spa-core/lib/date";
 import { MdFillPush_pin } from "solid-icons/md";
 import { BiRegularRss } from "solid-icons/bi";
-import { openFeedModal } from "@/shared/store/feed-modal";
+import { openFeedModal } from "@utsukta/spa-core/store/feed-modal";
 
 function eventOf(post: ThreadNode) {
   return post.eventData ?? (post.body.includes("[event-summary]") ? parseEventData(post.body) : undefined);

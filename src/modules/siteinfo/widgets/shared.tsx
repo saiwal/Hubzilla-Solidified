@@ -1,6 +1,6 @@
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { fetchSiteInfo } from "../api";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 // Every siteinfo widget calls this independently — TanStack Query dedupes
 // the fetch and shares the cache under the "siteinfo" key, so this doesn't

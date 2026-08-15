@@ -4,7 +4,7 @@ import {
   MdFillFormat_list_bulleted, MdFillShort_text,
 } from "solid-icons/md";
 import type { ViewMode } from "@/shared/stream/types";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 type IconType = Component<{ size?: number; class?: string }>;
 

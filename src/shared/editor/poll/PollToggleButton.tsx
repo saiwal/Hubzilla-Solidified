@@ -1,5 +1,5 @@
 import { type Component } from "solid-js";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { ToggleButton } from "../components/buttons";
 
 export interface PollToggleButtonProps {

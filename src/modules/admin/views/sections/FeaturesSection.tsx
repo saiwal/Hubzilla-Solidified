@@ -1,10 +1,10 @@
 import { createSignal, For, Show } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { toast } from "@/shared/store/toast";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { toast } from "@utsukta/spa-core/store/toast";
 import SubPageContent from "@/shared/views/SubPageContent";
 import { fetchAdminFeatures, saveAdminFeatures } from "../../api";
 import type { FeatureItem } from "../../types";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export default function FeaturesSection() {
   const { t } = useI18n();

@@ -11,18 +11,18 @@
 // Planned (not yet implemented):
 //   handleFileInFolder — requires Hubzilla folder/collection API integration
 
-import type { ThreadNode } from "@/shared/lib/thread";
-import { buildThreadTree, appendNewBranches, mergeReplies, applyBranchMeta } from "@/shared/lib/thread";
-import type { Post } from "@/shared/types/post.types";
+import type { ThreadNode } from "@utsukta/spa-core/lib/thread";
+import { buildThreadTree, appendNewBranches, mergeReplies, applyBranchMeta } from "@utsukta/spa-core/lib/thread";
+import type { Post } from "@utsukta/spa-core/types/post.types";
 import type { createStreamStore } from "./createStreamStore";
 import { updateNode } from "./createStreamStore";
-import { fetchComments, fetchItemDetail, apiDeleteItem, apiEditItem, apiToggleStar } from "@/shared/lib/item-api";
-import { mapActivityToPost } from "@/shared/lib/activity.mapper";
-import { sanitizeHtml } from "@/shared/lib/sanitize";
-import { currentNick } from "@/shared/store/auth-store";
-import { useCommentOrder } from "@/shared/store/comment-order";
-import type { CommentOrder } from "@/shared/store/comment-order";
-import { useThreadMode } from "@/shared/store/thread-mode";
+import { fetchComments, fetchItemDetail, apiDeleteItem, apiEditItem, apiToggleStar } from "@utsukta/spa-core/lib/item-api";
+import { mapActivityToPost } from "@utsukta/spa-core/lib/activity.mapper";
+import { sanitizeHtml } from "@utsukta/spa-core/lib/sanitize";
+import { currentNick } from "@utsukta/spa-core/store/auth-store";
+import { useCommentOrder } from "@utsukta/spa-core/store/comment-order";
+import type { CommentOrder } from "@utsukta/spa-core/store/comment-order";
+import { useThreadMode } from "@utsukta/spa-core/store/thread-mode";
 
 // Root comments per page (threaded mode) or comments per page (list/flat
 // mode) — not user-configurable, only comment order and view mode are (see

@@ -1,5 +1,5 @@
 import { Show, lazy } from "solid-js";
-import { useFeedModal } from "@/shared/store/feed-modal";
+import { useFeedModal } from "@utsukta/spa-core/store/feed-modal";
 
 const FeedModal = lazy(() => import("./FeedModal"));
 

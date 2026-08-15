@@ -1,9 +1,9 @@
 import { createSignal, createMemo, For, Show } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import SubPageContent from "@/shared/views/SubPageContent";
 import { fetchAdminChannels, adminChannelAction } from "../../api";
 import type { AdminChannel } from "../../types";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export default function ChannelsSection() {
   const { t } = useI18n();

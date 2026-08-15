@@ -10,9 +10,9 @@ import {
   lazy,
 } from "solid-js";
 import { useNavigate } from "@solidjs/router";
-import { useI18n } from "@/i18n";
-import { useAuth, updateInterval } from "@/shared/store/auth-store";
-import { useIsAdmin } from "@/shared/store/site-config";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { useAuth, updateInterval } from "@utsukta/spa-core/store/auth-store";
+import { useIsAdmin } from "@utsukta/spa-core/store/site-config";
 import {
   MdFillNotifications,
   MdFillClose,
@@ -33,14 +33,14 @@ import {
   MdOutlineAnnouncement,
 } from "solid-icons/md";
 import DOMPurify from "dompurify";
-import { setNotifCount } from "@/shared/lib/notificationCount";
-import { markNotifySeen, markItemSeen } from "@/shared/lib/markSeen";
-import { showDesktopNotification } from "@/shared/lib/desktopNotify";
-import { apiFetch } from "@/shared/lib/fetch";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { resolveNotifyPath, connectionRequestId } from "@/shared/lib/notifyLink";
-import { openConnectionRequestModal } from "@/shared/store/connection-request-modal";
-import { relativeTime } from "@/shared/lib/relativeTime";
+import { setNotifCount } from "@utsukta/spa-core/lib/notificationCount";
+import { markNotifySeen, markItemSeen } from "@utsukta/spa-core/lib/markSeen";
+import { showDesktopNotification } from "@utsukta/spa-core/lib/desktopNotify";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { resolveNotifyPath, connectionRequestId } from "@utsukta/spa-core/lib/notifyLink";
+import { openConnectionRequestModal } from "@utsukta/spa-core/store/connection-request-modal";
+import { relativeTime } from "@utsukta/spa-core/lib/relativeTime";
 const PostDetailModal = lazy(() => import("@/shared/views/PostDetailModal"));
 
 // ── Types ─────────────────────────────────────────────────────────────────────

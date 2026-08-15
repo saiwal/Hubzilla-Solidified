@@ -1,4 +1,4 @@
-import { apiFetch } from '@/shared/lib/fetch';
+import { apiFetch } from '@utsukta/spa-core/lib/fetch';
 export interface Album {
   album:  string;       // display name
   folder: string;       // hash used in URLs
@@ -55,7 +55,7 @@ export async function fetchAlbumsMeta(nick: string): Promise<{ albums: Album[]; 
 
 // createAlbum — POST /spa/photos/:nick/albums
 export async function createAlbum(nick: string, name: string): Promise<Album> {
-  const { getCsrfToken } = await import('@/shared/lib/csrf');
+  const { getCsrfToken } = await import('@utsukta/spa-core/lib/csrf');
   const token = await getCsrfToken().catch(() => '');
   const res = await fetch(`/spa/photos/${nick}/albums`, {
     method: 'POST',
@@ -156,7 +156,7 @@ export async function uploadNewPhoto(
   album = "",
   folder = "",
 ): Promise<PhotoEditResult> {
-  const { getCsrfToken } = await import("@/shared/lib/csrf");
+  const { getCsrfToken } = await import("@utsukta/spa-core/lib/csrf");
   const token = await getCsrfToken().catch(() => "");
   const fd = new FormData();
   const filename = blob instanceof File ? blob.name : "photo.jpg";
@@ -179,7 +179,7 @@ export async function uploadNewPhoto(
 }
 
 export async function deletePhoto(nick: string, resourceId: string): Promise<void> {
-  const { getCsrfToken } = await import('@/shared/lib/csrf');
+  const { getCsrfToken } = await import('@utsukta/spa-core/lib/csrf');
   const token = await getCsrfToken().catch(() => '');
   const res = await fetch(`/spa/photos/${nick}/image/${resourceId}`, {
     method: 'DELETE',
@@ -194,7 +194,7 @@ export async function deletePhoto(nick: string, resourceId: string): Promise<voi
 }
 
 export async function batchDeletePhotos(nick: string, resourceIds: string[]): Promise<void> {
-  const { getCsrfToken } = await import('@/shared/lib/csrf');
+  const { getCsrfToken } = await import('@utsukta/spa-core/lib/csrf');
   const token = await getCsrfToken().catch(() => '');
   const res = await fetch(`/spa/photos/${nick}/images`, {
     method: 'DELETE',
@@ -209,7 +209,7 @@ export async function batchDeletePhotos(nick: string, resourceIds: string[]): Pr
 }
 
 export async function deleteAlbum(nick: string, folderHash: string): Promise<void> {
-  const { getCsrfToken } = await import('@/shared/lib/csrf');
+  const { getCsrfToken } = await import('@utsukta/spa-core/lib/csrf');
   const token = await getCsrfToken().catch(() => '');
   const res = await fetch(`/spa/photos/${nick}/album/${folderHash}`, {
     method: 'DELETE',
@@ -230,7 +230,7 @@ export function uploadPhotoEdit(
   onProgress?: (pct: number) => void,
 ): Promise<PhotoEditResult> {
   return new Promise(async (resolve, reject) => {
-    const { getCsrfToken } = await import("@/shared/lib/csrf");
+    const { getCsrfToken } = await import("@utsukta/spa-core/lib/csrf");
     const token = await getCsrfToken().catch(() => "");
     const fd = new FormData();
     fd.append("file", blob, "edited.jpg");
@@ -280,7 +280,7 @@ export async function saveAcl(
   datum: string,
   acl: { allow_gid: string[]; allow_cid: string[]; deny_gid: string[]; deny_cid: string[]; scope?: "private" },
 ): Promise<void> {
-  const { getCsrfToken } = await import('@/shared/lib/csrf');
+  const { getCsrfToken } = await import('@utsukta/spa-core/lib/csrf');
   const token = await getCsrfToken().catch(() => '');
   const res = await fetch(`/spa/photos/${nick}/${type}/${datum}/acl`, {
     method: 'POST',
@@ -295,7 +295,7 @@ export async function saveAcl(
 }
 
 export async function updatePhotoTitle(nick: string, resourceId: string, title: string): Promise<void> {
-  const { getCsrfToken } = await import('@/shared/lib/csrf');
+  const { getCsrfToken } = await import('@utsukta/spa-core/lib/csrf');
   const token = await getCsrfToken().catch(() => '');
   const res = await fetch(`/spa/photos/${nick}/image/${resourceId}/title`, {
     method: 'POST',
@@ -310,7 +310,7 @@ export async function updatePhotoTitle(nick: string, resourceId: string, title: 
 }
 
 export async function updatePhotoDescription(nick: string, resourceId: string, description: string): Promise<void> {
-  const { getCsrfToken } = await import('@/shared/lib/csrf');
+  const { getCsrfToken } = await import('@utsukta/spa-core/lib/csrf');
   const token = await getCsrfToken().catch(() => '');
   const res = await fetch(`/spa/photos/${nick}/image/${resourceId}/description`, {
     method: 'POST',
@@ -325,7 +325,7 @@ export async function updatePhotoDescription(nick: string, resourceId: string, d
 }
 
 export async function togglePhotoNsfw(nick: string, resourceId: string, is_nsfw: boolean): Promise<void> {
-  const { getCsrfToken } = await import('@/shared/lib/csrf');
+  const { getCsrfToken } = await import('@utsukta/spa-core/lib/csrf');
   const token = await getCsrfToken().catch(() => '');
   const res = await fetch(`/spa/photos/${nick}/image/${resourceId}/nsfw`, {
     method: 'POST',
@@ -340,7 +340,7 @@ export async function togglePhotoNsfw(nick: string, resourceId: string, is_nsfw:
 }
 
 export async function renamePhoto(nick: string, resourceId: string, filename: string): Promise<void> {
-  const { getCsrfToken } = await import('@/shared/lib/csrf');
+  const { getCsrfToken } = await import('@utsukta/spa-core/lib/csrf');
   const token = await getCsrfToken().catch(() => '');
   const res = await fetch(`/spa/photos/${nick}/image/${resourceId}/rename`, {
     method: 'POST',

@@ -1,0 +1,16 @@
+{
+  "name": "@utsukta/spa-core",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./lib/*": "./src/lib/*.ts",
+    "./store/*": "./src/store/*.ts",
+    "./types/*": "./src/types/*.ts",
+    "./module-registry": "./src/module-registry.ts",
+    "./i18n": "./src/i18n/index.tsx",
+    "./i18n/index": "./src/i18n/index.tsx",
+    "./i18n/locales/namespaces/types": "./src/i18n/locales/namespaces/types.ts"
+  }
+}

@@ -1,7 +1,7 @@
 import { type Component, onMount } from "solid-js";
 import { Portal } from "solid-js/web";
 import { BiRegularX } from "solid-icons/bi";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { FOLDER_ICON_PATH, TYPE_ICON_PATH, MessageList } from "./MessageList";
 
 interface FolderMessagesModalProps {

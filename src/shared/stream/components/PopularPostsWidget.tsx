@@ -21,12 +21,12 @@ import {
   For,
   Show,
 } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { useI18n } from "@/i18n";
-import { toast } from "@/shared/store/toast";
-import formatPostDate from "@/shared/lib/date";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { toast } from "@utsukta/spa-core/store/toast";
+import formatPostDate from "@utsukta/spa-core/lib/date";
 import DOMPurify from "dompurify";
-import { bbcodeToHtml } from "@/shared/lib/bbcode";
+import { bbcodeToHtml } from "@utsukta/spa-core/lib/bbcode";
 import type { StreamHandlers } from "../types";
 const PostDetailModal = lazy(() => import("@/shared/views/PostDetailModal"));
 

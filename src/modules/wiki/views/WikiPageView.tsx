@@ -3,13 +3,13 @@ import {
   createEffect, createSignal, Show, For, onCleanup,
 } from "solid-js";
 import WikiComposer from "@/shared/editor/composers/WikiComposer";
-import { toast } from "@/shared/store/toast";
+import { toast } from "@utsukta/spa-core/store/toast";
 import { useParams, A, useNavigate } from "@solidjs/router";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import DOMPurify from "dompurify";
 import { MdOutlineList } from "solid-icons/md";
-import { hydrateLatex } from "@/shared/lib/hydrateLatex";
-import { storageGet, storageDel } from "@/shared/lib/storage";
+import { hydrateLatex } from "@utsukta/spa-core/lib/hydrateLatex";
+import { storageGet, storageDel } from "@utsukta/spa-core/lib/storage";
 import { saveServerDraft, deleteServerDraft } from "@/shared/editor/api/drafts";
 import type { SavedDraft } from "@/shared/editor/store/createComposerStore";
 import {

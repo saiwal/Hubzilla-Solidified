@@ -1,7 +1,7 @@
 import { onMount, onCleanup, Show, type JSX } from "solid-js";
 import { Portal } from "solid-js/web";
-import { useI18n } from "@/i18n";
-import { helpable } from "@/shared/lib/helpable";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { helpable } from "@utsukta/spa-core/lib/helpable";
 import { IconButton } from "./buttons";
 void helpable;
 

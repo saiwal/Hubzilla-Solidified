@@ -1,10 +1,10 @@
 import { createMemo, Show } from "solid-js";
 import { useLocation } from "@solidjs/router";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import SubPageLayout from "@/shared/views/SubPageLayout";
 import type { SubPageItem } from "@/shared/views/SubPageLayout";
-import { useHelpMode } from "@/shared/store/help-mode";
-import { helpable } from "@/shared/lib/helpable";
+import { useHelpMode } from "@utsukta/spa-core/store/help-mode";
+import { helpable } from "@utsukta/spa-core/lib/helpable";
 import { GAMES } from "../games-registry";
 import GameCanvas from "../components/GameCanvas";
 

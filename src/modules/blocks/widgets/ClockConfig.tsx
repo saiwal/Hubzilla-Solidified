@@ -2,8 +2,8 @@
 // countdown (label + target datetime).
 
 import { createSignal, For, Show } from "solid-js";
-import type { WidgetConfigProps } from "@/shared/types/module.types";
-import { useI18n } from "@/i18n";
+import type { WidgetConfigProps } from "@utsukta/spa-core/types/module.types";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 function timezones(): string[] {
   try {

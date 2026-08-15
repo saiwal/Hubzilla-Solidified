@@ -1,5 +1,5 @@
 // src/modules/notify/api.ts
-import { apiFetch } from "@/shared/lib/fetch";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
 
 export async function resolveNotify(id: string): Promise<{ link: string }> {
   const res = await apiFetch(`/spa/notify/${id}`);

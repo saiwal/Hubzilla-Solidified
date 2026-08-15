@@ -1,6 +1,6 @@
 import { createSignal, lazy, Show } from "solid-js";
 import type { LatexInsertMode, ToolbarLevel } from "../types/editor.types";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import {
   MdOutlineLink, MdOutlineImage,
   MdOutlineFormat_bold, MdOutlineFormat_italic, MdOutlineFormat_underlined,
@@ -11,8 +11,8 @@ import {
   MdOutlineTable_chart, MdOutlineVisibility_off, MdOutlineFormat_clear,
 } from "solid-icons/md";
 import EmojiPicker from "../emoji/EmojiPicker";
-import type { EmojiEntry } from "@/shared/store/emoji-store";
-import { emojiEntryToImg } from "@/shared/lib/emojify";
+import type { EmojiEntry } from "@utsukta/spa-core/store/emoji-store";
+import { emojiEntryToImg } from "@utsukta/spa-core/lib/emojify";
 import ListToolDropdown from "../components/ListToolDropdown";
 import HeadingToolDropdown from "../components/HeadingToolDropdown";
 

@@ -14,8 +14,8 @@
 
 import { createEffect, createMemo, createSignal, onCleanup, For, Show } from "solid-js";
 import { useParams, A, useNavigate } from "@solidjs/router";
-import { useAuth } from "@/shared/store/auth-store";
-import { useI18n } from "@/i18n";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import {
   useTemplates,
   loadTemplates,
@@ -25,9 +25,9 @@ import {
   setTemplateChrome,
   templateUsageCount,
   TEMPLATE_SLOTS,
-} from "@/shared/store/widget-templates";
+} from "@utsukta/spa-core/store/widget-templates";
 import { setCurrentPageTemplateId } from "../store";
-import { editingWidgets, setEditingWidgets } from "@/shared/store/widget-layout";
+import { editingWidgets, setEditingWidgets } from "@utsukta/spa-core/store/widget-layout";
 import TemplateNameForm from "@/shared/views/TemplateNameForm";
 import { MdFillAdd, MdOutlineDashboard, MdOutlineEdit, MdFillCheck } from "solid-icons/md";
 

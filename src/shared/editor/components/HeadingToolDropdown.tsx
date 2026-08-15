@@ -7,7 +7,7 @@
 
 import { createSignal, Show, For, onMount, onCleanup } from "solid-js";
 import { MdOutlineTitle } from "solid-icons/md";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export interface HeadingToolDropdownProps {
   disabled?: boolean;

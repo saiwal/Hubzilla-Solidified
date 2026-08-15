@@ -1,5 +1,5 @@
 import { createSignal, createEffect, For, Show, batch } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import SubPageContent from "@/shared/views/SubPageContent";
 import { fetchAdminQueueworker, saveQueueworkerSettings } from "../../api";
 import type { QueueworkerSettings } from "../../types";

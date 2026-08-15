@@ -17,9 +17,9 @@
  */
 import { createEffect, createSignal, onCleanup, onMount, Show, type Component } from "solid-js";
 import { Portal } from "solid-js/web";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { wallAttach } from "@/modules/files/api";
-import { currentNick } from "@/shared/store/auth-store";
+import { currentNick } from "@utsukta/spa-core/store/auth-store";
 import { renderLatexPreview, renderLatexToPngFile, LatexRenderError } from "./renderLatexImage";
 
 interface Props {

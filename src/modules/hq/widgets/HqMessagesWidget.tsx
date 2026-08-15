@@ -1,7 +1,7 @@
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { createSignal, Show, lazy } from "solid-js";
 import { MdOutlineEdit, MdOutlineRefresh } from "solid-icons/md";
-import { useAuth } from "@/shared/store/auth-store";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
 import PostComposer from "@/shared/editor/composers/PostComposer";
 import { MessageList, FolderViewToggle, loadFolderViewMode, saveFolderViewMode, type ViewMode } from "./MessageList";
 

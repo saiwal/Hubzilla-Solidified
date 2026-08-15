@@ -1,9 +1,9 @@
 // src/modules/network/views/ReactorList.tsx
 
 import { Show, For } from 'solid-js';
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { fetchDislikes, fetchLikes, fetchRepeats } from '../api';
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 interface Props {
   mid: string;

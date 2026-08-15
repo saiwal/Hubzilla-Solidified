@@ -10,7 +10,7 @@ import {
 import DirectoryCard from "../DirectoryCard";
 import DirectoryEntryModal from "../DirectoryEntryModal";
 import type { DirectoryEntry } from "../../people/api";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 type Order = "date" | "rdate" | "alphabetic" | "ralpha";
 

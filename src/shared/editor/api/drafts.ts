@@ -1,4 +1,4 @@
-import { apiFetch } from "@/shared/lib/fetch";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
 import type { SavedDraft } from "../store/createComposerStore";
 
 export type ServerDraft = SavedDraft & { serverMid: string; scope: string };

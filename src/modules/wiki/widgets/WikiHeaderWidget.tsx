@@ -1,9 +1,9 @@
 import { createSignal, Show } from "solid-js";
-import { usePageNick } from "@/shared/store/site-config";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
 import { canCreate, loadWikis, resetWikis } from "../store";
 import { createWiki } from "../api";
-import { toast } from "@/shared/store/toast";
-import { useI18n } from "@/i18n";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import AclPicker, { entryKey, type AclMode, type AclEntry } from "@/shared/editor/components/AclPicker";
 import { useIsWikiList } from "../lib/isWikiList";
 

@@ -4,7 +4,7 @@ import {
   For,
   Show,
 } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import {
   fetchConnections,
   fetchPermcats,
@@ -17,7 +17,7 @@ import {
 import type { Connection, Permcat } from "../../connections/api";
 import { fetchGroups } from "../../groups/api";
 import type { PrivacyGroup } from "../../groups/api";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { MdFillAdd, MdFillClose, MdOutlineEdit, MdFillStar, MdFillStar_border } from "solid-icons/md";
 import ConnectionEditorModal from "@/shared/views/ConnectionEditorModal";
 import RolePermissionsModal from "./RolePermissionsModal";

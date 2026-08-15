@@ -1,5 +1,5 @@
 import { useNavigate } from "@solidjs/router";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export default function NotFound() {
   const { t } = useI18n();

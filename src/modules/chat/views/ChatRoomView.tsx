@@ -9,9 +9,9 @@ import {
 	on,
 	untrack,
 } from "solid-js";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { useParams, useNavigate } from "@solidjs/router";
-import { usePageNick } from "@/shared/store/site-config";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
 import {
 	messages,
 	presence,
@@ -36,14 +36,14 @@ import {
 	addChatBookmark,
 	removeChatBookmark,
 } from "../bookmarks";
-import { isLocalUser } from "@/shared/store/auth-store";
+import { isLocalUser } from "@utsukta/spa-core/store/auth-store";
 import { MdFillArrow_back, MdFillPeople, MdFillChat, MdFillLock, MdFillLock_open, MdOutlineTimer } from "solid-icons/md";
-import formatPostDate from "@/shared/lib/date";
+import formatPostDate from "@utsukta/spa-core/lib/date";
 import ChatComposer from "../ChatComposer";
 import DOMPurify from "dompurify";
-import { bbcode } from "@/shared/lib/bbcode";
-import { sanitizeHtml } from "@/shared/lib/sanitize";
-import { decryptPayload, getPayloadHint } from "@/shared/lib/postCrypto";
+import { bbcode } from "@utsukta/spa-core/lib/bbcode";
+import { sanitizeHtml } from "@utsukta/spa-core/lib/sanitize";
+import { decryptPayload, getPayloadHint } from "@utsukta/spa-core/lib/postCrypto";
 
 export default function ChatRoomView() {
 	const params = useParams<{ nick: string; roomId: string }>();

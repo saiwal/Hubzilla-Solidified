@@ -1,9 +1,9 @@
 // src/modules/moderate/views/ModerateView.tsx
 import { For, Show, createSignal } from "solid-js";
 import DOMPurify from "dompurify";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { useI18n } from "@/i18n";
-import { bbcodeToHtml } from "@/shared/lib/bbcode";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { bbcodeToHtml } from "@utsukta/spa-core/lib/bbcode";
 import {
   fetchModerationQueue,
   approveModerationItem,

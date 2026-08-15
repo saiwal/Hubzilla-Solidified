@@ -1,6 +1,6 @@
 import type { Component } from "solid-js";
 import type * as i18n from "@solid-primitives/i18n";
-import type { RawDictionary } from "@/i18n/locales/namespaces/types";
+import type { RawDictionary } from "@utsukta/spa-core/i18n/locales/namespaces/types";
 import {
   MdOutlineRadio_button_checked,
   MdOutlineAccount_tree,

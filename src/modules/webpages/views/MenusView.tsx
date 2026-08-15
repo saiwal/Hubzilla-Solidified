@@ -5,14 +5,14 @@
 
 import { createEffect, createSignal, For, Show } from "solid-js";
 import { useParams, A, useNavigate } from "@solidjs/router";
-import { useAuth } from "@/shared/store/auth-store";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { useI18n } from "@/i18n";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import {
   fetchMyMenus, fetchRawMenu, createMenu, editMenu, deleteMenu,
   createMenuItem, editMenuItem, deleteMenuItem,
   type MenuSummary, type RawMenuItem, type MenuItemInput,
-} from "@/shared/lib/menus";
+} from "@utsukta/spa-core/lib/menus";
 import AclPicker, { entryKey, aclModeToScope, type AclEntry, type AclMode } from "@/shared/editor/components/AclPicker";
 import {
   MdFillAdd, MdFillClose, MdFillDelete, MdFillLock, MdOutlineEdit_note, MdOutlineMenu,

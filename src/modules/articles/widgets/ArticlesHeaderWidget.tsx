@@ -2,9 +2,9 @@ import { createEffect, createSignal, Show } from "solid-js";
 import { MdFillSearch, MdFillClose } from "solid-icons/md";
 import { BiRegularEdit } from "solid-icons/bi";
 import { useSearchParams } from "@solidjs/router";
-import { useI18n } from "@/i18n";
-import { useAuth } from "@/shared/store/auth-store";
-import { useViewerRole, usePageNick } from "@/shared/store/site-config";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
+import { useViewerRole, usePageNick } from "@utsukta/spa-core/store/site-config";
 import ArticleComposer from "@/shared/editor/composers/ArticleComposer";
 import ComposerModal from "@/shared/editor/components/ComposerModal";
 import {

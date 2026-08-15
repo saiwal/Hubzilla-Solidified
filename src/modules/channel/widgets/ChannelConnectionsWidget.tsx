@@ -1,8 +1,8 @@
 import { Show, For } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { usePageNick, useViewerRole } from "@/shared/store/site-config";
-import { apiFetch } from "@/shared/lib/fetch";
-import { useI18n } from "@/i18n";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { usePageNick, useViewerRole } from "@utsukta/spa-core/store/site-config";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 interface ChannelConn {
   name: string;

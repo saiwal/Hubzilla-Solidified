@@ -1,6 +1,6 @@
 import { For, Show } from "solid-js";
 import type { ChannelRole } from "../../api/api";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 const ROLE_HINTS: Record<string, string> = {
   personal: "channel_create.role_hint_personal",

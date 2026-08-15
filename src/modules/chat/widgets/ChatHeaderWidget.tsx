@@ -1,8 +1,8 @@
 import { Show, createSignal } from "solid-js";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { useNavigate } from "@solidjs/router";
-import { usePageNick } from "@/shared/store/site-config";
-import { useAuth } from "@/shared/store/auth-store";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
 import { isOwner, createChatRoom } from "../store";
 import {
   MdFillAdd,

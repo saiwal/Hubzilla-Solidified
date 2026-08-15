@@ -1,10 +1,10 @@
 // src/modules/help/widgets/HelpContentWidget.tsx
 import { createEffect, Show, For } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { useSearchParams, useLocation, A } from "@solidjs/router";
 import DOMPurify from "dompurify";
-import { useI18n } from "@/i18n";
-import { useToc } from "@/shared/lib/useToc";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { useToc } from "@utsukta/spa-core/lib/useToc";
 import ArticleToc from "@/shared/views/ArticleToc";
 import { fetchTopic, fetchHelpSearch } from "../api";
 

@@ -1,17 +1,17 @@
 import { createEffect, onCleanup, Show } from "solid-js";
 import { useParams } from "@solidjs/router";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { renderBody } from "@/shared/lib/renderBody";
-import { handleNsfwToggleClick } from "@/shared/lib/nsfw";
-import { handleDecryptClick } from "@/shared/lib/decrypt-click";
-import { hydrateLatex } from "@/shared/lib/hydrateLatex";
-import { useToc } from "@/shared/lib/useToc";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { renderBody } from "@utsukta/spa-core/lib/renderBody";
+import { handleNsfwToggleClick } from "@utsukta/spa-core/lib/nsfw";
+import { handleDecryptClick } from "@utsukta/spa-core/lib/decrypt-click";
+import { hydrateLatex } from "@utsukta/spa-core/lib/hydrateLatex";
+import { useToc } from "@utsukta/spa-core/lib/useToc";
 import ArticleToc from "@/shared/views/ArticleToc";
 import { fetchWebPageByPagelink } from "../api";
 import { setCurrentPageTemplateId, setCurrentPageChrome } from "../store";
-import { templateChrome, pageTemplateChrome } from "@/shared/store/widget-templates";
-import { useViewerRole } from "@/shared/store/site-config";
-import { useI18n } from "@/i18n";
+import { templateChrome, pageTemplateChrome } from "@utsukta/spa-core/store/widget-templates";
+import { useViewerRole } from "@utsukta/spa-core/store/site-config";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 // Renders a Hubzilla webpage inline in the SPA by fetching its body via the
 // JSON API, via the shared renderBody() helper (bbcode/html/markdown).

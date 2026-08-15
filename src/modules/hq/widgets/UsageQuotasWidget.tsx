@@ -5,11 +5,11 @@
 
 import { For, Show } from "solid-js";
 import { A } from "@solidjs/router";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { fetchAccountSettings } from "@/modules/settings/api/api";
 import type { AccountQuota } from "@/modules/settings/store/types";
 import { formatQuotaValue, quotaPercent } from "@/shared/lib/quota-format";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export default function UsageQuotasWidget() {
   const { t } = useI18n();

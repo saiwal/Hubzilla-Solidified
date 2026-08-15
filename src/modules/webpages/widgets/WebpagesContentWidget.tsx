@@ -1,10 +1,10 @@
 import { createEffect, Show, For } from 'solid-js';
 import { A } from '@solidjs/router';
-import { useAuth } from '@/shared/store/auth-store';
-import { usePageNick, useViewerRole } from '@/shared/store/site-config';
+import { useAuth } from '@utsukta/spa-core/store/auth-store';
+import { usePageNick, useViewerRole } from '@utsukta/spa-core/store/site-config';
 import { pages, loading, loadWebpages, removePage } from '../store';
 import type { WebPage } from '../api';
-import { useI18n } from '@/i18n';
+import { useI18n } from '@utsukta/spa-core/i18n';
 import {
   MdOutlineDescription,
   MdFillLock,

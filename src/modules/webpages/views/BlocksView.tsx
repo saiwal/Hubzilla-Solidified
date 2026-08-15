@@ -6,8 +6,8 @@
 
 import { createEffect, For, Show } from "solid-js";
 import { useParams, A, useNavigate } from "@solidjs/router";
-import { useAuth } from "@/shared/store/auth-store";
-import { useI18n } from "@/i18n";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { blocks, blocksLoading, loadBlocks, removeBlock } from "../store";
 import type { Block } from "../api";
 import {

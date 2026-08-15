@@ -1,6 +1,6 @@
 import { onMount } from "solid-js";
-import { getCsrfToken } from "@/shared/lib/csrf";
-import { useI18n } from "@/i18n";
+import { getCsrfToken } from "@utsukta/spa-core/lib/csrf";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export default function LogoutView() {
   const { t } = useI18n();

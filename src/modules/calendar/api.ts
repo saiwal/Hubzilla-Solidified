@@ -1,5 +1,5 @@
 // src/modules/cal/api.ts
-import { getCsrfToken } from "@/shared/lib/csrf";
+import { getCsrfToken } from "@utsukta/spa-core/lib/csrf";
 
 export interface CalEvent {
   id: number;

@@ -5,9 +5,9 @@ import {
   Switch,
   Match,
 } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
-import { useI18n } from "@/i18n";
-import { toast } from "@/shared/store/toast";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { toast } from "@utsukta/spa-core/store/toast";
 import {
   fetchCdavCalendars,
   createCdavCalendar,
@@ -634,7 +634,7 @@ function ImportSection(props: {
     setImporting(true);
     try {
       const text = await file.text();
-      const { getCsrfToken } = await import("@/shared/lib/csrf");
+      const { getCsrfToken } = await import("@utsukta/spa-core/lib/csrf");
       const { importCalendar } = await import("../api");
 
       if (target() === "channel_calendar") {

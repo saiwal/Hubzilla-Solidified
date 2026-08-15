@@ -1,4 +1,4 @@
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export default function PhotosHeaderWidget() {
   const { t } = useI18n();

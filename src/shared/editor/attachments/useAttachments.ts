@@ -4,7 +4,7 @@ import { wallAttach, updatePermissions } from "@/modules/files/api";
 import type { FileMeta, FileAcl } from "@/modules/files/api";
 import type { Photo } from "@/modules/photos/api/api";
 import type { Attachment, AttachmentStore } from "./types";
-import { storageGet, storageSet, storageDel } from "@/shared/lib/storage";
+import { storageGet, storageSet, storageDel } from "@utsukta/spa-core/lib/storage";
 
 // ── Serialisable subset saved to IDB ─────────────────────────────────────────
 // File objects and blob: URLs are ephemeral and cannot survive a page reload,

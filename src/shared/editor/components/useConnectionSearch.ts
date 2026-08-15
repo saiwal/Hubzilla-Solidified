@@ -9,7 +9,7 @@
  */
 
 import { createSignal, createEffect, on } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { fetchConnections, type AclEntry } from "@/modules/network/api";
 
 export interface ConnectionSearchOptions {

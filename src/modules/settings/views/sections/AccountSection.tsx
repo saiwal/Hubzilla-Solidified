@@ -4,7 +4,7 @@ import { fetchAccountSettings } from "../../api/api";
 import { useSectionForm } from "../../store/useSectionForm";
 import type { AccountQuota } from "../../store/types";
 import { formatQuotaValue, quotaPercent } from "@/shared/lib/quota-format";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 export default function AccountSection() {
   const { t } = useI18n();

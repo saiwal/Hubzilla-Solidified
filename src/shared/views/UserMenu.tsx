@@ -1,8 +1,8 @@
-import type { NavViewer, NavActions } from "@/shared/lib/nav-api";
+import type { NavViewer, NavActions } from "@utsukta/spa-core/lib/nav-api";
 import { Show } from "solid-js";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import NavItem from "./NavItem";
-import { helpable } from "@/shared/lib/helpable";
+import { helpable } from "@utsukta/spa-core/lib/helpable";
 void helpable;
 
 interface NavUtilitiesProps {

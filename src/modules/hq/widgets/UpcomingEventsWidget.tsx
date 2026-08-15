@@ -1,10 +1,10 @@
 import { createSignal, For, Show, onMount } from "solid-js";
-import { toast } from "@/shared/store/toast";
-import { currentNick } from "@/shared/store/auth-store";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { currentNick } from "@utsukta/spa-core/store/auth-store";
 import { fetchEvents, type CalEvent } from "@/modules/calendar/api";
 import EventCreatorModal from "@/modules/calendar/widgets/EventCreatorModal";
 import DayDetailModal from "@/modules/calendar/views/DayDetailModal";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 
 function next30DaysRange() {
   const start = new Date();

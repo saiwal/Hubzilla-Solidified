@@ -1,6 +1,6 @@
 // src/modules/articles/store.ts
 import { createSignal } from "solid-js";
-import { storageGet, storageSet } from "@/shared/lib/storage";
+import { storageGet, storageSet } from "@utsukta/spa-core/lib/storage";
 import { createStreamStore } from "@/shared/stream/store/createStreamStore";
 import { fetchArticles } from "./api";
 import type { StreamResult, StreamParams } from "@/shared/stream/store/createStreamStore";

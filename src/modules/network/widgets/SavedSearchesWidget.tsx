@@ -1,7 +1,7 @@
 import { For, Show, onMount } from "solid-js";
 import { useSearchParams } from "@solidjs/router";
 import { MdFillBookmarks, MdFillDelete } from "solid-icons/md";
-import { useI18n } from "@/i18n";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import { savedSearches, loadSavedSearches, removeSavedSearch, type SavedSearch } from "../saved-searches";
 import { loadNetwork, resetPosts } from "../store";
 import type { NetworkParams } from "../api";

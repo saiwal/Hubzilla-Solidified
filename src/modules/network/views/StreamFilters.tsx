@@ -13,12 +13,12 @@ import {
   For,
   Show,
 } from "solid-js";
-import { createQueryResource } from "@/shared/lib/createQueryResource";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { motion } from "solid-motionone";
-import { useFloating } from "@/shared/lib/useFloating";
+import { useFloating } from "@utsukta/spa-core/lib/useFloating";
 void motion;
 import { useSearchParams } from "@solidjs/router";
-import { apiFetch } from "@/shared/lib/fetch";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
 const PostDetailModal = lazy(() => import("@/shared/views/PostDetailModal"));
 import { loadNetwork, loading, refreshing, resetPosts, softRefresh, viewMode, changeView } from "../store";
 import { ViewSwitcher } from "@/shared/stream/filters";
@@ -32,9 +32,9 @@ import {
   MdFillForum,
   MdFillBookmark_add,
 } from "solid-icons/md";
-import { helpable } from "@/shared/lib/helpable";
-import { toast } from "@/shared/store/toast";
-import { useI18n } from "@/i18n";
+import { helpable } from "@utsukta/spa-core/lib/helpable";
+import { toast } from "@utsukta/spa-core/store/toast";
+import { useI18n } from "@utsukta/spa-core/i18n";
 import {
   fetchConnections,
   type AclConnection,

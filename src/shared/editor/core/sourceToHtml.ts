@@ -1,11 +1,11 @@
 import { marked } from "marked";
 import DOMPurify from "dompurify";
-import { bbcodeToHtml } from "@/shared/lib/bbcode";
-import { apiFetch } from "@/shared/lib/fetch";
-import { SCAN_RE, MATCH_RE, loadKatex } from "@/shared/lib/hydrateLatex";
-import { emojify } from "@/shared/lib/emojify";
-import { getEmojiMap } from "@/shared/store/emoji-store";
-import { useEmojiAsImages } from "@/shared/store/emoji-as-images";
+import { bbcodeToHtml } from "@utsukta/spa-core/lib/bbcode";
+import { apiFetch } from "@utsukta/spa-core/lib/fetch";
+import { SCAN_RE, MATCH_RE, loadKatex } from "@utsukta/spa-core/lib/hydrateLatex";
+import { emojify } from "@utsukta/spa-core/lib/emojify";
+import { getEmojiMap } from "@utsukta/spa-core/store/emoji-store";
+import { useEmojiAsImages } from "@utsukta/spa-core/store/emoji-as-images";
 import type { MimeType } from "../types/editor.types";
 
 /** Convert source-format body to HTML for the WYSIWYG editor. */

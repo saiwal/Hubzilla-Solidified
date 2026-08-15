@@ -1,7 +1,7 @@
-import { registerModule } from "@/shared/lib/module-registry";
-import { useI18n } from "@/i18n";
-import { usePageNick } from "@/shared/store/site-config";
-import type { WidgetDef } from "@/shared/types/module.types";
+import { registerModule } from "@utsukta/spa-core/module-registry";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { usePageNick } from "@utsukta/spa-core/store/site-config";
+import type { WidgetDef } from "@utsukta/spa-core/types/module.types";
 
 // These widgets read the current page channel, so they also work on /profile
 const channelWidgetPlacement: Pick<WidgetDef, "slot" | "defaultModules" | "contexts"> = {
