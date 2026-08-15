@@ -1,5 +1,6 @@
 // src/shared/stream/feedviews/ScrapbookView.tsx
-import { For, Show, createSignal } from "solid-js";
+import { For, Show, createSignal, createMemo } from "solid-js";
+import { splitIntoColumns, useColumnCount } from "@utsukta/spa-core/lib/masonry";
 import type { ThreadNode } from "@utsukta/spa-core/lib/thread";
 import { countAllComments } from "@utsukta/spa-core/lib/thread";
 import type { StreamHandlers } from "../types";
@@ -57,7 +58,7 @@ function Stamp(props: { post: ThreadNode; handlers: StreamHandlers }) {
 function PhotoCard(props: { post: ThreadNode; src: string; rotate: string; handlers: StreamHandlers; onOpen: () => void }) {
   return (
     <div class={`${props.rotate} hover:rotate-0 hover:scale-[1.02] transition-transform duration-200
-                  break-inside-avoid mb-5 bg-white p-3 pb-3 shadow-[0_4px_10px_rgba(0,0,0,0.25)] cursor-pointer relative`}
+                  mb-5 bg-white p-3 pb-3 shadow-[0_4px_10px_rgba(0,0,0,0.25)] cursor-pointer relative`}
       onClick={props.onOpen}
     >
       {/* pushpin */}
@@ -82,7 +83,7 @@ function StickyNote(props: { post: ThreadNode; rotate: string; color: string; ha
   return (
     <div
       class={`${props.rotate} ${props.color} hover:rotate-0 hover:scale-[1.02] transition-transform duration-200
-              break-inside-avoid mb-5 p-4 shadow-[0_4px_10px_rgba(0,0,0,0.2)] cursor-pointer relative`}
+              mb-5 p-4 shadow-[0_4px_10px_rgba(0,0,0,0.2)] cursor-pointer relative`}
       onClick={props.onOpen}
     >
       {/* tape */}
@@ -105,7 +106,7 @@ const PLACEHOLDER_HEIGHTS = ["h-32", "h-44", "h-40", "h-28", "h-52", "h-36"];
 export function ScrapbookCardPlaceholder(props: { index: number }) {
   return (
     <div
-      class={`${ROTATIONS[props.index % ROTATIONS.length]} break-inside-avoid mb-5
+      class={`${ROTATIONS[props.index % ROTATIONS.length]} mb-5
               bg-surface border border-rim p-3 shadow-sm animate-pulse`}
     >
       <div class={`w-full ${PLACEHOLDER_HEIGHTS[props.index % PLACEHOLDER_HEIGHTS.length]} bg-accent-muted rounded-sm`} />
@@ -119,11 +120,18 @@ export function ScrapbookCardPlaceholder(props: { index: number }) {
 }
 
 export function ScrapbookPlaceholder(props: { count?: number }) {
+  const [gridEl, setGridEl] = createSignal<HTMLDivElement>();
+  const colCount = useColumnCount(gridEl, 16, 4);
+  const columns = createMemo(() => splitIntoColumns(Array(props.count ?? 8).fill(0), colCount()));
   return (
     <div class="max-w-6xl mx-auto">
-      <div class="columns-2 sm:columns-3 lg:columns-4 gap-5">
-        <For each={Array(props.count ?? 8).fill(0)}>
-          {(_, i) => <ScrapbookCardPlaceholder index={i()} />}
+      <div class="flex gap-5 items-start" ref={setGridEl}>
+        <For each={columns()}>
+          {(col) => (
+            <div class="flex-1 flex flex-col min-w-0">
+              <For each={col}>{(_, i) => <ScrapbookCardPlaceholder index={i()} />}</For>
+            </div>
+          )}
         </For>
       </div>
     </div>
@@ -133,26 +141,38 @@ export function ScrapbookPlaceholder(props: { count?: number }) {
 export default function ScrapbookView(props: { posts: ThreadNode[]; handlers: StreamHandlers }) {
   const { t } = useI18n();
   const [modalUuid, setModalUuid] = createSignal<string | null>(null);
+  const [gridEl, setGridEl] = createSignal<HTMLDivElement>();
+  const colCount = useColumnCount(gridEl, 16, 4);
+  const items = createMemo(() => props.posts.map((post, i) => ({ post, i })));
+  const columns = createMemo(() => splitIntoColumns(items(), colCount()));
 
   return (
     <div class="max-w-6xl mx-auto">
-      <div class="columns-2 sm:columns-3 lg:columns-4 gap-5">
-        <For
-          each={props.posts}
-          fallback={<p class="text-center py-16 text-muted text-sm break-inside-avoid">{t("network.all_caught_up")}</p>}
-        >
-          {(post, i) => {
-            const src = firstImageSrc(post.body);
-            const rotate = ROTATIONS[i() % ROTATIONS.length];
-            const onOpen = () => setModalUuid(post.uuid);
-            return src ? (
-              <PhotoCard post={post} src={src} rotate={rotate} handlers={props.handlers} onOpen={onOpen} />
-            ) : (
-              <StickyNote post={post} rotate={rotate} color={NOTE_COLORS[i() % NOTE_COLORS.length]} handlers={props.handlers} onOpen={onOpen} />
-            );
-          }}
-        </For>
-      </div>
+      <Show
+        when={props.posts.length > 0}
+        fallback={<p class="text-center py-16 text-muted text-sm">{t("network.all_caught_up")}</p>}
+      >
+        <div class="flex gap-5 items-start" ref={setGridEl}>
+          <For each={columns()}>
+            {(col) => (
+              <div class="flex-1 flex flex-col min-w-0">
+                <For each={col}>
+                  {({ post, i }) => {
+                    const src = firstImageSrc(post.body);
+                    const rotate = ROTATIONS[i % ROTATIONS.length];
+                    const onOpen = () => setModalUuid(post.uuid);
+                    return src ? (
+                      <PhotoCard post={post} src={src} rotate={rotate} handlers={props.handlers} onOpen={onOpen} />
+                    ) : (
+                      <StickyNote post={post} rotate={rotate} color={NOTE_COLORS[i % NOTE_COLORS.length]} handlers={props.handlers} onOpen={onOpen} />
+                    );
+                  }}
+                </For>
+              </div>
+            )}
+          </For>
+        </div>
+      </Show>
 
       <Show when={modalUuid()}>
         {(uuid) => (

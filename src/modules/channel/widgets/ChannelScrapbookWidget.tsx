@@ -12,8 +12,8 @@ function ScrapbookBody() {
     <Show when={!loading()} fallback={<ScrapbookPlaceholder />}>
       <ScrapbookView posts={posts()} handlers={streamHandlers} />
       <Show when={loadingMore()}>
-        <div class="max-w-6xl mx-auto columns-2 sm:columns-3 lg:columns-4 gap-5">
-          <For each={Array(4).fill(0)}>{(_, i) => <ScrapbookCardPlaceholder index={i()} />}</For>
+        <div class="max-w-6xl mx-auto flex flex-wrap gap-5">
+          <For each={Array(4).fill(0)}>{(_, i) => <div class="flex-1 min-w-40"><ScrapbookCardPlaceholder index={i()} /></div>}</For>
         </div>
       </Show>
     </Show>
