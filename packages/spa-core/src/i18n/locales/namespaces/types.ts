@@ -881,6 +881,7 @@ export type RawDictionary = {
     location_clear_coord:     string;
     publish_at:               string;
     nocomment_toggle:         string;
+    local_only_toggle:        string;
     expire_at:                string;
     dtp_clear:                string;
     dtp_done:                 string;
@@ -1176,6 +1177,10 @@ export type RawDictionary = {
     privacy_group_actor:          string;
     privacy_ocap:                 string;
     privacy_ocap_hint:            string;
+    privacy_local_only_group:      string;
+    privacy_local_only_group_desc: string;
+    privacy_local_only_posts:      string;
+    privacy_local_only_posts_hint: string;
     privacy_nsfw:                 string;
     privacy_nsfw_desc:            string;
     privacy_nsfw_words:           string;

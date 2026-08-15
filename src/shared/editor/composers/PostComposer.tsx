@@ -42,7 +42,7 @@ import SummaryField from "../components/SummaryField";
 import { PrimarySubmitButton, SecondaryButton, ToggleButton, IconButton } from "../components/buttons";
 import AttachmentBar from "../attachments/AttachmentBar";
 import { createAttachmentStore } from "../attachments/useAttachments";
-import { currentNick, isFeatureEnabled } from "@utsukta/spa-core/store/auth-store";
+import { currentNick, isFeatureEnabled, isLocalOnlyPostsEnabled } from "@utsukta/spa-core/store/auth-store";
 import { bbcodeToInsert, patchInsertedAlt } from "../attachments/insertHelpers";
 import type { FileAcl } from "@/modules/files/api";
 import { useI18n } from "@utsukta/spa-core/i18n";
@@ -115,6 +115,7 @@ const PostComposer: Component<ComposerProps> = (props) => {
   const [locating, setLocating] = createSignal(false);
   const [publishAt, setPublishAt] = createSignal("");
   const [noComment, setNoComment] = createSignal(false);
+  const [localOnly, setLocalOnly] = createSignal(false);
 
   function geotag() {
     if (!navigator.geolocation) return;
@@ -194,6 +195,7 @@ const PostComposer: Component<ComposerProps> = (props) => {
         payload.delayed = 1;
       }
       if (noComment()) payload.nocomment = 1;
+      if (localOnly()) payload.local_only = 1;
 
       if (mode === "public") {
         payload.scope = "public";
@@ -281,6 +283,7 @@ const PostComposer: Component<ComposerProps> = (props) => {
       coord: coord(),
       publishAt: publishAt(),
       noComment: noComment(),
+      localOnly: localOnly(),
     };
     if (mode === "custom") {
       extra.allow = [...acl.allowEntries()];
@@ -303,6 +306,7 @@ const PostComposer: Component<ComposerProps> = (props) => {
     if (typeof extra.coord === "string") setCoord(extra.coord);
     if (typeof extra.publishAt === "string") setPublishAt(extra.publishAt);
     if (typeof extra.noComment === "boolean") setNoComment(extra.noComment);
+    if (typeof extra.localOnly === "boolean") setLocalOnly(extra.localOnly);
     const p = extra.poll as { answers: string[]; expireValue: string; expireUnit: string } | undefined;
     if (p) {
       poll.setEnabled(true);
@@ -332,6 +336,7 @@ const PostComposer: Component<ComposerProps> = (props) => {
     setCoord("");
     setPublishAt("");
     setNoComment(false);
+    setLocalOnly(false);
     poll.reset();
     categoryTags.setPendingCategory("");
     enc.reset();
@@ -479,6 +484,24 @@ const PostComposer: Component<ComposerProps> = (props) => {
                       d="M8 12h8m-4-9a9 9 0 100 18 9 9 0 000-18z" />
                   </svg>
                   {t("editor.nocomment_toggle")}
+                </ToggleButton>
+              </Show>
+
+              {/* Local-only (undelivered) post — gated behind Settings → Privacy
+                  opt-in; hidden for wall-to-wall visitor posts since delivery
+                  gates on the poster, not the wall owner (same reasoning as
+                  the hidden ACL picker above). */}
+              <Show when={isLocalOnlyPostsEnabled() && !props.hideAcl && !props.parentId}>
+                <ToggleButton
+                  active={localOnly()}
+                  onClick={() => setLocalOnly((v) => !v)}
+                  title={t("editor.local_only_toggle")}
+                >
+                  <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                  </svg>
+                  {t("editor.local_only_toggle")}
                 </ToggleButton>
               </Show>
 

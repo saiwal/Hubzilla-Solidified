@@ -20,6 +20,7 @@ export type AuthState = {
   pageSize: number;
 	updateInterval: number;
   features: Record<string, boolean>;
+  localOnlyPostsEnabled: boolean; // Settings → Privacy opt-in for undelivered "wall only" posts
 };
 
 const ANONYMOUS: AuthState = {
@@ -32,6 +33,7 @@ const ANONYMOUS: AuthState = {
   pageSize: 10,
 	updateInterval: 60,
   features: {},
+  localOnlyPostsEnabled: false,
 };
 
 function channelNickFromUrl(): string {
@@ -113,6 +115,7 @@ async function fetchAuthState(): Promise<AuthState> {
     pageSize: parseInt(data.system?.itemspage ?? "10", 10),
     updateInterval: parseInt(data.system?.update_interval ?? "60000", 10),
     features: (data.features ?? {}) as Record<string, boolean>,
+    localOnlyPostsEnabled: isLocal && data.spa?.local_only_posts === "1",
   };
 }
 // Singleton resource — fetched once at boot, shared across the app
@@ -155,4 +158,13 @@ export function updateInterval(): number{
 }
 export function isFeatureEnabled(name: string): boolean {
   return authState()?.features[name] === true;
+}
+export function isLocalOnlyPostsEnabled(): boolean {
+  return authState()?.localOnlyPostsEnabled ?? false;
+}
+/** Patch after a Privacy settings save so the composer reflects it immediately. */
+export function setLocalOnlyPostsEnabled(enabled: boolean) {
+  authActions.mutate((prev) =>
+    prev ? { ...prev, localOnlyPostsEnabled: enabled } : prev,
+  );
 }

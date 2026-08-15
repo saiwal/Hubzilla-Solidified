@@ -3,8 +3,9 @@ import SubPageContent from "@/shared/views/SubPageContent";
 import { apiFetch } from "@utsukta/spa-core/lib/fetch";
 import { useSectionForm } from "../../store/useSectionForm";
 import { SaveBar, Group, SwitchRow } from "../../store/FormHelpers";
+import { setLocalOnlyPostsEnabled } from "@utsukta/spa-core/store/auth-store";
 import { useI18n } from "@utsukta/spa-core/i18n";
-import { MdOutlineTune } from "solid-icons/md";
+import { MdOutlineTune, MdOutlineVisibility_off } from "solid-icons/md";
 
 interface PrivacyData {
   autoperms: number;
@@ -12,6 +13,7 @@ interface PrivacyData {
   permit_all_mentions: number;
   moderate_unsolicited_comments: number;
   ocap_enabled: number;
+  local_only_posts: number;
 }
 
 async function fetchPrivacy(): Promise<PrivacyData> {
@@ -36,6 +38,7 @@ async function savePrivacy(payload: Partial<PrivacyData>): Promise<void> {
 const TOGGLE_FIELDS = [
   "autoperms", "index_opt_out",
   "permit_all_mentions", "moderate_unsolicited_comments", "ocap_enabled",
+  "local_only_posts",
 ] as const;
 
 export default function PrivacySection() {
@@ -46,6 +49,10 @@ export default function PrivacySection() {
     saver: savePrivacy,
     numericFields: [...TOGGLE_FIELDS],
     checkboxFields: [...TOGGLE_FIELDS],
+    onSaved: (payload) => {
+      if ("local_only_posts" in payload)
+        setLocalOnlyPostsEnabled(Number(payload.local_only_posts) === 1);
+    },
   });
 
   return (
@@ -63,6 +70,14 @@ export default function PrivacySection() {
             <SwitchRow name="moderate_unsolicited_comments" label={t("settings.privacy_moderate_comments")} hint={t("settings.privacy_moderate_comments_hint")} checked={!!data()!.moderate_unsolicited_comments} />
             <SwitchRow name="index_opt_out"                 label={t("settings.privacy_index_opt_out")}     hint={t("settings.privacy_index_opt_out_hint")}     checked={!!data()!.index_opt_out} />
             <SwitchRow name="ocap_enabled"                  label={t("settings.privacy_ocap")}              hint={t("settings.privacy_ocap_hint")}              checked={!!data()!.ocap_enabled} />
+          </Group>
+
+          <Group
+            icon={<MdOutlineVisibility_off size={18} />}
+            title={t("settings.privacy_local_only_group")}
+            desc={t("settings.privacy_local_only_group_desc")}
+          >
+            <SwitchRow name="local_only_posts" label={t("settings.privacy_local_only_posts")} hint={t("settings.privacy_local_only_posts_hint")} checked={!!data()!.local_only_posts} />
           </Group>
 
           <SaveBar saving={saving()} />

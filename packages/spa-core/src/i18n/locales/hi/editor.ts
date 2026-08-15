@@ -165,6 +165,7 @@ export const editor: RawDictionary["editor"] = {
   location_clear_coord:     "निर्देशांक हटाएँ",
   publish_at:               "प्रकाशन तिथि निर्धारित करें",
   nocomment_toggle:         "टिप्पणियाँ अक्षम करें",
+  local_only_toggle:        "केवल स्थानीय (डिलीवर न करें)",
   expire_at:                "समाप्ति",
   dtp_clear:                "हटाएँ",
   dtp_done:                 "हो गया",

@@ -25,6 +25,9 @@ export function useSectionForm<T extends object>(options: {
   numericFields?: string[];
   checkboxFields?: string[];
   reloadOn?: (prev: T | undefined, next: Partial<T>) => boolean;
+  /** Called with the saved payload on success — for patching cross-cutting
+   *  client state (e.g. auth-store flags) that other components read. */
+  onSaved?: (payload: Partial<T>) => void;
 }) {
   const {
     section,
@@ -33,6 +36,7 @@ export function useSectionForm<T extends object>(options: {
     numericFields = [],
     checkboxFields = [],
     reloadOn,
+    onSaved,
   } = options;
 
   const queryClient = useQueryClient();
@@ -53,6 +57,7 @@ export function useSectionForm<T extends object>(options: {
         window.location.reload();
         return;
       }
+      onSaved?.(payload);
       toast.success("Saved");
       queryClient.invalidateQueries({ queryKey: ["settings", section] });
     },

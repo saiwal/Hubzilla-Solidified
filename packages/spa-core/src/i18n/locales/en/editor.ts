@@ -174,6 +174,7 @@ export const editor = {
   location_clear_coord:     "Clear coordinates",
   publish_at:               "Set publish date",
   nocomment_toggle:         "Disable comments",
+  local_only_toggle:        "Local only (don't deliver)",
   expire_at:                "Expires",
   dtp_clear:                "Clear",
   dtp_done:                 "Done",

@@ -174,6 +174,7 @@ export const editor = {
   location_clear_coord:     "Koordinaten löschen",
   publish_at:               "Veröffentlichungsdatum festlegen",
   nocomment_toggle:         "Kommentare deaktivieren",
+  local_only_toggle:        "Nur lokal (keine Zustellung)",
   expire_at:                "Läuft ab",
   dtp_clear:                "Löschen",
   dtp_done:                 "Fertig",
