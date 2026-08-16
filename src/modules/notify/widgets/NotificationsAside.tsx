@@ -5,7 +5,6 @@ import {
   For,
   Show,
   createMemo,
-  onMount,
   onCleanup,
   lazy,
 } from "solid-js";
@@ -41,6 +40,7 @@ import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { resolveNotifyPath, connectionRequestId } from "@utsukta/spa-core/lib/notifyLink";
 import { openConnectionRequestModal } from "@utsukta/spa-core/store/connection-request-modal";
 import { relativeTime } from "@utsukta/spa-core/lib/relativeTime";
+import { relativeTick } from "@utsukta/spa-core/lib/date";
 const PostDetailModal = lazy(() => import("@/shared/views/PostDetailModal"));
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -295,13 +295,8 @@ function NotifRow(props: {
   const uuid = () => getDisplayUuid(props.n);
   const navigate = useNavigate();
 
-  const [tick, setTick] = createSignal(0);
-  onMount(() => {
-    const id = setInterval(() => setTick((t) => t + 1), 30000);
-    onCleanup(() => clearInterval(id));
-  });
   const when = () => {
-    tick();
+    relativeTick();
     return relativeTime(props.n.when, t);
   };
 

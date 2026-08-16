@@ -33,6 +33,8 @@ import type { AclEntry } from "@/modules/network/api";
 import { useAclState } from "../components/useAclState";
 import { useCategoryTags } from "../components/useCategoryTags";
 import CategoryTagsField from "../components/CategoryTagsField";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { fetchCategories } from "@/shared/stream/components/CategoryWidget";
 import { usePollState } from "../poll/usePollState";
 import PollToggleButton from "../poll/PollToggleButton";
 import PollPanel from "../poll/PollPanel";
@@ -323,7 +325,16 @@ const PostComposer: Component<ComposerProps> = (props) => {
   const enc = useEncrypt(() => store.body(), store.setBody);
 
   // ── Category tags ──────────────────────────────────────────────────────────
-  const categoryTags = useCategoryTags(store.category, store.setCategory);
+  const [existingCategories] = createQueryResource(
+    "composer-categories",
+    () => ({ channelNick: currentNick(), type: "posts" as const }),
+    fetchCategories,
+  );
+  const categoryTags = useCategoryTags(
+    store.category,
+    store.setCategory,
+    () => (existingCategories() ?? []).map((c) => c.name),
+  );
 
   // ── Reset ──────────────────────────────────────────────────────────────────
   function resetAll() {
@@ -347,6 +358,7 @@ const PostComposer: Component<ComposerProps> = (props) => {
     body: store.body,
     setBody: store.setBody,
     mimetype: store.mimetype,
+    tags: { channelNick: () => currentNick(), type: () => "posts" },
   });
 
   // ── Keyboard shortcuts ─────────────────────────────────────────────────────
@@ -606,6 +618,9 @@ const PostComposer: Component<ComposerProps> = (props) => {
                   categoryTags.addCategoryTag(categoryTags.pendingCategory());
                 }
               }}
+              suggestions={categoryTags.suggestions}
+              activeSuggestion={categoryTags.activeSuggestion}
+              onSelectSuggestion={categoryTags.addCategoryTag}
               placeholder={t("editor.category_placeholder")}
               showLabel
               hideLabel

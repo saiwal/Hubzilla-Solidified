@@ -292,14 +292,15 @@ export default function PostCard(props: {
   usePlyr(bodyRef, () => props.post.body);
   const [bodyExpanded, setBodyExpanded] = createSignal(false);
   const [bodyOverflows, setBodyOverflows] = createSignal(false);
+  // Read-only on purpose: bodyRef is the *inner* body div — the collapse
+  // max-height lives on its parent — so its scrollHeight is already the
+  // natural height. Writing max-height here just to read it back invalidated
+  // layout on every call, and this runs per card on mount plus once per image
+  // load, turning a feed scroll into a burst of forced synchronous reflows.
   const checkBodyOverflow = () => {
     const el = bodyRef();
     if (!el) return;
-    const prev = el.style.maxHeight;
-    el.style.maxHeight = "none";
-    const natural = el.scrollHeight;
-    el.style.maxHeight = prev;
-    setBodyOverflows(natural > BODY_COLLAPSED_MAX_PX);
+    setBodyOverflows(el.scrollHeight > BODY_COLLAPSED_MAX_PX);
   };
   // Captured on mouseup (while the selection still exists) rather than on the
   // Reply click itself — clicking the Reply button collapses the selection
@@ -991,7 +992,6 @@ export default function PostCard(props: {
     return (
       <div
         ref={cardRef}
-        style="overflow-anchor: none"
         class={`relative border-l-2 pl-2 md:pl-3 py-2 md:py-2.5 mb-1 transition-colors duration-500
                ${props.highlighted ? "border-accent bg-accent/5" :  "border-rim/60"}`}
       >
@@ -1659,7 +1659,6 @@ export default function PostCard(props: {
   return (
     <div
       ref={cardRef}
-      style="overflow-anchor: none"
       class={
         (props.seamless
           ? "relative bg-surface p-3 md:p-5"

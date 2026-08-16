@@ -5,9 +5,10 @@
  * dedicated schema field (see Articles.php).
  */
 
-import { Show, type Component } from "solid-js";
+import { Show, createSignal, type Component } from "solid-js";
 import { useI18n } from "@utsukta/spa-core/i18n";
 import { underlineFieldClass } from "../lib/fieldStyles";
+import SuggestPopup from "./SuggestPopup";
 
 export interface SeriesFieldProps {
   name: () => string;
@@ -15,23 +16,44 @@ export interface SeriesFieldProps {
   order: () => number | null;
   onOrderInput: (v: number | null) => void;
   hideLabel?: boolean;
+  /** Existing series names matching the typed name — pick one or keep typing to create a new series. */
+  suggestions?: () => string[];
+  activeSuggestion?: () => number;
+  onSelectSuggestion?: (v: string) => void;
+  onKeyDown?: (e: KeyboardEvent) => void;
 }
 
 const SeriesField: Component<SeriesFieldProps> = (props) => {
   const { t } = useI18n();
+  const [inputEl, setInputEl] = createSignal<HTMLInputElement>();
+  const [focused, setFocused] = createSignal(false);
+  const suggestionItems = () => props.suggestions?.() ?? [];
+  const showSuggestions = () => focused() && suggestionItems().length > 0 && !!inputEl();
   return (
     <div class="flex items-end gap-3">
-      <div class="flex-1 min-w-0">
+      <div class="flex-1 min-w-0 relative">
         <Show when={!props.hideLabel}>
           <label class="block text-xs text-muted mb-1">{t("editor.series_label")}</label>
         </Show>
         <input
+          ref={setInputEl}
           type="text"
           placeholder={t("editor.series_placeholder")}
           value={props.name()}
           onInput={(e) => props.onNameInput(e.currentTarget.value)}
+          onKeyDown={props.onKeyDown}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
           class={`w-full px-0 py-1.5 text-sm text-txt placeholder:text-muted ${underlineFieldClass}`}
         />
+        <Show when={showSuggestions()}>
+          <SuggestPopup
+            items={suggestionItems()}
+            anchorRect={inputEl()!.getBoundingClientRect()}
+            activeIdx={props.activeSuggestion?.() ?? -1}
+            onSelect={(item) => props.onSelectSuggestion?.(item)}
+          />
+        </Show>
       </div>
       <div class="w-20 shrink-0">
         <Show when={!props.hideLabel}>

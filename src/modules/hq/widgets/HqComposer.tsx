@@ -146,6 +146,7 @@ function HqComposer() {
     body,
     setBody,
     mimetype: () => MIME,
+    tags: { channelNick: () => auth()?.nick ?? "", type: () => "posts" },
   });
 
   function onKeyDown(e: KeyboardEvent) {

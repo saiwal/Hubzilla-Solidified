@@ -59,23 +59,41 @@ export function useLayoutChrome() {
   const [panelButtonRef, setPanelButtonRef] = createSignal<HTMLButtonElement>();
   const [rightPanelRef, setRightPanelRef] = createSignal<HTMLElement>();
   const [showScrollTop, setShowScrollTop] = createSignal(false);
-  const onMainScroll = () => setShowScrollTop((mainRef()?.scrollTop ?? 0) > 300);
+  let scrollTicking = false;
+  const onMainScroll = () => {
+    if (scrollTicking) return;
+    scrollTicking = true;
+    requestAnimationFrame(() => {
+      setShowScrollTop((mainRef()?.scrollTop ?? 0) > 300);
+      scrollTicking = false;
+    });
+  };
 
+  // preventScroll is load-bearing: these panels are `position: fixed` and are
+  // still translated off-screen on the rAF right after the open class flips,
+  // so a default focus() makes the browser scroll ancestors (including the
+  // app-wide `main` scroller) trying to reveal them — the page visibly yanks
+  // every time the drawer/sidebar opens. Focus still moves for keyboard and
+  // screen-reader users; only the scroll side effect is dropped.
   createEffect(() => {
     if (moreOpen())
       requestAnimationFrame(() => {
-        morePanelRef()?.querySelector<HTMLElement>("a, button")?.focus();
+        morePanelRef()
+          ?.querySelector<HTMLElement>("a, button")
+          ?.focus({ preventScroll: true });
       });
   });
   createEffect(() => {
     if (rightOpen() && !isXl())
-      requestAnimationFrame(() => rightPanelRef()?.focus());
+      requestAnimationFrame(() =>
+        rightPanelRef()?.focus({ preventScroll: true }),
+      );
   });
   createEffect(
     on(
       rightOpen,
       (isOpen, prevOpen) => {
-        if (prevOpen && !isOpen) panelButtonRef()?.focus();
+        if (prevOpen && !isOpen) panelButtonRef()?.focus({ preventScroll: true });
       },
       { defer: true },
     ),
@@ -84,7 +102,7 @@ export function useLayoutChrome() {
     on(
       moreOpen,
       (isOpen, prevOpen) => {
-        if (prevOpen && !isOpen) moreButtonRef()?.focus();
+        if (prevOpen && !isOpen) moreButtonRef()?.focus({ preventScroll: true });
       },
       { defer: true },
     ),

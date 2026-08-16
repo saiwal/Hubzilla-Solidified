@@ -1,4 +1,7 @@
-import { createSignal, createEffect, Show, onCleanup, lazy } from "solid-js";
+import { createSignal, createEffect, createMemo, Show, onCleanup, lazy } from "solid-js";
+import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
+import { fetchCategories } from "@/shared/stream/components/CategoryWidget";
+import { fetchSeriesList } from "@/modules/articles/api";
 import { DraftsList } from "../components/DraftsList";
 import { createComposerStore } from "../store/createComposerStore";
 import { useI18n } from "@utsukta/spa-core/i18n";
@@ -116,6 +119,45 @@ export default function ArticleComposer(props: Props) {
   const [seriesOrder, setSeriesOrder] =
     createSignal<number | null>(props.initial?.series?.order ?? null);
 
+  // ── Series suggestions — existing series names for this channel ─────────────
+  const [existingSeries] = createQueryResource("composer-series", () => props.nick, fetchSeriesList);
+  const [seriesActiveSuggestion, setSeriesActiveSuggestion] = createSignal(-1);
+  const seriesSuggestions = createMemo<string[]>(() => {
+    const q = series().trim().toLowerCase();
+    const names = (existingSeries() ?? []).map((s) => s.name);
+    if (!q) return names.slice(0, 8);
+    return names
+      .filter((n) => n.toLowerCase().startsWith(q) && n.toLowerCase() !== q)
+      .slice(0, 8);
+  });
+  function onSeriesNameInput(v: string) {
+    setSeries(v);
+    setSeriesActiveSuggestion(-1);
+  }
+  function selectSeriesSuggestion(name: string) {
+    setSeries(name);
+    setSeriesActiveSuggestion(-1);
+  }
+  function onSeriesKeyDown(e: KeyboardEvent) {
+    const items = seriesSuggestions();
+    if (!items.length) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSeriesActiveSuggestion((i) => Math.min(i + 1, items.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSeriesActiveSuggestion((i) => Math.max(i - 1, -1));
+    } else if (e.key === "Enter") {
+      const idx = seriesActiveSuggestion();
+      if (idx >= 0 && items[idx]) {
+        e.preventDefault();
+        selectSeriesSuggestion(items[idx]);
+      }
+    } else if (e.key === "Escape") {
+      setSeriesActiveSuggestion(-1);
+    }
+  }
+
   // ── Composer store ────────────────────────────────────────────────────────────
   // Append [attachment]hash,0[/attachment] BBCode for non-image files.
   // Item.php scans the body for these tags and builds native Hubzilla attachments.
@@ -189,7 +231,16 @@ export default function ArticleComposer(props: Props) {
   const enc = useEncrypt(() => store.body(), store.setBody);
 
   // ── Category tags ──────────────────────────────────────────────────────────
-  const categoryTags = useCategoryTags(store.category, store.setCategory);
+  const [existingCategories] = createQueryResource(
+    "composer-categories",
+    () => ({ channelNick: props.nick, type: "articles" as const }),
+    fetchCategories,
+  );
+  const categoryTags = useCategoryTags(
+    store.category,
+    store.setCategory,
+    () => (existingCategories() ?? []).map((c) => c.name),
+  );
 
   // Seed from initial if editing
   if (props.initial) {
@@ -228,6 +279,7 @@ export default function ArticleComposer(props: Props) {
     body: store.body,
     setBody: store.setBody,
     mimetype: store.mimetype,
+    tags: { channelNick: () => props.nick, type: () => "articles" },
   });
 
   window.addEventListener("keydown", wiring.onKeyDown);
@@ -287,9 +339,13 @@ export default function ArticleComposer(props: Props) {
         {/* Series — optional */}
         <SeriesField
           name={series}
-          onNameInput={setSeries}
+          onNameInput={onSeriesNameInput}
           order={seriesOrder}
           onOrderInput={setSeriesOrder}
+          onKeyDown={onSeriesKeyDown}
+          suggestions={seriesSuggestions}
+          activeSuggestion={seriesActiveSuggestion}
+          onSelectSuggestion={selectSeriesSuggestion}
           hideLabel
         />
 
@@ -306,6 +362,9 @@ export default function ArticleComposer(props: Props) {
                 categoryTags.addCategoryTag(categoryTags.pendingCategory());
               }
             }}
+            suggestions={categoryTags.suggestions}
+            activeSuggestion={categoryTags.activeSuggestion}
+            onSelectSuggestion={categoryTags.addCategoryTag}
             placeholder={t("editor.category_field_placeholder")}
             showLabel
             hideLabel

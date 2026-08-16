@@ -1,7 +1,7 @@
-import { createSignal, For, Show, onMount } from "solid-js";
+import { createSignal, createEffect, on, For, Show, onMount } from "solid-js";
 import { storageSet } from "@utsukta/spa-core/lib/storage";
 import type { SavedDraft } from "../store/createComposerStore";
-import { listServerDrafts, deleteServerDraft } from "../api/drafts";
+import { listServerDrafts, deleteServerDraft, draftsVersion } from "../api/drafts";
 import { MdFillDelete } from "solid-icons/md";
 
 // Shared list UI behind the per-module drafts widgets (articles, webpages,
@@ -81,6 +81,11 @@ export default function DraftsWidgetBase(props: DraftsWidgetBaseProps) {
     void loadAll();
     props.apiRef?.({ reload: loadAll });
   });
+
+  // A draft deleted elsewhere (e.g. published from a routed composer that
+  // navigated here, leaving this widget mounted) still needs to drop off
+  // this list — refetch whenever any draft is deleted server-side.
+  createEffect(on(draftsVersion, () => void loadAll(), { defer: true }));
 
   async function deleteDraft(scope: string, id: string) {
     setDeleting(id);

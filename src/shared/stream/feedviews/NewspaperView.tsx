@@ -69,10 +69,10 @@ function PinRibbon(props: { post: ThreadNode }) {
   return (
     <Show when={props.post.pinned}>
       <span
-        class="absolute -top-2 -left-2 flex items-center justify-center w-6 h-6 rounded-full bg-accent text-accent-fg shadow-sm z-10"
+        class="absolute top-2 right-2 flex items-center justify-center w-5 h-5 rounded-full bg-accent text-accent-fg leading-none z-10"
         title={t("post.pinned_indicator")}
       >
-        <MdFillPush_pin size={12} />
+        <MdFillPush_pin size={11} />
       </span>
     </Show>
   );

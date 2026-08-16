@@ -19,6 +19,15 @@ const NOTE_COLORS = [
   "bg-lime-100 dark:bg-lime-200",
 ];
 
+// Deterministic per-post pick (not Math.random()): masonry rebalances columns as
+// new posts load, remounting existing cards, so a random pick made in the render
+// callback would reroll every time a post moves — this stays stable per post.uuid.
+function pickFor<T>(seed: string, options: T[]): T {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) hash = (hash * 31 + seed.charCodeAt(i)) | 0;
+  return options[Math.abs(hash) % options.length];
+}
+
 function replyCountOf(post: ThreadNode): number {
   return post.children.length > 0 ? countAllComments(post.children) : (post.commentCount ?? 0);
 }
@@ -70,7 +79,7 @@ function PhotoCard(props: { post: ThreadNode; src: string; rotate: string; handl
       </Show>
       <img src={props.src} alt="" class="w-full aspect-square object-cover" />
       <Show when={props.post.title || excerptOf(props.post, 80)}>
-        <p class="mt-2 text-sm italic font-serif text-neutral-800 line-clamp-2">
+        <p class="mt-2 text-sm font-serif text-neutral-800 line-clamp-2">
           {props.post.title || excerptOf(props.post, 80)}
         </p>
       </Show>
@@ -93,7 +102,7 @@ function StickyNote(props: { post: ThreadNode; rotate: string; color: string; ha
           <MdFillPush_pin size={13} />
         </span>
       </Show>
-      <p class="font-serif italic text-[0.9375rem] leading-snug text-neutral-800 line-clamp-6">
+      <p class="font-serif text-[0.9375rem] leading-snug text-neutral-800 line-clamp-6">
         {props.post.title || excerptOf(props.post, 220)}
       </p>
       <Stamp post={props.post} handlers={props.handlers} />
@@ -143,8 +152,7 @@ export default function ScrapbookView(props: { posts: ThreadNode[]; handlers: St
   const [modalUuid, setModalUuid] = createSignal<string | null>(null);
   const [gridEl, setGridEl] = createSignal<HTMLDivElement>();
   const colCount = useColumnCount(gridEl, 16, 4);
-  const items = createMemo(() => props.posts.map((post, i) => ({ post, i })));
-  const columns = createMemo(() => splitIntoColumns(items(), colCount()));
+  const columns = createMemo(() => splitIntoColumns(props.posts, colCount()));
 
   return (
     <div class="max-w-6xl mx-auto">
@@ -157,14 +165,14 @@ export default function ScrapbookView(props: { posts: ThreadNode[]; handlers: St
             {(col) => (
               <div class="flex-1 flex flex-col min-w-0">
                 <For each={col}>
-                  {({ post, i }) => {
+                  {(post) => {
                     const src = firstImageSrc(post.body);
-                    const rotate = ROTATIONS[i % ROTATIONS.length];
+                    const rotate = pickFor(post.uuid, ROTATIONS);
                     const onOpen = () => setModalUuid(post.uuid);
                     return src ? (
                       <PhotoCard post={post} src={src} rotate={rotate} handlers={props.handlers} onOpen={onOpen} />
                     ) : (
-                      <StickyNote post={post} rotate={rotate} color={NOTE_COLORS[i % NOTE_COLORS.length]} handlers={props.handlers} onOpen={onOpen} />
+                      <StickyNote post={post} rotate={rotate} color={pickFor(post.uuid + ":c", NOTE_COLORS)} handlers={props.handlers} onOpen={onOpen} />
                     );
                   }}
                 </For>

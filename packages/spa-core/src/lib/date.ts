@@ -8,6 +8,15 @@ function ensureTicking() {
   setInterval(() => setTick((t) => t + 1), 30000);
 }
 
+// Subscribe to the same 30s tick from components that format their own
+// relative timestamps. Without this each row tends to grow its own interval,
+// which in an always-mounted panel means a steady drip of unsynchronised
+// re-renders rather than one shared one.
+export function relativeTick(): void {
+  ensureTicking();
+  tick();
+}
+
 export default function formatPostDate(dateStr: string, locale = "en"): string {
   ensureTicking();
   tick();

@@ -25,6 +25,13 @@ import {
   type EmojiState,
   type EmojiEntry,
 } from "../emoji/useEmoji";
+import {
+  useTag,
+  getWysiwygTagQuery,
+  getTextareaTagQuery,
+  type TagState,
+  type TagItem,
+} from "../tag/useTag";
 import { htmlToSource } from "../core/htmlToSource";
 import type { MimeType } from "../types/editor.types";
 
@@ -32,19 +39,24 @@ export interface MentionEmojiWiringOptions {
   body: () => string;
   setBody: (v: string) => void;
   mimetype: () => MimeType;
+  /** Enables `#tag` autocomplete in the body. Omit for composers with no tag/category concept (DM, comment, ...). */
+  tags?: { channelNick: () => string; type: () => "posts" | "articles" | "notes" };
 }
 
 export interface MentionEmojiWiring {
   mention: MentionState;
   emoji: EmojiState;
+  tag?: TagState;
   /** Attach to the div wrapping the RichEditor (+ AttachmentBar). */
   wrapperRef: (el: HTMLDivElement) => void;
   /** Insert the given (or currently-active) mention into whichever surface has focus. */
   selectMention: (entry?: MentionEntry) => void;
   /** Insert the given (or currently-active) emoji into whichever surface has focus. */
   selectEmoji: (entry?: EmojiEntry) => void;
+  /** Insert the given (or currently-active) tag into whichever surface has focus. */
+  selectTag: (entry?: TagItem) => void;
   /**
-   * Keydown handler for mention/emoji navigation + Enter/Tab-to-insert +
+   * Keydown handler for mention/emoji/tag navigation + Enter/Tab-to-insert +
    * Escape-to-close. Returns true if the event was consumed — callers should
    * return early (not also treat Enter as submit or Escape as close-modal).
    */
@@ -56,6 +68,7 @@ export function useMentionEmojiWiring(
 ): MentionEmojiWiring {
   const mention = useMention();
   const emoji = useEmoji();
+  const tag = opts.tags ? useTag(opts.tags.channelNick, opts.tags.type) : undefined;
 
   let wrapperEl: HTMLDivElement | undefined;
   function wrapperRef(el: HTMLDivElement) {
@@ -78,6 +91,7 @@ export function useMentionEmojiWiring(
         const r = getCaretRect();
         if (r) mention.openWithQuery(mq, r);
         emoji.close();
+        tag?.close();
         return;
       }
       const eq = getWysiwygEmojiQuery();
@@ -85,7 +99,18 @@ export function useMentionEmojiWiring(
         const r = getCaretRect();
         if (r) emoji.openWithQuery(eq, r);
         mention.close();
+        tag?.close();
         return;
+      }
+      if (tag) {
+        const tq = getWysiwygTagQuery();
+        if (tq !== null) {
+          const r = getCaretRect();
+          if (r) tag.openWithQuery(tq, r);
+          mention.close();
+          emoji.close();
+          return;
+        }
       }
     }
     const ta = getTA();
@@ -94,17 +119,29 @@ export function useMentionEmojiWiring(
       if (mq !== null) {
         mention.openWithQuery(mq, ta.getBoundingClientRect());
         emoji.close();
+        tag?.close();
         return;
       }
       const eq = getTextareaEmojiQuery(ta);
       if (eq !== null) {
         emoji.openWithQuery(eq, ta.getBoundingClientRect());
         mention.close();
+        tag?.close();
         return;
+      }
+      if (tag) {
+        const tq = getTextareaTagQuery(ta);
+        if (tq !== null) {
+          tag.openWithQuery(tq, ta.getBoundingClientRect());
+          mention.close();
+          emoji.close();
+          return;
+        }
       }
     }
     mention.close();
     emoji.close();
+    tag?.close();
   });
 
   function selectMention(entry?: MentionEntry) {
@@ -135,6 +172,21 @@ export function useMentionEmojiWiring(
     if (ta) emoji.insertTextarea(e, ta, opts.setBody);
   }
 
+  function selectTag(entry?: TagItem) {
+    if (!tag) return;
+    const e = entry ?? tag.filtered()[tag.activeIdx()];
+    if (!e) return;
+    const editor = getEditor();
+    if (editor) {
+      tag.insertWysiwyg(e, () =>
+        opts.setBody(htmlToSource(editor.innerHTML, opts.mimetype())),
+      );
+      return;
+    }
+    const ta = getTA();
+    if (ta) tag.insertTextarea(e, ta, opts.setBody);
+  }
+
   function onKeyDown(e: KeyboardEvent): boolean {
     if (mention.open()) {
       const consumed = mention.onKeyDown(e);
@@ -152,8 +204,16 @@ export function useMentionEmojiWiring(
       }
       return false;
     }
+    if (tag?.open()) {
+      const consumed = tag.onKeyDown(e);
+      if (consumed) {
+        if (e.key === "Enter" || e.key === "Tab") selectTag();
+        return true;
+      }
+      return false;
+    }
     return false;
   }
 
-  return { mention, emoji, wrapperRef, selectMention, selectEmoji, onKeyDown };
+  return { mention, emoji, tag, wrapperRef, selectMention, selectEmoji, selectTag, onKeyDown };
 }

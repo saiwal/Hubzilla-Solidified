@@ -1,7 +1,15 @@
+import { createSignal } from "solid-js";
 import { apiFetch } from "@utsukta/spa-core/lib/fetch";
 import type { SavedDraft } from "../store/createComposerStore";
 
 export type ServerDraft = SavedDraft & { serverMid: string; scope: string };
+
+// Bumped whenever a draft is deleted server-side (draft published, or removed
+// from a list) so any mounted drafts widget can refetch — the composer that
+// deletes a draft (createComposerStore.submit, WikiPageView.handleSave, a
+// list's own delete button) is rarely the same component instance as a
+// sidebar drafts widget left mounted on the same routed page.
+export const [draftsVersion, bumpDraftsVersion] = createSignal(0);
 
 export async function listServerDrafts(type = "post"): Promise<ServerDraft[]> {
   try {
@@ -49,6 +57,7 @@ export async function deleteServerDraft(serverMid: string): Promise<void> {
       method: "POST",
       body: JSON.stringify({ mid: serverMid }),
     });
+    bumpDraftsVersion((v) => v + 1);
   } catch {
     // silent
   }

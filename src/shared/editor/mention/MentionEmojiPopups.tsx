@@ -8,6 +8,7 @@
 import { Show, type Component } from "solid-js";
 import MentionPopup from "./MentionPopup";
 import EmojiPopup from "../emoji/EmojiPopup";
+import TagPopup from "../tag/TagPopup";
 import type { MentionEmojiWiring } from "./useMentionEmojiWiring";
 
 export interface MentionEmojiPopupsProps {
@@ -15,7 +16,7 @@ export interface MentionEmojiPopupsProps {
 }
 
 const MentionEmojiPopups: Component<MentionEmojiPopupsProps> = (props) => {
-  const { mention, emoji, selectMention, selectEmoji } = props.wiring;
+  const { mention, emoji, tag, selectMention, selectEmoji, selectTag } = props.wiring;
 
   return (
     <>
@@ -35,6 +36,15 @@ const MentionEmojiPopups: Component<MentionEmojiPopupsProps> = (props) => {
           anchorRect={emoji.rect()!}
           activeIdx={emoji.activeIdx()}
           onSelect={(entry) => selectEmoji(entry)}
+        />
+      </Show>
+
+      <Show when={tag?.open() && tag.rect() !== null}>
+        <TagPopup
+          entries={tag!.filtered()}
+          anchorRect={tag!.rect()!}
+          activeIdx={tag!.activeIdx()}
+          onSelect={(entry) => selectTag(entry)}
         />
       </Show>
     </>
