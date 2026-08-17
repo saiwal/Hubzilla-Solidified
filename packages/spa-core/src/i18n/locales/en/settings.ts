@@ -83,6 +83,7 @@ export const settings: RawDictionary["settings"] = {
   theme:                   "Theme",
   theme_hint:              "The Hubzilla server-side theme. Requires a page reload to apply.",
   color_scheme:            "Color scheme",
+  color_scheme_edit:       "Copy these colors into Custom",
   custom_theme_colors:     "Custom theme colors",
   custom_theme_hint:       "Changes apply immediately and are saved to your account.",
   color_bg:                "Background",

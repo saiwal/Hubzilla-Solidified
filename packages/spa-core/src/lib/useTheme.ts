@@ -44,6 +44,19 @@ const [customColors, setCustomColors] = createSignal<CustomThemeColors>(
   loadCustomColorsFromStorage()
 );
 
+/** Read the currently applied theme's colors so "custom" can start from them. */
+export function colorsFromAppliedTheme(): CustomThemeColors {
+  const cs = getComputedStyle(document.documentElement);
+  const pick = (name: string, fallback: string) =>
+    cs.getPropertyValue(name).trim() || fallback;
+  return {
+    base: pick("--color-base", DEFAULT_CUSTOM_COLORS.base),
+    txt: pick("--color-txt", DEFAULT_CUSTOM_COLORS.txt),
+    accent: pick("--color-accent", DEFAULT_CUSTOM_COLORS.accent),
+    isDark: document.documentElement.classList.contains("dark"),
+  };
+}
+
 export function buildCustomThemeCSS(colors: CustomThemeColors): string {
   const { base, txt, accent, isDark } = colors;
   const w = isDark ? "white" : "black";

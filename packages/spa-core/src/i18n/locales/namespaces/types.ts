@@ -79,6 +79,7 @@ export type RawDictionary = {
     pubsites:      string;
     pubstream:     string;
     bookmarks:     string;
+    inbox:         string;
     profiles:      string;
     drag_reorder:  string;
     new_channel:     string;
@@ -1103,6 +1104,7 @@ export type RawDictionary = {
     theme:                   string;
     theme_hint:              string;
     color_scheme:            string;
+    color_scheme_edit:       string;
     custom_theme_colors:     string;
     custom_theme_hint:       string;
     color_bg:                string;

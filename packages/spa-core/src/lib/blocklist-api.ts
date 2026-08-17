@@ -1,4 +1,4 @@
-import { apiFetch } from "./fetch";
+import { apiFetch, apiError } from "./fetch";
 
 export interface BlockedChannel {
   hash: string;
@@ -10,7 +10,7 @@ export interface BlockedChannel {
 
 export async function fetchBlockedChannels(): Promise<BlockedChannel[]> {
   const res = await apiFetch("/spa/blocklist");
-  if (!res.ok) throw new Error(`blocklist HTTP ${res.status}`);
+  if (!res.ok) throw await apiError(res, "blocklist");
   const body = await res.json();
   return body.data as BlockedChannel[];
 }

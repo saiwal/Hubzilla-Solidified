@@ -4,17 +4,36 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import { ASSET_WEB_PATH, SW_OUT_DIR_REL } from './theme.config.mjs';
+import assert from 'assert';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// The stream poll tick (createStreamStore.checkForNew) requests
+// /spa/network?...&dbegin=<now> — a brand-new URL every ~30s. Caching those
+// would churn the whole offline archive out of the LRU within an hour, so
+// they're routed NetworkOnly.
+const POLL_URL = /\/spa\/.*[?&]dbegin=/;
+assert(POLL_URL.test('https://h/spa/network?order=created&dbegin=2026-08-16%2010%3A00%3A00'));
+assert(POLL_URL.test('https://h/spa/channel/bob?dbegin=x'));
+assert(!POLL_URL.test('https://h/spa/network?star=1'));
 
 const OUT_DIR = path.resolve(__dirname, SW_OUT_DIR_REL);
 
 const { count, size } = await generateSW({
   swDest: path.join(OUT_DIR, 'sw.js'),
   globDirectory: OUT_DIR,
-  globPatterns: ['**/*.{js,css,woff2,png,svg,ico,wasm}'],
+  // Shell only: the hashed app chunks plus the PWA icons, ~5 MB.
+  // Deliberately NOT recursive — the subdirectories hold 31 MB of ffmpeg
+  // wasm, 15 MB of background patterns, 10 MB of puzzle wasm and 4 MB of
+  // fonts. Precaching those made SW install a 36 MB download, which mobile
+  // browsers fail or evict outright — and a failed install means no service
+  // worker at all, so offline stopped working entirely. They're runtime-cached
+  // on first use instead (see hz-assets below); ffmpeg is left uncached, a
+  // 32 MB entry is not worth an origin's storage quota.
+  globPatterns: ['*.{js,css}', '*.{png,svg,ico}'],
   // exclude the sw itself from precache
   globIgnores: ['sw.js'],
+  maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
 
   // app-*.js/css names contain a content hash; the URL itself is the revision
   dontCacheBustURLsMatching: /app-[^/]+\.(?:js|css)$/,
@@ -47,14 +66,38 @@ const { count, size } = await generateSW({
         cacheableResponse: { statuses: [0, 200] },
       },
     },
+    { urlPattern: POLL_URL, handler: 'NetworkOnly' },
     {
+      // Long-lived offline archive: online this always tries the network
+      // first, so nothing goes stale; offline the last-seen response for each
+      // stream URL stays readable for a month.
       urlPattern: /^https?:\/\/[^/]+\/spa\//,
       handler: 'NetworkFirst',
       options: {
         cacheName: 'theme-api',
         networkTimeoutSeconds: 8,
-        expiration: { maxEntries: 120, maxAgeSeconds: 300 },
+        expiration: { maxEntries: 300, maxAgeSeconds: 30 * 86400 },
         cacheableResponse: { statuses: [0, 200] },
+        // Every /spa/ response carries `Vary: Accept-Encoding`. The browser
+        // hides Accept-Encoding from the SW's view of a Request, so a stored
+        // entry can become unmatchable — a cache that looks empty offline.
+        matchOptions: { ignoreVary: true },
+      },
+    },
+    {
+      // Without this a cold start while offline (reopened tab, PWA launch)
+      // gets no HTML at all and the precached assets are unreachable. The
+      // shell names content-hashed assets, so a refresh whenever online keeps
+      // it pointing at whatever the precache currently holds.
+      urlPattern: ({ request, url }) =>
+        request.mode === 'navigate' && url.origin === self.location.origin,
+      handler: 'NetworkFirst',
+      options: {
+        cacheName: 'app-shell',
+        networkTimeoutSeconds: 5,
+        expiration: { maxEntries: 20, maxAgeSeconds: 30 * 86400 },
+        cacheableResponse: { statuses: [200] },
+        matchOptions: { ignoreVary: true },
       },
     },
     {
@@ -62,7 +105,21 @@ const { count, size } = await generateSW({
       handler: 'StaleWhileRevalidate',
       options: {
         cacheName: 'hz-photos',
-        expiration: { maxEntries: 500, maxAgeSeconds: 7 * 86400 },
+        expiration: { maxEntries: 500, maxAgeSeconds: 30 * 86400 },
+        cacheableResponse: { statuses: [0, 200] },
+      },
+    },
+    {
+      // Bulk theme assets, pulled out of the precache: whichever font family,
+      // background pattern or puzzle the user actually loads gets kept, rather
+      // than shipping all of them to every device up front.
+      // ponytail: CacheFirst on unhashed paths — a changed pattern/font file
+      // keeps serving stale for 30 days; hash them if that ever matters.
+      urlPattern: /\/assets\/(fonts|patterns|bg|puzzles)\//,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'hz-assets',
+        expiration: { maxEntries: 80, maxAgeSeconds: 30 * 86400 },
         cacheableResponse: { statuses: [0, 200] },
       },
     },
@@ -113,3 +170,12 @@ self.addEventListener('notificationclick', function (event) {
 fs.appendFileSync(path.join(OUT_DIR, 'sw.js'), PUSH_SW_SNIPPET);
 
 console.log(`[SW] ${count} files precached, ${(size / 1024).toFixed(1)} KB`);
+
+// A precache this size installs in one shot on a phone; past ~10 MB mobile
+// browsers start failing or evicting the install, which silently kills every
+// offline feature. If this trips, runtime-cache the new bulk asset instead of
+// raising the limit.
+assert(
+  size < 10 * 1024 * 1024,
+  `[SW] precache is ${(size / 1048576).toFixed(1)} MB — too large to install reliably on mobile`,
+);

@@ -9,6 +9,7 @@ export const nav: RawDictionary["nav"] = {
   files:         "Dateien",
   help:          "Hilfe",
   hq:            "HQ",
+  inbox:         "Posteingang",
   network:       "Netzwerk",
   channel:       "Kanal",
   photos:        "Fotos",

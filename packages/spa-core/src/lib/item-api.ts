@@ -1,5 +1,6 @@
 // src/shared/lib/item-api.ts
-import { apiFetch } from './fetch';
+import { apiFetch, apiError } from "./fetch";
+import { savePosts, getStoredPost } from './message-store';
 import type { CommentOrder } from '../store/comment-order';
 
 const BASE = '/spa/item';
@@ -12,6 +13,28 @@ function encodeId(uuid: string): string {
 
 export const fetchItemDetail = (uuid: string) =>
   apiFetch(`${BASE}/${encodeId(uuid)}`).then(r => r.json());
+
+/**
+ * The raw item behind /spa/display/:id, falling back to the local copy when
+ * there's no connection — a post read in a stream or opened once before stays
+ * openable offline. Successful fetches are recorded, so opening a post is
+ * itself what saves it.
+ */
+export async function fetchDisplayItem(id: string): Promise<any> {
+  try {
+    const res = await fetch(`/spa/display/${id}`);
+    if (!res.ok) throw await apiError(res);
+    const json = await res.json();
+    const data = json.data ?? json;
+    if (data.error) throw new Error(data.error);
+    void savePosts([data.post]);
+    return data.post;
+  } catch (err) {
+    const stored = await getStoredPost(id);
+    if (stored) return stored;
+    throw err;
+  }
+}
 
 export interface FetchCommentsOpts {
   /** Numeric = roots_limit (threaded) or limit (flat). 'all' = one-shot full-thread fetch (no pagination). */

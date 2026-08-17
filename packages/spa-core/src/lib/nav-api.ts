@@ -1,3 +1,4 @@
+import { apiError } from "./fetch";
 // shared/lib/nav-api.ts
 
 export interface NavViewer {
@@ -191,7 +192,7 @@ export async function fetchNavApi(channelNick?: string): Promise<NavApiResponse>
 
   const url = channelNick ? `/spa/nav?${params}` : "/spa/nav";
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`navapi HTTP ${res.status}`);
+  if (!res.ok) throw await apiError(res, "navapi");
 
   const json = await res.json();
   const raw = json.data ?? json;

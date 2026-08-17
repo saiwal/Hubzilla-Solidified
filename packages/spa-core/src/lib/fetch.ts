@@ -40,3 +40,5 @@ export async function apiFetch(path: string, init: RequestInit = {}): Promise<Re
 
   return res;
 }
+
+export { apiError, truncateError, ERROR_MAX_LEN } from './api-error';

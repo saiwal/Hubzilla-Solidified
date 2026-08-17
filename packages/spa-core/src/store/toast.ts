@@ -1,4 +1,5 @@
 import { createSignal } from "solid-js";
+import { truncateError } from "../lib/fetch";
 
 export type ToastType = "error" | "success" | "info" | "warning";
 
@@ -14,7 +15,9 @@ let _id = 0;
 
 function add(type: ToastType, message: string, duration = 4000, onClick?: () => void): void {
   const id = ++_id;
-  setToasts((prev) => [...prev, { id, type, message, onClick }]);
+  // Clamp here rather than at every call site — raw server/exception text
+  // reaches toasts from dozens of catch blocks.
+  setToasts((prev) => [...prev, { id, type, message: truncateError(message), onClick }]);
   if (duration > 0) setTimeout(() => dismiss(id), duration);
 }
 
