@@ -1,4 +1,5 @@
 // src/modules/pubstream/api.ts
+import { apiError } from "@utsukta/spa-core/lib/fetch";
 import type { Post } from "@utsukta/spa-core/types/post.types";
 
 export interface PubstreamMeta {
@@ -35,7 +36,7 @@ export async function fetchPubstream(
   // 403 = disabled / not allowed — return null so UI can show "disabled" state
   if (res.status === 403 || res.status === 401) return null;
 
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) throw await apiError(res);
 
   const json = await res.json();
   const data = json.data ?? json;

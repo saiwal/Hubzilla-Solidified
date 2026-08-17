@@ -3,6 +3,7 @@
 // API: GET /spa/stream-widgets/archive?channel_nick=<nick>&type=<posts|articles>
 // Response: { data: { archive: { year: number; count: number; months: { month: number; count: number }[] }[] } }
 
+import { apiError } from "@utsukta/spa-core/lib/fetch";
 import {
   type Component,
   createEffect,
@@ -45,7 +46,7 @@ export async function fetchArchive(params: {
   if (params.channelNick) url.searchParams.set("channel_nick", params.channelNick);
   if (params.type) url.searchParams.set("type", params.type);
   const res = await fetch(url.toString());
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) throw await apiError(res);
   const json = await res.json();
   const data = json.data ?? json;
   return data.archive ?? [];
@@ -63,7 +64,7 @@ export async function fetchArchiveDays(params: {
   url.searchParams.set("year", String(params.year));
   url.searchParams.set("month", String(params.month));
   const res = await fetch(url.toString());
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) throw await apiError(res);
   const json = await res.json();
   const data = json.data ?? json;
   return data.days ?? [];

@@ -1,5 +1,5 @@
 // src/modules/moderate/api.ts
-import { apiFetch } from "@utsukta/spa-core/lib/fetch";
+import { apiFetch, apiError } from "@utsukta/spa-core/lib/fetch";
 
 export interface PendingAuthor {
   name?: string;
@@ -47,10 +47,10 @@ export async function fetchPendingReactions(mid: string): Promise<PendingItem[]>
 
 export async function approveModerationItem(iid: number): Promise<void> {
   const res = await apiFetch(`/spa/moderate/${iid}/approve`, { method: "POST", body: "{}" });
-  if (!res.ok) throw new Error(`approve HTTP ${res.status}`);
+  if (!res.ok) throw await apiError(res, "approve");
 }
 
 export async function dropModerationItem(iid: number): Promise<void> {
   const res = await apiFetch(`/spa/moderate/${iid}/drop`, { method: "POST", body: "{}" });
-  if (!res.ok) throw new Error(`drop HTTP ${res.status}`);
+  if (!res.ok) throw await apiError(res, "drop");
 }

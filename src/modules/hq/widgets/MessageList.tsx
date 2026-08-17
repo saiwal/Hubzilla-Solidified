@@ -1,5 +1,4 @@
 import { markItemSeen } from '@utsukta/spa-core/lib/markSeen';
-import { apiFetch } from '@utsukta/spa-core/lib/fetch';
 import { useI18n } from "@utsukta/spa-core/i18n";
 import { MdOutlineWarning } from "solid-icons/md";
 import {
@@ -16,31 +15,10 @@ const PostDetailModal = lazy(() => import("@/shared/views/PostDetailModal"));
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
-interface MessageEntry {
-  b64mid: string;
-  created: string;
-  summary: string;
-  info: string;
-  author_name: string;
-  author_addr: string;
-  href: string;
-  icon: string;
-  // The backend sends a real count when there are unseen replies, but falls
-  // back to a non-numeric placeholder ("&#8192;") when the top-level item
-  // itself is unseen and has no replies yet (see Messages.php::get_messages_page) —
-  // so this isn't always a number.
-  unseen_count: number | string;
-  unseen_class: string;
-  author_img: string;
-}
-
-interface HqResponse {
-  offset: number;
-  entries: MessageEntry[];
-}
-
-export type MessageType = "" | "direct" | "starred" | "notification";
-export type FeedType = MessageType | "folder";
+// Entry shape, the fetcher and the offline store all live in message-store.ts
+// so the inbox module and these HQ widgets share one mailbox.
+import { fetchMessages, type MessageEntry, type MessageType, type FeedType } from "@utsukta/spa-core/lib/message-store";
+export type { MessageType, FeedType };
 
 // Background auto-refresh so new messages show up without a manual click.
 const POLL_INTERVAL = 30_000;
@@ -205,25 +183,6 @@ function avatarHue(name: string): number {
   let h = 0;
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffff;
   return h % 360;
-}
-
-async function fetchMessages(params: {
-  offset: number;
-  type: MessageType | "filed";
-  file: string;
-  search: string;
-  signal?: AbortSignal;
-}): Promise<HqResponse> {
-  const qs = new URLSearchParams({
-    offset: String(params.offset),
-    type: params.type,
-    file: params.file,
-    search: params.search,
-  });
-  const res = await apiFetch(`/spa/hq-messages?${qs.toString()}`, { signal: params.signal });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const { data, meta } = await res.json();
-  return { entries: data, offset: meta?.offset ?? -1 };
 }
 
 // ── Avatar ────────────────────────────────────────────────────────────────
@@ -393,6 +352,8 @@ export const MessageList: Component<{
   type: FeedType;
   file?: string;
   authorFilter?: string;
+  /** Restrict the feed to threads involving this xchan hash. */
+  xchan?: string;
   // Bumped by the parent's refresh button to force a reload without
   // changing type/file (which already trigger a reset on their own).
   reloadKey?: number;
@@ -468,6 +429,7 @@ export const MessageList: Component<{
         type: feedType === "folder" ? "filed" : feedType,
         file: feedType === "folder" ? (props.file ?? "") : "",
         search: (props.authorFilter ?? "").trim(),
+        xchan: props.xchan,
         signal,
       });
 
@@ -501,6 +463,7 @@ export const MessageList: Component<{
     props.file;
     props.reloadKey;
     props.authorFilter;
+    props.xchan;
     setOffset(0);
     loadPage(true);
   });

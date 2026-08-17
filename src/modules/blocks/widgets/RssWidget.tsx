@@ -1,6 +1,7 @@
 // RSS/Atom feed widget (config: { url, count }). Feeds are fetched and parsed
 // server-side via GET /spa/rss-feed — browsers can't fetch cross-origin feeds.
 
+import { apiError } from "@utsukta/spa-core/lib/fetch";
 import { For, Show } from "solid-js";
 import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import type { WidgetProps } from "@utsukta/spa-core/types/module.types";
@@ -24,7 +25,7 @@ async function fetchFeed(params: { url: string; count: number }): Promise<Feed> 
   u.searchParams.set("url", params.url);
   u.searchParams.set("limit", String(params.count));
   const res = await fetch(u.toString());
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) throw await apiError(res);
   const json = await res.json();
   return (json.data ?? json) as Feed;
 }

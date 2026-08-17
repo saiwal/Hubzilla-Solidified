@@ -12,10 +12,10 @@ import { useBgUrl, useBgFit, setBgUrl, setBgFit } from "@utsukta/spa-core/lib/ba
 import { setEmojiAsImages } from "@utsukta/spa-core/store/emoji-as-images";
 import PATTERN_PRESETS from "virtual:public-listing/patterns";
 import BG_PRESETS from "virtual:public-listing/bg";
-import { initTheme, useTheme } from "@utsukta/spa-core/lib/useTheme";
+import { initTheme, useTheme, colorsFromAppliedTheme } from "@utsukta/spa-core/lib/useTheme";
 import { THEMES, type ThemeId } from "@utsukta/spa-core/types/theme.types";
 import { useI18n } from "@utsukta/spa-core/i18n";
-import { MdFillCheck } from "solid-icons/md";
+import { MdFillCheck, MdFillEdit } from "solid-icons/md";
 
 export default function DisplaySection() {
   const { t } = useI18n();
@@ -23,7 +23,7 @@ export default function DisplaySection() {
   const listBehavior = useListBehavior();
   const scrollStyle = useScrollStyle();
   const commentOrder = useCommentOrder();
-  const { customColors, updateCustomColors } = useTheme();
+  const { customColors, updateCustomColors, switchTheme } = useTheme();
 
   const [previewSize, setPreviewSize] = createSignal<FontSize>("medium");
   const [previewFamily, setPreviewFamily] = createSignal<FontFamily>("system");
@@ -93,25 +93,43 @@ export default function DisplaySection() {
 
           {/* SPA color scheme */}
           <Field label={t("settings.color_scheme")}>
-            <select
-              name="color_scheme"
-              class="w-full px-3 py-2 rounded-lg border border-rim bg-surface text-txt
-                     hover:border-rim-strong focus:outline-none focus:border-rim-strong
-                     transition-colors text-sm"
-              onChange={(e) => {
-                const scheme = e.currentTarget.value as ThemeId;
-                setPreviewScheme(scheme);
-                initTheme(scheme);
-              }}
-            >
-              <For each={[...THEMES].sort((a, b) => a.label.localeCompare(b.label))}>
-                {(th) => (
-                  <option value={th.id} selected={th.id === previewScheme()}>
-                    {th.label}
-                  </option>
-                )}
-              </For>
-            </select>
+            <div class="flex items-center gap-2">
+              <select
+                name="color_scheme"
+                class="flex-1 min-w-0 px-3 py-2 rounded-lg border border-rim bg-surface text-txt
+                       hover:border-rim-strong focus:outline-none focus:border-rim-strong
+                       transition-colors text-sm"
+                onChange={(e) => {
+                  const scheme = e.currentTarget.value as ThemeId;
+                  setPreviewScheme(scheme);
+                  initTheme(scheme);
+                }}
+              >
+                <For each={[...THEMES].sort((a, b) => a.label.localeCompare(b.label))}>
+                  {(th) => (
+                    <option value={th.id} selected={th.id === previewScheme()}>
+                      {th.label}
+                    </option>
+                  )}
+                </For>
+              </select>
+              <Show when={previewScheme() !== "custom"}>
+                <button
+                  type="button"
+                  title={t("settings.color_scheme_edit")}
+                  aria-label={t("settings.color_scheme_edit")}
+                  class="p-2 rounded-lg border border-rim bg-surface text-txt
+                         hover:border-rim-strong transition-colors"
+                  onClick={() => {
+                    updateCustomColors(colorsFromAppliedTheme());
+                    switchTheme("custom");
+                    setPreviewScheme("custom");
+                  }}
+                >
+                  <MdFillEdit class="w-4 h-4" />
+                </button>
+              </Show>
+            </div>
           </Field>
 
           {/* Custom theme color editor */}

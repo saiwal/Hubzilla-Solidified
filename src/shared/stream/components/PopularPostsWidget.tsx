@@ -12,6 +12,7 @@
 //   }
 // }
 
+import { apiError } from "@utsukta/spa-core/lib/fetch";
 import {
   type Component,
   createEffect,
@@ -58,7 +59,7 @@ async function fetchPopular(params: {
   if (params.type) url.searchParams.set("type", params.type);
   url.searchParams.set("limit", String(params.limit));
   const res = await fetch(url.toString());
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) throw await apiError(res);
   const json = await res.json();
   const data = json.data ?? json;
   return data.popular ?? [];

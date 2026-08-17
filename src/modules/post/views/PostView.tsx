@@ -14,6 +14,7 @@ import {
   apiEditItem,
   apiToggleStar,
   fetchComments,
+  fetchDisplayItem,
 } from "@utsukta/spa-core/lib/item-api";
 import { toggleVerb, repeatItem, COMMENTS_PAGE_SIZE } from "@/shared/stream/store/actions-store";
 import { useCommentOrder } from "@utsukta/spa-core/store/comment-order";
@@ -37,18 +38,20 @@ function updateNodeInTree(node: ThreadNode, mid: string, updater: (n: ThreadNode
 // sibling-window fetch used when opening a permalink to a specific nested
 // comment instead of the thread root).
 async function fetchPost(uuid: string): Promise<ThreadNode> {
-  const rootRes = await fetch(`/spa/display/${uuid}`);
-  if (!rootRes.ok) throw new Error(`HTTP ${rootRes.status}`);
-  const rootJson = await rootRes.json();
-  const rootData = rootJson.data ?? rootJson;
-  if (rootData.error) throw new Error(rootData.error);
-  const rawRoot = rootData.post;
+  const rawRoot = await fetchDisplayItem(uuid);
 
   const order = useCommentOrder()();
   const threaded = useThreadMode()();
-  const commentsResult = threaded
-    ? await fetchComments(rawRoot.uuid, { count: COMMENTS_PAGE_SIZE, order })
-    : await fetchComments(rawRoot.uuid, { count: COMMENTS_PAGE_SIZE, flat: true, order });
+  // Comments are a second request — see PostDetailModal: offline the root can
+  // come from the local store while the comments have no copy, and a post
+  // without its replies beats an error page.
+  const commentsResult = await (
+    threaded
+      ? fetchComments(rawRoot.uuid, { count: COMMENTS_PAGE_SIZE, order })
+      : fetchComments(rawRoot.uuid, { count: COMMENTS_PAGE_SIZE, flat: true, order })
+  ).catch(
+    () => ({ mid: rawRoot.uuid, total: 0, comments: [] }) as Awaited<ReturnType<typeof fetchComments>>,
+  );
 
   const rootPost: Post = mapActivityToPost(rawRoot);
   const posts = (commentsResult.comments ?? []).map(mapActivityToPost);

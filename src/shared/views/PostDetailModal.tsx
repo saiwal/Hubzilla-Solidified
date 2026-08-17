@@ -9,7 +9,7 @@ import type { Post } from "@utsukta/spa-core/types/post.types";
 import { mapActivityToPost } from "@utsukta/spa-core/lib/activity.mapper";
 import { BiRegularX } from "solid-icons/bi";
 import { useI18n } from "@utsukta/spa-core/i18n";
-import { apiDeleteItem, apiEditItem, apiToggleStar, fetchComments } from "@utsukta/spa-core/lib/item-api";
+import { apiDeleteItem, apiEditItem, apiToggleStar, fetchComments, fetchDisplayItem } from "@utsukta/spa-core/lib/item-api";
 import { toggleVerb, repeatItem, COMMENTS_PAGE_SIZE } from "@/shared/stream/store/actions-store";
 import { useCommentOrder } from "@utsukta/spa-core/store/comment-order";
 import type { CommentOrder } from "@utsukta/spa-core/store/comment-order";
@@ -47,19 +47,24 @@ interface PostDetailResult {
 }
 
 async function fetchPostDetail(uuid: string, order: CommentOrder, threaded: boolean): Promise<PostDetailResult> {
-  const rootRes = await fetch(`/spa/display/${uuid}`);
-  if (!rootRes.ok) throw new Error(`HTTP ${rootRes.status}`);
-  const rootJson = await rootRes.json();
-  const rootData = rootJson.data ?? rootJson;
-  if (rootData.error) throw new Error(rootData.error);
-  const rawRoot = rootData.post;
+  const rawRoot = await fetchDisplayItem(uuid);
 
   const isHighlight = uuid !== rawRoot.uuid;
-  const commentsResult = isHighlight
-    ? await fetchComments(rawRoot.uuid, { around: uuid })
-    : threaded
-      ? await fetchComments(rawRoot.uuid, { count: COMMENTS_PAGE_SIZE, order })
-      : await fetchComments(rawRoot.uuid, { count: COMMENTS_PAGE_SIZE, flat: true, order });
+  // Comments are a second request. Offline the root can come from the local
+  // message store while the comments have no cached copy — show the message
+  // rather than failing the whole thread on its replies.
+  const commentsResult = await (
+    isHighlight
+      ? fetchComments(rawRoot.uuid, { around: uuid })
+      : threaded
+        ? fetchComments(rawRoot.uuid, { count: COMMENTS_PAGE_SIZE, order })
+        : fetchComments(rawRoot.uuid, { count: COMMENTS_PAGE_SIZE, flat: true, order })
+  ).catch(
+    () =>
+      ({ mid: rawRoot.uuid, total: 0, comments: [] }) as Awaited<
+        ReturnType<typeof fetchComments>
+      >,
+  );
 
   // Viewing the thread is what "reads" it — the root's own unseen flag was
   // already cleared by the caller (e.g. MessageItem.handleClick), but

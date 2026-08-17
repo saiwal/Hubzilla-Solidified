@@ -1,3 +1,4 @@
+import { apiError } from "@utsukta/spa-core/lib/fetch";
 import {
   createSignal,
   Show,
@@ -654,7 +655,7 @@ function ImportSection(props: {
           headers: { "X-CSRF-Token": token },
           body: fd,
         });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) throw await apiError(res);
         toast.success(t("calendar.import_success") as string);
       }
 

@@ -1,3 +1,4 @@
+import { truncateError } from "@utsukta/spa-core/lib/fetch";
 import { createSignal, createEffect } from "solid-js";
 import { toast } from "@utsukta/spa-core/store/toast";
 import { storageGet, storageSet, storageDel } from "@utsukta/spa-core/lib/storage";
@@ -168,7 +169,7 @@ export function createComposerStore(
         void deleteSavedDraft(draftId);
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Submit failed";
+      const msg = truncateError(err instanceof Error ? err.message : "Submit failed");
       setError(msg);
       toast.error(msg);
     } finally {

@@ -3,7 +3,9 @@ import { createSignal, Show, For } from "solid-js";
 import { A } from "@solidjs/router";
 import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { usePageNick, useViewerRole } from "@utsukta/spa-core/store/site-config";
-import { MdFillLocation_on, MdFillPublic, MdFillRss_feed } from "solid-icons/md";
+import { MdFillLocation_on, MdFillPublic, MdFillRss_feed, MdOutlineMail } from "solid-icons/md";
+import { useAuth } from "@utsukta/spa-core/store/auth-store";
+import DMComposer from "@/shared/editor/composers/DMComposer";
 import { apiFetch } from "@utsukta/spa-core/lib/fetch";
 import { addConnection } from "@/modules/directory/people/api";
 import { useI18n } from "@utsukta/spa-core/i18n";
@@ -44,7 +46,10 @@ type ChannelProfile = {
   channels: string;
   connections: number;
   is_connected: boolean;
+  /** Connected, but the other channel hasn't approved the request yet. */
+  is_pending?: boolean;
   connect_url: string;
+  channel_hash?: string;
   feed_url?: string;
   is_remote?: boolean;
   actor_fields?: { name: string; value: string }[];
@@ -212,12 +217,7 @@ function ProfileHeader(props: {
             </Show>
           </Show>
           <Show when={!props.isOwner}>
-            <FollowButton
-              nick={p.xchan_addr || p.channel_address}
-              connected={p.is_connected}
-              connectUrl={p.connect_url}
-              isVisitor={props.isVisitor}
-            />
+            <FollowButton p={p} isVisitor={props.isVisitor} />
           </Show>
         </div>
       </div>
@@ -510,22 +510,22 @@ function Field(props: { label: string; value: string; bbcode?: boolean }) {
   );
 }
 
-function FollowButton(props: {
-  nick: string;
-  connected: boolean;
-  connectUrl?: string;
-  isVisitor: boolean;
-}) {
+function FollowButton(props: { p: ChannelProfile; isVisitor: boolean }) {
   const { t } = useI18n();
+  const auth = useAuth();
   const [state, setState] = createSignal<"idle" | "pending" | "done">("idle");
+  const [dmOpen, setDmOpen] = createSignal(false);
 
-  const connected = () => props.connected || state() === "done";
+  const nick = () => props.p.xchan_addr || props.p.channel_address;
+  const connected = () => props.p.is_connected || state() === "done";
+  // A just-sent request is pending too, until the other side approves it.
+  const pending = () => props.p.is_pending || state() === "done";
 
   async function handleConnect() {
     if (state() !== "idle") return;
     setState("pending");
     try {
-      await addConnection(props.nick);
+      await addConnection(nick());
       setState("done");
     } catch {
       setState("idle");
@@ -534,20 +534,57 @@ function FollowButton(props: {
 
   const base = "shrink-0 px-4 py-1.5 text-sm font-medium rounded-full border transition-colors";
   const connectedCls = "border-rim text-muted cursor-default";
+  // Same treatment the connections list gives its "Pending" badge.
+  const pendingCls = "border-transparent bg-accent-muted text-accent cursor-default";
   const connectCls = "border-accent bg-accent text-accent-fg hover:opacity-80";
 
   return (
     <Show
       when={!connected()}
-      fallback={<span class={`${base} ${connectedCls}`}>{t("channel.connected")}</span>}
+      fallback={
+        <div class="flex items-center gap-2">
+          <span class={`${base} ${pending() ? pendingCls : connectedCls}`}>
+            {pending() ? t("connection.pending") : t("channel.connected")}
+          </span>
+          {/* No DM while the request is unapproved — post_mail isn't granted
+              until they accept, so the send would be dropped on their hub. */}
+          <Show when={props.p.is_connected && !pending() && !props.isVisitor && props.p.channel_hash && auth()?.uid}>
+            <button
+              onClick={() => setDmOpen(true)}
+              title={t("ui.send_dm")}
+              aria-label={t("ui.send_dm")}
+              class="shrink-0 p-2 rounded-full border border-rim text-muted hover:text-accent hover:border-accent transition-colors"
+            >
+              <MdOutlineMail size={16} />
+            </button>
+            <Show when={dmOpen()}>
+              <DMComposer
+                open={true}
+                onClose={() => setDmOpen(false)}
+                onSent={() => setDmOpen(false)}
+                profileUid={auth()!.uid}
+                initialRecipients={[{
+                  type: "c",
+                  xid: props.p.channel_hash!,
+                  id: props.p.channel_hash!,
+                  name: props.p.channel_name,
+                  nick: nick(),
+                  link: nick(),
+                  photo: props.p.channel_photo_l,
+                }]}
+              />
+            </Show>
+          </Show>
+        </div>
+      }
     >
       <Show
         when={!props.isVisitor}
         // Remote visitors follow from their own hub (core rconnect_url);
         // no button for anonymous viewers, matching core's profile sidebar.
         fallback={
-          <Show when={props.connectUrl}>
-            <a href={props.connectUrl} class={`${base} ${connectCls}`}>
+          <Show when={props.p.connect_url}>
+            <a href={props.p.connect_url} class={`${base} ${connectCls}`}>
               {t("channel.connect")}
             </a>
           </Show>

@@ -16,6 +16,7 @@ import { sourceToHtml } from "@/shared/editor/core/sourceToHtml";
 import { htmlToSource } from "@/shared/editor/core/htmlToSource";
 import AclPicker, { entryKey, type AclMode, type AclEntry } from "@/shared/editor/components/AclPicker";
 import { storageGet, storageSet, storageDel } from "@utsukta/spa-core/lib/storage";
+import { apiError } from "@utsukta/spa-core/lib/fetch";
 import { getCsrfToken } from "@utsukta/spa-core/lib/csrf";
 import { useMentionEmojiWiring } from "@/shared/editor/mention/useMentionEmojiWiring";
 import MentionEmojiPopups from "@/shared/editor/mention/MentionEmojiPopups";
@@ -234,7 +235,7 @@ function HqComposer() {
         headers: { "Content-Type": "application/json", "X-CSRF-Token": csrf },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) throw await apiError(res);
       const json = await res.json().catch(() => ({})) as { data?: { post?: unknown } };
       if (!json.data?.post) { toast.error("Server reported failure."); return; }
       toast.success(t("editor.post_published"));

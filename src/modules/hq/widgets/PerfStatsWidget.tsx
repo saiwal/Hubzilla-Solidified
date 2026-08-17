@@ -1,3 +1,4 @@
+import { apiError } from "@utsukta/spa-core/lib/fetch";
 import { isAdmin } from "@utsukta/spa-core/store/auth-store";
 import { createSignal, createEffect, on, onCleanup, onMount, For, Show } from "solid-js";
 import { toast } from "@utsukta/spa-core/store/toast";
@@ -48,7 +49,7 @@ function PerfStatsPanelInner() {
         credentials: "include",
         headers: { Accept: "application/json" },
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) throw await apiError(res);
       const data: PerfStats = await res.json();
 
       let rate: number | null = null;

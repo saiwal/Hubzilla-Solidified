@@ -1,4 +1,4 @@
-import { apiFetch } from "@utsukta/spa-core/lib/fetch";
+import { apiFetch, apiError } from "@utsukta/spa-core/lib/fetch";
 
 export type ConnectionStatus =
   | "pending"
@@ -71,7 +71,7 @@ export async function fetchConnections(params: {
   if (params.limit)  q.set("limit",  String(params.limit));
 
   const res = await apiFetch(`/spa/connections?${q}`);
-  if (!res.ok) throw new Error(`connections HTTP ${res.status}`);
+  if (!res.ok) throw await apiError(res, "connections");
   const body = await res.json();
   return { connections: body.data, meta: body.meta };
 }
@@ -95,7 +95,7 @@ export async function approveConnection(abookId: number): Promise<void> {
     method: "POST",
     body: "{}",
   });
-  if (!res.ok) throw new Error(`approve HTTP ${res.status}`);
+  if (!res.ok) throw await apiError(res, "approve");
 }
 
 export async function refreshConnection(abookId: number): Promise<void> {
@@ -103,12 +103,12 @@ export async function refreshConnection(abookId: number): Promise<void> {
     method: "POST",
     body: "{}",
   });
-  if (!res.ok) throw new Error(`refresh HTTP ${res.status}`);
+  if (!res.ok) throw await apiError(res, "refresh");
 }
 
 export async function deleteConnection(abookId: number): Promise<void> {
   const res = await apiFetch(`/spa/connections/${abookId}`, { method: "DELETE" });
-  if (!res.ok) throw new Error(`delete HTTP ${res.status}`);
+  if (!res.ok) throw await apiError(res, "delete");
 }
 
 export interface NewConnection {
@@ -165,7 +165,7 @@ export interface ConnectionPerms {
 
 export async function fetchPermcats(): Promise<Permcat[]> {
   const res = await apiFetch("/spa/connections/permcats");
-  if (!res.ok) throw new Error(`permcats HTTP ${res.status}`);
+  if (!res.ok) throw await apiError(res, "permcats");
   const body = await res.json();
   return body.data as Permcat[];
 }
@@ -186,7 +186,7 @@ export async function createPermcat(name: string): Promise<Permcat> {
 export async function fetchPermcatDetail(name: string): Promise<PermcatDetail> {
   const q = new URLSearchParams({ name });
   const res = await apiFetch(`/spa/connections/permcats?${q}`);
-  if (!res.ok) throw new Error(`permcat detail HTTP ${res.status}`);
+  if (!res.ok) throw await apiError(res, "permcat detail");
   const body = await res.json();
   return body.data as PermcatDetail;
 }
@@ -209,7 +209,7 @@ export async function setDefaultPermcat(name: string, isDefault: boolean): Promi
     method: "POST",
     body: JSON.stringify({ name, set_default: isDefault }),
   });
-  if (!res.ok) throw new Error(`set default permcat HTTP ${res.status}`);
+  if (!res.ok) throw await apiError(res, "set default permcat");
   const body = await res.json();
   return body.data as Permcat;
 }
@@ -232,19 +232,19 @@ export async function deletePermcat(name: string): Promise<void> {
   const res = await apiFetch(`/spa/connections/permcats?${q}`, {
     method: "DELETE",
   });
-  if (!res.ok) throw new Error(`delete permcat HTTP ${res.status}`);
+  if (!res.ok) throw await apiError(res, "delete permcat");
 }
 
 export async function fetchConnectionPerms(abookId: number): Promise<ConnectionPerms> {
   const res = await apiFetch(`/spa/connections/${abookId}/perms`);
-  if (!res.ok) throw new Error(`perms HTTP ${res.status}`);
+  if (!res.ok) throw await apiError(res, "perms");
   const body = await res.json();
   return body.data as ConnectionPerms;
 }
 
 export async function fetchConnectionGroups(abookId: number): Promise<number[]> {
   const res = await apiFetch(`/spa/connections/${abookId}/groups`);
-  if (!res.ok) throw new Error(`groups HTTP ${res.status}`);
+  if (!res.ok) throw await apiError(res, "groups");
   const body = await res.json();
   return body.data as number[];
 }
@@ -267,5 +267,5 @@ export async function updateConnection(
     method: "POST",
     body: JSON.stringify(fields),
   });
-  if (!res.ok) throw new Error(`update HTTP ${res.status}`);
+  if (!res.ok) throw await apiError(res, "update");
 }

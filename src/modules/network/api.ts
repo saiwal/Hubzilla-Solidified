@@ -1,6 +1,7 @@
 import type { Post } from "@utsukta/spa-core/types/post.types";
 import { mapActivityToPost } from "@utsukta/spa-core/lib/activity.mapper";
 import { apiFetch } from "@utsukta/spa-core/lib/fetch";
+import { savePosts } from "@utsukta/spa-core/lib/message-store";
 const HIDDEN_VERBS = new Set(['Like', 'Dislike', 'Announce', 'Accept', 'Reject', 'TentativeAccept']);
 
 function shouldDisplay(a: any): boolean {
@@ -205,6 +206,11 @@ export async function fetchNetworkStream(params: NetworkParams = {}): Promise<Ne
   const rootCount: number = meta?.root_count ?? activities.filter((a: any) => a.item_thread_top === 1).length;
   const limit: number     = meta?.limit   ?? 10;
   const nouveau: boolean  = meta?.nouveau ?? false;
+
+  // Incremental offline copy: the response already carries full bodies, so
+  // recording them here makes every post you scrolled past openable offline
+  // without a single extra request.
+  void savePosts(activities);
 
   const items = activities.filter(shouldDisplay).map(mapActivityToPost);
   return { items, rootCount, limit, nouveau };

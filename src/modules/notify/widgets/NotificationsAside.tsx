@@ -35,7 +35,7 @@ import DOMPurify from "dompurify";
 import { setNotifCount } from "@utsukta/spa-core/lib/notificationCount";
 import { markNotifySeen, markItemSeen } from "@utsukta/spa-core/lib/markSeen";
 import { showDesktopNotification } from "@utsukta/spa-core/lib/desktopNotify";
-import { apiFetch } from "@utsukta/spa-core/lib/fetch";
+import { apiFetch, apiError } from "@utsukta/spa-core/lib/fetch";
 import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { resolveNotifyPath, connectionRequestId } from "@utsukta/spa-core/lib/notifyLink";
 import { openConnectionRequestModal } from "@utsukta/spa-core/store/connection-request-modal";
@@ -173,7 +173,7 @@ async function fetchNotices(): Promise<HqNoticeEntry[]> {
       file: "",
     }).toString(),
   });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) throw await apiError(res);
   const data: { offset: number; entries: HqNoticeEntry[] } = await res.json();
   return data.entries;
 }

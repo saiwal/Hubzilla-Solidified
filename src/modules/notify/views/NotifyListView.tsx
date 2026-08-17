@@ -1,4 +1,5 @@
 // src/modules/notify/views/NotifyListView.tsx
+import { apiError } from "@utsukta/spa-core/lib/fetch";
 import { For, Show } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import DOMPurify from "dompurify";
@@ -20,7 +21,7 @@ interface NotifyEntry {
 
 async function fetchAlerts(): Promise<NotifyEntry[]> {
   const res = await fetch("/sse_bs/notify", { credentials: "same-origin" });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) throw await apiError(res);
   const data: Record<string, { notifications?: NotifyEntry[] }> =
     await res.json();
   return data.notify?.notifications ?? [];

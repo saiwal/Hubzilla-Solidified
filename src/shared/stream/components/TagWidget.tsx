@@ -3,6 +3,7 @@
 // API: GET /spa/stream-widgets/tags?channel_nick=<nick>&type=<articles|posts>
 // Response: { data: { tags: { name: string; count: number }[] } }
 
+import { apiError } from "@utsukta/spa-core/lib/fetch";
 import {
   type Component,
   createEffect,
@@ -36,7 +37,7 @@ export async function fetchTags(params: {
   if (params.channelNick) url.searchParams.set("channel_nick", params.channelNick);
   if (params.type) url.searchParams.set("type", params.type);
   const res = await fetch(url.toString());
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) throw await apiError(res);
   const json = await res.json();
   const data = json.data ?? json;
   return data.tags ?? [];

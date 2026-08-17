@@ -3,6 +3,7 @@
 // API: GET /spa/stream-widgets/categories?channel_nick=<nick>&type=<articles|posts>
 // Response: { data: { categories: { name: string; slug: string; count: number }[] } }
 
+import { apiError } from "@utsukta/spa-core/lib/fetch";
 import { type Component, createEffect, on, For, Show } from "solid-js";
 import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { useI18n } from "@utsukta/spa-core/i18n";
@@ -30,7 +31,7 @@ export async function fetchCategories(params: {
   if (params.channelNick) url.searchParams.set("channel_nick", params.channelNick);
   if (params.type) url.searchParams.set("type", params.type);
   const res = await fetch(url.toString());
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) throw await apiError(res);
   const json = await res.json();
   const data = json.data ?? json;
   return data.categories ?? [];

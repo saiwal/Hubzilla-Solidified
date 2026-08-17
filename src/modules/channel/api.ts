@@ -1,5 +1,6 @@
 // src/modules/channel/api.ts
 import { apiFetch } from "@utsukta/spa-core/lib/fetch";
+import { savePosts } from "@utsukta/spa-core/lib/message-store";
 import { mapActivityToPost } from "@utsukta/spa-core/lib/activity.mapper";
 // import type { Post } from "@utsukta/spa-core/types/post.types";
 import type { StreamResult } from "@/shared/stream/store/createStreamStore";
@@ -34,6 +35,8 @@ export async function fetchChannelPosts(
 
   const { data, meta } = await res.json();
   const activities: any[] = Array.isArray(data) ? data : [];
+  // See fetchNetworkStream — bodies are already in hand, so store them.
+  void savePosts(activities);
   const mainItems = activities.map(mapActivityToPost);
 
   // Pinned posts are excluded from `data` by the backend whenever this meta

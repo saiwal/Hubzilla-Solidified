@@ -28,6 +28,7 @@ import { currentNick } from "@utsukta/spa-core/store/auth-store";
 import { bbcodeToInsert, patchInsertedAlt } from "../attachments/insertHelpers";
 import { isFeatureEnabled } from "@utsukta/spa-core/store/auth-store";
 import { useI18n } from "@utsukta/spa-core/i18n";
+import { apiError } from "@utsukta/spa-core/lib/fetch";
 import { getCsrfToken } from "@utsukta/spa-core/lib/csrf";
 import { useEncrypt } from "../useEncrypt";
 import EncryptToggle from "../components/EncryptToggle";
@@ -133,7 +134,7 @@ const DMComposer: Component<DMComposerProps> = (props) => {
       body: JSON.stringify(payload),
     });
 
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) throw await apiError(res);
     const json = (await res.json().catch(() => ({}))) as {
       data?: { post?: { iid?: number } };
     };

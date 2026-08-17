@@ -1,4 +1,4 @@
-import { createSignal, Show, For } from "solid-js";
+import { createSignal, createEffect, onCleanup, Show, For } from "solid-js";
 import { useSearchParams } from "@solidjs/router";
 import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import { apiFetch } from "@utsukta/spa-core/lib/fetch";
@@ -10,6 +10,13 @@ import { oembedResolver } from "@utsukta/spa-core/lib/oembedResolver";
 import { fetchConnectionByAddress } from "@/modules/directory/connections/api";
 import type { Connection } from "@/modules/directory/connections/api";
 import ConnectionEditorModal from "@/shared/views/ConnectionEditorModal";
+import DMComposer from "@/shared/editor/composers/DMComposer";
+import { MessageList } from "@/modules/hq/widgets/MessageList";
+import { createStreamStore } from "@/shared/stream/store/createStreamStore";
+import { createActionHandlers } from "@/shared/stream/store/actions-store";
+import { fetchNetworkStream, type NetworkParams } from "@/modules/network/api";
+import type { StreamHandlers } from "@/shared/stream/types";
+import TimelineView, { TimelinePlaceholder } from "@/shared/stream/feedviews/TimelineView";
 import { useI18n } from "@utsukta/spa-core/i18n";
 import {
   MdOutlinePerson_add,
@@ -20,6 +27,7 @@ import {
   MdFillOpen_in_new,
   MdOutlineContent_copy,
   MdOutlineCheck,
+  MdOutlineMail,
 } from "solid-icons/md";
 
 interface RemotePost {
@@ -32,6 +40,8 @@ interface RemotePost {
 
 interface XchanData {
   xchan_hash: string;
+  /** Every hash this identity is known by (see Xchan.php). */
+  xchan_hashes?: string[];
   name: string;
   address: string;
   url: string;
@@ -160,6 +170,7 @@ export default function ChanView() {
   const [editOpen, setEditOpen] = createSignal(false);
   const [disconnected, setDisconnected] = createSignal(false);
   const [addressCopied, setAddressCopied] = createSignal(false);
+  const [dmOpen, setDmOpen] = createSignal(false);
 
   function copyAddress(address: string) {
     navigator.clipboard.writeText(address).then(() => {
@@ -210,6 +221,33 @@ export default function ChanView() {
   }
 
   const badge = () => networkBadge(x()?.network);
+
+  // Filters match on every hash of the identity, not just the first row.
+  const hashFilter = () => (x()?.xchan_hashes ?? [x()?.xchan_hash ?? ""]).filter(Boolean).join(",");
+
+  // Their recent activity as it reached our own stream. A local store
+  // instance (the modules keep singletons; this one belongs to the view) so
+  // it renders through the shared timeline with working reactions/comments.
+  const stream = createStreamStore<NetworkParams>(fetchNetworkStream);
+  const streamActions = createActionHandlers(stream);
+  const streamHandlers: StreamHandlers = {
+    onLike: streamActions.handleLike,
+    onDislike: streamActions.handleDislike,
+    onRepeat: streamActions.handleRepeat,
+    onComment: streamActions.handleComment,
+    onLoadComments: streamActions.loadComments,
+    onLoadMoreComments: streamActions.loadMoreComments,
+    onStar: streamActions.handleStar,
+    onDelete: streamActions.handleDelete,
+    onEdit: streamActions.handleEdit,
+    onRefresh: streamActions.handleRefresh,
+  };
+
+  createEffect(() => {
+    const h = hashFilter();
+    if (h && auth()?.isLocal) void stream.load({ xchan: h });
+  });
+  onCleanup(() => stream.stopPolling());
 
   return (
     <div class="max-w-3xl mx-auto py-4 px-2">
@@ -336,6 +374,18 @@ export default function ChanView() {
                       </button>
                     </Show>
 
+                    <Show when={canEdit() && xdata().xchan_hash}>
+                      <button
+                        onClick={() => setDmOpen(true)}
+                        title={t("ui.send_dm")}
+                        class="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium
+                               border border-rim text-muted hover:border-accent hover:text-accent transition-colors"
+                      >
+                        <MdOutlineMail size={16} />
+                        <span>{t("ui.send_dm")}</span>
+                      </button>
+                    </Show>
+
                     <Show when={xdata().local_nick}>
                       <a
                         href={`/channel/${xdata().local_nick}`}
@@ -440,8 +490,37 @@ export default function ChanView() {
         }}
       </Show>
 
-      {/* Recent remote posts */}
-      <Show when={(x()?.remote_posts?.length ?? 0) > 0}>
+      {/* DM history with this channel — same list the inbox uses, narrowed
+          to threads involving their xchan (see HqMessages' xchan filter). */}
+      <Show when={canEdit() && x()?.xchan_hash}>
+        <div class="mt-4">
+          <h2 class="text-xs font-semibold text-muted uppercase tracking-wide px-1 mb-2">
+            {t("network.direct_messages")}
+          </h2>
+          {/* MessageList scrolls and paginates internally, so it needs a
+              container that doesn't grow with its content. */}
+          <div class="rounded-2xl overflow-hidden bg-surface border border-rim flex flex-col max-h-[26rem]">
+            <MessageList type="direct" xchan={hashFilter()} />
+          </div>
+        </div>
+      </Show>
+
+      {/* Recent activity: the timeline over their posts in our own stream —
+          local or remote alike. The AP outbox (Xchan.php fetches one for
+          actors we can read) is the fallback for channels whose posts never
+          reached us, and stays as plain non-interactive cards. */}
+      <Show when={stream.loading() || stream.posts().length > 0}>
+        <div class="mt-4">
+          <h2 class="text-xs font-semibold text-muted uppercase tracking-wide px-1 mb-2">
+            {t("ui.recent_posts")}
+          </h2>
+          <Show when={!stream.loading()} fallback={<TimelinePlaceholder count={2} />}>
+            <TimelineView posts={stream.posts()} handlers={streamHandlers} />
+          </Show>
+        </div>
+      </Show>
+
+      <Show when={!stream.loading() && stream.posts().length === 0 && (x()?.remote_posts?.length ?? 0) > 0}>
         <div class="mt-4 space-y-3">
           <h2 class="text-xs font-semibold text-muted uppercase tracking-wide px-1">
             {t("ui.recent_posts")}
@@ -464,6 +543,24 @@ export default function ChanView() {
             setEditConn(null);
             setEditOpen(false);
           }}
+        />
+      </Show>
+
+      <Show when={dmOpen() && auth()?.uid && x()?.xchan_hash}>
+        <DMComposer
+          open={true}
+          onClose={() => setDmOpen(false)}
+          onSent={() => setDmOpen(false)}
+          profileUid={auth()!.uid}
+          initialRecipients={[{
+            type: "c",
+            xid: x()!.xchan_hash,
+            id: x()!.xchan_hash,
+            name: x()!.name,
+            nick: x()!.address,
+            link: x()!.address,
+            photo: x()!.photo,
+          }]}
         />
       </Show>
     </div>
