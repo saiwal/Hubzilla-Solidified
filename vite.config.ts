@@ -70,6 +70,10 @@ function serveFFmpegCore(): Plugin {
 }
 const OUT_DIR = path.resolve(__dirname, BUILD_OUT_DIR_REL);
 
+// Dev-server only: when the app is served by the hub itself these paths are
+// already same-origin, so none of this applies to a built theme.
+const hubProxy = { target: "https://hz-ddev.ddev.site", changeOrigin: true, secure: false };
+
 /**
  * Post-processes the PHP files vite-plugin-static-copy just wrote (theme.php,
  * manifest.php, mod/spa.php, hooks/webpush.php) so the "solidified" literals
@@ -174,58 +178,22 @@ export default defineConfig({
     },
   },
   server: {
-    proxy: {
-      "/spa": {
-        target: "https://hz-ddev.ddev.site",
-        changeOrigin: true,
-        secure: false,
-      },
-      "/perfstats": {
-        target: "https://hz-ddev.ddev.site",
-        changeOrigin: true,
-        secure: false,
-      },
-      "/cloud": {
-        target: "https://hz-ddev.ddev.site",
-        changeOrigin: true,
-        secure: false,
-      },
-      "/photo": {
-        target: "https://hz-ddev.ddev.site",
-        changeOrigin: true,
-        secure: false,
-      },
-      "/attach": {
-        target: "https://hz-ddev.ddev.site",
-        changeOrigin: true,
-        secure: false,
-      },
-      "/wall_upload": {
-        target: "https://hz-ddev.ddev.site",
-        changeOrigin: true,
-        secure: false,
-      },
-      "/wall_attach": {
-        target: "https://hz-ddev.ddev.site",
-        changeOrigin: true,
-        secure: false,
-      },
-      "/item": {
-        target: "https://hz-ddev.ddev.site",
-        changeOrigin: true,
-        secure: false,
-      },
-      "/follow": {
-        target: "https://hz-ddev.ddev.site",
-        changeOrigin: true,
-        secure: false,
-      },
-      "/subthread": {
-        target: "https://hz-ddev.ddev.site",
-        changeOrigin: true,
-        secure: false,
-      },
-    },
+    // Every hub endpoint the app fetch()es directly (i.e. not through /spa).
+    proxy: Object.fromEntries([
+      ...[
+        "/spa", "/perfstats", "/cloud", "/photo", "/attach", "/wall_upload",
+        "/wall_attach", "/item", "/acl", "/follow", "/subthread",
+        "/sse_bs", "/starred", "/smilies",
+      ].map((path) => [path, hubProxy]),
+      // These are SPA routes too (/hq, /notify, /notifications,
+      // /cdav/calendar) — proxy the app's fetch()es but leave browser
+      // navigations to the dev server so a reload still opens the SPA.
+      ...["/hq", "/notify", "/notifications", "/cdav"].map((path) => [path, {
+        ...hubProxy,
+        bypass: (req: { url?: string; headers: Record<string, unknown> }) =>
+          req.headers["sec-fetch-mode"] === "navigate" ? req.url : undefined,
+      }]),
+    ]),
   },
   base: ASSET_WEB_PATH + "/",
   resolve: {
