@@ -1,5 +1,5 @@
 import {
-  createEffect, createSignal, createMemo, Show,
+  createEffect, createSignal, createMemo, Show, For,
 } from "solid-js";
 import { usePageNick } from "@utsukta/spa-core/store/site-config";
 import { useAuth, isFeatureEnabled } from "@utsukta/spa-core/store/auth-store";
@@ -96,10 +96,33 @@ export default function CalendarContentWidget() {
     if (n) loadCalendar(n, fetchRange(), true);
   }
 
+  // Category filter. Applied client-side: the range's events are already loaded, so
+  // filtering here is instant and needs no refetch. (Cal.php also accepts ?cat= for
+  // API consumers that want the server to narrow it.)
+  const [catFilter, setCatFilter] = createSignal<string | null>(null);
+
+  const allCategories = createMemo<string[]>(() => {
+    const seen = new Set<string>();
+    for (const ev of events()) for (const c of ev.categories ?? []) seen.add(c);
+    return [...seen].sort((a, b) => a.localeCompare(b));
+  });
+
+  const visibleEvents = createMemo<CalEvent[]>(() => {
+    const c = catFilter();
+    return c ? events().filter(ev => ev.categories?.includes(c)) : events();
+  });
+
+  // Drop a filter that the newly loaded range has no events for, so the calendar
+  // never looks empty because of a stale selection.
+  createEffect(() => {
+    const c = catFilter();
+    if (c && !allCategories().includes(c)) setCatFilter(null);
+  });
+
   const activeDayEvs = createMemo<CalEvent[]>(() => {
     const d = activeDay();
     if (!d) return [];
-    return events().filter(ev => eventOnDay(ev, d));
+    return visibleEvents().filter(ev => eventOnDay(ev, d));
   });
 
   const VIEWS: { key: ViewType; label: () => string }[] = [
@@ -177,32 +200,55 @@ export default function CalendarContentWidget() {
         </Show>
      </div>
 
+      {/* Category filter — only when the loaded range actually has categories */}
+      <Show when={allCategories().length > 0}>
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <span class="text-xs text-muted mr-0.5">{t("calendar.categories_label")}</span>
+          <For each={allCategories()}>
+            {(cat) => (
+              <button
+                type="button"
+                aria-pressed={catFilter() === cat}
+                onClick={() => setCatFilter((c) => (c === cat ? null : cat))}
+                class={`px-2 py-0.5 rounded text-xs transition-colors ${
+                  catFilter() === cat
+                    ? "bg-accent text-accent-fg"
+                    : "bg-elevated text-txt hover:opacity-80"
+                }`}
+              >
+                {cat}
+              </button>
+            )}
+          </For>
+        </div>
+      </Show>
+
       {/* View content */}
       <div class="flex-1 min-h-0 overflow-auto">
         <Show when={viewType() === "month"}>
           <MonthView
             year={anchor().getFullYear()}
             month={anchor().getMonth() + 1}
-            events={events()}
+            events={visibleEvents()}
             onDayClick={handleDayClick}
           />
         </Show>
         <Show when={viewType() === "week"}>
           <WeekView
             anchor={anchor()}
-            events={events()}
+            events={visibleEvents()}
             onDayClick={handleDayClick}
           />
         </Show>
         <Show when={viewType() === "day"}>
           <DayView
             date={anchor()}
-            events={events()}
+            events={visibleEvents()}
             onDayClick={handleDayClick}
           />
         </Show>
         <Show when={viewType() === "list"}>
-          <ListView events={events()} />
+          <ListView events={visibleEvents()} />
         </Show>
       </div>
 

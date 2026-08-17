@@ -4,6 +4,7 @@ import { currentNick } from "@utsukta/spa-core/store/auth-store";
 import { fetchEvents, type CalEvent } from "@/modules/calendar/api";
 import EventCreatorModal from "@/modules/calendar/widgets/EventCreatorModal";
 import DayDetailModal from "@/modules/calendar/views/DayDetailModal";
+import { localDay, todayKey } from "@/modules/calendar/views/calUtils";
 import { useI18n } from "@utsukta/spa-core/i18n";
 
 function next30DaysRange() {
@@ -121,14 +122,20 @@ export default function UpcomingEventsWidget() {
           </Show>
 
           <For each={events()}>
-            {(ev, i) => (
+            {(ev, i) => {
+              // Evaluated at render — the widget reloads on mount and after
+              // create/edit/delete, so no ticking clock.
+              const isPast = new Date(ev.end ?? ev.start).getTime() < Date.now();
+              const isToday = !isPast && localDay(ev.start) === todayKey();
+              return (
               <div
                 role="button"
                 tabindex="0"
                 onClick={() => setActiveEvent(ev)}
                 onKeyDown={(e) => e.key === "Enter" && setActiveEvent(ev)}
                 class={`px-3.5 py-2.5 flex items-center gap-2.5 hover:bg-elevated transition-colors cursor-pointer
-                  ${i() < events().length - 1 ? "border-b border-rim" : ""}`}
+                  ${i() < events().length - 1 ? "border-b border-rim" : ""}
+                  ${isPast ? "opacity-50" : ""} ${isToday ? "bg-accent-muted/25" : ""}`}
               >
                 {/* Date badge — colored when from a CalDAV calendar */}
                 <div
@@ -154,10 +161,18 @@ export default function UpcomingEventsWidget() {
 
                 {/* Info */}
                 <div class="flex-1 min-w-0">
-                  <p class="text-sm font-medium text-txt truncate leading-snug">
+                  <p
+                    class="text-sm font-medium truncate leading-snug"
+                    classList={{ "text-txt": !isPast, "text-muted": isPast }}
+                  >
                     {ev.title || "(no title)"}
                   </p>
                   <p class="text-xs text-muted mt-0.5 truncate">
+                    <Show when={isToday}>
+                      <span class="text-[0.625rem] font-semibold uppercase tracking-wide text-accent mr-1.5">
+                        {t("calendar.today")}
+                      </span>
+                    </Show>
                     {fmtTime(ev.start, ev.allDay, t("hq.all_day"))}
                     <Show when={ev.location}>
                       <span class="mx-1 opacity-40">·</span>
@@ -166,7 +181,8 @@ export default function UpcomingEventsWidget() {
                   </p>
                 </div>
               </div>
-            )}
+              );
+            }}
           </For>
         </div>
       </div>

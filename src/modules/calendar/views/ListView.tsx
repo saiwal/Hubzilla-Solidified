@@ -5,6 +5,7 @@ import DOMPurify from "dompurify";
 import { bbcodeToHtml } from "@utsukta/spa-core/lib/bbcode";
 import type { CalEvent } from "../api";
 import { isoDateStr, localDay, fmtEventRange } from "./calUtils";
+import CategoryChips from "./CategoryChips";
 
 interface Props {
   events: CalEvent[];
@@ -53,7 +54,9 @@ export default function ListView(props: Props) {
           {([dateStr, evs]) => (
             <div>
               <div class="flex items-center gap-2 mb-2 sticky top-0 bg-base py-1 z-10">
-                <span class={`text-sm font-semibold shrink-0 ${dateStr === todayStr ? "text-accent" : "text-txt"}`}>
+                <span class={`text-sm font-semibold shrink-0 ${
+                  dateStr === todayStr ? "text-accent" : dateStr < todayStr ? "text-muted" : "text-txt"
+                }`}>
                   {fmtDateHeader(dateStr, locale())}
                 </span>
                 <Show when={dateStr === todayStr}>
@@ -66,7 +69,9 @@ export default function ListView(props: Props) {
 
               <div class="space-y-1.5 pl-2">
                 <For each={evs}>
-                  {(ev) => (
+                  {(ev) => {
+                    const isPast = new Date(ev.end ?? ev.start).getTime() < Date.now();
+                    return (
                     <div>
                       <button
                         type="button"
@@ -74,7 +79,8 @@ export default function ListView(props: Props) {
                         class={`w-full text-left rounded-xl border p-3 transition-colors flex items-start gap-3
                           ${expandedId() === ev.id
                             ? "border-accent bg-accent-muted"
-                            : "border-rim bg-surface hover:bg-elevated hover:border-rim-strong"}`}
+                            : "border-rim bg-surface hover:bg-elevated hover:border-rim-strong"}
+                          ${isPast && expandedId() !== ev.id ? "opacity-50" : ""}`}
                       >
                         <Show when={ev.calendarColor}>
                           <span
@@ -83,7 +89,10 @@ export default function ListView(props: Props) {
                           />
                         </Show>
                         <div class="min-w-0 flex-1">
-                          <p class="text-sm font-medium text-txt leading-snug truncate">
+                          <p
+                            class="text-sm font-medium leading-snug truncate"
+                            classList={{ "text-txt": !isPast, "text-muted": isPast }}
+                          >
                             {ev.title || t("calendar.no_title")}
                           </p>
                           <p class="text-xs text-muted mt-0.5">
@@ -102,7 +111,8 @@ export default function ListView(props: Props) {
                         <EventDetailPanel event={ev} />
                       </Show>
                     </div>
-                  )}
+                    );
+                  }}
                 </For>
               </div>
             </div>
@@ -126,6 +136,7 @@ function EventDetailPanel(props: { event: CalEvent }) {
           innerHTML={sanitized()}
         />
       </Show>
+      <CategoryChips categories={ev.categories} />
       <Show when={ev.plink}>
         <a
           href={ev.plink}

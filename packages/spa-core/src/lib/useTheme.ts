@@ -1,6 +1,10 @@
 import { createSignal } from "solid-js";
 import type { ThemeId, CustomThemeColors } from "../types/theme.types";
 import { apiFetch } from "./fetch";
+import { THEME_VARS, buildCustomThemeCSS } from "./theme-colors";
+
+export { THEME_VARS, buildCustomThemeCSS, withColorChange } from "./theme-colors";
+export type { DerivedColorKey } from "./theme-colors";
 
 const STORAGE_KEY = "hz-theme";
 const CUSTOM_COLORS_KEY = "hz-custom-theme";
@@ -47,37 +51,35 @@ const [customColors, setCustomColors] = createSignal<CustomThemeColors>(
 /** Read the currently applied theme's colors so "custom" can start from them. */
 export function colorsFromAppliedTheme(): CustomThemeColors {
   const cs = getComputedStyle(document.documentElement);
-  const pick = (name: string, fallback: string) =>
-    cs.getPropertyValue(name).trim() || fallback;
-  return {
-    base: pick("--color-base", DEFAULT_CUSTOM_COLORS.base),
-    txt: pick("--color-txt", DEFAULT_CUSTOM_COLORS.txt),
-    accent: pick("--color-accent", DEFAULT_CUSTOM_COLORS.accent),
+  const colors: CustomThemeColors = {
+    ...DEFAULT_CUSTOM_COLORS,
     isDark: document.documentElement.classList.contains("dark"),
   };
+  for (const { key, css } of THEME_VARS) {
+    const v = cs.getPropertyValue(css).trim();
+    // Only plain hex survives: anything else can't seed an <input type="color">.
+    if (/^#[0-9a-f]{6}$/i.test(v)) (colors as unknown as Record<string, string>)[key] = v;
+  }
+  return colors;
 }
 
-export function buildCustomThemeCSS(colors: CustomThemeColors): string {
-  const { base, txt, accent, isDark } = colors;
-  const w = isDark ? "white" : "black";
-  const b = isDark ? "black" : "white";
-
-  return `[data-theme="custom"] {
-  --color-base: ${base};
-  --color-surface: color-mix(in srgb, ${base}, ${w} 8%);
-  --color-elevated: color-mix(in srgb, ${base}, ${w} 18%);
-  --color-overlay: color-mix(in srgb, ${base}, ${b} 8%);
-  --color-txt: ${txt};
-  --color-muted: color-mix(in srgb, ${txt}, ${base} 50%);
-  --color-subtle: color-mix(in srgb, ${txt}, ${base} 70%);
-  --color-rim: color-mix(in srgb, ${txt}, ${base} 78%);
-  --color-rim-strong: color-mix(in srgb, ${txt}, ${base} 68%);
-  --color-accent: ${accent};
-  --color-accent-muted: color-mix(in srgb, ${accent}, ${base} 82%);
-  --color-accent-txt: color-mix(in srgb, ${accent}, ${w} 15%);
-  --color-accent-fg: #ffffff;
-}`;
+/** Current value of a CSS var as #rrggbb, resolving color-mix() via the browser. */
+export function resolvedColor(cssVar: string): string {
+  const probe = document.createElement("span");
+  probe.style.cssText = `color: var(${cssVar}); position: absolute; visibility: hidden`;
+  document.body.appendChild(probe);
+  const rgb = getComputedStyle(probe).color.match(/[\d.]+/g);
+  probe.remove();
+  if (!rgb) return "#000000";
+  return (
+    "#" +
+    rgb
+      .slice(0, 3)
+      .map((n) => Math.round(Number(n)).toString(16).padStart(2, "0"))
+      .join("")
+  );
 }
+
 
 function injectCustomThemeStyle(colors: CustomThemeColors) {
   let styleEl = document.getElementById("hz-custom-theme") as HTMLStyleElement | null;
@@ -139,12 +141,14 @@ export function useTheme() {
   };
 
   const updateCustomColors = (colors: CustomThemeColors) => {
-    setCustomColors(colors);
-    const json = JSON.stringify(colors);
-    localStorage.setItem(CUSTOM_COLORS_KEY, json);
+    // Inject the CSS before the signal fires: subscribers read back resolved
+    // var values (see resolvedColor) and would otherwise see the old palette.
     if (theme() === "custom") {
       applyCustomThemeColors(colors);
     }
+    setCustomColors(colors);
+    const json = JSON.stringify(colors);
+    localStorage.setItem(CUSTOM_COLORS_KEY, json);
     apiFetch("/spa/settings/display", {
       method: "POST",
       body: JSON.stringify({ color_scheme: "custom", custom_theme_colors: json }),

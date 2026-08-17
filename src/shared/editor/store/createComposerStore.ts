@@ -49,16 +49,24 @@ type LocalDraft = {
 export function createComposerStore(
   submitFn: SubmitFn,
   scope: string,
-  options?: { initialBody?: string },
+  options?: {
+    initialBody?: string;
+    /** Seeds the meta fields alongside initialBody — used when reopening an
+     *  existing item for editing, so the form starts from what's stored. */
+    initialTitle?: string;
+    initialSummary?: string;
+    initialCategory?: string;
+    initialMimetype?: MimeType;
+  },
 ) {
   const DRAFT_KEY = `draft:${scope}`;
 
   const [body, setBody]         = createSignal(options?.initialBody ?? "");
-  const [title, setTitle]       = createSignal("");
-  const [summary, setSummary]   = createSignal("");
+  const [title, setTitle]       = createSignal(options?.initialTitle ?? "");
+  const [summary, setSummary]   = createSignal(options?.initialSummary ?? "");
   const [slug, setSlug]         = createSignal("");
-  const [category, setCategory] = createSignal("");
-  const [mimetype, setMimetype] = createSignal<MimeType>("text/bbcode");
+  const [category, setCategory] = createSignal(options?.initialCategory ?? "");
+  const [mimetype, setMimetype] = createSignal<MimeType>(options?.initialMimetype ?? "text/bbcode");
   const [submitting, setSubmitting] = createSignal(false);
   const [error, setError]       = createSignal<string | null>(null);
   // WYSIWYG has nothing meaningful to show for already-encrypted content —

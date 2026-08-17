@@ -18,6 +18,8 @@ export const calendar: RawDictionary["calendar"] = {
   end_label:        "समाप्त",
   timezone_label:   "समय क्षेत्र",
   location_label:   "स्थान",
+  categories_label: "श्रेणियाँ",
+  categories_placeholder: "श्रेणी जोड़ें…",
   optional:         "वैकल्पिक",
   description_label: "विवरण",
   cancel:           "रद्द करें",

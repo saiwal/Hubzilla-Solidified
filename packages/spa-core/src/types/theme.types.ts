@@ -32,4 +32,15 @@ export interface CustomThemeColors {
   txt: string;
   accent: string;
   isDark: boolean;
+  /** Optional overrides. Absent = derived from base/txt/accent. */
+  surface?: string;
+  elevated?: string;
+  overlay?: string;
+  muted?: string;
+  subtle?: string;
+  rim?: string;
+  rimStrong?: string;
+  accentMuted?: string;
+  accentTxt?: string;
+  accentFg?: string;
 }

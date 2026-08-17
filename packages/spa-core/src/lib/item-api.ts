@@ -197,8 +197,19 @@ export const apiCreatePost = (body: Record<string, unknown>) =>
 export const apiCreateComment = (parentUuid: string, content: string, title = '') =>
   post<CommentResult>(`${BASE}/${encodeId(parentUuid)}/comment`, { body: content, title });
 
-export const apiEditItem = (uuid: string, content: string, title = '') =>
-  post<{ success: boolean }>(`${BASE}/${encodeId(uuid)}/edit`, { body: content, title });
+/** Fields an edit may change. Omitted keys are left untouched server-side —
+ *  notably `category`, whose absence means "keep the item's categories" (the
+ *  inline comment editor relies on that; the post composer always sends it). */
+export interface EditPayload {
+  body: string;
+  title?: string;
+  summary?: string;
+  category?: string;
+  mimetype?: string;
+}
+
+export const apiEditItem = (uuid: string, payload: EditPayload) =>
+  post<{ success: boolean }>(`${BASE}/${encodeId(uuid)}/edit`, { ...payload });
 
 export interface ComposeSource {
   success: boolean;
@@ -206,11 +217,23 @@ export interface ComposeSource {
   title: string;
   summary: string;
   mimetype: string;
+  category: string;
 }
 
-/** Item source for the edit composer — [share …] blocks collapsed to [share=<id>]. */
-export const apiFetchComposeSource = (uuid: string) =>
-  apiFetch(`${BASE}/${encodeId(uuid)}/compose`).then(r => r.json()) as Promise<ComposeSource>;
+/** Item source for the edit composer — [share …] blocks collapsed to [share=<id>].
+ *
+ *  Returns null when the source could not be trusted, rather than a partly-filled
+ *  object: apiFetch resolves on HTTP errors too, and an error body (`{error: …}`)
+ *  parses as JSON with `category` undefined. Callers that treated that as "no
+ *  categories" and saved would delete every category on the item, so an
+ *  unusable response has to be distinguishable from a genuinely empty one. */
+export const apiFetchComposeSource = async (uuid: string): Promise<ComposeSource | null> => {
+  const res = await apiFetch(`${BASE}/${encodeId(uuid)}/compose`);
+  if (!res.ok) return null;
+  const data = await res.json().catch(() => null) as ComposeSource | null;
+  if (!data?.success || typeof data.category !== "string") return null;
+  return data;
+};
 
 export const apiDeleteItem = (uuid: string) =>
   post<{ success: boolean }>(`${BASE}/${encodeId(uuid)}/delete`);

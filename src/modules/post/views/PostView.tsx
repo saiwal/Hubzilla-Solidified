@@ -216,10 +216,10 @@ export default function PostView() {
       if (found?.uuid) await apiDeleteItem(found.uuid);
       navigate(-1);
     },
-    async onEdit(mid, body, title) {
+    async onEdit(mid, payload) {
       const found = findInTree(node(), mid);
       if (!found?.uuid) return;
-      await apiEditItem(found.uuid, body, title ?? "");
+      await apiEditItem(found.uuid, payload);
       refetch();
     },
     async onApprove(iid) {

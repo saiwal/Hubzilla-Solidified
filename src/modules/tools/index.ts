@@ -19,6 +19,7 @@ registerModule({
   },
   frontendFeature: {
     label: () => useI18n().t("nav.tools"),
+    defaultEnabled: false,
   },
 });
 

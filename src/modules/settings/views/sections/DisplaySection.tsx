@@ -12,10 +12,23 @@ import { useBgUrl, useBgFit, setBgUrl, setBgFit } from "@utsukta/spa-core/lib/ba
 import { setEmojiAsImages } from "@utsukta/spa-core/store/emoji-as-images";
 import PATTERN_PRESETS from "virtual:public-listing/patterns";
 import BG_PRESETS from "virtual:public-listing/bg";
-import { initTheme, useTheme, colorsFromAppliedTheme } from "@utsukta/spa-core/lib/useTheme";
+import {
+  initTheme,
+  useTheme,
+  colorsFromAppliedTheme,
+  withColorChange,
+  resolvedColor,
+  THEME_VARS,
+  type DerivedColorKey,
+} from "@utsukta/spa-core/lib/useTheme";
 import { THEMES, type ThemeId } from "@utsukta/spa-core/types/theme.types";
 import { useI18n } from "@utsukta/spa-core/i18n";
 import { MdFillCheck, MdFillEdit } from "solid-icons/md";
+
+/** The vars beyond base/txt/accent, shown in the "Advanced" disclosure. */
+const ADVANCED_VARS = THEME_VARS.filter(
+  (v) => !["base", "txt", "accent"].includes(v.key)
+) as readonly { key: DerivedColorKey; css: string }[];
 
 export default function DisplaySection() {
   const { t } = useI18n();
@@ -145,19 +158,19 @@ export default function DisplaySection() {
                   label={t("settings.color_bg")}
                   hint={t("settings.color_bg_hint")}
                   value={customColors().base}
-                  onChange={(v) => updateCustomColors({ ...customColors(), base: v })}
+                  onChange={(v) => updateCustomColors(withColorChange(customColors(), "base", v))}
                 />
                 <ColorSwatch
                   label={t("settings.color_txt")}
                   hint={t("settings.color_txt_hint")}
                   value={customColors().txt}
-                  onChange={(v) => updateCustomColors({ ...customColors(), txt: v })}
+                  onChange={(v) => updateCustomColors(withColorChange(customColors(), "txt", v))}
                 />
                 <ColorSwatch
                   label={t("settings.color_accent")}
                   hint={t("settings.color_accent_hint")}
                   value={customColors().accent}
-                  onChange={(v) => updateCustomColors({ ...customColors(), accent: v })}
+                  onChange={(v) => updateCustomColors(withColorChange(customColors(), "accent", v))}
                 />
               </div>
 
@@ -166,18 +179,50 @@ export default function DisplaySection() {
                   type="checkbox"
                   checked={customColors().isDark}
                   onChange={(e) =>
-                    updateCustomColors({ ...customColors(), isDark: e.currentTarget.checked })
+                    updateCustomColors(
+                      withColorChange(customColors(), "isDark", e.currentTarget.checked)
+                    )
                   }
                   class="accent-accent cursor-pointer"
                 />
                 <span class="text-sm text-txt">{t("settings.dark_mode")}</span>
               </label>
 
-              <div class="pt-1 border-t border-rim">
-                <p class="text-xs text-muted">
+              <details class="pt-1 border-t border-rim">
+                <summary class="text-xs text-muted cursor-pointer py-1 hover:text-txt">
+                  {t("settings.custom_theme_advanced")}
+                </summary>
+                <p class="text-xs text-muted mt-1 mb-3">
                   {t("settings.custom_theme_derived")}
                 </p>
-              </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  <For each={ADVANCED_VARS}>
+                    {(v) => {
+                      const override = () =>
+                        customColors()[v.key as DerivedColorKey] as string | undefined;
+                      return (
+                        <ColorSwatch
+                          label={t(`settings.color_${v.key}` as any)}
+                          hint=""
+                          value={override() ?? resolvedColor(v.css)}
+                          onChange={(nv) =>
+                            updateCustomColors(withColorChange(customColors(), v.key, nv))
+                          }
+                          onReset={
+                            override()
+                              ? () =>
+                                  updateCustomColors(
+                                    withColorChange(customColors(), v.key, undefined)
+                                  )
+                              : undefined
+                          }
+                          resetLabel={t("settings.custom_theme_reset")}
+                        />
+                      );
+                    }}
+                  </For>
+                </div>
+              </details>
             </div>
           </Show>
 
@@ -619,10 +664,24 @@ function ColorSwatch(props: {
   hint: string;
   value: string;
   onChange: (v: string) => void;
+  onReset?: () => void;
+  resetLabel?: string;
 }) {
   return (
     <div class="space-y-2">
-      <label class="block text-xs font-medium text-txt">{props.label}</label>
+      <label class="block text-xs font-medium text-txt">
+        {props.label}
+        <Show when={props.onReset}>
+          <button
+            type="button"
+            title={props.resetLabel}
+            onClick={() => props.onReset?.()}
+            class="ml-2 font-normal text-accent hover:underline"
+          >
+            {props.resetLabel}
+          </button>
+        </Show>
+      </label>
       <div class="flex items-center gap-3">
         <input
           type="color"
@@ -651,7 +710,9 @@ function ColorSwatch(props: {
                  transition-colors"
         />
       </div>
-      <p class="text-xs text-muted">{props.hint}</p>
+      <Show when={props.hint}>
+        <p class="text-xs text-muted">{props.hint}</p>
+      </Show>
     </div>
   );
 }

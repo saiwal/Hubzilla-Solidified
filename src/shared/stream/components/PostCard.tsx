@@ -68,7 +68,7 @@ const CommentComposer = lazy(
 import RichEditor from "@/shared/editor/core/RichEditor";
 import SourceToggleButton from "@/shared/editor/components/SourceToggleButton";
 import { CAPABILITIES } from "@/shared/editor/types/editor.types";
-import type { EditorTab } from "@/shared/editor/types/editor.types";
+import type { EditorTab, MimeType } from "@/shared/editor/types/editor.types";
 const PostComposer = lazy(
   () => import("@/shared/editor/composers/PostComposer"),
 );
@@ -76,6 +76,11 @@ import DOMPurify from "dompurify";
 import { handleNsfwToggleClick } from "@utsukta/spa-core/lib/nsfw";
 import { handleDecryptClick } from "@utsukta/spa-core/lib/decrypt-click";
 import { fetchPendingReactions, type PendingItem } from "@/modules/moderate/api";
+import {
+  ensurePendingModeration,
+  pendingReactionMids,
+  refreshPendingModeration,
+} from "@/modules/moderate/store";
 import { useAuth } from "@utsukta/spa-core/store/auth-store";
 import {
   apiFollowPost,
@@ -232,6 +237,20 @@ export default function PostCard(props: {
   const [loadingMoreComments, setLoadingMoreComments] = createSignal(false);
   const commentOrder = useCommentOrder();
   const [deleteConfirming, setDeleteConfirming] = createSignal(false);
+  // A card with no rootUuid IS the thread root; comments always get one
+  // threaded down to them (see the rootUuid prop docs above).
+  const isComment = () => !!props.rootUuid;
+  // Non-null while the edit composer is open, holding its seed fields.
+  const [editSeed, setEditSeed] = createSignal<{
+    body: string;
+    title: string;
+    summary: string;
+    /** undefined = the item's categories could not be loaded, so the composer must
+     *  not claim authority over them on save. Distinct from "" (genuinely none). */
+    category: string | undefined;
+    mimetype: MimeType;
+  } | null>(null);
+  const [editSourceLoading, setEditSourceLoading] = createSignal(false);
   const [isEditing, setIsEditing] = createSignal(false);
   const [editBody, setEditBody] = createSignal("");
   const [editTitle, setEditTitle] = createSignal("");
@@ -523,9 +542,16 @@ export default function PostCard(props: {
   // Pending reactions (Like/Dislike/Announce): unlike comments, these never
   // render as their own thread row (core only ever surfaces reaction counts,
   // not individual reaction items) — so instead of an inline badge, the
-  // owner gets a folder-picker-style panel listing whatever's queued.
-  const canReactionQueue = () =>
+  // owner gets a folder-picker-style panel listing whatever's queued. The
+  // channel-wide queue (moderate/store) says which rows have anything pending,
+  // so the flag stays hidden rather than opening an empty panel.
+  const mayModerateReactions = () =>
     (!!props.handlers.onApprove || !!props.handlers.onReject) && ownsStreamCopy();
+  createEffect(() => {
+    if (mayModerateReactions()) ensurePendingModeration();
+  });
+  const canReactionQueue = () =>
+    mayModerateReactions() && pendingReactionMids().has(props.post.mid);
   const [showReactionQueue, setShowReactionQueue] = createSignal(false);
   const [reactionQueueLoading, setReactionQueueLoading] = createSignal(false);
   const [reactionQueue, setReactionQueue] = createSignal<PendingItem[]>([]);
@@ -549,6 +575,7 @@ export default function PostCard(props: {
     try {
       await (approve ? props.handlers.onApprove : props.handlers.onReject)?.(iid);
       setReactionQueue((prev) => prev.filter((r) => r.iid !== iid));
+      refreshPendingModeration();
     } finally {
       setReactionQueueBusy(null);
     }
@@ -564,7 +591,7 @@ export default function PostCard(props: {
     );
   };
 
-  function startEdit() {
+  async function startEdit() {
     setMoreDropdownOpen(false);
     // Event posts carry structured date/time/location in the `event` table,
     // which the generic body/title editor below never touches — route to
@@ -576,6 +603,32 @@ export default function PostCard(props: {
     }
 
     const initialBody = props.post.rawBody ?? "";
+
+    // Top-level posts reopen in the full composer, seeded from the server's
+    // compose source so every field it shows (categories especially) round-
+    // trips instead of being wiped on save. Comments keep the inline form —
+    // categories and privacy belong to the thread, not to a reply.
+    if (!isComment()) {
+      if (editSourceLoading()) return;
+      setEditSourceLoading(true);
+      // A failed fetch still opens the composer, just seeded from what the
+      // card already rendered — degraded, but the user isn't stuck.
+      const src = await apiFetchComposeSource(props.post.uuid).catch(() => null);
+      setEditSourceLoading(false);
+      // Categories only exist in the compose source, so without it we don't know
+      // them. Seed `undefined` rather than "" so the composer omits the key on save
+      // and the server keeps whatever is stored — seeding "" would delete them all.
+      if (!src) toast.error(t("post.edit_source_degraded"));
+      setEditSeed({
+        body: src?.body || initialBody,
+        title: src?.title ?? props.post.title ?? "",
+        summary: src?.summary ?? props.post.summary ?? "",
+        category: src?.category,
+        mimetype: (src?.mimetype as MimeType) ?? "text/bbcode",
+      });
+      return;
+    }
+
     setEditTitle(props.post.title ?? "");
     setEditBody(initialBody);
     setEditTab("wysiwyg");
@@ -584,9 +637,11 @@ export default function PostCard(props: {
     // Upgrade to the server's compose source, which collapses [share …]
     // blocks to compact [share=<id>] tags the editor can round-trip. Skip
     // if the user already started typing meanwhile.
+    // Body-only upgrade: the inline editor never sends `category`, so a failed
+    // fetch here is harmless — it just leaves the already-rendered body in place.
     apiFetchComposeSource(props.post.uuid)
       .then((src) => {
-        if (src?.success && src.body && editBody() === initialBody) {
+        if (src?.body && editBody() === initialBody) {
           setEditBody(src.body);
         }
       })
@@ -639,7 +694,12 @@ export default function PostCard(props: {
     setEditSaving(true);
     setEditError(null);
     try {
-      await props.handlers.onEdit?.(props.post.mid, body, editTitle().trim());
+      // No `category` key — the inline editor doesn't show categories, and
+      // omitting it tells the server to leave the item's own untouched.
+      await props.handlers.onEdit?.(props.post.mid, {
+        body,
+        title: editTitle().trim(),
+      });
       setIsEditing(false);
     } catch (e) {
       setEditError(e instanceof Error ? e.message : "Edit failed");
@@ -1145,11 +1205,6 @@ export default function PostCard(props: {
           {(ev) => <EventCard post={props.post} event={ev()} />}
         </Show>
 
-        {/* Poll card (compact) */}
-        <Show when={props.post.poll}>
-          {(poll) => <PollCard uuid={props.post.uuid} poll={poll()} />}
-        </Show>
-
         {/* Body — no title rendered for comments */}
         <Show
           when={!isEditing()}
@@ -1168,7 +1223,7 @@ export default function PostCard(props: {
             />
           }
         >
-          <Show when={!eventData() && !props.post.poll}>
+          <Show when={!eventData()}>
             <div
               ref={setBodyRef}
               class="mt-1.5 prose prose-sm dark:prose-invert max-w-none text-muted
@@ -1183,6 +1238,11 @@ export default function PostCard(props: {
               onMouseUp={handleBodyMouseUp}
             />
           </Show>
+        </Show>
+
+        {/* Poll card (compact) — below the body, which holds the question text */}
+        <Show when={props.post.poll}>
+          {(poll) => <PollCard uuid={props.post.uuid} poll={poll()} />}
         </Show>
 
         <Show when={(props.post.attachments?.length ?? 0) > 0}>
@@ -1851,13 +1911,9 @@ export default function PostCard(props: {
           {(ev) => <EventCard post={props.post} event={ev()} />}
         </Show>
 
-        {/* Poll card */}
-        <Show when={props.post.poll}>
-          {(poll) => <PollCard uuid={props.post.uuid} poll={poll()} />}
-        </Show>
-
-        {/* Body — hidden for pure event/poll posts (body is just BBCode tags) */}
-        <Show when={!eventData() && !props.post.poll}>
+        {/* Body — hidden for pure event posts (body is just BBCode tags).
+            Polls keep theirs: it's the question text the author typed. */}
+        <Show when={!eventData()}>
           <div class="relative mt-4">
             <div
               class="overflow-hidden transition-[max-height] duration-300 ease-in-out"
@@ -1938,8 +1994,24 @@ export default function PostCard(props: {
         </Show>
       </Show>
 
+      {/* Poll card — below the body, which holds the question text */}
+      <Show when={props.post.poll}>
+        {(poll) => <PollCard uuid={props.post.uuid} poll={poll()} />}
+      </Show>
+
       <Show when={(props.post.attachments?.length ?? 0) > 0}>
         <AttachmentList attachments={props.post.attachments!} />
+      </Show>
+
+      {/* Categories — thread-tops only; categories belong to the thread, not a reply */}
+      <Show when={!isComment() && (props.post.categories?.length ?? 0) > 0}>
+        <div class="mt-3 flex flex-wrap items-center gap-1">
+          <For each={props.post.categories}>
+            {(cat) => (
+              <span class="px-1.5 py-0.5 rounded bg-elevated text-xs text-txt">{cat}</span>
+            )}
+          </For>
+        </div>
       </Show>
 
       {/* Action bar */}
@@ -2392,6 +2464,24 @@ export default function PostCard(props: {
             setShowComments(true);
           }}
         />
+      </Show>
+      <Show when={editSeed()}>
+        {(seed) => (
+          <PostComposer
+            open={true}
+            onClose={() => setEditSeed(null)}
+            profileUid={props.post.profileUid ?? auth()?.uid ?? 0}
+            scopeKey={`post:edit:${props.post.uuid}`}
+            initialBody={seed().body}
+            initialTitle={seed().title}
+            initialSummary={seed().summary}
+            initialCategory={seed().category}
+            initialMimetype={seed().mimetype}
+            onSubmitEdit={(fields) =>
+              props.handlers.onEdit!(props.post.mid, fields)
+            }
+          />
+        )}
       </Show>
       <Show when={reshareOpen() && props.post.iid && auth()?.uid}>
         <PostComposer

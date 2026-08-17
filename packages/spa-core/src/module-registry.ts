@@ -116,9 +116,22 @@ export function isAppInstalled(installedApps: Set<string>, urlSlug: string): boo
   return false;
 }
 
+// The persisted frontend-module list holds ids whose state differs from the
+// module's own default (see disabled-frontend-modules.ts), so the effective
+// state is default XOR override.
+export function frontendFeatureEnabled(
+  feature: ModuleDef["frontendFeature"],
+  moduleId: string,
+  overrides?: Set<string>,
+): boolean {
+  if (!feature) return true;
+  return (feature.defaultEnabled !== false) !== (overrides?.has(moduleId) ?? false);
+}
+
 // Returns false when the module has an appUrlSlug that isn't in the installed
-// set, or is a user-disabled frontendFeature module. Empty installedApps set
-// is treated as "not yet loaded" — appUrlSlug-gated modules pass through.
+// set, or is a frontendFeature module that's off for this user. Empty
+// installedApps set is treated as "not yet loaded" — appUrlSlug-gated modules
+// pass through.
 export function isModuleActive(
   moduleId: string,
   installedApps: Set<string>,
@@ -126,7 +139,7 @@ export function isModuleActive(
 ): boolean {
   const mod = modules.get(moduleId);
   if (!mod) return false;
-  if (mod.frontendFeature && disabledFrontendModules?.has(moduleId)) return false;
+  if (!frontendFeatureEnabled(mod.frontendFeature, moduleId, disabledFrontendModules)) return false;
   if (!mod.appUrlSlug) return true;
   if (installedApps.size === 0) return true;
   return isAppInstalled(installedApps, mod.appUrlSlug);
@@ -137,7 +150,7 @@ export function getSpaExclusiveNavItems(disabledFrontendModules?: Set<string>): 
   const result: NavItemDef[] = [];
   for (const [id, mod] of modules) {
     if (mod.appUrlSlug) continue;
-    if (mod.frontendFeature && disabledFrontendModules?.has(id)) continue;
+    if (!frontendFeatureEnabled(mod.frontendFeature, id, disabledFrontendModules)) continue;
     if (mod.navItem) result.push(mod.navItem);
   }
   return result;

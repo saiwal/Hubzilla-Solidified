@@ -1,13 +1,16 @@
 // shared/store/disabled-frontend-modules.ts
 //
-// Persists the set of user-disabled `frontendFeature` modules (e.g. tools,
-// games — pure-frontend modules with no backing Hubzilla app) to pconfig
-// (cat "spa", key "disabled_frontend_modules"), with a localStorage cache so
-// gating doesn't flash the enabled state before pconfig loads. Toggled from
-// the Integrations settings section.
+// Persists the set of `frontendFeature` modules (e.g. tools, games, inbox —
+// pure-frontend modules with no backing Hubzilla app) whose state the user has
+// flipped *away from the module's own default*, to pconfig (cat "spa", key
+// "disabled_frontend_modules" — the name predates per-module defaults), with a
+// localStorage cache so gating doesn't flash the wrong state before pconfig
+// loads. Toggled from the Integrations settings section; the default lives in
+// `frontendFeature.defaultEnabled` and the XOR is in frontendFeatureEnabled().
 
 import { createSignal } from "solid-js";
 import { apiFetch } from "../lib/fetch";
+import { getModule } from "../module-registry";
 
 const STORAGE_KEY = "hz-disabled-frontend-modules";
 
@@ -52,13 +55,17 @@ export function initDisabledFrontendModules(raw: string | undefined): void {
 }
 
 export function setFrontendModuleEnabled(id: string, enabled: boolean): void {
+  // The id is stored only when the requested state differs from the module's
+  // own default, so a default-off module records an override when switched on.
+  const override = enabled !== (getModule(id)?.frontendFeature?.defaultEnabled !== false);
   const next = new Set(disabledFrontendModules());
-  if (enabled) next.delete(id);
-  else next.add(id);
+  if (override) next.add(id);
+  else next.delete(id);
   setDisabledFrontendModules(next);
   writeCache([...next]);
   apiFetch("/spa/settings/integrations", {
     method: "POST",
-    body: JSON.stringify({ action: "toggle-frontend", id, enabled }),
+    // `enabled` kept for older cached bundles hitting a newer server.
+    body: JSON.stringify({ action: "toggle-frontend", id, enabled, override }),
   }).catch(() => {});
 }

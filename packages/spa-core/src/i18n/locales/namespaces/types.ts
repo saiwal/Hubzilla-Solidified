@@ -711,6 +711,7 @@ export type RawDictionary = {
     edited: string;
     edit: string;
     event_edit_unavailable: string;
+    edit_source_degraded: string;
     event_edit_failed: string;
     add_to_calendar: string;
     added_to_calendar: string;
@@ -725,6 +726,7 @@ export type RawDictionary = {
     composer_label:         string;
     reply_header:           string;
     new_post:               string;
+    edit_post:              string;
     fullscreen_enter:       string;
     fullscreen_exit:        string;
     close_esc:              string;
@@ -737,6 +739,7 @@ export type RawDictionary = {
     posting:                string;
     post_btn:               string;
     post_published:         string;
+    post_updated:           string;
     post_scheduled:         string;
     reply_btn:              string;
     sending:                string;
@@ -1114,7 +1117,19 @@ export type RawDictionary = {
     color_accent:            string;
     color_accent_hint:       string;
     dark_mode:               string;
+    custom_theme_advanced:   string;
+    custom_theme_reset:      string;
     custom_theme_derived:    string;
+    color_surface:           string;
+    color_elevated:          string;
+    color_overlay:           string;
+    color_muted:             string;
+    color_subtle:            string;
+    color_rim:               string;
+    color_rimStrong:         string;
+    color_accentMuted:       string;
+    color_accentTxt:         string;
+    color_accentFg:          string;
     items_per_page:          string;
     items_per_page_hint:     string;
     stream_refresh:          string;
@@ -1795,6 +1810,8 @@ export type RawDictionary = {
     end_label:        string;
     timezone_label:   string;
     location_label:   string;
+    categories_label: string;
+    categories_placeholder: string;
     optional:         string;
     description_label: string;
     cancel:           string;

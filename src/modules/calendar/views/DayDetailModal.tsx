@@ -14,6 +14,7 @@ import { useAuth } from "@utsukta/spa-core/store/auth-store";
 import { toast } from "@utsukta/spa-core/store/toast";
 import type { CalEvent } from "../api";
 import { deleteEvent } from "../api";
+import CategoryChips from "./CategoryChips";
 import EventCreatorModal from "../widgets/EventCreatorModal";
 import { fmtEventRange } from "./calUtils";
 
@@ -236,6 +237,8 @@ function EventDetailPanel(props: { event: CalEvent; onEdit: () => void; onDelete
           innerHTML={sanitized()}
         />
       </Show>
+
+      <CategoryChips categories={ev.categories} />
 
       <div class="flex items-center gap-3 pt-0.5">
         <Show when={ev.plink}>

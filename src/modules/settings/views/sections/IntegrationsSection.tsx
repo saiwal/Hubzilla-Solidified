@@ -9,7 +9,7 @@ import { refetchNavData } from "@utsukta/spa-core/store/nav-store";
 import { useI18n } from "@utsukta/spa-core/i18n";
 import { appLabel } from "@utsukta/spa-core/lib/app-labels";
 import NsfwConfigModal from "./NsfwConfigModal";
-import { getFrontendToggleableModules } from "@utsukta/spa-core/module-registry";
+import { getFrontendToggleableModules, frontendFeatureEnabled } from "@utsukta/spa-core/module-registry";
 import { disabledFrontendModules, setFrontendModuleEnabled } from "@utsukta/spa-core/store/disabled-frontend-modules";
 
 interface AppEntry {
@@ -290,7 +290,8 @@ function FrontendFeaturesSection() {
               const description = typeof mod.frontendFeature.description === "function"
                 ? mod.frontendFeature.description()
                 : mod.frontendFeature.description;
-              const enabled = () => !disabledFrontendModules().has(mod.id);
+              const enabled = () =>
+                frontendFeatureEnabled(mod.frontendFeature, mod.id, disabledFrontendModules());
 
               return (
                 <div class="flex items-start gap-4 rounded-lg border border-rim bg-surface px-4 py-3">

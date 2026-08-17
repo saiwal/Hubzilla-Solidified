@@ -81,6 +81,7 @@ export const post: RawDictionary["post"] = {
   edited:                "Edited",
   edit:                  "Edit",
   event_edit_unavailable: "This event can't be edited right now — try from the Calendar app instead.",
+  edit_source_degraded: "Couldn't load this post's full source. Its categories are left unchanged.",
   event_edit_failed:     "Couldn't open the event editor.",
   add_to_calendar:       "Add to calendar",
   added_to_calendar:     "Added to your calendar",

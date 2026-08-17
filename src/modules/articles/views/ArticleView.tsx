@@ -374,10 +374,11 @@ export default function ArticleView() {
       await apiDeleteItem(node.uuid);
       setLocalComments(prev => prev.filter(c => c.mid !== mid));
     },
-    async onEdit(mid, body, title) {
+    async onEdit(mid, payload) {
       const node = findInTree(rawCommentTree(), mid);
       if (!node?.uuid) return;
-      await apiEditItem(node.uuid, body, title ?? "");
+      await apiEditItem(node.uuid, payload);
+      const body = payload.body;
       let renderedBody = "";
       try {
         const converted = bbcodeToHtml(body, { oembedResolver });
@@ -386,7 +387,7 @@ export default function ArticleView() {
         renderedBody = "";
       }
       setLocalComments(prev => prev.map(c =>
-        c.mid === mid ? { ...c, body: renderedBody, rawBody: body, title: title ?? "" } : c
+        c.mid === mid ? { ...c, body: renderedBody, rawBody: body, title: payload.title ?? "" } : c
       ));
     },
   };
@@ -437,6 +438,10 @@ export default function ArticleView() {
                     title:         d().article.title,
                     summary:       d().article.summary,
                     slug:          d().article.slug,
+                    // Must be passed: the composer sends `category` on save and the
+                    // server treats it as authoritative, so omitting it here meant
+                    // every edit saved "" and cleared the article's categories.
+                    category:      (d().article.categories ?? []).join(", "),
                     body:          d().article.rawBody ?? "",
                     public_policy: d().article.publicPolicy,
                     allow_cid:     d().article.allowCid,

@@ -10,6 +10,7 @@ import {
   dropModerationItem,
   type PendingItem,
 } from "../api";
+import { refreshPendingModeration } from "../store";
 
 function relativeTime(when?: string): string {
   if (!when) return "";
@@ -109,6 +110,8 @@ export default function ModerateView() {
 
   function removeFromList(iid: number) {
     mutate((prev) => (prev ?? []).filter((i) => i.iid !== iid));
+    // Keep PostCard's flag-icon gate in sync with what's left queued.
+    refreshPendingModeration();
   }
 
   return (

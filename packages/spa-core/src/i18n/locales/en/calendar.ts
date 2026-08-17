@@ -19,6 +19,8 @@ export const calendar: RawDictionary["calendar"] = {
   end_label:        "End",
   timezone_label:   "Timezone",
   location_label:   "Location",
+  categories_label: "Categories",
+  categories_placeholder: "Add a category…",
   optional:         "Optional",
   description_label: "Description",
   cancel:           "Cancel",

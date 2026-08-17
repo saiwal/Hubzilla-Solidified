@@ -2,7 +2,7 @@
 import { type Component, createEffect, createMemo, createSignal, on, Show, onMount } from "solid-js";
 import { Portal } from "solid-js/web";
 import PostCard from "../stream/components/PostCard";
-import type { StreamHandlers } from "../stream/types";
+import type { StreamHandlers, EditPayload } from "../stream/types";
 import type { ThreadNode } from "@utsukta/spa-core/lib/thread";
 import { buildThreadTree, appendNewBranches, mergeReplies, applyBranchMeta } from "@utsukta/spa-core/lib/thread";
 import type { Post } from "@utsukta/spa-core/types/post.types";
@@ -302,10 +302,10 @@ const PostDetailModal: Component<PostDetailModalProps> = (props) => {
         setLocalReactions(prev => ({ ...prev, [mid]: { ...(prev[mid] ?? {}), viewerStarred: current } }));
       });
     },
-    async onEdit(mid, body, title) {
+    async onEdit(mid, payload) {
       const found = findInTree(nodeData(), mid);
       if (!found?.uuid) throw new Error("Item not found");
-      await apiEditItem(found.uuid, body, title ?? "");
+      await apiEditItem(found.uuid, payload);
       await loadNode(props.uuid);
     },
     async onDelete(mid) {
@@ -377,13 +377,13 @@ const PostDetailModal: Component<PostDetailModalProps> = (props) => {
         onLoadMoreComments: loadMoreComments,
         // Root edits go through the parent feed handler so its copy stays in
         // sync; comments usually aren't in the feed store, so edit directly.
-        onEdit: async (mid: string, body: string, title?: string) => {
+        onEdit: async (mid: string, payload: EditPayload) => {
           if (nodeData()?.mid === mid && props.handlers!.onEdit) {
-            await props.handlers!.onEdit(mid, body, title);
+            await props.handlers!.onEdit(mid, payload);
           } else {
             const found = findInTree(nodeData(), mid);
             if (!found?.uuid) throw new Error("Item not found");
-            await apiEditItem(found.uuid, body, title ?? "");
+            await apiEditItem(found.uuid, payload);
           }
           await loadNode(props.uuid);
         },
@@ -418,6 +418,10 @@ const PostDetailModal: Component<PostDetailModalProps> = (props) => {
             }
           : undefined,
         onRefresh: async () => { refetch(); },
+        // Moderation isn't a feed concern — no feed handler set supplies these,
+        // and they act on this modal's own tree — so reuse selfHandlers'.
+        onApprove: selfHandlers.onApprove,
+        onReject: selfHandlers.onReject,
       }
     : undefined;
 

@@ -15,6 +15,12 @@ export interface CalEvent {
   rw: boolean;
   plink: string;
   html: string;       // only populated for ?id= requests
+  /**
+   * Category names. Channel-calendar events only — these are TERM_CATEGORY rows on
+   * the event's companion item, the same storage core uses, so they round-trip with
+   * core's own calendar UI. Always `[]` for CalDAV events.
+   */
+  categories?: string[];
   /** Set for CalDAV events — used to color-code calendar pills */
   calendarColor?: string;
   calendarName?: string;
@@ -44,12 +50,14 @@ export interface CalRange {
 export async function fetchEvents(
   nick: string,
   range?: CalRange,
+  cat?: string,
 ): Promise<CalEvent[]> {
   const q = new URLSearchParams();
   if (range) {
     q.set("start", range.start);
     q.set("end", range.end);
   }
+  if (cat) q.set("cat", cat);
   const qs = q.toString();
   const res = await fetch(`/spa/cal/${nick}${qs ? `?${qs}` : ""}`, {
     credentials: "same-origin",
@@ -69,6 +77,11 @@ export interface CreateEventInput {
   nofinish?: boolean;
   /** Browser-resolved IANA zone (e.g. "America/New_York") — display/export metadata only. */
   timezone?: string;
+  /**
+   * Comma-separated category names, matching core's `$_POST['categories']`.
+   * Channel-calendar events only.
+   */
+  categories?: string;
   /** Audience — channel-calendar (native) events only, ignored for CalDAV targets. */
   scope?: "public" | "connections" | "private" | "custom";
   contact_allow?: string[];
@@ -111,6 +124,13 @@ export interface EditEventInput {
   nofinish?: boolean;
   /** Browser-resolved IANA zone (e.g. "America/New_York") — display/export metadata only. */
   timezone?: string;
+  /**
+   * Comma-separated category names, matching core's `$_POST['categories']`.
+   * Channel-calendar events only. Omitting the key keeps the stored categories;
+   * sending `""` clears them. Any other term rows (hashtags, mentions) survive
+   * either way.
+   */
+  categories?: string;
   /** Audience — channel-calendar (native) events only, ignored for CalDAV targets. */
   scope?: "public" | "connections" | "private" | "custom";
   contact_allow?: string[];

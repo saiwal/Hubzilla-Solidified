@@ -16,7 +16,7 @@ import { buildThreadTree, appendNewBranches, mergeReplies, applyBranchMeta } fro
 import type { Post } from "@utsukta/spa-core/types/post.types";
 import type { createStreamStore } from "./createStreamStore";
 import { updateNode } from "./createStreamStore";
-import { fetchComments, fetchItemDetail, apiDeleteItem, apiEditItem, apiToggleStar } from "@utsukta/spa-core/lib/item-api";
+import { fetchComments, fetchItemDetail, apiDeleteItem, apiEditItem, apiToggleStar, type EditPayload } from "@utsukta/spa-core/lib/item-api";
 import { mapActivityToPost } from "@utsukta/spa-core/lib/activity.mapper";
 import { sanitizeHtml } from "@utsukta/spa-core/lib/sanitize";
 import { currentNick } from "@utsukta/spa-core/store/auth-store";
@@ -150,10 +150,10 @@ export function createActionHandlers(store: StreamStore) {
       store.setPosts((prev) => prev.filter((p) => p.mid !== mid));
     },
 
-    async handleEdit(mid: string, body: string, title = ""): Promise<void> {
+    async handleEdit(mid: string, payload: EditPayload): Promise<void> {
       const node = findNode(store.posts(), mid);
       if (!node) return;
-      await apiEditItem(node.uuid, body, title);
+      await apiEditItem(node.uuid, payload);
       const detail = await fetchItemDetail(node.uuid);
       const item = detail?.item;
       if (!item) return;

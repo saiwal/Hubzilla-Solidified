@@ -122,6 +122,8 @@ export interface ModuleDef {
   frontendFeature?: {
     label: string | (() => string);
     description?: string | (() => string);
+    /** false = off until the user enables it in Settings → Integrations. Defaults to true. */
+    defaultEnabled?: boolean;
   };
   /** true = only rendered for authenticated users; anonymous visitors are redirected to /login. */
   requiresAuth?: boolean;

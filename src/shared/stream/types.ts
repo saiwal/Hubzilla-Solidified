@@ -1,5 +1,8 @@
 // src/shared/stream/types.ts
 import type { CommentOrder } from "@utsukta/spa-core/store/comment-order";
+import type { EditPayload } from "@utsukta/spa-core/lib/item-api";
+
+export type { EditPayload };
 
 export interface StreamHandlers {
   onLike: (mid: string) => void;
@@ -24,7 +27,9 @@ export interface StreamHandlers {
   onStar?: (mid: string) => void;
   onPin?: (mid: string) => void;
   onDelete?: (mid: string) => Promise<void>;
-  onEdit?: (mid: string, body: string, title?: string) => Promise<void>;
+  // Posts send the composer's full field set; the inline comment editor sends
+  // just { body, title } and the rest is left as stored (see EditPayload).
+  onEdit?: (mid: string, payload: EditPayload) => Promise<void>;
   onRefresh?: (mid: string, uuid: string) => Promise<void>;
   // Approve/reject a comment or wall post stuck in moderation
   // (post.flags includes "pending_moderation") — see src/modules/moderate/api.ts.

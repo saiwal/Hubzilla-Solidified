@@ -13,6 +13,9 @@ import { bbcodeToInsert, patchInsertedAlt } from "@/shared/editor/attachments/in
 import { currentNick, isFeatureEnabled } from "@utsukta/spa-core/store/auth-store";
 import AclPicker, { aclModeToScope } from "@/shared/editor/components/AclPicker";
 import { useAclState, splitAclEntries } from "@/shared/editor/components/useAclState";
+import CategoryTagsField from "@/shared/editor/components/CategoryTagsField";
+import { useCategoryTags } from "@/shared/editor/components/useCategoryTags";
+import { fetchCategories } from "@/shared/stream/components/CategoryWidget";
 import { prevDay, nextDay, zonedTimeToUtc, utcToZonedDateTime } from "../views/calUtils";
 
 function timezones(): string[] {
@@ -79,6 +82,9 @@ export default function EventCreatorModal(props: Props) {
   );
   const [endTime, setEndTime] = createSignal(ev?.end && !ev.allDay ? isoToTime(ev.end, initialTz) : "10:00");
   const [location, setLocation] = createSignal(ev?.location ?? "");
+  // Comma string, matching core's categories field (and the join core uses when it
+  // prefills its own form) so useCategoryTags can drive it directly.
+  const [category, setCategory] = createSignal(ev?.categories?.join(", ") ?? "");
   const [description, setDescription] = createSignal(ev?.description ?? "");
   const [descriptionTab, setDescriptionTab] = createSignal<EditorTab>("wysiwyg");
   const attach = createAttachmentStore(currentNick(), `event:${ev?.id ?? "new"}`);
@@ -113,6 +119,20 @@ export default function EventCreatorModal(props: Props) {
   // rows) — CalDAV events have no ACL concept in this app.
   const isNativeTarget = () =>
     isEdit ? !ev?.calendarId : !calendarOptions()[selectedCalIdx()]?.calendarId;
+
+  // Suggestions come from the channel's existing post categories — event items are
+  // ordinary thread-top wall items, so the "posts" list already includes categories
+  // used on events. Same wiring as PostComposer.
+  const [existingCategories] = createQueryResource(
+    "event-categories",
+    () => ({ channelNick: currentNick(), type: "posts" as const }),
+    fetchCategories,
+  );
+  const categoryTags = useCategoryTags(
+    category,
+    setCategory,
+    () => (existingCategories() ?? []).map((c) => c.name),
+  );
 
   const acl = useAclState({
     mode: ev?.scope === "private" ? "me" : ev?.scope === "custom" ? "custom" : "public",
@@ -191,6 +211,10 @@ export default function EventCreatorModal(props: Props) {
           allDay: allDay(),
           nofinish: nofinish(),
           timezone: timezone(),
+          // Sent unconditionally (empty string included) so clearing every category
+          // actually clears it — the server treats the key's presence as
+          // authoritative and leaves stored categories alone when it's absent.
+          ...(isNativeTarget() ? { categories: category().trim() } : {}),
           ...aclPayload,
           calendarId: ev.calendarId,
           uri: ev.uri,
@@ -207,6 +231,7 @@ export default function EventCreatorModal(props: Props) {
           allDay: allDay(),
           nofinish: nofinish(),
           timezone: timezone(),
+          ...(isNativeTarget() ? { categories: category().trim() } : {}),
           ...aclPayload,
           calendarId: selectedCal?.calendarId,
           calendarInstanceId: selectedCal?.calendarInstanceId,
@@ -404,6 +429,32 @@ export default function EventCreatorModal(props: Props) {
               class={inputClass}
             />
           </div>
+
+          {/* Categories — channel calendar only, mirroring core, which hides its own
+              category field unless the target is the channel calendar. */}
+          <Show when={isNativeTarget()}>
+            <div class="flex flex-col gap-1">
+              <label class="text-xs font-medium text-muted">{t("calendar.categories_label")}</label>
+              <CategoryTagsField
+                showLabel
+                hideLabel
+                tags={categoryTags.categoryTags}
+                pending={categoryTags.pendingCategory}
+                onPendingInput={categoryTags.setPendingCategory}
+                onKeyDown={categoryTags.onCategoryKeyDown}
+                onRemove={categoryTags.removeCategoryTag}
+                onBlur={() => {
+                  if (categoryTags.pendingCategory().trim()) {
+                    categoryTags.addCategoryTag(categoryTags.pendingCategory());
+                  }
+                }}
+                suggestions={categoryTags.suggestions}
+                activeSuggestion={categoryTags.activeSuggestion}
+                onSelectSuggestion={categoryTags.addCategoryTag}
+                placeholder={t("calendar.categories_placeholder") as string}
+              />
+            </div>
+          </Show>
 
           {/* Description */}
           <div class="flex flex-col gap-1">

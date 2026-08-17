@@ -25,7 +25,8 @@ import { MdOutlineTimer, MdOutlineSchedule } from "solid-icons/md";
 import { createComposerStore } from "../store/createComposerStore";
 import RichEditor from "../core/RichEditor";
 import ComposerModal from "../components/ComposerModal";
-import { CAPABILITIES } from "../types/editor.types";
+import { CAPABILITIES, type MimeType } from "../types/editor.types";
+import type { EditPayload } from "@utsukta/spa-core/lib/item-api";
 import AclPicker from "../components/AclPicker";
 import DateTimePicker from "../components/DateTimePicker";
 import type { AclMode } from "../components/AclPicker";
@@ -85,6 +86,20 @@ export interface ComposerProps {
    *  "post:reply:<parentId>"). Pass a distinct key for special flows like
    *  reshares so their autosave never clobbers the regular composer draft. */
   scopeKey?: string;
+
+  // ── Edit mode ─────────────────────────────────────────────────────────────
+  // Setting onSubmitEdit turns the composer into an editor for an existing
+  // item: it hands the changed fields back instead of POSTing to /spa/item, so
+  // the caller keeps ownership of the refresh (see StreamHandlers.onEdit).
+  // Only content fields are editable — privacy, expiry, scheduling and polls
+  // are properties of the original post and stay as stored, so their controls
+  // are hidden rather than shown with values that wouldn't be saved.
+  onSubmitEdit?: (fields: EditPayload) => Promise<void>;
+  /** Seed values for edit mode — fetch them from /spa/item/:uuid/compose. */
+  initialTitle?: string;
+  initialSummary?: string;
+  initialCategory?: string;
+  initialMimetype?: MimeType;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -92,6 +107,7 @@ export interface ComposerProps {
 const PostComposer: Component<ComposerProps> = (props) => {
   const { t } = useI18n();
   const caps = CAPABILITIES.post;
+  const isEdit = () => !!props.onSubmitEdit;
 
   // ── Scope (shared by both stores for matching IDB keys) ───────────────────
   const scope =
@@ -176,6 +192,31 @@ const PostComposer: Component<ComposerProps> = (props) => {
         .map((a) => `[attachment]${a.hash ?? a.resourceId},0[/attachment]`)
         .join("\n");
       const augmentedBody = fileTags ? `${body}\n${fileTags}` : body;
+
+      // ── Edit: hand the content fields back and let the caller save ────────
+      // `category` is authoritative when sent, including empty — that is what
+      // makes removing every category possible (see Item.php editItem()). But
+      // sending it is only safe when we actually know the item's categories:
+      // `initialCategory === undefined` means the caller could not load them
+      // (a failed /compose fetch), and sending "" then would silently delete
+      // every category on the post. Omitting the key tells the server to leave
+      // them alone. Still send whatever the user typed, so an addition made in
+      // a degraded editor isn't thrown away.
+      const cat = meta.category ?? "";
+      const catKnown = props.initialCategory !== undefined;
+      if (props.onSubmitEdit) {
+        await props.onSubmitEdit({
+          body: augmentedBody,
+          title: meta.title ?? "",
+          summary: meta.summary ?? "",
+          ...(catKnown || cat ? { category: cat } : {}),
+          mimetype: meta.mimetype ?? "text/bbcode",
+        });
+        toast.success(t("editor.post_updated"));
+        attach.clear();
+        props.onClose();
+        return;
+      }
 
       const csrf = await getCsrfToken();
 
@@ -268,7 +309,13 @@ const PostComposer: Component<ComposerProps> = (props) => {
       props.onClose();
     },
     scope,
-    { initialBody: props.initialBody },
+    {
+      initialBody: props.initialBody,
+      initialTitle: props.initialTitle,
+      initialSummary: props.initialSummary,
+      initialCategory: props.initialCategory,
+      initialMimetype: props.initialMimetype,
+    },
   );
 
   const wordCount = () => countWords(store.body());
@@ -383,7 +430,13 @@ const PostComposer: Component<ComposerProps> = (props) => {
   return (
     <Show when={props.open}>
       <ComposerModal
-        title={props.parentId ? t("editor.reply_header") : t("editor.new_post")}
+        title={
+          isEdit()
+            ? t("editor.edit_post")
+            : props.parentId
+              ? t("editor.reply_header")
+              : t("editor.new_post")
+        }
         ariaLabel={t("editor.composer_label")}
         onClose={props.onClose}
         fullscreen={fullscreen()}
@@ -424,26 +477,30 @@ const PostComposer: Component<ComposerProps> = (props) => {
           <>
             {/* ── Options row ── */}
             <div class="flex flex-wrap items-center gap-2">
-              {/* ACL Picker — hidden for visitors posting to another channel's wall */}
-              <Show
-                when={!props.hideAcl}
-                fallback={
-                  <span class="text-xs text-muted px-1">{t("editor.posting_to_wall")}</span>
-                }
-              >
-                <AclPicker
-                  mode={acl.mode()}
-                  onModeChange={acl.setMode}
-                  allowEntries={acl.allowEntries()}
-                  denyEntries={acl.denyEntries()}
-                  onToggle={acl.toggleEntry}
-                  onClear={acl.clearEntries}
-                  seedEntries={props.initialResolvedEntries}
-                />
+              {/* ACL Picker — hidden for visitors posting to another channel's
+                  wall (replaced by a note), and entirely absent when editing,
+                  where privacy isn't among the editable fields. */}
+              <Show when={!isEdit()}>
+                <Show
+                  when={!props.hideAcl}
+                  fallback={
+                    <span class="text-xs text-muted px-1">{t("editor.posting_to_wall")}</span>
+                  }
+                >
+                  <AclPicker
+                    mode={acl.mode()}
+                    onModeChange={acl.setMode}
+                    allowEntries={acl.allowEntries()}
+                    denyEntries={acl.denyEntries()}
+                    onToggle={acl.toggleEntry}
+                    onClear={acl.clearEntries}
+                    seedEntries={props.initialResolvedEntries}
+                  />
+                </Show>
               </Show>
 
               {/* Expiry — gated behind Settings → Features → Content Expiration */}
-              <Show when={isFeatureEnabled("content_expire") && !props.parentId}>
+              <Show when={isFeatureEnabled("content_expire") && !props.parentId && !isEdit()}>
                 <div class="hidden sm:block">
                   <DateTimePicker
                     value={expiry()}
@@ -471,7 +528,7 @@ const PostComposer: Component<ComposerProps> = (props) => {
               </ToggleButton>
 
               {/* Delayed publish — gated behind Settings → Features → Delayed Posting */}
-              <Show when={isFeatureEnabled("delayed_posting") && !props.parentId}>
+              <Show when={isFeatureEnabled("delayed_posting") && !props.parentId && !isEdit()}>
                 <div class="hidden sm:block">
                   <DateTimePicker
                     value={publishAt()}
@@ -485,7 +542,7 @@ const PostComposer: Component<ComposerProps> = (props) => {
               </Show>
 
               {/* Disable comments — gated behind Settings → Features → Disable Comments */}
-              <Show when={isFeatureEnabled("disable_comments") && !props.parentId}>
+              <Show when={isFeatureEnabled("disable_comments") && !props.parentId && !isEdit()}>
                 <ToggleButton
                   active={noComment()}
                   onClick={() => setNoComment((v) => !v)}
@@ -503,7 +560,7 @@ const PostComposer: Component<ComposerProps> = (props) => {
                   opt-in; hidden for wall-to-wall visitor posts since delivery
                   gates on the poster, not the wall owner (same reasoning as
                   the hidden ACL picker above). */}
-              <Show when={isLocalOnlyPostsEnabled() && !props.hideAcl && !props.parentId}>
+              <Show when={isLocalOnlyPostsEnabled() && !props.hideAcl && !props.parentId && !isEdit()}>
                 <ToggleButton
                   active={localOnly()}
                   onClick={() => setLocalOnly((v) => !v)}
@@ -518,7 +575,7 @@ const PostComposer: Component<ComposerProps> = (props) => {
               </Show>
 
               {/* Poll toggle */}
-              <Show when={caps.poll && !props.parentId}>
+              <Show when={caps.poll && !props.parentId && !isEdit()}>
                 <PollToggleButton
                   active={poll.enabled()}
                   onToggle={() => poll.setEnabled((p) => !p)}
@@ -573,7 +630,9 @@ const PostComposer: Component<ComposerProps> = (props) => {
                   disabled={store.submitting() || attach.uploading()}
                   onClick={() => void store.submit()}
                 >
-                  {store.submitting() ? t("editor.posting") : t("editor.post_btn")}
+                  {store.submitting()
+                    ? t(isEdit() ? "editor.saving" : "editor.posting")
+                    : t(isEdit() ? "editor.save_changes" : "editor.post_btn")}
                 </PrimarySubmitButton>
               </div>
             </div>
@@ -665,6 +724,14 @@ const PostComposer: Component<ComposerProps> = (props) => {
             minHeight="150px"
             fill
           />
+          {/* Hidden while editing: files auto-append an [attachment] tag that
+              only createPost() extracts into item.attach — editItem() would
+              leave it as literal BBCode in the body. Existing attachments are
+              untouched by an edit either way, since it never writes the
+              attach column.
+              ponytail: no attachment editing on edit; add the same tag
+              extraction to editItem() if changing a post's files matters. */}
+          <Show when={!isEdit()}>
           <AttachmentBar
             store={attach}
             nick={currentNick()}
@@ -678,6 +745,7 @@ const PostComposer: Component<ComposerProps> = (props) => {
             tab={store.tab()}
             onToggleTab={() => store.setTab(store.tab() === "wysiwyg" ? "source" : "wysiwyg")}
           />
+          </Show>
         </div>
 
         {/* ── Location panel ── */}

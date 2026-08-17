@@ -1,4 +1,4 @@
-import { For, Show, type Component } from "solid-js";
+import { Index, Show, type Component } from "solid-js";
 import { useI18n } from "@utsukta/spa-core/i18n";
 import type { PollState } from "./usePollState";
 
@@ -14,21 +14,23 @@ const PollPanel: Component<PollPanelProps> = (props) => {
       <span class="block text-xs font-semibold text-muted uppercase tracking-wide mb-1">
         {t("editor.poll_toggle")}
       </span>
-      <For each={poll.answers()}>
+      {/* Index, not For: answers are plain strings, so For would key on the
+          value and recreate the input on every keystroke (focus loss). */}
+      <Index each={poll.answers()}>
         {(ans, i) => (
           <div class="flex items-center gap-2">
             <input
               type="text"
-              value={ans}
-              placeholder={`${t("editor.poll_answer_placeholder")} ${i() + 1}`}
-              onInput={(e) => poll.updateAnswer(i(), e.currentTarget.value)}
+              value={ans()}
+              placeholder={`${t("editor.poll_answer_placeholder")} ${i + 1}`}
+              onInput={(e) => poll.updateAnswer(i, e.currentTarget.value)}
               class="flex-1 bg-transparent border border-rim rounded px-2.5 py-1 text-sm
                      text-txt placeholder:text-muted outline-none focus:border-rim-strong transition-colors"
             />
             <Show when={poll.answers().length > 2}>
               <button
                 type="button"
-                onClick={() => poll.removeAnswer(i())}
+                onClick={() => poll.removeAnswer(i)}
                 title={t("editor.poll_remove_answer")}
                 class="p-1 rounded text-muted hover:text-red-400 hover:bg-red-400/10 transition-colors"
               >
@@ -39,7 +41,7 @@ const PollPanel: Component<PollPanelProps> = (props) => {
             </Show>
           </div>
         )}
-      </For>
+      </Index>
       <div class="flex flex-wrap items-center gap-3 pt-1">
         <Show when={poll.answers().length < 10}>
           <button
