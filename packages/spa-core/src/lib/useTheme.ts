@@ -1,9 +1,9 @@
 import { createSignal } from "solid-js";
 import type { ThemeId, CustomThemeColors } from "../types/theme.types";
 import { apiFetch } from "./fetch";
-import { THEME_VARS, buildCustomThemeCSS } from "./theme-colors";
+import { THEME_VARS, buildCustomThemeCSS, normalizeHex, DEFAULT_CUSTOM_COLORS } from "./theme-colors";
 
-export { THEME_VARS, buildCustomThemeCSS, withColorChange } from "./theme-colors";
+export { THEME_VARS, buildCustomThemeCSS, withColorChange, normalizeHex, DEFAULT_CUSTOM_COLORS } from "./theme-colors";
 export type { DerivedColorKey } from "./theme-colors";
 
 const STORAGE_KEY = "hz-theme";
@@ -24,13 +24,6 @@ export const DARK_THEMES = new Set<ThemeId>([
   "rose-pine",
   "high-contrast",
 ]);
-
-export const DEFAULT_CUSTOM_COLORS: CustomThemeColors = {
-  base: "#1e1e2e",
-  txt: "#cdd6f4",
-  accent: "#cba6f7",
-  isDark: true,
-};
 
 function loadCustomColorsFromStorage(): CustomThemeColors {
   try {
@@ -56,9 +49,10 @@ export function colorsFromAppliedTheme(): CustomThemeColors {
     isDark: document.documentElement.classList.contains("dark"),
   };
   for (const { key, css } of THEME_VARS) {
-    const v = cs.getPropertyValue(css).trim();
-    // Only plain hex survives: anything else can't seed an <input type="color">.
-    if (/^#[0-9a-f]{6}$/i.test(v)) (colors as unknown as Record<string, string>)[key] = v;
+    // Shipped CSS is minified (#ffffff -> #fff), so normalize before storing:
+    // <input type="color"> only accepts the six-digit form.
+    const hex = normalizeHex(cs.getPropertyValue(css));
+    if (hex) (colors as unknown as Record<string, string>)[key] = hex;
   }
   return colors;
 }
