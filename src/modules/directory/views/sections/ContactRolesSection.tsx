@@ -1,6 +1,7 @@
 import {
   createSignal,
   createMemo,
+  createEffect,
   For,
   Show,
 } from "solid-js";
@@ -22,6 +23,8 @@ import { MdFillAdd, MdFillClose, MdOutlineEdit, MdFillStar, MdFillStar_border } 
 import ConnectionEditorModal from "@/shared/views/ConnectionEditorModal";
 import RolePermissionsModal from "./RolePermissionsModal";
 import SubPageContent from "@/shared/views/SubPageContent";
+import { Portal } from "solid-js/web";
+import { useDropdown } from "@utsukta/spa-core/lib/useDropdown";
 
 // ── API ───────────────────────────────────────────────────────────────────────
 
@@ -118,7 +121,8 @@ function CustomRolePill(props: {
   onBulkAssigned: () => void;
 }) {
   const { t } = useI18n();
-  const [open, setOpen] = createSignal(false);
+  const { open, setOpen, toggle, floatStyle, setTriggerRef, setPanelRef } =
+    useDropdown({ placement: "bottom-start", offset: 4 });
   const [picking, setPicking] = createSignal(false);
   const [renaming, setRenaming] = createSignal(false);
   const [newName, setNewName] = createSignal("");
@@ -128,8 +132,12 @@ function CustomRolePill(props: {
 
   function closeMenu() {
     setOpen(false);
-    setPicking(false);
   }
+
+  // Dismissing the menu (however it happens) drops the group-picker sub-state.
+  createEffect(() => {
+    if (!open()) setPicking(false);
+  });
 
   async function handleAssignToGroup(group: PrivacyGroup) {
     if (!confirm(t("directory.assign_to_group_confirm", { role: props.label, group: group.name }))) return;
@@ -250,7 +258,8 @@ function CustomRolePill(props: {
 
           {/* Dropdown trigger */}
           <button
-            onClick={() => setOpen((v) => !v)}
+            ref={setTriggerRef}
+            onClick={toggle}
             disabled={busy()}
             class={`px-1.5 py-1 transition-colors disabled:opacity-50 ${
               props.active ? "hover:bg-white/10" : "hover:bg-surface"
@@ -265,9 +274,13 @@ function CustomRolePill(props: {
       </Show>
 
       {/* Dropdown menu */}
+      <Portal>
       <Show when={open()}>
-        <div class="fixed inset-0 z-[9]" onClick={closeMenu} />
-        <div class="absolute top-full left-0 mt-1 bg-surface border border-rim rounded-lg shadow-lg z-10 py-1 min-w-[160px] max-h-64 overflow-y-auto">
+        <div
+          ref={setPanelRef}
+          style={floatStyle()}
+          class="bg-surface border border-rim rounded-lg shadow-lg z-50 py-1 min-w-[160px] max-h-64 overflow-y-auto"
+        >
           <Show
             when={!picking()}
             fallback={
@@ -325,6 +338,7 @@ function CustomRolePill(props: {
           </Show>
         </div>
       </Show>
+      </Portal>
     </div>
   );
 }

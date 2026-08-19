@@ -21,6 +21,11 @@ export type EditorCapabilities = {
   submitOnCtrlEnter: boolean;
   latexMode: LatexInsertMode;
   poll: boolean;
+  // Whether the toolbar offers "Insert card" — true wherever a [card=<id>]
+  // token is meaningful, i.e. content whose body Item.php/Cards.php expand at
+  // save time. Off elsewhere so the button can't insert a token that would be
+  // stored raw.
+  cardPicker: boolean;
 };
 
 export type ComposerMeta = {
@@ -44,6 +49,7 @@ export const CAPABILITIES: Record<string, EditorCapabilities> = {
     submitOnCtrlEnter: true,
     latexMode: "image",
     poll: true,
+    cardPicker: true,
   },
   // Inline comment box under a PostCard — same full toolbar as the post
   // composer, only the meta fields (title/summary/ACL/…) are stripped.
@@ -58,6 +64,7 @@ export const CAPABILITIES: Record<string, EditorCapabilities> = {
     submitOnCtrlEnter: true,
     latexMode: "image",
     poll: false,
+    cardPicker: true,
   },
   // Direct message — same full toolbar as post, but recipients are picked
   // via a "To:" field (RecipientField) instead of the ACL picker, so
@@ -73,6 +80,7 @@ export const CAPABILITIES: Record<string, EditorCapabilities> = {
     submitOnCtrlEnter: true,
     latexMode: "image",
     poll: false,
+    cardPicker: false,
   },
   // Article / long-form post — read in-app like webpages/wiki, not federated
   // as a standalone object in the same way a stream post is, so LaTeX
@@ -88,6 +96,23 @@ export const CAPABILITIES: Record<string, EditorCapabilities> = {
     submitOnCtrlEnter: false,
     latexMode: "live",
     poll: false,
+    cardPicker: true,
+  },
+  // Card — short-form, item-backed content read in-app like articles, so
+  // LaTeX renders live (KaTeX). A card body may itself embed another card:
+  // Cards.php expands the token at save time exactly as Item.php does.
+  card: {
+    toolbar: "full",
+    title: true,
+    summary: true,
+    slug: true,
+    category: true,
+    attachments: "both",
+    aclPicker: true,
+    submitOnCtrlEnter: false,
+    latexMode: "live",
+    poll: false,
+    cardPicker: true,
   },
   // Hubzilla webpage (static page with slug) — read in-app, not federated as
   // a standalone object, so LaTeX renders live (KaTeX) rather than as an image.
@@ -102,6 +127,7 @@ export const CAPABILITIES: Record<string, EditorCapabilities> = {
     submitOnCtrlEnter: false,
     latexMode: "live",
     poll: false,
+    cardPicker: false,
   },
   // Hubzilla block (item-backed content preset, referenced by name rather
   // than URL slug — see core's Comanche [block]name[/block]) — read in-app
@@ -117,6 +143,7 @@ export const CAPABILITIES: Record<string, EditorCapabilities> = {
     submitOnCtrlEnter: false,
     latexMode: "live",
     poll: false,
+    cardPicker: false,
   },
   // Wiki page — full toolbar (uniform with the other composers), no ACL,
   // no attachments; live LaTeX, same reasoning as webpage above.
@@ -131,6 +158,7 @@ export const CAPABILITIES: Record<string, EditorCapabilities> = {
     submitOnCtrlEnter: false,
     latexMode: "live",
     poll: false,
+    cardPicker: false,
   },
   // Personal note — always private, full toolbar (uniform with the other
   // composers); read in-app only, so LaTeX renders live (KaTeX) rather than
@@ -146,6 +174,7 @@ export const CAPABILITIES: Record<string, EditorCapabilities> = {
     submitOnCtrlEnter: true,
     latexMode: "live",
     poll: false,
+    cardPicker: false,
   },
   // Chat room message input — comment toolbar, untabbed, Ctrl+Enter sends
   chat: {
@@ -159,5 +188,6 @@ export const CAPABILITIES: Record<string, EditorCapabilities> = {
     submitOnCtrlEnter: true,
     latexMode: "image",
     poll: false,
+    cardPicker: false,
   },
 };

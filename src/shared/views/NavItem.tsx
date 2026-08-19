@@ -38,6 +38,7 @@ import {
   MdFillVideogame_asset,
   MdOutlineDrag_indicator,
   MdFillGavel,
+  MdFillStyle,
 } from "solid-icons/md";
 
 
@@ -57,6 +58,7 @@ const ICON_MAP: Record<string, (size: number) => JSX.Element> = {
   bookmark: (s) => <MdFillBookmark size={s} />,
   article: (s) => <MdFillArticle size={s} />,
   articles: (s) => <MdFillArticle size={s} />,
+  cards: (s) => <MdFillStyle size={s} />,
   cart: (s) => <MdFillShopping_cart size={s} />,
   help: (s) => <MdFillHelp size={s} />,
   webpages: (s) => <MdFillWeb size={s} />,

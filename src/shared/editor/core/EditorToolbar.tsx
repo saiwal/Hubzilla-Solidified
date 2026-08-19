@@ -7,7 +7,7 @@ import {
   MdOutlineFormat_strikethrough, MdOutlineHighlight,
   MdOutlineFormat_color_text, MdOutlineFont_download, MdOutlineFormat_size,
   MdOutlineFormat_quote, MdFillFormat_quote, MdOutlineCode, MdOutlineHorizontal_rule,
-  MdOutlineVideocam, MdOutlineAudiotrack, MdOutlineFunctions,
+  MdOutlineVideocam, MdOutlineAudiotrack, MdOutlineFunctions, MdOutlineStyle,
   MdOutlineTable_chart, MdOutlineVisibility_off, MdOutlineFormat_clear,
 } from "solid-icons/md";
 import EmojiPicker from "../emoji/EmojiPicker";
@@ -15,12 +15,17 @@ import type { EmojiEntry } from "@utsukta/spa-core/store/emoji-store";
 import { emojiEntryToImg } from "@utsukta/spa-core/lib/emojify";
 import ListToolDropdown from "../components/ListToolDropdown";
 import HeadingToolDropdown from "../components/HeadingToolDropdown";
+import { useInstalledApps } from "@utsukta/spa-core/store/nav-store";
+import { isAppInstalled } from "@utsukta/spa-core/module-registry";
 
 const LatexComposerModal = lazy(() => import("../latex/LatexComposerModal"));
+const CardPickerModal = lazy(() => import("../cards/CardPickerModal"));
 
 interface Props {
   level: ToolbarLevel;
   latexMode: LatexInsertMode;
+  /** Show the "Insert card" button — see EditorCapabilities.cardPicker. */
+  cardPicker?: boolean;
   tab: "wysiwyg" | "source";
   editorRef: () => HTMLDivElement | undefined;
   textareaRef: () => HTMLTextAreaElement | undefined;
@@ -30,6 +35,9 @@ interface Props {
 export default function EditorToolbar(props: Props) {
   const { t } = useI18n();
   const [latexOpen, setLatexOpen] = createSignal(false);
+  const [cardPickerOpen, setCardPickerOpen] = createSignal(false);
+  const installedApps = useInstalledApps();
+  const showCardPicker = () => props.cardPicker && isAppInstalled(installedApps(), "/cards/");
 
   const isSource  = () => props.tab === "source";
   const isComment = () => props.level === "comment";
@@ -278,6 +286,18 @@ export default function EditorToolbar(props: Props) {
   // block, and image vs. live mode); here we just splice it in, mirroring
   // how img()/video()/audio() insert raw bbcode for source and a real DOM
   // node for wysiwyg.
+  // The compact [card=<id>][/card] token is plain text in both tabs: in
+  // wysiwyg the blur pass (RichEditor.onEditorBlur) swaps it for the rendered
+  // chip, so inserting markup here would only fight that.
+  const insertCard = (iid: number) => {
+    const token = `[card=${iid}][/card]`;
+    if (isSource()) {
+      insertSource(token);
+      return;
+    }
+    exec("insertText", token);
+  };
+
   const insertLatex = (text: string) => {
     if (isSource()) {
       insertSource(text);
@@ -437,6 +457,11 @@ export default function EditorToolbar(props: Props) {
           <Btn title={t("editor.latex_toolbar_title")} onPress={() => setLatexOpen(true)}>
             <MdOutlineFunctions class="w-4 h-4" />
           </Btn>
+          <Show when={showCardPicker()}>
+            <Btn title={t("editor.card_toolbar_title")} onPress={() => setCardPickerOpen(true)}>
+              <MdOutlineStyle class="w-4 h-4" />
+            </Btn>
+          </Show>
           <EmojiPicker onSelect={insertEmoji} />
 
           {/* ── Group 6: Rich structure — full only ── */}
@@ -474,6 +499,13 @@ export default function EditorToolbar(props: Props) {
         mode={props.latexMode}
         onClose={() => setLatexOpen(false)}
         onInsert={insertLatex}
+      />
+    </Show>
+
+    <Show when={cardPickerOpen()}>
+      <CardPickerModal
+        onClose={() => setCardPickerOpen(false)}
+        onInsert={insertCard}
       />
     </Show>
     </>

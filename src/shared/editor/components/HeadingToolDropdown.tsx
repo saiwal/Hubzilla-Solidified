@@ -5,9 +5,10 @@
  * showed "Heading…"/H1…H6 as visible text on the toolbar itself.
  */
 
-import { createSignal, Show, For, onMount, onCleanup } from "solid-js";
+import { Show, For } from "solid-js";
 import { MdOutlineTitle } from "solid-icons/md";
 import { useI18n } from "@utsukta/spa-core/i18n";
+import { useDropdown } from "@utsukta/spa-core/lib/useDropdown";
 
 export interface HeadingToolDropdownProps {
   disabled?: boolean;
@@ -19,38 +20,12 @@ const LEVELS = ["h1", "h2", "h3", "h4", "h5", "h6"] as const;
 
 export default function HeadingToolDropdown(props: HeadingToolDropdownProps) {
   const { t } = useI18n();
-  const [open, setOpen] = createSignal(false);
-  const [panelStyle, setPanelStyle] = createSignal<{ top: string; left: string }>({ top: "auto", left: "auto" });
-
-  let triggerRef: HTMLButtonElement | undefined;
-  let panelRef: HTMLDivElement | undefined;
-
-  const updatePosition = () => {
-    if (!triggerRef) return;
-    const r = triggerRef.getBoundingClientRect();
-    setPanelStyle({ top: `${r.bottom + 4}px`, left: `${r.left}px` });
-  };
-
-  const handleDocClick = (e: MouseEvent) => {
-    if (!open()) return;
-    const target = e.target as Node;
-    if (panelRef?.contains(target) || triggerRef?.contains(target)) return;
-    setOpen(false);
-  };
-
-  onMount(() => {
-    document.addEventListener("click", handleDocClick, { capture: true });
-    window.addEventListener("resize", updatePosition);
-  });
-  onCleanup(() => {
-    document.removeEventListener("click", handleDocClick, { capture: true });
-    window.removeEventListener("resize", updatePosition);
-  });
+  const { open, setOpen, toggle: toggleOpen, floatStyle, setTriggerRef, setPanelRef } =
+    useDropdown({ placement: "bottom-start", offset: 4 });
 
   function toggle() {
     if (props.disabled) return;
-    if (!open()) updatePosition();
-    setOpen((o) => !o);
+    toggleOpen();
   }
 
   function select(value: string) {
@@ -61,7 +36,7 @@ export default function HeadingToolDropdown(props: HeadingToolDropdownProps) {
   return (
     <>
       <button
-        ref={triggerRef}
+        ref={setTriggerRef}
         type="button"
         title={t("editor.heading")}
         disabled={props.disabled}
@@ -79,9 +54,9 @@ export default function HeadingToolDropdown(props: HeadingToolDropdownProps) {
 
       <Show when={open()}>
         <div
-          ref={panelRef}
-          class="fixed z-50 w-36 py-1 bg-surface border border-rim rounded-lg shadow-xl flex flex-col"
-          style={panelStyle()}
+          ref={setPanelRef}
+          class="z-50 w-36 py-1 bg-surface border border-rim rounded-lg shadow-xl flex flex-col"
+          style={floatStyle()}
         >
           <button
             type="button"

@@ -3,7 +3,7 @@
 // click-to-open dropdowns for submenu items (items linking "menu:<name>").
 // Below md it collapses into a hamburger toggle over the shared accordion.
 
-import { createSignal, For, onCleanup, onMount, Show } from "solid-js";
+import { createEffect, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import { createMediaQuery } from "@solid-primitives/media";
 import { createQueryResource } from "@utsukta/spa-core/lib/createQueryResource";
 import type { WidgetProps } from "@utsukta/spa-core/types/module.types";
@@ -12,11 +12,59 @@ import { editingWidgets } from "@utsukta/spa-core/store/widget-layout";
 import { useI18n } from "@utsukta/spa-core/i18n";
 import { MdFillClose, MdFillExpand_more, MdFillMenu } from "solid-icons/md";
 import { fetchMenuTree } from "@utsukta/spa-core/lib/menus";
+import type { MenuTreeItem } from "@utsukta/spa-core/lib/menus";
+import { useFloating } from "@utsukta/spa-core/lib/useFloating";
 import { MenuAccordion, MenuLink } from "./menu-shared";
 
 const topItemClass =
   "flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-txt rounded-lg " +
   "hover:bg-elevated hover:text-accent transition-colors";
+
+// One top-level bar entry with a submenu. Panel is position:fixed and placed by
+// floating-ui (flip + shift), so it never runs off the bottom/right edge — but it
+// stays a DOM child of the nav so the bar's outside-click check still covers it.
+function TopMenu(props: {
+  label: string;
+  items: MenuTreeItem[];
+  open: boolean;
+  onToggle: () => void;
+  onNavigate: () => void;
+}) {
+  let triggerRef: HTMLButtonElement | undefined;
+  let panelRef: HTMLDivElement | undefined;
+  const { x, y, mount, unmount } = useFloating({ placement: "bottom-start", offset: 4 });
+
+  createEffect(() => {
+    if (props.open && triggerRef && panelRef) mount(triggerRef, panelRef);
+    else unmount();
+  });
+
+  return (
+    <div class="relative">
+      <button
+        ref={triggerRef}
+        onClick={props.onToggle}
+        aria-expanded={props.open}
+        class={topItemClass}
+      >
+        <span class="truncate">{props.label}</span>
+        <MdFillExpand_more
+          size={16}
+          class={`shrink-0 text-muted transition-transform ${props.open ? "rotate-180" : ""}`}
+        />
+      </button>
+      <Show when={props.open}>
+        <div
+          ref={panelRef}
+          style={{ position: "fixed", top: `${y()}px`, left: `${x()}px` }}
+          class="w-56 bg-surface border border-rim rounded-xl shadow-lg z-30 p-1.5"
+        >
+          <MenuAccordion items={props.items} onNavigate={props.onNavigate} />
+        </div>
+      </Show>
+    </div>
+  );
+}
 
 function EditHint(props: { text: string }) {
   return (
@@ -93,27 +141,13 @@ export default function MenuBarWidget(props: WidgetProps) {
                     when={item.items?.length}
                     fallback={<MenuLink item={item} class={topItemClass} />}
                   >
-                    <div class="relative">
-                      <button
-                        onClick={() => setOpenTop(openTop() === i() ? null : i())}
-                        aria-expanded={openTop() === i()}
-                        class={topItemClass}
-                      >
-                        <span class="truncate">{item.label}</span>
-                        <MdFillExpand_more
-                          size={16}
-                          class={`shrink-0 text-muted transition-transform ${openTop() === i() ? "rotate-180" : ""}`}
-                        />
-                      </button>
-                      <Show when={openTop() === i()}>
-                        <div
-                          class="absolute left-0 top-full mt-1 w-56 bg-surface border border-rim
-                                 rounded-xl shadow-lg z-30 p-1.5"
-                        >
-                          <MenuAccordion items={item.items!} onNavigate={() => setOpenTop(null)} />
-                        </div>
-                      </Show>
-                    </div>
+                    <TopMenu
+                      label={item.label}
+                      items={item.items!}
+                      open={openTop() === i()}
+                      onToggle={() => setOpenTop(openTop() === i() ? null : i())}
+                      onNavigate={() => setOpenTop(null)}
+                    />
                   </Show>
                 )}
               </For>

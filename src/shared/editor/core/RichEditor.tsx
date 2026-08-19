@@ -2,7 +2,7 @@ import { createEffect, createSignal, onCleanup, For, Show } from "solid-js";
 import { Portal } from "solid-js/web";
 import type { EditorCapabilities, EditorTab, MimeType } from "../types/editor.types";
 import EditorToolbar from "./EditorToolbar";
-import { sourceToHtml, hydrateShareEmbeds, hydrateLatexEmbeds } from "./sourceToHtml";
+import { sourceToHtml, hydrateShareEmbeds, hydrateCardEmbeds, hydrateLatexEmbeds } from "./sourceToHtml";
 import { htmlToSource } from "./htmlToSource";
 import { useI18n } from "@utsukta/spa-core/i18n";
 
@@ -74,6 +74,7 @@ export default function RichEditor(props: Props) {
     el.innerHTML = sourceToHtml(props.body, mime());
     domSig = sig();
     hydrateShareEmbeds(el);
+    hydrateCardEmbeds(el);
     if (props.capabilities.latexMode === "live") hydrateLatexEmbeds(el);
     setImgSel(null);
   };
@@ -86,6 +87,7 @@ export default function RichEditor(props: Props) {
       editorRef.innerHTML = sourceToHtml(props.body, mime());
       domSig = nextSig;
       hydrateShareEmbeds(editorRef);
+      hydrateCardEmbeds(editorRef);
       if (props.capabilities.latexMode === "live") hydrateLatexEmbeds(editorRef);
       setImgSel(null); // DOM was replaced — a selected <img> no longer exists
       // Placing a selection inside a contenteditable focuses it, so only move
@@ -132,6 +134,7 @@ export default function RichEditor(props: Props) {
       editorRef.innerHTML = sourceToHtml(next, mime());
       domSig = `${mime()} ${next}`;
       hydrateShareEmbeds(editorRef);
+      hydrateCardEmbeds(editorRef);
     }
     if (props.capabilities.latexMode === "live") hydrateLatexEmbeds(editorRef);
   };
@@ -162,7 +165,7 @@ export default function RichEditor(props: Props) {
 
   const onEditorClick = (e: MouseEvent) => {
     const t = e.target as HTMLElement;
-    if (t instanceof HTMLImageElement && !t.closest(".bb-share-embed")) {
+    if (t instanceof HTMLImageElement && !t.closest(".bb-share-embed, .bb-card-embed-wrap")) {
       setWidthVal(String(parseInt(t.style.width, 10) || Math.round(t.getBoundingClientRect().width)));
       setAltVal(t.alt === "Image/photo" ? "" : t.alt);
       setImgSel({ el: t, rect: t.getBoundingClientRect() });
@@ -235,13 +238,14 @@ export default function RichEditor(props: Props) {
     // literal bbcode sitting in the DOM until something else forces a full
     // re-render (e.g. switching to the source tab and back).
     const text = dt.getData("text/plain");
-    if (props.tab === "wysiwyg" && editorRef && text && /\[share[=\s][\s\S]*?\[\/share\]/i.test(text)) {
+    if (props.tab === "wysiwyg" && editorRef && text && (/\[share[=\s][\s\S]*?\[\/share\]/i.test(text) || /\[card[=\s][\s\S]*?\[\/card\]/i.test(text))) {
       e.preventDefault();
       document.execCommand("insertText", false, text);
       const next = htmlToSource(editorRef.innerHTML, mime());
       editorRef.innerHTML = sourceToHtml(next, mime());
       domSig = `${mime()} ${next}`;
       hydrateShareEmbeds(editorRef);
+      hydrateCardEmbeds(editorRef);
       const range = document.createRange();
       const sel = window.getSelection();
       range.selectNodeContents(editorRef);
@@ -324,6 +328,7 @@ export default function RichEditor(props: Props) {
       <EditorToolbar
         level={props.capabilities.toolbar}
         latexMode={props.capabilities.latexMode}
+        cardPicker={props.capabilities.cardPicker}
         tab={props.tab}
         editorRef={() => editorRef}
         textareaRef={() => textareaRef}

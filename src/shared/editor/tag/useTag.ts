@@ -61,7 +61,7 @@ export interface TagState {
 
 export function useTag(
   channelNick: () => string,
-  type: () => "posts" | "articles" | "notes",
+  type: () => "posts" | "articles" | "cards" | "notes",
 ): TagState {
   const [query,     setQuery]     = createSignal<string | null>(null);
   const [rect,      setRect]      = createSignal<DOMRect | null>(null);

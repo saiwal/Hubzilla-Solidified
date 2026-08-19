@@ -142,6 +142,8 @@ export function mapActivityToPost(activity: any): Post {
     denyGid: activity.deny_gid ?? undefined,
     lang: activity.lang ?? undefined,
     series: activity.series ?? null,
+    deck: activity.deck ?? null,
+    template: activity.template ?? undefined,
     translationGroup: activity.translation_group ?? null,
     translations: Array.isArray(activity.translations)
       ? activity.translations.map((tr: any) => ({

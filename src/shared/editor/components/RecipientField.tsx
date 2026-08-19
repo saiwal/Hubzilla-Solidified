@@ -7,11 +7,13 @@
  * would set group_allow and break the server's DM auto-classification.
  */
 
-import { createSignal, For, Show, type Component } from "solid-js";
+import { createEffect, createSignal, For, Show, type Component } from "solid-js";
+import { Portal } from "solid-js/web";
 import { useI18n } from "@utsukta/spa-core/i18n";
 import type { AclEntry } from "@/modules/network/api";
 import { entryKey } from "./AclPicker";
 import { useConnectionSearch } from "./useConnectionSearch";
+import { useFloating } from "@utsukta/spa-core/lib/useFloating";
 
 export interface RecipientFieldProps {
   /** Currently-selected recipients (resolved — full name/photo, not just a key). */
@@ -38,6 +40,15 @@ const RecipientField: Component<RecipientFieldProps> = (props) => {
 
   const open = () => focused() && results().length > 0;
 
+  let rowRef: HTMLDivElement | undefined;
+  let listRef: HTMLUListElement | undefined;
+  const { x, y, mount, unmount } = useFloating({ placement: "bottom-start", offset: 4 });
+
+  createEffect(() => {
+    if (open() && rowRef && listRef) mount(rowRef, listRef);
+    else unmount();
+  });
+
   function select(entry: AclEntry) {
     props.onAdd(entry);
     search.setQuery("");
@@ -46,6 +57,7 @@ const RecipientField: Component<RecipientFieldProps> = (props) => {
   return (
     <div class="relative">
       <div
+        ref={rowRef}
         class="flex flex-wrap items-center gap-1.5 px-2 py-1.5 rounded border border-rim bg-surface
                hover:border-rim-strong focus-within:border-rim-strong transition-colors"
       >
@@ -85,10 +97,12 @@ const RecipientField: Component<RecipientFieldProps> = (props) => {
         />
       </div>
 
+      <Portal>
       <Show when={open()}>
         <ul
-          class="absolute left-0 right-0 top-full mt-1 z-50 max-h-56 overflow-y-auto
-                 rounded-lg border border-rim bg-surface shadow-xl py-1"
+          ref={listRef}
+          style={{ position: "fixed", top: `${y()}px`, left: `${x()}px`, width: `${rowRef?.offsetWidth ?? 0}px` }}
+          class="z-[60] max-h-56 overflow-y-auto rounded-lg border border-rim bg-surface shadow-xl py-1"
         >
           <For each={results()}>
             {(c) => (
@@ -120,6 +134,7 @@ const RecipientField: Component<RecipientFieldProps> = (props) => {
           </For>
         </ul>
       </Show>
+      </Portal>
     </div>
   );
 };

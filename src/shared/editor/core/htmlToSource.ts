@@ -61,6 +61,11 @@ function nodeTobbcode(node: Node): string {
     if (shareId) return `[share=${shareId}][/share]`;
     const shareRaw = el.getAttribute("data-share-raw");
     if (shareRaw) return decodeURIComponent(shareRaw);
+    // Card chips — same contract as the share chips above.
+    const cardId = el.getAttribute("data-card-id");
+    if (cardId) return `[card=${cardId}][/card]`;
+    const cardRaw = el.getAttribute("data-card-raw");
+    if (cardRaw) return decodeURIComponent(cardRaw);
     // The [crypt] decrypt button (bbcode.ts's makeCryptHtml) — read the
     // payload straight back into bbcode, ignoring any child content, so a
     // WYSIWYG blur/save (onEditorBlur/onEditorInput in RichEditor.tsx) can

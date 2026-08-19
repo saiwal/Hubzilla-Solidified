@@ -1,5 +1,6 @@
-import { createSignal, createEffect, onCleanup, Show, type Component, type JSX } from "solid-js";
+import { Show, type Component, type JSX } from "solid-js";
 import { Portal } from "solid-js/web";
+import { useDropdown } from "@utsukta/spa-core/lib/useDropdown";
 import {
   MdFillMore_vert,
   MdFillLock,
@@ -30,29 +31,13 @@ interface Props {
 
 const FileActionsMenu: Component<Props> = (props) => {
   const { t } = useI18n();
-  const [open, setOpen] = createSignal(false);
-  const [anchor, setAnchor] = createSignal<{ top: number; right: number } | null>(null);
-  let triggerRef!: HTMLButtonElement;
-  let portalRef!: HTMLDivElement;
+  const { open, setOpen, toggle: toggleOpen, floatStyle, setTriggerRef, setPanelRef } =
+    useDropdown({ placement: "bottom-end", offset: 4 });
 
   function toggle(e: MouseEvent) {
-    e.stopPropagation();
-    if (!open()) {
-      const rect = triggerRef.getBoundingClientRect();
-      setAnchor({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
-    }
-    setOpen((v) => !v);
+    e.stopPropagation(); // file rows have their own click handler
+    toggleOpen();
   }
-
-  createEffect(() => {
-    if (!open()) return;
-    const handler = (e: MouseEvent) => {
-      const target = e.target as Node;
-      if (!triggerRef?.contains(target) && !portalRef?.contains(target)) setOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    onCleanup(() => document.removeEventListener("mousedown", handler));
-  });
 
   function act(action: FileAction) {
     setOpen(false);
@@ -63,7 +48,7 @@ const FileActionsMenu: Component<Props> = (props) => {
     <>
       <button
         type="button"
-        ref={triggerRef}
+        ref={setTriggerRef}
         onClick={toggle}
         title={t("files_mod.more_actions") as string}
         class={props.triggerClass ?? "p-1.5 rounded text-muted hover:text-txt hover:bg-overlay transition-colors"}
@@ -71,11 +56,11 @@ const FileActionsMenu: Component<Props> = (props) => {
         <MdFillMore_vert size={14} />
       </button>
       <Portal>
-        <Show when={open() && anchor()}>
+        <Show when={open()}>
           <div
-            ref={portalRef}
-            class="fixed z-[9999] min-w-[11rem] bg-surface border border-rim rounded-lg shadow-lg py-1"
-            style={{ top: `${anchor()!.top}px`, right: `${anchor()!.right}px` }}
+            ref={setPanelRef}
+            class="z-[9999] min-w-[11rem] bg-surface border border-rim rounded-lg shadow-lg py-1"
+            style={floatStyle()}
           >
             <MenuItem icon={<MdOutlineInfo size={14} />} label={t("files_mod.info") as string} onClick={() => act("info")} />
             {/* ACL changes stay owner-only, even with write_storage access */}

@@ -51,7 +51,7 @@ export interface PopularPost {
 
 async function fetchPopular(params: {
   channelNick?: string;
-  type?: "articles" | "posts";
+  type?: "articles" | "cards" | "posts";
   limit: number;
 }): Promise<PopularPost[]> {
   const url = new URL("/spa/stream-widgets/popular", window.location.origin);
@@ -209,7 +209,7 @@ function PopularPostRow(props: {
 
 export interface PopularPostsWidgetProps {
   channelNick?: string;
-  type?: "articles" | "posts";
+  type?: "articles" | "cards" | "posts";
   handlers?: StreamHandlers;
   /** Pre-fetched data — skips the internal fetch when provided */
   data?: PopularPost[];

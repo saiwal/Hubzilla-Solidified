@@ -2,6 +2,7 @@ import type { RawDictionary } from "../namespaces/types";
 
 export const nav: RawDictionary["nav"] = {
   articles:      "लेख",
+  cards:         "कार्ड",
   addressbook:   "पता पुस्तिका",
   calendar:      "कैलेंडर",
   cart:          "कार्ट",

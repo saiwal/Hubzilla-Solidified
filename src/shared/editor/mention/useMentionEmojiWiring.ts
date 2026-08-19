@@ -40,7 +40,7 @@ export interface MentionEmojiWiringOptions {
   setBody: (v: string) => void;
   mimetype: () => MimeType;
   /** Enables `#tag` autocomplete in the body. Omit for composers with no tag/category concept (DM, comment, ...). */
-  tags?: { channelNick: () => string; type: () => "posts" | "articles" | "notes" };
+  tags?: { channelNick: () => string; type: () => "posts" | "articles" | "cards" | "notes" };
 }
 
 export interface MentionEmojiWiring {

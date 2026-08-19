@@ -3,10 +3,11 @@
  * Standalone emoji picker with search — no external dropdown dependencies.
  */
 
-import { createSignal, createMemo, For, Show, onMount, onCleanup, createEffect } from "solid-js";
+import { createSignal, createMemo, For, Show } from "solid-js";
 import { MdOutlineEmoji_emotions } from "solid-icons/md";
 import { getEmojiMap, type EmojiEntry } from "@utsukta/spa-core/store/emoji-store";
 import { useI18n } from "@utsukta/spa-core/i18n";
+import { useDropdown } from "@utsukta/spa-core/lib/useDropdown";
 
 export interface EmojiPickerProps {
   onSelect: (entry: EmojiEntry) => void;
@@ -18,15 +19,13 @@ export interface EmojiPickerProps {
 
 export default function EmojiPicker(props: EmojiPickerProps) {
   const { t } = useI18n();
-  const [open, setOpen] = createSignal(false);
   const [query, setQuery] = createSignal("");
-  const [panelStyle, setPanelStyle] = createSignal<{ bottom: string; left: string; right?: string }>({
-    bottom: "auto",
-    left: "auto",
-  });
 
-  let triggerRef: HTMLButtonElement | undefined;
-  let panelRef: HTMLDivElement | undefined;
+  // Prefers opening above the trigger — the toolbar sits at the bottom of the
+  // editor, so downward pushes the panel past the modal/page edge. flip()
+  // drops it below only when there is genuinely no room above.
+  const { open, setOpen, toggle, floatStyle, setTriggerRef, setPanelRef } =
+    useDropdown({ placement: "top-start", offset: 4 });
 
   const entries = createMemo(() => Object.values(getEmojiMap()));
 
@@ -40,68 +39,13 @@ export default function EmojiPicker(props: EmojiPickerProps) {
     props.triggerClass ??
     `px-1.5 py-0.5 rounded text-txt hover:bg-elevated transition-colors ${open() ? "bg-elevated" : ""}`;
 
-  // Opens above-left of the trigger — the toolbar (and this button with it)
-  // sits at the bottom of the editor, so opening downward (the old
-  // behavior) pushed the panel past the modal/page edge instead of into the
-  // editor's own space above.
-  const updatePanelPosition = () => {
-    if (!triggerRef) return;
-    const triggerRect = triggerRef.getBoundingClientRect();
-    const panelWidth = 256; // w-64 = 16rem = 256px
-    const viewportWidth = window.innerWidth;
-    const gap = 4; // mb-1 equivalent in px
-
-    const bottom = window.innerHeight - triggerRect.top + gap;
-    let left = triggerRect.left;
-    let right: string | undefined;
-
-    // If picker would overflow right edge, anchor to right instead
-    if (left + panelWidth > viewportWidth - 8) {
-      // Subtract from right edge with 8px padding
-      right = `${8}px`;
-      left = NaN as any;
-    }
-
-    setPanelStyle({
-      bottom: `${bottom}px`,
-      left: isNaN(left as any) ? "auto" : `${left}px`,
-      right: right,
-    });
-  };
-
-  // Handle click outside to close the picker
-  const handleDocumentClick = (e: MouseEvent) => {
-    if (!open()) return;
-    const target = e.target as Node;
-    // Keep open if clicking inside the panel or the trigger button
-    if (panelRef?.contains(target) || triggerRef?.contains(target)) return;
-    setOpen(false);
-  };
-
-  // Update position whenever open state changes
-  createEffect(() => {
-    if (open()) {
-      updatePanelPosition();
-    }
-  });
-
-  onMount(() => {
-    document.addEventListener("click", handleDocumentClick, { capture: true });
-    window.addEventListener("resize", updatePanelPosition);
-  });
-
-  onCleanup(() => {
-    document.removeEventListener("click", handleDocumentClick, { capture: true });
-    window.removeEventListener("resize", updatePanelPosition);
-  });
-
   return (
     <>
       <button
-        ref={triggerRef}
+        ref={setTriggerRef}
         type="button"
         title={t("editor.emoji_picker_title")}
-        onClick={() => setOpen((o) => !o)}
+        onClick={toggle}
         class={triggerClass()}
       >
         {props.triggerIcon ?? <MdOutlineEmoji_emotions class="w-4 h-4" />}
@@ -109,9 +53,9 @@ export default function EmojiPicker(props: EmojiPickerProps) {
 
       <Show when={open()}>
         <div
-          ref={panelRef}
-          class="fixed z-50 w-64 bg-surface border border-rim rounded-xl shadow-xl overflow-hidden flex flex-col"
-          style={panelStyle()}
+          ref={setPanelRef}
+          class="z-50 w-64 bg-surface border border-rim rounded-xl shadow-xl overflow-hidden flex flex-col"
+          style={floatStyle()}
         >
           {/* Search input */}
           <div class="p-2 border-b border-rim">

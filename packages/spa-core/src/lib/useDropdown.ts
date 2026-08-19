@@ -31,12 +31,16 @@ export function useDropdown(options: UseFloatingOptions = {}) {
     else unmount();
   });
 
-  const onDocClick = (e: MouseEvent) => {
-    const t = e.target as Node;
-    if (!triggerEl?.contains(t) && !panelEl?.contains(t)) setOpen(false);
-  };
-  document.addEventListener("click", onDocClick);
-  onCleanup(() => document.removeEventListener("click", onDocClick));
+  // Only listen while open — list views mount one of these per row.
+  createEffect(() => {
+    if (!open()) return;
+    const onDocClick = (e: MouseEvent) => {
+      const t = e.target as Node;
+      if (!triggerEl?.contains(t) && !panelEl?.contains(t)) setOpen(false);
+    };
+    document.addEventListener("click", onDocClick);
+    onCleanup(() => document.removeEventListener("click", onDocClick));
+  });
 
   return {
     open,

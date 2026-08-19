@@ -81,6 +81,54 @@ export function hydrateShareEmbeds(root: HTMLElement): void {
 }
 
 // ---------------------------------------------------------------------------
+// [card] protection
+//
+// Same contract as [share] above: the rendered chip cannot be inverted by
+// htmlToSource, so the token is swapped for a sentinel before conversion and
+// re-emitted as a non-editable embed that maps back via data-card-id.
+//
+// No depth-aware scan here — a [card] block carries no body and every
+// attribute value is urlencode()d server-side (EmbedsCards::buildCardBlock),
+// so a '[card' can never occur inside one.
+// ---------------------------------------------------------------------------
+
+const cardEmbed = (attrs: string, innerHtml: string) =>
+  `${ZWSP}<div class="bb-card-embed-wrap" ${attrs} contenteditable="false">${innerHtml}</div>${ZWSP}`;
+
+// Expanded blocks for compact [card=<id>] tokens, fetched once per id.
+const cardBlockCache = new Map<string, string>();
+
+/**
+ * Fetch and render the embedded card into any not-yet-hydrated compact card
+ * embeds under `root`. Call after writing sourceToHtml output into the
+ * contenteditable. Only mutates the embeds' display children — the bbcode
+ * mapping lives in their attributes, so the body source is unaffected.
+ */
+export function hydrateCardEmbeds(root: HTMLElement): void {
+  const pending = root.querySelectorAll<HTMLElement>(
+    "[data-card-id][data-card-pending]",
+  );
+  pending.forEach(async (el) => {
+    const id = el.getAttribute("data-card-id");
+    if (!id) return;
+    el.removeAttribute("data-card-pending");
+    try {
+      let block = cardBlockCache.get(id);
+      if (!block) {
+        const res = await apiFetch(`/spa/item/${id}/cardpreview`);
+        const json = (await res.json()) as { success?: boolean; bbcode?: string };
+        if (!json?.success || !json.bbcode) return;
+        block = json.bbcode;
+        cardBlockCache.set(id, block);
+      }
+      el.innerHTML = renderShareHtml(block);
+    } catch {
+      /* placeholder stays */
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
 // Live LaTeX chips ($…$ / $$…$$)
 //
 // Mirrors the [share] embed approach above: a rendered KaTeX chip can't be
@@ -193,6 +241,15 @@ function bbcodeToEditorHtml(body: string): string {
   }
   src += body.slice(cursor);
 
+  // [card] tokens — same sentinel treatment, but a plain regex suffices:
+  // a card block is self-closing and its attribute values are urlencode()d,
+  // so it can neither nest nor contain a stray bracket.
+  src = src.replace(/\[card=(\d+)\]\s*\[\/card\]/gi, (_m, id) => `\x01CARD:${id}\x01`);
+  src = src.replace(/\[card\s[^\]]*\]\s*\[\/card\]/gi, (block) => {
+    raws.push(block);
+    return `\x01CARDRAW:${raws.length - 1}\x01`;
+  });
+
   let html = bbcodeToHtml(src);
 
   html = html.replace(/\x01SHARE:(\d+)\x01/g, (_m, id) => {
@@ -208,6 +265,23 @@ function bbcodeToEditorHtml(body: string): string {
     const block = raws[Number(i)] ?? "";
     return shareEmbed(
       `data-share-raw="${encodeURIComponent(block)}"`,
+      renderShareHtml(block),
+    );
+  });
+
+  html = html.replace(/\x01CARD:(\d+)\x01/g, (_m, id) => {
+    const cached = cardBlockCache.get(id);
+    return cached
+      ? cardEmbed(`data-card-id="${id}"`, renderShareHtml(cached))
+      : cardEmbed(
+          `data-card-id="${id}" data-card-pending="1"`,
+          `<div class="bb-card-embed bb-card-compact">\u{1F5C2}\uFE0F Card embed #${id}</div>`,
+        );
+  });
+  html = html.replace(/\x01CARDRAW:(\d+)\x01/g, (_m, i) => {
+    const block = raws[Number(i)] ?? "";
+    return cardEmbed(
+      `data-card-raw="${encodeURIComponent(block)}"`,
       renderShareHtml(block),
     );
   });

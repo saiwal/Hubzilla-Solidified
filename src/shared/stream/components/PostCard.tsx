@@ -11,6 +11,7 @@ import {
   type JSX,
 } from "solid-js";
 import { Portal } from "solid-js/web";
+import { useDropdown } from "@utsukta/spa-core/lib/useDropdown";
 import AuthorPopover from "./AuthorPopover";
 import type { ThreadNode } from "@utsukta/spa-core/lib/thread";
 import { countAllComments, isRootPost } from "@utsukta/spa-core/lib/thread";
@@ -264,16 +265,22 @@ export default function PostCard(props: {
     props.post.viewerFollowing ?? false,
   );
   const [followPending, setFollowPending] = createSignal(false);
-  const [repeatDropdownOpen, setRepeatDropdownOpen] = createSignal(false);
-  const [dropdownAnchor, setDropdownAnchor] = createSignal<{
-    top: number;
-    left: number;
-  } | null>(null);
-  const [moreDropdownOpen, setMoreDropdownOpen] = createSignal(false);
-  const [moreDropdownAnchor, setMoreDropdownAnchor] = createSignal<{
-    bottom: number;
-    right: number;
-  } | null>(null);
+  const {
+    open: repeatDropdownOpen,
+    setOpen: setRepeatDropdownOpen,
+    toggle: toggleRepeatDropdown,
+    floatStyle: repeatDropdownStyle,
+    setTriggerRef: setRepeatDropdownRef,
+    setPanelRef: setRepeatDropdownPanelRef,
+  } = useDropdown({ placement: "bottom-start", offset: 4 });
+  const {
+    open: moreDropdownOpen,
+    setOpen: setMoreDropdownOpen,
+    toggle: openMoreDropdown,
+    floatStyle: moreDropdownStyle,
+    setTriggerRef: setMoreDropdownRef,
+    setPanelRef: setMoreDropdownPanelRef,
+  } = useDropdown({ placement: "bottom-end", offset: 4 });
   const [showStats, setShowStats] = createSignal(false);
   const [statsLoading, setStatsLoading] = createSignal(false);
   const [statsData, setStatsData] = createSignal<{
@@ -299,10 +306,6 @@ export default function PostCard(props: {
   const [deliveryReportData, setDeliveryReportData] = createSignal<
     DeliveryEntry[] | null
   >(null);
-  let repeatDropdownRef!: HTMLDivElement;
-  let repeatDropdownPortalRef!: HTMLDivElement;
-  let moreDropdownRef!: HTMLDivElement;
-  let moreDropdownPortalRef!: HTMLDivElement;
   let deleteTimer: ReturnType<typeof setTimeout> | null = null;
   const { locale, t } = useI18n();
   const auth = useAuth();
@@ -783,51 +786,9 @@ export default function PostCard(props: {
     if (deleteTimer) clearTimeout(deleteTimer);
   });
 
-  createEffect(() => {
-    if (!repeatDropdownOpen()) return;
-    const handler = (e: MouseEvent) => {
-      const t = e.target as Node;
-      if (
-        !repeatDropdownRef?.contains(t) &&
-        !repeatDropdownPortalRef?.contains(t)
-      )
-        setRepeatDropdownOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    onCleanup(() => document.removeEventListener("mousedown", handler));
-  });
-
-  createEffect(() => {
-    if (!moreDropdownOpen()) return;
-    const handler = (e: MouseEvent) => {
-      if (
-        !moreDropdownRef?.contains(e.target as Node) &&
-        !moreDropdownPortalRef?.contains(e.target as Node)
-      )
-        setMoreDropdownOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    onCleanup(() => document.removeEventListener("mousedown", handler));
-  });
-
   function openRepeatDropdown(e: MouseEvent) {
     e.stopPropagation();
-    if (!repeatDropdownOpen()) {
-      const rect = repeatDropdownRef.getBoundingClientRect();
-      setDropdownAnchor({ top: rect.bottom + 4, left: rect.left });
-    }
-    setRepeatDropdownOpen((v) => !v);
-  }
-
-  function openMoreDropdown() {
-    if (!moreDropdownOpen()) {
-      const rect = moreDropdownRef.getBoundingClientRect();
-      setMoreDropdownAnchor({
-        bottom: window.innerHeight - rect.top + 4,
-        right: window.innerWidth - rect.right,
-      });
-    }
-    setMoreDropdownOpen((v) => !v);
+    toggleRepeatDropdown();
   }
 
   const isRss = () =>
@@ -1316,7 +1277,7 @@ export default function PostCard(props: {
               />
             }
           >
-            <div ref={repeatDropdownRef} class="relative flex items-center">
+            <div ref={setRepeatDropdownRef} class="relative flex items-center">
               <button
                 onClick={onRepeat}
                 title={t("post.repeat")}
@@ -1434,7 +1395,7 @@ export default function PostCard(props: {
               !!props.post.permalink
             }
           >
-            <div ref={moreDropdownRef} class="relative">
+            <div ref={setMoreDropdownRef} class="relative">
               <button
                 onClick={openMoreDropdown}
                 title={t("post.more_actions")}
@@ -1447,14 +1408,11 @@ export default function PostCard(props: {
             </div>
           </Show>
           <Portal>
-            <Show when={moreDropdownOpen() && moreDropdownAnchor()}>
+            <Show when={moreDropdownOpen()}>
               <div
-                ref={moreDropdownPortalRef}
-                class="fixed z-[9999] min-w-[9rem] bg-surface border border-rim rounded-lg shadow-lg py-1"
-                style={{
-                  bottom: `${moreDropdownAnchor()!.bottom}px`,
-                  right: `${moreDropdownAnchor()!.right}px`,
-                }}
+                ref={setMoreDropdownPanelRef}
+                class="z-[9999] min-w-[9rem] bg-surface border border-rim rounded-lg shadow-lg py-1"
+                style={moreDropdownStyle()}
               >
                 <Show when={canFollow()}>
                   <button
@@ -1598,14 +1556,11 @@ export default function PostCard(props: {
           />
         </Show>
         <Portal>
-          <Show when={repeatDropdownOpen() && dropdownAnchor()}>
+          <Show when={repeatDropdownOpen()}>
             <div
-              ref={repeatDropdownPortalRef}
-              class="fixed z-[9999] min-w-[10rem] bg-surface border border-rim rounded-lg shadow-lg py-1"
-              style={{
-                top: `${dropdownAnchor()!.top}px`,
-                left: `${dropdownAnchor()!.left}px`,
-              }}
+              ref={setRepeatDropdownPanelRef}
+              class="z-[9999] min-w-[10rem] bg-surface border border-rim rounded-lg shadow-lg py-1"
+              style={repeatDropdownStyle()}
             >
               <div class="w-full flex items-center gap-2 px-3 py-2 text-xs text-txt hover:bg-overlay transition-colors">
                 <button
@@ -2083,7 +2038,7 @@ export default function PostCard(props: {
             />
           }
         >
-          <div ref={repeatDropdownRef} class="relative flex items-center">
+          <div ref={setRepeatDropdownRef} class="relative flex items-center">
             <button
               onClick={onRepeat}
               title={t("post.repeat")}
@@ -2198,7 +2153,7 @@ export default function PostCard(props: {
         </Show>
 
         {/* ── More actions dropdown (vertical three dots, after Reply) ── */}
-        <div ref={moreDropdownRef} class="relative">
+        <div ref={setMoreDropdownRef} class="relative">
           <button
             onClick={openMoreDropdown}
             title={t("post.more_actions")}
@@ -2212,14 +2167,11 @@ export default function PostCard(props: {
       </div>
 
       <Portal>
-        <Show when={moreDropdownOpen() && moreDropdownAnchor()}>
+        <Show when={moreDropdownOpen()}>
           <div
-            ref={moreDropdownPortalRef}
-            class="fixed z-[9999] min-w-[11rem] bg-surface border border-rim rounded-lg shadow-lg py-1"
-            style={{
-              bottom: `${moreDropdownAnchor()!.bottom}px`,
-              right: `${moreDropdownAnchor()!.right}px`,
-            }}
+            ref={setMoreDropdownPanelRef}
+            class="z-[9999] min-w-[11rem] bg-surface border border-rim rounded-lg shadow-lg py-1"
+            style={moreDropdownStyle()}
           >
             <Show when={canFollow()}>
               <button
@@ -2376,14 +2328,11 @@ export default function PostCard(props: {
         </Show>
       </Portal>
       <Portal>
-        <Show when={repeatDropdownOpen() && dropdownAnchor()}>
+        <Show when={repeatDropdownOpen()}>
           <div
-            ref={repeatDropdownPortalRef}
-            class="fixed z-[9999] min-w-[11rem] bg-surface border border-rim rounded-lg shadow-lg py-1"
-            style={{
-              top: `${dropdownAnchor()!.top}px`,
-              left: `${dropdownAnchor()!.left}px`,
-            }}
+            ref={setRepeatDropdownPanelRef}
+            class="z-[9999] min-w-[11rem] bg-surface border border-rim rounded-lg shadow-lg py-1"
+            style={repeatDropdownStyle()}
           >
             <div class="w-full flex items-center gap-2 px-3 py-2 text-sm text-txt hover:bg-overlay transition-colors">
               <button

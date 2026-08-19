@@ -216,6 +216,12 @@ function bbShareAttributes(
     return decodeURIComponent(val);
   };
 
+  // Strip the block's own padding — bbcode shares arrive as "]\r\n…body…\r\n[/",
+  // the HTML variant as "><br />…<br /></" — so the quote body doesn't open or
+  // close with a blank line. Interior breaks are the reshared post's structure
+  // and must survive.
+  content = content.replace(/^(?:\s|<br\s*\/?>)+|(?:\s|<br\s*\/?>)+$/gi, "");
+
   const author = attr("author");
   const link = attr("link");
   const avatar = attr("avatar");
@@ -238,16 +244,74 @@ function bbShareAttributes(
 
   const linkIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg>`;
 
-  return `<div class="bb-share">
-  <div class="bb-share-header">
-    ${avatarHtml}
-    <a class="bb-share-name" href="${escapeHtml(profile)}">${escapeHtml(author)}</a>
-    <span class="bb-share-sep">·</span>
-    <time class="bb-share-date" datetime="${escapeHtml(posted)}">${escapeHtml(reldate)}</time>
-    <a class="bb-share-link" href="${escapeHtml(link)}" title="View original ${escapeHtml(type)}" target="_blank" rel="noopener noreferrer">${linkIcon}</a>
-  </div>
-  <div class="bb-share-body">${content}</div>
-</div>`;
+  // No newlines in the emitted markup: the last step of bbcode() turns every
+  // newline into <br />, so an indented template would render its own
+  // indentation as blank lines. (The interpolated body keeps its newlines --
+  // those are the reshared post's paragraph breaks.)
+  return (
+    `<div class="bb-share">` +
+      `<div class="bb-share-header">` +
+        avatarHtml +
+        `<a class="bb-share-name" href="${escapeHtml(profile)}">${escapeHtml(author)}</a>` +
+        `<span class="bb-share-sep">·</span>` +
+        `<time class="bb-share-date" datetime="${escapeHtml(posted)}">${escapeHtml(reldate)}</time>` +
+        `<a class="bb-share-link" href="${escapeHtml(link)}" title="View original ${escapeHtml(type)}" target="_blank" rel="noopener noreferrer">${linkIcon}</a>` +
+      `</div>` +
+      `<div class="bb-share-body">${content}</div>` +
+    `</div>`
+  );
+}
+
+// ---------------------------------------------------------------------------
+// [card] embed
+//
+// Written at save time by expandCardTags (Api/Concerns/EmbedsCards.php) from
+// the compact [card=<id>] token the composer inserts. The block is
+// self-contained — title/teaser/cover/deck all ride in its attributes — so
+// rendering never needs a second fetch. Values are urlencode()d server-side,
+// hence the same decodeURIComponent-ing attr() helper [share] uses.
+// ---------------------------------------------------------------------------
+
+function bbCardAttributes(attributes: string): string {
+  const attr = (name: string) => {
+    const m = attributes.match(new RegExp(`${name}='(.*?)'`, "i"));
+    if (!m) return "";
+    try {
+      return decodeURIComponent(m[1].replace(/\+/g, " "));
+    } catch {
+      return m[1];
+    }
+  };
+
+  const title    = attr("title");
+  const teaser   = attr("teaser");
+  const cover    = attr("cover");
+  const deck     = attr("deck");
+  const author   = attr("author");
+  const photo    = attr("authorphoto");
+  const link     = attr("link");
+  const template = attr("template");
+
+  const coverHtml = cover
+    ? `<img src="${escapeHtml(cover)}" class="bb-card-cover" alt="" loading="lazy" />`
+    : "";
+  const deckHtml = deck
+    ? `<span class="bb-card-deck">${escapeHtml(deck)}</span>`
+    : "";
+  const avatarHtml = photo
+    ? `<img src="${escapeHtml(photo)}" class="bb-card-avatar" alt="" loading="lazy" />`
+    : "";
+
+  return (
+    `<a class="bb-card-embed" data-template="${escapeHtml(template || "freeform")}" href="${escapeHtml(link)}">` +
+      coverHtml +
+      `<span class="bb-card-main">` +
+        `<span class="bb-card-head">${deckHtml}<span class="bb-card-title">${escapeHtml(title)}</span></span>` +
+        (teaser ? `<span class="bb-card-teaser">${escapeHtml(teaser)}</span>` : "") +
+        `<span class="bb-card-by">${avatarHtml}${escapeHtml(author)}</span>` +
+      `</span>` +
+    `</a>`
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -274,11 +338,13 @@ function bbEventAttributes(summary: string, description: string, start: string, 
   };
   const dateLine = finish ? `${fmtDate(start)} → ${fmtDate(finish)}` : fmtDate(start);
 
-  return `<div class="bb-event">
-  <div class="bb-event-title">${summary}</div>
-  <div class="bb-event-date">📅 ${escapeHtml(dateLine)}</div>
-  ${description ? `<div class="bb-event-desc">${description}</div>` : ""}
-</div>`;
+  return (
+    `<div class="bb-event">` +
+      `<div class="bb-event-title">${summary}</div>` +
+      `<div class="bb-event-date">📅 ${escapeHtml(dateLine)}</div>` +
+      (description ? `<div class="bb-event-desc">${description}</div>` : "") +
+    `</div>`
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -744,12 +810,30 @@ export function bbcode(text: string, options: BbcodeOptions = {}): string {
   );
 
   // ------------------------------------------------------------------
+  // [card] — compact compose-time token first, then the stored attribute
+  // block. Order matters: /\[card([^\]]*)\]/ also matches "[card=5]", so
+  // running the attribute form first would swallow the compact one and
+  // render an empty chip. Same ordering [share] uses just above.
+  // ------------------------------------------------------------------
+  text = text.replace(
+    /\[card=(\d+)\]\s*\[\/card\]/gi,
+    (_m, id) => `<div class="bb-card-embed bb-card-compact">\u{1F5C2}\uFE0F Card embed #${id}</div>`,
+  );
+  text = text.replace(
+    /\[card(\s[^\]]*)\]\s*\[\/card\]/gi,
+    (_m, attrs) => bbCardAttributes(attrs),
+  );
+
+  // ------------------------------------------------------------------
   // [share] (nested, up to 10 levels)
   // ------------------------------------------------------------------
   let shareLoop = 0;
   while (text.includes("[/share]") && shareLoop < 10) {
     text = text.replace(
-      /\[share([\s\S]*?)\]([\s\S]*?)\[\/share\]/gi,
+      // The content group must not swallow a nested [share — otherwise the
+      // outer opener pairs with the *inner* closer, mis-nesting the cards and
+      // leaving a literal [/share] behind. Innermost first, loop peels outward.
+      /\[share([^\]]*)\]((?:(?!\[share)[\s\S])*?)\[\/share\]/gi,
       (_m, attrs, content) => bbShareAttributes(attrs, content, options)
     );
     shareLoop++;

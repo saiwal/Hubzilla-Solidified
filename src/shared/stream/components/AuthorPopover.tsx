@@ -14,6 +14,7 @@ import { createRoom } from "@/modules/chat/api";
 import { blockChannel, blockChannelFromSite } from "@utsukta/spa-core/lib/blocklist-api";
 import { useNavigate } from "@solidjs/router";
 import { useI18n } from "@utsukta/spa-core/i18n";
+import { useFloating } from "@utsukta/spa-core/lib/useFloating";
 
 interface Props {
   name: string;
@@ -74,7 +75,8 @@ export default function AuthorPopover(props: Props) {
   const [sendInvite, setSendInvite] = createSignal(true);
   const [blockState, setBlockState] = createSignal<"idle" | "loading" | "blocked">("idle");
   const [siteBlockState, setSiteBlockState] = createSignal<"idle" | "loading" | "blocked">("idle");
-  const [popoverPos, setPopoverPos] = createSignal<{ top: number; left: number } | null>(null);
+  const { x: popX, y: popY, mount: popMount, unmount: popUnmount } =
+    useFloating({ placement: "bottom-start", offset: 8 });
   const canHover = createMediaQuery("(hover: hover) and (pointer: fine)");
   const auth = useAuth();
   const navViewer = useNavViewer();
@@ -136,14 +138,10 @@ export default function AuthorPopover(props: Props) {
       });
   });
 
-  function calcPos() {
-    if (!triggerRef) return;
-    const rect = triggerRef.getBoundingClientRect();
-    const w = 320;
-    let left = rect.left;
-    if (left + w > window.innerWidth - 8) left = window.innerWidth - w - 8;
-    setPopoverPos({ top: rect.bottom + 8, left: Math.max(8, left) });
-  }
+  createEffect(() => {
+    if (open() && triggerRef && popoverRef) popMount(triggerRef, popoverRef);
+    else popUnmount();
+  });
 
   function scheduleClose() {
     closeTimer = setTimeout(() => setOpen(false), 150);
@@ -296,18 +294,18 @@ export default function AuthorPopover(props: Props) {
       <div
         ref={triggerRef}
         class="relative shrink-0"
-        onMouseEnter={() => { if (canHover()) { cancelClose(); calcPos(); setOpen(true); } }}
+        onMouseEnter={() => { if (canHover()) { cancelClose(); setOpen(true); } }}
         onMouseLeave={() => { if (canHover()) scheduleClose(); }}
-        onClick={() => { if (!canHover()) { if (open()) setOpen(false); else { calcPos(); setOpen(true); } } }}
+        onClick={() => { if (!canHover()) { setOpen(!open()); } }}
       >
         {props.children}
       </div>
       <Portal>
-        <Show when={open() && popoverPos()}>
+        <Show when={open()}>
           <div
             ref={popoverRef}
             class="fixed z-[9999] w-80 bg-surface border border-rim rounded-xl shadow-xl overflow-hidden"
-            style={{ top: `${popoverPos()!.top}px`, left: `${popoverPos()!.left}px` }}
+            style={{ position: "fixed", top: `${popY()}px`, left: `${popX()}px` }}
             onMouseEnter={cancelClose}
             onMouseLeave={scheduleClose}
           >

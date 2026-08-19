@@ -6,6 +6,7 @@ import { usePageNick } from "@utsukta/spa-core/store/site-config";
 import { useI18n } from "@utsukta/spa-core/i18n";
 import { useAuth } from "@utsukta/spa-core/store/auth-store";
 import { useNavViewer } from "@utsukta/spa-core/store/nav-store";
+import { useDropdown } from "@utsukta/spa-core/lib/useDropdown";
 import {
   photos, albums, albumName, detail, loading, albumsLoading, albumsError, canWrite,
   loadSummary, loadAlbum, loadImage, loadAlbums,
@@ -848,8 +849,9 @@ function ImageView() {
   const [threaded, setThreaded]           = createSignal(true);
   const [editFile, setEditFile]           = createSignal<File | null>(null);
   const [editUploading, setEditUploading] = createSignal(false);
-  const [moreOpen, setMoreOpen]           = createSignal(false);
-  const [moreAnchor, setMoreAnchor]       = createSignal<{ bottom: number; right: number } | null>(null);
+  const { open: moreOpen, setOpen: setMoreOpen, toggle: openMoreDropdown,
+          floatStyle: moreStyle, setTriggerRef: setMoreRef, setPanelRef: setMorePanelRef } =
+    useDropdown({ placement: "bottom-end", offset: 4 });
   const [deleteConfirming, setDeleteConfirming] = createSignal(false);
   const [aclOpen, setAclOpen]                   = createSignal(false);
   const [renameOpen, setRenameOpen]             = createSignal(false);
@@ -862,8 +864,6 @@ function ImageView() {
   const [descInput, setDescInput]                 = createSignal('');
   const [descSaving, setDescSaving]               = createSignal(false);
   const [nsfwSaving, setNsfwSaving]               = createSignal(false);
-  let moreRef!: HTMLDivElement;
-  let morePortalRef!: HTMLDivElement;
   let deleteTimer: ReturnType<typeof setTimeout> | null = null;
   let pswpRef: PhotoSwipe | null = null;
 
@@ -1024,24 +1024,6 @@ function ImageView() {
     pswp.on('close', () => { pswpRef = null; });
     pswpRef = pswp;
     pswp.init();
-  }
-
-  createEffect(() => {
-    if (!moreOpen()) return;
-    const handler = (e: MouseEvent) => {
-      if (!moreRef?.contains(e.target as Node) && !morePortalRef?.contains(e.target as Node))
-        setMoreOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    onCleanup(() => document.removeEventListener("mousedown", handler));
-  });
-
-  function openMoreDropdown() {
-    if (!moreOpen()) {
-      const rect = moreRef.getBoundingClientRect();
-      setMoreAnchor({ bottom: window.innerHeight - rect.top + 4, right: window.innerWidth - rect.right });
-    }
-    setMoreOpen(v => !v);
   }
 
   async function onDeleteClick() {
@@ -1479,7 +1461,7 @@ function ImageView() {
 
             {/* More dropdown */}
             <Show when={canWrite()}>
-              <div ref={moreRef} class="relative">
+              <div ref={setMoreRef} class="relative">
                 <button
                   onClick={openMoreDropdown}
                   title={t("post.more_actions")}
@@ -1494,11 +1476,11 @@ function ImageView() {
           </div>
 
           <Portal>
-            <Show when={moreOpen() && moreAnchor()}>
+            <Show when={moreOpen()}>
               <div
-                ref={morePortalRef}
-                class="fixed z-[9999] min-w-[11rem] bg-surface border border-rim rounded-lg shadow-lg py-1"
-                style={{ bottom: `${moreAnchor()!.bottom}px`, right: `${moreAnchor()!.right}px` }}
+                ref={setMorePanelRef}
+                class="z-[9999] min-w-[11rem] bg-surface border border-rim rounded-lg shadow-lg py-1"
+                style={moreStyle()}
               >
                 <button
                   onClick={() => { setMoreOpen(false); startEdit(); }}

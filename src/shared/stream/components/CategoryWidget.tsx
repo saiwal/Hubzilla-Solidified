@@ -25,7 +25,7 @@ export interface CategoryItem {
 
 export async function fetchCategories(params: {
   channelNick?: string;
-  type?: "articles" | "posts";
+  type?: "articles" | "cards" | "posts";
 }): Promise<CategoryItem[]> {
   const url = new URL("/spa/stream-widgets/categories", window.location.origin);
   if (params.channelNick) url.searchParams.set("channel_nick", params.channelNick);
@@ -65,7 +65,7 @@ function CategorySkeleton() {
 
 export interface CategoryWidgetProps {
   channelNick?: string;
-  type?: "articles" | "posts";
+  type?: "articles" | "cards" | "posts";
   /** Called when the user clicks a category row */
   onCategoryClick?: (slug: string) => void;
   /** Slug of the currently active/filtered category */

@@ -103,6 +103,8 @@ export interface Post {
   denyGid?: string[]; // ACL deny_gid, as bare privacy-group ids
   lang?: string; // content language (ISO-639-1), articles only — item.lang
   series?: { name: string; order: number | null } | null; // article series membership, stored via iconfig
+  deck?: { name: string; order: number | null } | null; // card deck membership, stored via iconfig
+  template?: string; // card authoring template (freeform|quote|definition|link), iconfig cat 'card'
   translationGroup?: string | null; // article translation-group id (iconfig), shared across language siblings
   translations?: ArticleTranslation[]; // sibling language versions — populated on single-article fetch only
 }

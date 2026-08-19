@@ -40,7 +40,7 @@ export interface ArchiveDay {
 
 export async function fetchArchive(params: {
   channelNick?: string;
-  type?: "articles" | "posts" | "notes";
+  type?: "articles" | "cards" | "posts" | "notes";
 }): Promise<ArchiveYear[]> {
   const url = new URL("/spa/stream-widgets/archive", window.location.origin);
   if (params.channelNick) url.searchParams.set("channel_nick", params.channelNick);
@@ -54,7 +54,7 @@ export async function fetchArchive(params: {
 
 export async function fetchArchiveDays(params: {
   channelNick?: string;
-  type?: "articles" | "posts" | "notes";
+  type?: "articles" | "cards" | "posts" | "notes";
   year: number;
   month: number;
 }): Promise<ArchiveDay[]> {
@@ -132,7 +132,7 @@ function ArchiveSkeleton() {
 
 export interface ArchiveWidgetProps {
   channelNick?: string;
-  type?: "articles" | "posts" | "notes";
+  type?: "articles" | "cards" | "posts" | "notes";
   activeDbegin?: string;
   activeDend?: string;
   onMonthClick?: (year: number, month: number) => void;

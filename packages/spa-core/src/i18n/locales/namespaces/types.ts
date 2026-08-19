@@ -48,6 +48,7 @@ export type RawDictionary = {
   };
   nav: {
     articles:      string;
+    cards:         string;
     addressbook:   string;
     calendar:      string;
     cart:          string;
@@ -369,11 +370,15 @@ export type RawDictionary = {
     stream_filters:     string;
     saved_searches:     string;
     article_drafts:     string;
+    card_drafts:        string;
     webpage_drafts:     string;
     wiki_drafts:        string;
     popular_articles:   string;
+    popular_cards:      string;
     article_categories: string;
+    card_categories:    string;
     article_tags:       string;
+    card_tags:          string;
     note_archive:       string;
     note_drafts:        string;
     note_tags:          string;
@@ -404,7 +409,9 @@ export type RawDictionary = {
     pomodoro:           string;
     link_list:          string;
     article_teaser:     string;
+    card_showcase:      string;
     article_series:     string;
+    card_deck:          string;
     album_strip:        string;
     room_card:          string;
     event_card:         string;
@@ -418,6 +425,7 @@ export type RawDictionary = {
     pomo_work_time:     string;
     view_post:          string;
     read_article:       string;
+    read_card:          string;
     view_album:         string;
     join_room:          string;
     view_calendar:      string;
@@ -435,6 +443,7 @@ export type RawDictionary = {
     cfg_link_label:     string;
     cfg_too_large:      string;
     cfg_article:        string;
+    cfg_card:           string;
     menu_bar:           string;
     menu_tree:          string;
     cfg_menu:           string;
@@ -531,7 +540,9 @@ export type RawDictionary = {
     siteinfo_themes:          string;
     // Articles header (articles.header) / list (articles.content)
     articles_header:  string;
+    cards_header:     string;
     articles_content: string;
+    cards_content:    string;
     // Chat header (chat.header) / room list (chat.content)
     chat_header:  string;
     chat_content: string;
@@ -756,7 +767,9 @@ export type RawDictionary = {
     write_placeholder:      string;
     reshare_placeholder:    string;
     article_title_placeholder: string;
+    card_title_placeholder:    string;
     article_summary_placeholder: string;
+    card_summary_placeholder:    string;
     slug_label:             string;
     slug_placeholder:       string;
     generate_slug:          string;
@@ -764,9 +777,13 @@ export type RawDictionary = {
     language_label:         string;
     language_placeholder:   string;
     series_label:           string;
+    deck_label:             string;
     series_placeholder:     string;
+    deck_placeholder:       string;
     series_order_label:     string;
+    deck_order_label:       string;
     series_order_placeholder: string;
+    deck_order_placeholder:   string;
     format_label:           string;
     words_count:            string;
     chars_count:            string;
@@ -915,6 +932,7 @@ export type RawDictionary = {
     decrypt_cancel:              string;
     decrypt_decrypting:          string;
     latex_toolbar_title:  string;
+    card_toolbar_title:   string;
     latex_modal_title:    string;
     latex_source_label:   string;
     latex_source_placeholder: string;
@@ -1792,6 +1810,76 @@ export type RawDictionary = {
     series_reorder_hint:   string;
     series_articles_count: string;
     back_to_series_index:  string;
+  };
+  cards: {
+    title:                string;
+    new_card:             string;
+    no_cards:             string;
+    filtered_by:          string;
+    clear:                string;
+    load_more:            string;
+    all_loaded:           string;
+    untitled:             string;
+    search:               string;
+    search_placeholder:   string;
+    // CardView
+    all_cards:            string;
+    edit_card:            string;
+    delete_card:          string;
+    by:                   string;
+    comments:             string;
+    no_comments:          string;
+    comment:              string;
+    read_full_card:       string;
+    // Delete confirm
+    delete_confirm:       string;
+    cancel:               string;
+    delete:               string;
+    deleting:             string;
+    // Delete failed
+    delete_failed:        string;
+    share:                string;
+    copy_link:            string;
+    link_copied:          string;
+    // Embedding
+    copy_embed:           string;
+    embed_copied:         string;
+    insert_card:          string;
+    card_picker_search:   string;
+    card_picker_empty:    string;
+    // Drafts widget
+    drafts:               string;
+    no_drafts:            string;
+    empty_draft:          string;
+    load_draft:           string;
+    delete_draft:         string;
+    draft_new:            string;
+    draft_edit:           string;
+    refresh_drafts:       string;
+    just_now:             string;
+    // Authoring templates
+    template_freeform:    string;
+    template_quote:       string;
+    template_definition:  string;
+    template_link:        string;
+    quote_text:           string;
+    quote_attribution:    string;
+    definition_term:      string;
+    definition_body:      string;
+    link_url:             string;
+    link_title:           string;
+    link_note:            string;
+    // Decks
+    part_of_deck:         string;
+    view_full_deck:       string;
+    deck_index_title:     string;
+    deck_no_decks:        string;
+    deck_rename:          string;
+    deck_rename_prompt:   string;
+    deck_reorder_hint:    string;
+    deck_cards_count:     string;
+    back_to_deck_index:   string;
+    shuffle:              string;
   };
   addressbook: {
     contact_count:             string;

@@ -5,9 +5,10 @@
  * panel pattern instead of a native <select>.
  */
 
-import { createSignal, Show, onMount, onCleanup } from "solid-js";
+import { Show } from "solid-js";
 import { MdOutlineFormat_list_bulleted, MdOutlineFormat_list_numbered } from "solid-icons/md";
 import { useI18n } from "@utsukta/spa-core/i18n";
+import { useDropdown } from "@utsukta/spa-core/lib/useDropdown";
 
 export type ListKind = "bullet" | "number" | "alpha";
 
@@ -18,38 +19,12 @@ export interface ListToolDropdownProps {
 
 export default function ListToolDropdown(props: ListToolDropdownProps) {
   const { t } = useI18n();
-  const [open, setOpen] = createSignal(false);
-  const [panelStyle, setPanelStyle] = createSignal<{ top: string; left: string }>({ top: "auto", left: "auto" });
-
-  let triggerRef: HTMLButtonElement | undefined;
-  let panelRef: HTMLDivElement | undefined;
-
-  const updatePosition = () => {
-    if (!triggerRef) return;
-    const r = triggerRef.getBoundingClientRect();
-    setPanelStyle({ top: `${r.bottom + 4}px`, left: `${r.left}px` });
-  };
-
-  const handleDocClick = (e: MouseEvent) => {
-    if (!open()) return;
-    const target = e.target as Node;
-    if (panelRef?.contains(target) || triggerRef?.contains(target)) return;
-    setOpen(false);
-  };
-
-  onMount(() => {
-    document.addEventListener("click", handleDocClick, { capture: true });
-    window.addEventListener("resize", updatePosition);
-  });
-  onCleanup(() => {
-    document.removeEventListener("click", handleDocClick, { capture: true });
-    window.removeEventListener("resize", updatePosition);
-  });
+  const { open, setOpen, toggle: toggleOpen, floatStyle, setTriggerRef, setPanelRef } =
+    useDropdown({ placement: "bottom-start", offset: 4 });
 
   function toggle() {
     if (props.disabled) return;
-    if (!open()) updatePosition();
-    setOpen((o) => !o);
+    toggleOpen();
   }
 
   function select(kind: ListKind) {
@@ -60,7 +35,7 @@ export default function ListToolDropdown(props: ListToolDropdownProps) {
   return (
     <>
       <button
-        ref={triggerRef}
+        ref={setTriggerRef}
         type="button"
         title={t("editor.list_toolbar_title")}
         disabled={props.disabled}
@@ -78,9 +53,9 @@ export default function ListToolDropdown(props: ListToolDropdownProps) {
 
       <Show when={open()}>
         <div
-          ref={panelRef}
-          class="fixed z-50 w-44 py-1 bg-surface border border-rim rounded-lg shadow-xl flex flex-col"
-          style={panelStyle()}
+          ref={setPanelRef}
+          class="z-50 w-44 py-1 bg-surface border border-rim rounded-lg shadow-xl flex flex-col"
+          style={floatStyle()}
         >
           <button
             type="button"

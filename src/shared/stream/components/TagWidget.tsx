@@ -31,7 +31,7 @@ export interface TagItem {
 
 export async function fetchTags(params: {
   channelNick?: string;
-  type?: "articles" | "posts" | "notes";
+  type?: "articles" | "cards" | "posts" | "notes";
 }): Promise<TagItem[]> {
   const url = new URL("/spa/stream-widgets/tags", window.location.origin);
   if (params.channelNick) url.searchParams.set("channel_nick", params.channelNick);
@@ -69,7 +69,7 @@ function TagSkeleton() {
 
 export interface TagWidgetProps {
   channelNick?: string;
-  type?: "articles" | "posts" | "notes";
+  type?: "articles" | "cards" | "posts" | "notes";
   /** Called when the user clicks a tag */
   onTagClick?: (tag: string) => void;
   /** Name of the currently active/filtered tag */
