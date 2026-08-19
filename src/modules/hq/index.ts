@@ -3,7 +3,11 @@ import { useI18n } from "@utsukta/spa-core/i18n";
 
 registerModule({
   id: "hq",
-  routes: [{ path: "/hq", component: () => import("./views/HqView") }],
+  // :uuid — core redirects DM notifications (/notify/view/:id, NOTIFY_MAIL)
+  // server-side to classic HQ's /hq/<b64mid> permalink before the SPA loads,
+  // so this route has to answer that URL too; HqView opens it in the same
+  // PostDetailModal the message list uses.
+  routes: [{ path: "/hq/:uuid?", component: () => import("./views/HqView") }],
   requiresAuth: true,
   navItem: {
     label: () => useI18n().t("nav.hq"),
