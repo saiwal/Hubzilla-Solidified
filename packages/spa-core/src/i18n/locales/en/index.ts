@@ -17,6 +17,7 @@ import { hq }         from "./hq";
 import { channel }    from "./channel";
 import { photos }     from "./photos";
 import { articles }   from "./articles";
+import { addressbook } from "./addressbook";
 import { calendar }   from "./calendar";
 import { chat }       from "./chat";
 import { files_mod }  from "./files_mod";
@@ -54,6 +55,7 @@ export const dict: RawDictionary = {
   channel,
   photos,
   articles,
+  addressbook,
   calendar,
   chat,
   files_mod,
