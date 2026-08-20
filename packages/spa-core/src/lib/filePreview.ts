@@ -1,8 +1,9 @@
-export type PreviewKind = "pdf" | "video" | "audio" | "image" | "markdown" | "text" | "none";
+export type PreviewKind = "pdf" | "epub" | "video" | "audio" | "image" | "markdown" | "text" | "none";
 
 const TEXT_EXT = /\.(txt|md|markdown|json|ya?ml|xml|csv|log|ini|conf|sh|bash|js|ts|tsx|jsx|py|php|java|c|cpp|h|hpp|cs|go|rs|rb|css|scss|html?)$/i;
 const MD_EXT = /\.(md|markdown)$/i;
 const PDF_EXT = /\.pdf$/i;
+const EPUB_EXT = /\.epub$/i;
 const VIDEO_EXT = /\.(mp4|webm|mov|avi|mkv|wmv|flv|m4v|3gp|ts|mts|m2ts|ogv)$/i;
 const AUDIO_EXT = /\.(mp3|wav|ogg|oga|flac|m4a|aac|opus|wma|weba)$/i;
 const IMAGE_EXT = /\.(jpe?g|png|gif|webp|avif|bmp|svg)$/i;
@@ -16,6 +17,7 @@ const IMAGE_EXT = /\.(jpe?g|png|gif|webp|avif|bmp|svg)$/i;
 export function classifyPreview(mimetype: string, filename: string): PreviewKind {
   const mime = (mimetype || "").toLowerCase();
   if (mime === "application/pdf" || PDF_EXT.test(filename)) return "pdf";
+  if (mime === "application/epub+zip" || EPUB_EXT.test(filename)) return "epub";
   if (mime.startsWith("video/") || VIDEO_EXT.test(filename)) return "video";
   if (mime.startsWith("audio/") || AUDIO_EXT.test(filename)) return "audio";
   if (mime.startsWith("image/") || IMAGE_EXT.test(filename)) return "image";

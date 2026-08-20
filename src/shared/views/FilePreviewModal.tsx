@@ -1,7 +1,9 @@
 import { createEffect, createResource, createSignal, For, lazy, onCleanup, Show, Suspense, type Component } from "solid-js";
 import { Portal } from "solid-js/web";
 import { marked } from "marked";
+import ePub, { type Rendition } from "epubjs";
 import { MdFillOpen_in_full, MdFillClose_fullscreen, MdOutlineEdit } from "solid-icons/md";
+import { HiOutlineChevronLeft, HiOutlineChevronRight } from "solid-icons/hi";
 import { classifyPreview, TEXT_PREVIEW_MAX_BYTES } from "@utsukta/spa-core/lib/filePreview";
 import { sanitizeHtml } from "@utsukta/spa-core/lib/sanitize";
 import { toast } from "@utsukta/spa-core/store/toast";
@@ -69,6 +71,16 @@ async function fetchBlobUrl(url: string, expectedMimePrefix: string): Promise<st
   return URL.createObjectURL(blob);
 }
 
+async function fetchArrayBuffer(url: string, expectedMimePrefix: string): Promise<ArrayBuffer> {
+  const res = await fetch(url, { credentials: "include" });
+  if (!res.ok) throw new Error(`fetch ${res.status}`);
+  const contentType = res.headers.get("content-type") ?? "";
+  if (!contentType.toLowerCase().startsWith(expectedMimePrefix)) {
+    throw new Error(`server returned "${contentType || "unknown"}" instead of ${expectedMimePrefix}`);
+  }
+  return res.arrayBuffer();
+}
+
 function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -102,8 +114,33 @@ const FilePreviewModal: Component<Props> = (props) => {
   );
   onCleanup(() => { if (pdfBlobUrl.state === "ready") URL.revokeObjectURL(pdfBlobUrl()!); });
 
+  const [epubBuffer] = createResource(
+    () => (kind() === "epub" ? props.url : undefined),
+    (url) => fetchArrayBuffer(url, "application/epub+zip"),
+  );
+  let epubContainer: HTMLDivElement | undefined;
+  let rendition: Rendition | undefined;
+  createEffect(() => {
+    const buf = epubBuffer();
+    if (!buf || !epubContainer) return;
+    const book = ePub(buf);
+    rendition = book.renderTo(epubContainer, { width: "100%", height: "100%", flow: "scrolled-doc" });
+    // epub.js renders each section into its own iframe document, which can't
+    // see the host page's CSS custom properties — resolve them to literal
+    // colors here and inject as an epub.js theme instead.
+    const hostStyle = getComputedStyle(document.documentElement);
+    const cssVar = (name: string) => hostStyle.getPropertyValue(name).trim();
+    rendition.themes.default({
+      body: { background: `${cssVar("--color-surface")} !important`, color: `${cssVar("--color-txt")} !important` },
+      a: { color: `${cssVar("--color-accent")} !important` },
+    });
+    rendition.display();
+    onCleanup(() => { rendition?.destroy(); book.destroy(); rendition = undefined; });
+  });
+
   createEffect(() => { if (text.error) logFetchFailure("text", props.url, text.error); });
   createEffect(() => { if (pdfBlobUrl.error) logFetchFailure("pdf", props.url, pdfBlobUrl.error); });
+  createEffect(() => { if (epubBuffer.error) logFetchFailure("epub", props.url, epubBuffer.error); });
 
   async function openEditor() {
     try {
@@ -203,6 +240,38 @@ const FilePreviewModal: Component<Props> = (props) => {
               >
                 <Show when={pdfBlobUrl.state === "ready"} fallback={<p class="text-sm text-muted">Loading…</p>}>
                   <iframe src={pdfBlobUrl()!} class="w-full h-[80vh] rounded-lg border border-rim" />
+                </Show>
+              </Show>
+            </Show>
+
+            <Show when={kind() === "epub"}>
+              <Show
+                when={epubBuffer.state !== "errored"}
+                fallback={
+                  <p class="text-sm text-red-500">
+                    Couldn't load preview.{" "}
+                    <a href={props.url} download={props.filename} class="underline">Download instead</a>
+                  </p>
+                }
+              >
+                <Show when={epubBuffer.state === "ready"} fallback={<p class="text-sm text-muted">Loading…</p>}>
+                  <div class="flex items-center gap-2 h-[80vh]">
+                    <button
+                      onClick={() => rendition?.prev()}
+                      title="Previous page"
+                      class="shrink-0 text-muted hover:text-txt"
+                    >
+                      <HiOutlineChevronLeft size={24} />
+                    </button>
+                    <div ref={epubContainer} class="flex-1 h-full rounded-lg border border-rim" />
+                    <button
+                      onClick={() => rendition?.next()}
+                      title="Next page"
+                      class="shrink-0 text-muted hover:text-txt"
+                    >
+                      <HiOutlineChevronRight size={24} />
+                    </button>
+                  </div>
                 </Show>
               </Show>
             </Show>
