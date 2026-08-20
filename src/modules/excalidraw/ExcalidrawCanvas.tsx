@@ -4,7 +4,7 @@
  * into a plain div. This is the one place React is mounted for this feature —
  * everything above it (the tools subsection, the editor modal) is Solid.
  */
-import { onCleanup, onMount, type Component } from "solid-js";
+import { createSignal, onCleanup, onMount, type Component } from "solid-js";
 import { createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { Excalidraw, exportToBlob } from "@excalidraw/excalidraw";
@@ -18,6 +18,10 @@ interface Props {
   onReady?: (api: ExcalidrawExport) => void;
 }
 
+function isDarkMode() {
+  return document.documentElement.classList.contains("dark");
+}
+
 const ExcalidrawCanvas: Component<Props> = (props) => {
   let containerRef: HTMLDivElement | undefined;
   let root: Root | undefined;
@@ -25,12 +29,13 @@ const ExcalidrawCanvas: Component<Props> = (props) => {
   // type lives under the package's internal types entry point; `any` avoids
   // pinning to that unstable path.
   let api: any;
+  const [dark, setDark] = createSignal(isDarkMode());
 
-  onMount(() => {
-    if (!containerRef) return;
-    root = createRoot(containerRef);
+  function render() {
+    if (!root) return;
     root.render(
       createElement(Excalidraw, {
+        theme: dark() ? "dark" : "light",
         excalidrawAPI: (a: any) => {
           api = a;
           props.onReady?.({
@@ -48,6 +53,24 @@ const ExcalidrawCanvas: Component<Props> = (props) => {
         },
       }),
     );
+  }
+
+  onMount(() => {
+    if (!containerRef) return;
+    root = createRoot(containerRef);
+    render();
+
+    // Follows the app's own theme toggle (which flips `.dark` on <html>) so the
+    // canvas doesn't stay stuck light while the rest of the app is dark.
+    const observer = new MutationObserver(() => {
+      const next = isDarkMode();
+      if (next !== dark()) {
+        setDark(next);
+        render();
+      }
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    onCleanup(() => observer.disconnect());
   });
 
   onCleanup(() => root?.unmount());

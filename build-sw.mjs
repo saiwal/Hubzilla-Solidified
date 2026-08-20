@@ -22,17 +22,45 @@ const OUT_DIR = path.resolve(__dirname, SW_OUT_DIR_REL);
 const { count, size } = await generateSW({
   swDest: path.join(OUT_DIR, 'sw.js'),
   globDirectory: OUT_DIR,
-  // Shell only: the hashed app chunks plus the PWA icons, ~5 MB.
+  // Shell only: the hashed app chunks plus the PWA icons.
   // Deliberately NOT recursive — the subdirectories hold 31 MB of ffmpeg
   // wasm, 15 MB of background patterns, 10 MB of puzzle wasm and 4 MB of
   // fonts. Precaching those made SW install a 36 MB download, which mobile
   // browsers fail or evict outright — and a failed install means no service
   // worker at all, so offline stopped working entirely. They're runtime-cached
   // on first use instead (see hz-assets below); ffmpeg is left uncached, a
-  // 32 MB entry is not worth an origin's storage quota.
+  // 32 MB entry is not worth an origin's storage quota. Individually large
+  // *top-level* chunks (Excalidraw/mermaid, Filerobot) get the same
+  // runtime-cached treatment via globIgnores + hz-heavy-chunks below, since
+  // flat non-recursive globbing can't otherwise separate them from the shell.
   globPatterns: ['*.{js,css}', '*.{png,svg,ico}'],
-  // exclude the sw itself from precache
-  globIgnores: ['sw.js'],
+  globIgnores: [
+    'sw.js',
+    // Excalidraw's canvas + its bundled "mermaid to diagram" conversion
+    // feature (mermaid core, cytoscape/dagre/cose-bilkent layout engines, one
+    // chunk per diagram type) and the Filerobot image editor are ~6 MB of
+    // chunks that are only ever dynamically imported when a user opens one of
+    // those tools — never part of the app shell. Flat non-recursive globbing
+    // (see comment above) can't tell eager chunks from lazy ones by directory,
+    // so they're excluded by name here and runtime-cached instead (see
+    // hz-heavy-chunks below), same treatment as fonts/patterns/puzzles.
+    'app-Excalidraw*.js',
+    'app-vendor-image-editor-*.js',
+    'app-cytoscape.esm-*.js',
+    'app-dagre*.js',
+    'app-cose-bilkent*.js',
+    'app-mermaid*.js',
+    'app-*Diagram*.js',
+    'app-swimlanes*.js',
+    // ponytail: these two are Rollup's auto-generated shared-chunk ids (the
+    // "EIO257PC"/"FOHPRMQF" segments are content hashes, not source names),
+    // so the exact match can go stale on a rebuild that reshuffles chunk
+    // boundaries — if the [SW] precache-size assert trips again after an
+    // unrelated dependency bump, re-check `du -h assets/*.js | sort -rh` for
+    // a new large un-ignored "chunk-*" file before raising the limit.
+    'app-chunk-EIO257PC-*.js',
+    'app-chunk-FOHPRMQF-*.js',
+  ],
   maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
 
   // app-*.js/css names contain a content hash; the URL itself is the revision
@@ -120,6 +148,19 @@ const { count, size } = await generateSW({
       options: {
         cacheName: 'hz-assets',
         expiration: { maxEntries: 80, maxAgeSeconds: 30 * 86400 },
+        cacheableResponse: { statuses: [0, 200] },
+      },
+    },
+    {
+      // Excalidraw/mermaid + Filerobot chunks excluded from the precache
+      // above — content-hashed and immutable, so CacheFirst is safe; they're
+      // fetched (and cached) the first time a user actually opens one of
+      // those tools rather than on every install.
+      urlPattern: /\/assets\/app-(Excalidraw|vendor-image-editor|cytoscape\.esm|dagre|cose-bilkent|mermaid|chunk-EIO257PC|chunk-FOHPRMQF|[A-Za-z0-9]*Diagram|swimlanes)[^/]*\.(js|css)$/,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'hz-heavy-chunks',
+        expiration: { maxEntries: 40, maxAgeSeconds: 30 * 86400 },
         cacheableResponse: { statuses: [0, 200] },
       },
     },

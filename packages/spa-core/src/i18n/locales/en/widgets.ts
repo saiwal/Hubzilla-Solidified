@@ -113,6 +113,7 @@ export const widgets: RawDictionary["widgets"] = {
   wiki_list:          "Wiki List",
   help_nav:           "Navigation",
   help_chooser:       "Documentation Section",
+  help_tours:         "Guided Tours",
   // Layout edit mode UI
   edit_layout:   "Edit layout",
   done_editing:  "Done editing",

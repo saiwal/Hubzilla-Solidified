@@ -1,4 +1,4 @@
-import { createSignal, For } from "solid-js";
+import { createSignal, For, Index } from "solid-js";
 import { MdOutlineAdd, MdOutlineClose } from "solid-icons/md";
 import ComposerModal from "@/shared/editor/components/ComposerModal";
 import { useI18n } from "@utsukta/spa-core/i18n";
@@ -23,9 +23,15 @@ const ADR_KEYS = [
   "adr_country",
 ] as const;
 
-const inputClass =
-  "w-full rounded-lg border border-rim bg-surface px-3 py-1.5 text-sm text-txt " +
+// No width utility here on purpose — every caller composes its own (w-full,
+// flex-1, w-32…). Baking w-full in caused TypeSelect's `${fieldClass} w-32`
+// to carry two conflicting width utilities, and Tailwind's generated CSS
+// order (not class order) decided which won — sometimes squishing the value
+// input down to a sliver.
+const fieldClass =
+  "rounded-lg border border-rim bg-surface px-3 py-1.5 text-sm text-txt " +
   "placeholder:text-muted focus:outline-none focus:ring-1 focus:ring-accent";
+const inputClass = `w-full ${fieldClass}`;
 
 interface Row { type: string; label: string; value: string }
 interface AdrRow { type: string; label: string; parts: string[] }
@@ -140,7 +146,7 @@ export default function CardEditorModal(props: Props) {
         </div>
       }
     >
-      <form id="card-editor" onSubmit={save} class="space-y-5">
+      <form id="card-editor" onSubmit={save} class="space-y-6 px-5 py-4">
         <Field label={t("addressbook.name") as string}>
           <input class={inputClass} value={fn()} onInput={(e) => setFn(e.currentTarget.value)}
                  autofocus required />
@@ -155,14 +161,16 @@ export default function CardEditorModal(props: Props) {
           </Field>
         </div>
 
-        <RowGroup label={t("addressbook.phone") as string} addLabel={t("addressbook.add_phone") as string}
-                  rows={tels()} setRows={setTels} withCell type="tel" />
-        <RowGroup label={t("addressbook.email") as string} addLabel={t("addressbook.add_email") as string}
-                  rows={emails()} setRows={setEmails} type="email" />
-        <RowGroup label={t("addressbook.impp") as string} addLabel={t("addressbook.add_impp") as string}
-                  rows={impps()} setRows={setImpps} />
-        <RowGroup label={t("addressbook.website") as string} addLabel={t("addressbook.add_website") as string}
-                  rows={urls()} setRows={setUrls} type="url" />
+        <div class="space-y-5 rounded-lg border border-rim/60 bg-elevated/30 p-4">
+          <RowGroup label={t("addressbook.phone") as string} addLabel={t("addressbook.add_phone") as string}
+                    rows={tels()} setRows={setTels} withCell type="tel" />
+          <RowGroup label={t("addressbook.email") as string} addLabel={t("addressbook.add_email") as string}
+                    rows={emails()} setRows={setEmails} type="email" />
+          <RowGroup label={t("addressbook.impp") as string} addLabel={t("addressbook.add_impp") as string}
+                    rows={impps()} setRows={setImpps} />
+          <RowGroup label={t("addressbook.website") as string} addLabel={t("addressbook.add_website") as string}
+                    rows={urls()} setRows={setUrls} type="url" />
+        </div>
 
         <AdrGroup rows={adrs()} setRows={setAdrs} />
 
@@ -214,7 +222,7 @@ function TypeSelect(props: {
 
   return (
     <select
-      class={`${inputClass} w-32 shrink-0`}
+      class={`${fieldClass} w-32 shrink-0`}
       value={props.value}
       onChange={(e) => props.onChange(e.currentTarget.value)}
     >
@@ -241,21 +249,21 @@ function RowGroup(props: {
   return (
     <div class="space-y-2">
       <span class="text-xs font-medium text-muted">{props.label}</span>
-      <For each={props.rows}>
+      <Index each={props.rows}>
         {(row, i) => (
           <div class="flex items-center gap-2">
-            <input class={inputClass} type={props.type ?? "text"} value={row.value}
-                   onInput={(e) => patch(i(), { value: e.currentTarget.value })} />
-            <TypeSelect value={row.type} label={row.label} withCell={props.withCell}
-                        onChange={(v) => patch(i(), { type: v })} />
+            <input class={`${fieldClass} min-w-0 flex-1`} type={props.type ?? "text"} value={row().value}
+                   onInput={(e) => patch(i, { value: e.currentTarget.value })} />
+            <TypeSelect value={row().type} label={row().label} withCell={props.withCell}
+                        onChange={(v) => patch(i, { type: v })} />
             <button type="button" aria-label={t("addressbook.remove_field") as string}
-                    onClick={() => props.setRows(props.rows.filter((_, n) => n !== i()))}
-                    class="p-1.5 rounded-lg text-muted hover:bg-elevated hover:text-red-500">
+                    onClick={() => props.setRows(props.rows.filter((_, n) => n !== i))}
+                    class="shrink-0 p-1.5 rounded-lg text-muted hover:bg-elevated hover:text-red-500">
               <MdOutlineClose class="w-4 h-4" />
             </button>
           </div>
         )}
-      </For>
+      </Index>
       <button type="button"
               onClick={() => props.setRows([...props.rows, { type: "", label: "", value: "" }])}
               class="flex items-center gap-1.5 text-xs text-muted hover:text-txt">
@@ -279,16 +287,16 @@ function AdrGroup(props: { rows: AdrRow[]; setRows: (rows: AdrRow[]) => void }) 
   return (
     <div class="space-y-2">
       <span class="text-xs font-medium text-muted">{t("addressbook.address")}</span>
-      <For each={props.rows}>
+      <Index each={props.rows}>
         {(row, i) => (
           <div class="rounded-lg border border-rim p-3 space-y-2">
             <div class="flex items-center justify-between gap-2">
-              <TypeSelect value={row.type} label={row.label}
+              <TypeSelect value={row().type} label={row().label}
                           onChange={(v) => props.setRows(
-                            props.rows.map((r, n) => (n === i() ? { ...r, type: v } : r)),
+                            props.rows.map((r, n) => (n === i ? { ...r, type: v } : r)),
                           )} />
               <button type="button" aria-label={t("addressbook.remove_field") as string}
-                      onClick={() => props.setRows(props.rows.filter((_, n) => n !== i()))}
+                      onClick={() => props.setRows(props.rows.filter((_, n) => n !== i))}
                       class="p-1.5 rounded-lg text-muted hover:bg-elevated hover:text-red-500">
                 <MdOutlineClose class="w-4 h-4" />
               </button>
@@ -296,16 +304,16 @@ function AdrGroup(props: { rows: AdrRow[]; setRows: (rows: AdrRow[]) => void }) 
             <div class="grid gap-2 sm:grid-cols-2">
               <For each={ADR_KEYS}>
                 {(key, part) => (
-                  <input class={inputClass} value={row.parts[part()] ?? ""}
+                  <input class={inputClass} value={row().parts[part()] ?? ""}
                          placeholder={t(`addressbook.${key}`) as string}
                          aria-label={t(`addressbook.${key}`) as string}
-                         onInput={(e) => patchPart(i(), part(), e.currentTarget.value)} />
+                         onInput={(e) => patchPart(i, part(), e.currentTarget.value)} />
                 )}
               </For>
             </div>
           </div>
         )}
-      </For>
+      </Index>
       <button type="button"
               onClick={() => props.setRows([
                 ...props.rows,

@@ -41,6 +41,7 @@ export default function HqMessagesWidget() {
 
   return (
     <div
+      data-tour="hq.messages"
       class="bg-surface rounded-2xl border border-rim flex flex-col overflow-hidden shadow-sm"
       style={{ "max-height": "480px" }}
     >

@@ -187,6 +187,26 @@ export type RawDictionary = {
     remote_hosted_on:        string;
     copy_address:            string;
   };
+  tour: {
+    guided_tours:       string;
+    guided_tours_desc:  string;
+    start_tour:         string;
+    back:               string;
+    next:               string;
+    done:               string;
+    hq_demo_label:      string;
+    hq_demo_desc:       string;
+    hq_composer_title:  string;
+    hq_composer_text:   string;
+    hq_drafts_title:    string;
+    hq_drafts_text:     string;
+    hq_messages_title:  string;
+    hq_messages_text:   string;
+    hq_events_title:    string;
+    hq_events_text:     string;
+    hq_quotas_title:    string;
+    hq_quotas_text:     string;
+  };
   help: {
     click_for_help: string;
     cancel:         string;
@@ -458,6 +478,7 @@ export type RawDictionary = {
     wiki_list:          string;
     help_nav:           string;
     help_chooser:       string;
+    help_tours:         string;
     // Layout edit mode UI
     edit_layout:   string;
     done_editing:  string;
@@ -952,6 +973,8 @@ export type RawDictionary = {
     excalidraw_insert_btn:    string;
     excalidraw_uploading:     string;
     excalidraw_rendering:     string;
+    excalidraw_maximize:      string;
+    excalidraw_restore:       string;
     dm_new_message:        string;
     to_label:               string;
     to_search_placeholder:  string;

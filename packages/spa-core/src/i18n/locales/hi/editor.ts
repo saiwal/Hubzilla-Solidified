@@ -226,6 +226,8 @@ export const editor: RawDictionary["editor"] = {
   excalidraw_insert_btn:    "डालें",
   excalidraw_uploading:     "अपलोड हो रहा है…",
   excalidraw_rendering:     "रेंडर हो रहा है…",
+  excalidraw_maximize:      "बड़ा करें",
+  excalidraw_restore:       "पुनर्स्थापित करें",
 
   // DMComposer
   dm_new_message:        "नया संदेश",

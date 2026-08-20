@@ -235,6 +235,8 @@ export const editor = {
   excalidraw_insert_btn:    "Insert",
   excalidraw_uploading:     "Uploading…",
   excalidraw_rendering:     "Rendering…",
+  excalidraw_maximize:      "Maximize",
+  excalidraw_restore:       "Restore",
 
   // DMComposer
   dm_new_message:        "New message",

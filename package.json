@@ -17,10 +17,9 @@
     "theme:create": "node scripts/create-theme.mjs"
   },
   "dependencies": {
-    "@utsukta/spa-core": "*",
     "@bbob/html": "^4.3.1",
-    "@excalidraw/excalidraw": "^0.18.0",
     "@bbob/parser": "^4.3.1",
+    "@excalidraw/excalidraw": "^0.18.0",
     "@floating-ui/dom": "^1.7.6",
     "@iconify-json/bi": "^1.2.7",
     "@solid-primitives/i18n": "^2.2.1",
@@ -29,6 +28,7 @@
     "@tanstack/solid-query": "^5.101.2",
     "@tanstack/solid-virtual": "^3.13.30",
     "@types/turndown": "^5.0.6",
+    "@utsukta/spa-core": "*",
     "bbcode-to-html": "^1.0.2",
     "dompurify": "^3.3.1",
     "filerobot-image-editor": "^5.0.0-beta.159",
@@ -41,6 +41,7 @@
     "qrcode": "^1.5.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "shepherd.js": "^13.0.3",
     "solid-icons": "^1.2.0",
     "solid-js": "^1.9.10",
     "solid-motionone": "^1.0.4",

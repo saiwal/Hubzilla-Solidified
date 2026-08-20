@@ -72,7 +72,7 @@ export default function UpcomingEventsWidget() {
 
   return (
     <>
-      <div class="bg-surface border border-rim rounded-2xl shadow-sm flex flex-col overflow-hidden">
+      <div data-tour="hq.events" class="bg-surface border border-rim rounded-2xl shadow-sm flex flex-col overflow-hidden">
 
         {/* Header */}
         <div class="px-3.5 pt-3.5 pb-2.5 flex items-center justify-between shrink-0">

@@ -22,7 +22,7 @@ export default function UsageQuotasWidget() {
 
   return (
     <Show when={!settings.loading && quotas().length > 0}>
-      <div class="bg-surface border border-rim rounded-xl p-4">
+      <div data-tour="hq.quotas" class="bg-surface border border-rim rounded-xl p-4">
         <h3 class="text-xs font-semibold text-muted uppercase tracking-wide mb-3">
           {t("widgets.usage_quotas")}
         </h3>

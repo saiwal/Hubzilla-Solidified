@@ -1,5 +1,6 @@
 import { registerModule } from "@utsukta/spa-core/module-registry";
 import { useI18n } from "@utsukta/spa-core/i18n";
+import "./tours";
 
 registerModule({
   id: "hq",
@@ -141,6 +142,16 @@ registerModule({
       contexts: ["hq"],
       helpTarget: "widgets.usage_quotas",
     },
+		{
+      id: "hq.perf_stats",
+      label: () => useI18n().t("hq.server_performance"),
+      loader: () => import("./widgets/PerfStatsWidget"),
+      slot: "footer",
+      defaultModules: ["hq"],
+      contexts: ["hq"],
+      helpTarget: "widgets.perf_stats",
+    },
+
   ],
   permissions: [],
 });

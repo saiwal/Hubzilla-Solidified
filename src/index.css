@@ -2,6 +2,7 @@
 @import "./styles/theme.css";
 @import "./styles/fonts.css";
 @import "plyr/dist/plyr.css";
+@import "shepherd.js/dist/css/shepherd.css";
 @plugin "@tailwindcss/typography";
 
 @keyframes toast-in {
@@ -105,6 +106,52 @@
   height: 100% !important;
   max-width: none !important;
   aspect-ratio: auto !important;
+}
+
+/* ── Shepherd.js guided-tour theme integration ─────────────────── */
+.shepherd-element.hz-shepherd {
+  background: var(--color-elevated);
+  color: var(--color-txt);
+  border-radius: 0.75rem;
+}
+.hz-shepherd .shepherd-header {
+  background: transparent !important;
+  padding: 1rem 1rem 0;
+}
+.hz-shepherd .shepherd-title {
+  color: var(--color-txt) !important;
+  font-weight: 600;
+}
+.hz-shepherd .shepherd-text {
+  color: var(--color-muted) !important;
+  padding: 0.5rem 1rem 1rem;
+}
+.hz-shepherd .shepherd-cancel-icon {
+  color: var(--color-muted);
+}
+.hz-shepherd .shepherd-footer {
+  padding: 0 1rem 1rem;
+}
+.hz-shepherd .shepherd-button {
+  background: var(--color-accent);
+  color: var(--color-accent-fg);
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.hz-shepherd .shepherd-button:not(:disabled):hover {
+  background: var(--color-accent);
+  opacity: 0.9;
+}
+.hz-shepherd .shepherd-button-secondary {
+  background: var(--color-elevated);
+  color: var(--color-txt);
+}
+.hz-shepherd .shepherd-arrow:before {
+  background: var(--color-elevated) !important;
+}
+.shepherd-modal-overlay-container {
+  opacity: 0.5;
 }
 
 .hz-app-root {
