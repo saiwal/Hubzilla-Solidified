@@ -83,13 +83,10 @@ export function hydrateShareEmbeds(root: HTMLElement): void {
 // ---------------------------------------------------------------------------
 // [card] protection
 //
-// Same contract as [share] above: the rendered chip cannot be inverted by
-// htmlToSource, so the token is swapped for a sentinel before conversion and
-// re-emitted as a non-editable embed that maps back via data-card-id.
-//
-// No depth-aware scan here — a [card] block carries no body and every
-// attribute value is urlencode()d server-side (EmbedsCards::buildCardBlock),
-// so a '[card' can never occur inside one.
+// Only the compact compose-time [card=<id>] token: a stored card embed is a
+// [share] block (see Concerns/EmbedsCards.php), so the share scan above
+// already covers it. Same contract otherwise — the token becomes a sentinel
+// before conversion, then a non-editable embed mapping back via data-card-id.
 // ---------------------------------------------------------------------------
 
 const cardEmbed = (attrs: string, innerHtml: string) =>
@@ -241,14 +238,9 @@ function bbcodeToEditorHtml(body: string): string {
   }
   src += body.slice(cursor);
 
-  // [card] tokens — same sentinel treatment, but a plain regex suffices:
-  // a card block is self-closing and its attribute values are urlencode()d,
-  // so it can neither nest nor contain a stray bracket.
+  // Compact [card=<id>] tokens. Only this form needs protecting: a *stored*
+  // card embed is a [share] block, already claimed by the scan above.
   src = src.replace(/\[card=(\d+)\]\s*\[\/card\]/gi, (_m, id) => `\x01CARD:${id}\x01`);
-  src = src.replace(/\[card\s[^\]]*\]\s*\[\/card\]/gi, (block) => {
-    raws.push(block);
-    return `\x01CARDRAW:${raws.length - 1}\x01`;
-  });
 
   let html = bbcodeToHtml(src);
 
@@ -275,15 +267,8 @@ function bbcodeToEditorHtml(body: string): string {
       ? cardEmbed(`data-card-id="${id}"`, renderShareHtml(cached))
       : cardEmbed(
           `data-card-id="${id}" data-card-pending="1"`,
-          `<div class="bb-card-embed bb-card-compact">\u{1F5C2}\uFE0F Card embed #${id}</div>`,
+          `<div class="bb-card-compact">\u{1F5C2}\uFE0F Card embed #${id}</div>`,
         );
-  });
-  html = html.replace(/\x01CARDRAW:(\d+)\x01/g, (_m, i) => {
-    const block = raws[Number(i)] ?? "";
-    return cardEmbed(
-      `data-card-raw="${encodeURIComponent(block)}"`,
-      renderShareHtml(block),
-    );
   });
 
   return html;
