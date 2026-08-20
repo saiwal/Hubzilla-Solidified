@@ -1,0 +1,119 @@
+/**
+ * ExcalidrawComposerModal.tsx
+ * Popup composer for inserting an Excalidraw drawing — draw, export the
+ * canvas to a PNG, upload through the normal photo pipeline (wall_attach,
+ * same as LatexComposerModal's "image" mode), then insert a plain [img] tag
+ * pointing at the hosted URL.
+ */
+import { createSignal, onCleanup, Show, type Component } from "solid-js";
+import { Portal } from "solid-js/web";
+import { useI18n } from "@utsukta/spa-core/i18n";
+import { wallAttach } from "@/modules/files/api";
+import { currentNick } from "@utsukta/spa-core/store/auth-store";
+import ExcalidrawCanvas, { type ExcalidrawExport } from "@/modules/excalidraw/ExcalidrawCanvas";
+
+interface Props {
+  onClose: () => void;
+  onInsert: (bbcode: string) => void;
+}
+
+const ExcalidrawComposerModal: Component<Props> = (props) => {
+  const { t } = useI18n();
+  const [exportApi, setExportApi] = createSignal<ExcalidrawExport>();
+  const [inserting, setInserting] = createSignal(false);
+  const [uploading, setUploading] = createSignal(false);
+  const [error, setError] = createSignal("");
+
+  async function insert() {
+    const api = exportApi();
+    if (!api || inserting()) return;
+    setInserting(true);
+    setError("");
+    try {
+      const file = await api.toPngFile("excalidraw.png");
+      setInserting(false);
+      setUploading(true);
+      const res = await wallAttach(currentNick(), file);
+      const url = res.isPhoto && res.src ? res.src : null;
+      if (!url) throw new Error("Upload succeeded but returned no image URL.");
+      props.onInsert(`[img alt="Excalidraw drawing"]${url}[/img]`);
+      props.onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setInserting(false);
+      setUploading(false);
+    }
+  }
+
+  function onKeyDown(e: KeyboardEvent) {
+    if (e.key === "Escape") { props.onClose(); return; }
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); void insert(); }
+  }
+  document.addEventListener("keydown", onKeyDown);
+  onCleanup(() => document.removeEventListener("keydown", onKeyDown));
+
+  const insertLabel = () => {
+    if (uploading()) return t("editor.excalidraw_uploading");
+    if (inserting()) return t("editor.excalidraw_rendering");
+    return t("editor.excalidraw_insert_btn");
+  };
+
+  return (
+    <Portal mount={document.body}>
+      <div
+        class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/60"
+        onClick={(e) => { if (e.target === e.currentTarget) props.onClose(); }}
+      >
+        <div
+          class="flex flex-col w-full max-w-3xl h-[80vh] rounded-xl border border-rim bg-surface shadow-2xl text-txt overflow-hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t("editor.excalidraw_modal_title")}
+        >
+          <header class="flex items-center justify-between px-4 py-3 border-b border-rim shrink-0">
+            <span class="text-sm font-semibold">{t("editor.excalidraw_modal_title")}</span>
+            <button
+              type="button"
+              onClick={props.onClose}
+              class="p-1.5 rounded-md text-muted hover:text-txt hover:bg-elevated transition-colors"
+            >
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 6 6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </header>
+
+          <div class="flex-1 min-h-0 p-4">
+            <ExcalidrawCanvas onReady={setExportApi} />
+          </div>
+
+          <Show when={error()}>
+            <p class="px-4 text-xs text-red-500">{error()}</p>
+          </Show>
+
+          <footer class="flex items-center justify-end gap-2 px-4 py-3 border-t border-rim bg-elevated shrink-0">
+            <button
+              type="button"
+              onClick={props.onClose}
+              class="px-3 py-1.5 rounded-lg text-sm text-muted hover:text-txt hover:bg-elevated transition-colors"
+            >
+              {t("editor.cancel_btn")}
+            </button>
+            <button
+              type="button"
+              disabled={inserting() || uploading()}
+              onClick={() => void insert()}
+              class="px-4 py-1.5 rounded-lg text-sm font-semibold bg-accent text-accent-fg
+                     hover:opacity-90 active:opacity-80 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {insertLabel()}
+            </button>
+          </footer>
+        </div>
+      </div>
+    </Portal>
+  );
+};
+
+export default ExcalidrawComposerModal;

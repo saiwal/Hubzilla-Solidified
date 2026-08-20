@@ -114,4 +114,7 @@ export const tools: RawDictionary["tools"] = {
   img_saved:          "सहेजा गया",
   img_save_error:     "सहेजना विफल",
   img_photos:         "मेरी फ़ोटो",
+  // Excalidraw
+  excalidraw:          "Excalidraw",
+  excalidraw_download: "PNG डाउनलोड करें",
 };

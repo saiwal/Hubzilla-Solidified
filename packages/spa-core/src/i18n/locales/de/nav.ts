@@ -23,6 +23,7 @@ export const nav: RawDictionary["nav"] = {
   notepad:       "Notizblock",
   tools:         "Werkzeuge",
   games:         "Spiele",
+  excalidraw:    "Excalidraw",
   // action items
   profile:       "Profil",
   edit_profile:  "Profil bearbeiten",

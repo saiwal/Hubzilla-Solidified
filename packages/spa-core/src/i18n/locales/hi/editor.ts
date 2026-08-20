@@ -220,6 +220,13 @@ export const editor: RawDictionary["editor"] = {
   latex_uploading:      "अपलोड हो रहा है…",
   latex_insert_btn:     "डालें",
 
+  // ExcalidrawComposerModal
+  excalidraw_toolbar_title: "ड्रॉइंग जोड़ें",
+  excalidraw_modal_title:   "ड्रॉइंग जोड़ें",
+  excalidraw_insert_btn:    "डालें",
+  excalidraw_uploading:     "अपलोड हो रहा है…",
+  excalidraw_rendering:     "रेंडर हो रहा है…",
+
   // DMComposer
   dm_new_message:        "नया संदेश",
   to_label:               "प्रति:",

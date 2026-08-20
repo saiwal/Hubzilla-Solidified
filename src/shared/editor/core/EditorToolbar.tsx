@@ -9,6 +9,7 @@ import {
   MdOutlineFormat_quote, MdFillFormat_quote, MdOutlineCode, MdOutlineHorizontal_rule,
   MdOutlineVideocam, MdOutlineAudiotrack, MdOutlineFunctions, MdOutlineStyle,
   MdOutlineTable_chart, MdOutlineVisibility_off, MdOutlineFormat_clear,
+  MdOutlineBrush,
 } from "solid-icons/md";
 import EmojiPicker from "../emoji/EmojiPicker";
 import type { EmojiEntry } from "@utsukta/spa-core/store/emoji-store";
@@ -16,10 +17,12 @@ import { emojiEntryToImg } from "@utsukta/spa-core/lib/emojify";
 import ListToolDropdown from "../components/ListToolDropdown";
 import HeadingToolDropdown from "../components/HeadingToolDropdown";
 import { useInstalledApps } from "@utsukta/spa-core/store/nav-store";
-import { isAppInstalled } from "@utsukta/spa-core/module-registry";
+import { isAppInstalled, isModuleActive } from "@utsukta/spa-core/module-registry";
+import { disabledFrontendModules } from "@utsukta/spa-core/store/disabled-frontend-modules";
 
 const LatexComposerModal = lazy(() => import("../latex/LatexComposerModal"));
 const CardPickerModal = lazy(() => import("../cards/CardPickerModal"));
+const ExcalidrawComposerModal = lazy(() => import("../excalidraw/ExcalidrawComposerModal"));
 
 interface Props {
   level: ToolbarLevel;
@@ -36,8 +39,10 @@ export default function EditorToolbar(props: Props) {
   const { t } = useI18n();
   const [latexOpen, setLatexOpen] = createSignal(false);
   const [cardPickerOpen, setCardPickerOpen] = createSignal(false);
+  const [excalidrawOpen, setExcalidrawOpen] = createSignal(false);
   const installedApps = useInstalledApps();
   const showCardPicker = () => props.cardPicker && isAppInstalled(installedApps(), "/cards/");
+  const showExcalidraw = () => isModuleActive("excalidraw", installedApps(), disabledFrontendModules());
 
   const isSource  = () => props.tab === "source";
   const isComment = () => props.level === "comment";
@@ -323,6 +328,20 @@ export default function EditorToolbar(props: Props) {
     exec("insertHTML", isBlock ? `<div style="text-align:center">${html}</div>` : html);
   };
 
+  // Always a flat [img] tag — unlike insertLatex/insertCard, no source-vs-live
+  // or content-type branching needed since a plain hosted image works in
+  // every editor context.
+  const insertExcalidraw = (bbcode: string) => {
+    if (isSource()) {
+      insertSource(bbcode);
+      return;
+    }
+    const m = /^\[img alt="([^"]*)"\](.+)\[\/img\]$/.exec(bbcode);
+    if (!m) return;
+    const [, alt, src] = m;
+    exec("insertHTML", `<img src="${src}" alt="${alt}" />`);
+  };
+
   const insertEmoji = (entry: EmojiEntry) => {
     isSource() ? insertSource(entry.shortname + " ") : exec("insertHTML", `${emojiEntryToImg(entry)} `);
   };
@@ -462,6 +481,11 @@ export default function EditorToolbar(props: Props) {
               <MdOutlineStyle class="w-4 h-4" />
             </Btn>
           </Show>
+          <Show when={showExcalidraw()}>
+            <Btn title={t("editor.excalidraw_toolbar_title")} onPress={() => setExcalidrawOpen(true)}>
+              <MdOutlineBrush class="w-4 h-4" />
+            </Btn>
+          </Show>
           <EmojiPicker onSelect={insertEmoji} />
 
           {/* ── Group 6: Rich structure — full only ── */}
@@ -506,6 +530,13 @@ export default function EditorToolbar(props: Props) {
       <CardPickerModal
         onClose={() => setCardPickerOpen(false)}
         onInsert={insertCard}
+      />
+    </Show>
+
+    <Show when={excalidrawOpen()}>
+      <ExcalidrawComposerModal
+        onClose={() => setExcalidrawOpen(false)}
+        onInsert={insertExcalidraw}
       />
     </Show>
     </>

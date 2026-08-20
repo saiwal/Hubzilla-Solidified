@@ -114,4 +114,7 @@ export const tools: RawDictionary["tools"] = {
   img_saved:          "Gespeichert in",
   img_save_error:     "Speichern fehlgeschlagen",
   img_photos:         "Meine Fotos",
+  // Excalidraw
+  excalidraw:          "Excalidraw",
+  excalidraw_download: "PNG herunterladen",
 };

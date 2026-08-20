@@ -10,6 +10,7 @@ import {
   MdOutlineKey,
   MdFillImage,
   MdOutlineMovie,
+  MdOutlineBrush,
 } from "solid-icons/md";
 
 type TranslatorKey = keyof i18n.Flatten<RawDictionary>;
@@ -21,13 +22,16 @@ export type ToolId =
   | "base64"
   | "password"
   | "image-editor"
-  | "video-editor";
+  | "video-editor"
+  | "excalidraw";
 
 export type ToolEntry = {
   id: ToolId;
   labelKey: TranslatorKey;
   icon: Component<{ class?: string }>;
   component: Component;
+  /** Frontend-module id gating this entry (see isModuleActive) — absent = always shown. */
+  moduleId?: string;
 };
 
 export const TOOLS: ToolEntry[] = [
@@ -38,4 +42,5 @@ export const TOOLS: ToolEntry[] = [
   { id: "password",       labelKey: "tools.password", icon: MdOutlineKey,         component: lazy(() => import("./components/PasswordGenerator").then(m => ({ default: m.PasswordGenerator }))) },
   { id: "image-editor",   labelKey: "tools.img",      icon: MdFillImage,          component: lazy(() => import("./components/ImageEditor").then(m => ({ default: m.ImageEditor }))) },
   { id: "video-editor",   labelKey: "tools.vid",      icon: MdOutlineMovie,       component: lazy(() => import("./components/VideoEditor").then(m => ({ default: m.VideoEditor }))) },
+  { id: "excalidraw",     labelKey: "tools.excalidraw", icon: MdOutlineBrush,     component: lazy(() => import("./components/ExcalidrawTool").then(m => ({ default: m.ExcalidrawTool }))), moduleId: "excalidraw" },
 ];

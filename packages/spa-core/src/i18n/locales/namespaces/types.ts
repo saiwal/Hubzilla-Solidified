@@ -68,6 +68,7 @@ export type RawDictionary = {
     notepad:       string;
     tools:         string;
     games:         string;
+    excalidraw:    string;
     // action items
     profile:       string;
     edit_profile:  string;
@@ -697,6 +698,9 @@ export type RawDictionary = {
     vid_gif_mode:         string;
     vid_gif_fps:          string;
     vid_download_gif:     string;
+    // Excalidraw
+    excalidraw:           string;
+    excalidraw_download:  string;
   };
   post: {
     like: string; dislike: string; repeat: string; reshare_with_comment: string;
@@ -943,6 +947,11 @@ export type RawDictionary = {
     latex_rendering:      string;
     latex_uploading:      string;
     latex_insert_btn:     string;
+    excalidraw_toolbar_title: string;
+    excalidraw_modal_title:   string;
+    excalidraw_insert_btn:    string;
+    excalidraw_uploading:     string;
+    excalidraw_rendering:     string;
     dm_new_message:        string;
     to_label:               string;
     to_search_placeholder:  string;

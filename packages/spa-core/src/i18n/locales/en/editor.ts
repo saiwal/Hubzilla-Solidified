@@ -229,6 +229,13 @@ export const editor = {
   latex_uploading:      "Uploading…",
   latex_insert_btn:     "Insert",
 
+  // ExcalidrawComposerModal
+  excalidraw_toolbar_title: "Insert drawing",
+  excalidraw_modal_title:   "Insert drawing",
+  excalidraw_insert_btn:    "Insert",
+  excalidraw_uploading:     "Uploading…",
+  excalidraw_rendering:     "Rendering…",
+
   // DMComposer
   dm_new_message:        "New message",
   to_label:               "To:",
