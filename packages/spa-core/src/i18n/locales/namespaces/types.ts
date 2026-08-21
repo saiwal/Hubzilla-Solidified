@@ -1476,6 +1476,17 @@ export type RawDictionary = {
     add_connection_placeholder: string;
     add_connection_connecting:  string;
     add_connection_error:       string;
+    import_connections:              string;
+    import_connections_title:        string;
+    import_connections_desc:         string;
+    import_connections_file_label:   string;
+    import_connections_start_btn:    string;
+    import_connections_running:      string;
+    import_connections_no_addresses: string;
+    import_connections_status_connected: string;
+    import_connections_status_already:   string;
+    import_connections_status_failed:    string;
+    import_connections_summary:      string;
     search_connections:   string;
     no_connections:       string;
     connection_singular:  string;

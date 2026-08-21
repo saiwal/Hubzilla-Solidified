@@ -7,6 +7,7 @@ import type { ConnectionFilter, ConnectionOrder, Connection } from "../../connec
 import { deleteConnection, approveConnection, fetchConnectionByAddress, fetchConnectionById } from "../../connections/api";
 import { addConnection } from "../../people/api";
 import { useSearchParams } from "@solidjs/router";
+import ImportConnectionsModal from "../ImportConnectionsModal";
 import ConnectionEditorModal from "@/shared/views/ConnectionEditorModal";
 import Tooltip from "@/shared/views/Tooltip";
 import DMComposer from "@/shared/editor/composers/DMComposer";
@@ -417,6 +418,7 @@ export default function ConnectionsSection() {
   const [addBusy, setAddBusy] = createSignal(false);
   const [addError, setAddError] = createSignal<string | null>(null);
   const [newConn, setNewConn] = createSignal<Connection | null>(null);
+  const [importOpen, setImportOpen] = createSignal(false);
   const [allConnections, setAllConnections] = createSignal<Connection[]>([]);
   const [hasMore, setHasMore] = createSignal(true);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -575,6 +577,14 @@ export default function ConnectionsSection() {
           </Show>
           {addBusy() ? t("directory.add_connection_connecting") : "+ " + t("directory.connect")}
         </button>
+        <button
+          type="button"
+          onClick={() => setImportOpen(true)}
+          class="shrink-0 hidden sm:flex items-center px-3 py-2 rounded-lg border border-rim
+                 bg-surface text-muted text-sm font-medium hover:bg-overlay transition-colors"
+        >
+          {t("directory.import_connections")}
+        </button>
         <select
           value={order()}
           onChange={(e) => handleOrderChange(e.currentTarget.value as ConnectionOrder)}
@@ -661,6 +671,8 @@ export default function ConnectionsSection() {
           onDeleted={() => { setNewConn(null); onDeleted(); }}
         />
       </Show>
+
+      <ImportConnectionsModal open={importOpen()} onClose={() => setImportOpen(false)} />
     </div>
   );
 }

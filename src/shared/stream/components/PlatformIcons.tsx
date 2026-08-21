@@ -15,6 +15,7 @@ import pleromaIcon from "@/assets/icons/platforms/pleroma.svg";
 import pixelfedIcon from "@/assets/icons/platforms/pixelfed.svg";
 import misskeyIcon from "@/assets/icons/platforms/misskey.svg";
 import peertubeIcon from "@/assets/icons/platforms/peertube.svg";
+import lemmyIcon from "@/assets/icons/platforms/lemmy.svg";
 import activitypubIcon from "@/assets/icons/platforms/activitypub.svg";
 import rssIcon from "@/assets/icons/platforms/rss.svg";
 
@@ -27,6 +28,7 @@ const PLATFORM_ICON_SRC: Record<string, string> = {
   pixelfed: pixelfedIcon,
   misskey: misskeyIcon,
   peertube: peertubeIcon,
+  lemmy: lemmyIcon,
 };
 
 interface Monogram {

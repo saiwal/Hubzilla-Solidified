@@ -1,7 +1,7 @@
 Third-party brand icons used to identify a post author's fediverse platform.
 
 - `mastodon.svg`, `diaspora.svg`, `pixelfed.svg`, `misskey.svg`, `peertube.svg`,
-  `pleroma.svg`, `activitypub.svg`, `rss.svg` — from the
+  `pleroma.svg`, `lemmy.svg`, `activitypub.svg`, `rss.svg` — from the
   [Simple Icons](https://simpleicons.org/) project, CC0 1.0 Universal.
 - `friendica.svg` — Friendica's own official logo asset
   (friendica/friendica `images/friendica.svg`).
