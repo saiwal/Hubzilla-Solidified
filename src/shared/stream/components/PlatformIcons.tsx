@@ -1,8 +1,9 @@
 // Fediverse-platform badges next to a post author, keyed by nodeinfo's
 // lowercased software.name. Real brand icons (see
-// src/assets/icons/platforms/NOTICE.md for sources/licensing). Streams/Forte
-// have no available standalone logo asset, so they keep the old
-// letter-monogram treatment.
+// src/assets/icons/platforms/NOTICE.md for sources/licensing) for the
+// software with a confidently-sourced official mark; everything else in
+// fedidb.com/software's top 50 by user count gets a letter monogram instead
+// (see PLATFORM_MONOGRAMS below).
 
 import { Show, type JSX } from "solid-js";
 import { MdOutlineHelp_outline } from "solid-icons/md";
@@ -16,6 +17,12 @@ import pixelfedIcon from "@/assets/icons/platforms/pixelfed.svg";
 import misskeyIcon from "@/assets/icons/platforms/misskey.svg";
 import peertubeIcon from "@/assets/icons/platforms/peertube.svg";
 import lemmyIcon from "@/assets/icons/platforms/lemmy.svg";
+import piefedIcon from "@/assets/icons/platforms/piefed.svg";
+import wordpressIcon from "@/assets/icons/platforms/wordpress.svg";
+import nodebbIcon from "@/assets/icons/platforms/nodebb.svg";
+import ghostIcon from "@/assets/icons/platforms/ghost.svg";
+import firefishIcon from "@/assets/icons/platforms/firefish.svg";
+import forgejoIcon from "@/assets/icons/platforms/forgejo.svg";
 import activitypubIcon from "@/assets/icons/platforms/activitypub.svg";
 import rssIcon from "@/assets/icons/platforms/rss.svg";
 
@@ -29,6 +36,12 @@ const PLATFORM_ICON_SRC: Record<string, string> = {
   misskey: misskeyIcon,
   peertube: peertubeIcon,
   lemmy: lemmyIcon,
+  piefed: piefedIcon,
+  wordpress: wordpressIcon,
+  nodebb: nodebbIcon,
+  ghost: ghostIcon,
+  firefish: firefishIcon,
+  forgejo: forgejoIcon,
 };
 
 interface Monogram {
@@ -36,10 +49,49 @@ interface Monogram {
   cls: string;
 }
 
-// No standalone logo asset available for these — fall back to a monogram.
+// No standalone logo asset available for these (or, for "loops"/"plume", the
+// only simple-icons match is an unrelated same-named brand) — fall back to a
+// letter monogram. Covers the rest of fedidb.com/software's top 50 by user
+// count as of 2026-08-21, plus this theme's own zot6-fork siblings.
 const PLATFORM_MONOGRAMS: Record<string, Monogram> = {
   streams: { letter: "S", cls: "bg-violet-500 text-white" },
   forte: { letter: "Fo", cls: "bg-violet-500 text-white" },
+  writefreely: { letter: "Wr", cls: "bg-violet-500 text-white" },
+  microdotblog: { letter: "Mi", cls: "bg-indigo-500 text-white" },
+  "bridgy-fed": { letter: "BF", cls: "bg-blue-500 text-white" },
+  mobilizon: { letter: "Mo", cls: "bg-sky-500 text-white" },
+  loops: { letter: "Lo", cls: "bg-cyan-500 text-white" },
+  fedibird: { letter: "Fe", cls: "bg-teal-500 text-white" },
+  bookwyrm: { letter: "Bo", cls: "bg-emerald-500 text-white" },
+  neodb: { letter: "Ne", cls: "bg-green-500 text-white" },
+  sharkey: { letter: "Sh", cls: "bg-lime-500 text-white" },
+  hometown: { letter: "Ho", cls: "bg-amber-500 text-white" },
+  akkoma: { letter: "Ak", cls: "bg-orange-500 text-white" },
+  mbin: { letter: "Mb", cls: "bg-red-500 text-white" },
+  foundkey: { letter: "Fo", cls: "bg-rose-500 text-white" },
+  wafrn: { letter: "Wa", cls: "bg-pink-500 text-white" },
+  "activity-relay": { letter: "AR", cls: "bg-fuchsia-500 text-white" },
+  gancio: { letter: "Ga", cls: "bg-purple-500 text-white" },
+  cherrypick: { letter: "Ch", cls: "bg-slate-500 text-white" },
+  plume: { letter: "Pl", cls: "bg-violet-500 text-white" },
+  meisskey: { letter: "Me", cls: "bg-indigo-500 text-white" },
+  iceshrimp: { letter: "Ic", cls: "bg-blue-500 text-white" },
+  funkwhale: { letter: "Fu", cls: "bg-sky-500 text-white" },
+  kmyblue: { letter: "Km", cls: "bg-cyan-500 text-white" },
+  bonfire: { letter: "Bo", cls: "bg-teal-500 text-white" },
+  hackerspub: { letter: "HP", cls: "bg-emerald-500 text-white" },
+  vernissage: { letter: "Ve", cls: "bg-green-500 text-white" },
+  emissary: { letter: "Em", cls: "bg-lime-500 text-white" },
+  gotosocial: { letter: "Go", cls: "bg-amber-500 text-white" },
+  mitra: { letter: "Mi", cls: "bg-orange-500 text-white" },
+  takahe: { letter: "Ta", cls: "bg-red-500 text-white" },
+  smithereen: { letter: "Sm", cls: "bg-rose-500 text-white" },
+  owncast: { letter: "Ow", cls: "bg-pink-500 text-white" },
+  manyfold: { letter: "Ma", cls: "bg-fuchsia-500 text-white" },
+  lotide: { letter: "Lo", cls: "bg-purple-500 text-white" },
+  stegodon: { letter: "St", cls: "bg-slate-500 text-white" },
+  snac: { letter: "Sn", cls: "bg-violet-500 text-white" },
+  frequency: { letter: "Fr", cls: "bg-indigo-500 text-white" },
 };
 
 export interface NetworkBadge {

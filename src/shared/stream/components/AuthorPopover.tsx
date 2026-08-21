@@ -326,7 +326,8 @@ export default function AuthorPopover(props: Props) {
                     fallback={
                       <Show when={badge()}>
                         {(b) => (
-                          <span class={`inline-block mt-1.5 px-2 py-0.5 rounded-full text-[0.625rem] font-semibold leading-none ${b().cls}`}>
+                          <span class={`inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full text-[0.625rem] font-semibold leading-none ${b().cls}`}>
+                            <PlatformIcon url={props.url} network={props.network} size={12} />
                             {b().label}
                           </span>
                         )}

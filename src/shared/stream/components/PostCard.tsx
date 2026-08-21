@@ -13,7 +13,7 @@ import {
 import { Portal } from "solid-js/web";
 import { useDropdown } from "@utsukta/spa-core/lib/useDropdown";
 import AuthorPopover from "./AuthorPopover";
-import { PlatformIcon } from "./PlatformIcons";
+import { PlatformIcon, networkBadge } from "./PlatformIcons";
 import type { ThreadNode } from "@utsukta/spa-core/lib/thread";
 import { countAllComments, isRootPost } from "@utsukta/spa-core/lib/thread";
 import type { StreamHandlers } from "../types";
@@ -369,6 +369,8 @@ export default function PostCard(props: {
       ? `https://www.openstreetmap.org/search?query=${encodeURIComponent(props.post.coord)}`
       : undefined;
   const isRepeat = () => props.post.verb === "Announce";
+  const authorAddressLabel = () =>
+    props.post.authorAddress || networkBadge(props.post.authorNetwork)?.label;
   const editedAt = () =>
     props.post.edited && props.post.edited !== props.post.created
       ? props.post.edited
@@ -1045,8 +1047,8 @@ export default function PostCard(props: {
             </button>
           </div>
         </Show>
-        {/* Single-line author header */}
-        <div class="flex items-center gap-2 min-w-0">
+        {/* Compact author header */}
+        <div class="flex items-start gap-2 min-w-0">
           <AuthorPopover
             name={props.post.authorName}
             avatar={props.post.authorAvatar}
@@ -1074,88 +1076,101 @@ export default function PostCard(props: {
               />
             </Show>
           </AuthorPopover>
-          <Show
-            when={
-              props.postAuthorAddress &&
-              props.post.authorAddress === props.postAuthorAddress
-            }
-          >
-            <span
-              class="shrink-0 px-1 py-px rounded text-[0.625rem] font-bold leading-none bg-accent text-accent-fg"
-              title={t("post.op_title")}
-            >
-              {t("post.op")}
-            </span>
-          </Show>
-          <a
-            href={`/chanview?f=&hash=${encodeURIComponent(props.post.authorHash || props.post.authorUrl)}`}
-            class="font-medium text-sm text-txt hover:underline truncate"
-          >
-            {props.post.authorName}
-          </a>
-          <PlatformIcon url={props.post.authorUrl} network={props.post.authorNetwork} size={12} />
-          <Show
-            when={
-              props.post.verb && props.post.verb !== "Create" && !isRepeat()
-            }
-          >
-            <span class="text-xs text-muted italic shrink-0">
-              {props.post.verb?.toLowerCase()}
-            </span>
-          </Show>
-          <Show when={editedAt()}>
-            {(edited) => (
-              <MdOutlineEdit
-                size={11}
-                class="text-muted shrink-0"
-                title={`${t("post.edited")}: ${new Date(edited() + "Z").toLocaleString(locale())}`}
-              />
-            )}
-          </Show>
-          <span
-            class="text-xs text-muted shrink-0 ml-1"
-            title={new Date(props.post.created + "Z").toLocaleString(locale())}
-          >
-            {formatPostDate(props.post.created, locale())}
-          </span>
-          <Show when={isExpired()}>
-            <span
-              class="shrink-0 px-1 py-px rounded text-[0.625rem] font-bold leading-none bg-muted/30 text-muted"
-              title={t("post.expired_title")}
-            >
-              {t("post.expired_badge")}
-            </span>
-          </Show>
-          <Show when={isExpiring()}>
-            <span
-              class="flex items-center gap-0.5 shrink-0 px-1 py-px rounded text-[0.625rem] font-medium leading-none bg-amber-500/15 text-amber-600 dark:text-amber-400"
-              title={expiresTitle()}
-            >
-              <MdOutlineTimer size={10} />
-              {formatPostDate(props.post.expires!, locale())}
-            </span>
-          </Show>
-          <Show when={isScheduled()}>
-            <span
-              class="flex items-center gap-0.5 shrink-0 px-1 py-px rounded text-[0.625rem] font-medium leading-none bg-sky-500/15 text-sky-600 dark:text-sky-400"
-              title={scheduledTitle()}
-            >
-              <MdOutlineSchedule size={10} />
-              {t("post.scheduled_badge")} · {formatPostDate(props.post.created, locale())}
-            </span>
-          </Show>
-          <Show when={isDirectMessage()}>
-            <DmBadge />
-          </Show>
-          <Show when={props.post.location}>
-            <span class="flex items-center gap-0.5 min-w-0 text-[0.625rem] text-muted">
-              <MdOutlineLocation_on size={10} class="shrink-0" />
-              <span
-                class="truncate max-w-[8rem] [&_a]:hover:underline"
-                innerHTML={props.post.location}
-              />
-            </span>
-          </Show>
+          <div class="flex flex-col min-w-0 flex-1">
+            <div class="flex items-center gap-2 min-w-0">
+              <Show
+                when={
+                  props.postAuthorAddress &&
+                  props.post.authorAddress === props.postAuthorAddress
+                }
+              >
+                <span
+                  class="shrink-0 px-1 py-px rounded text-[0.625rem] font-bold leading-none bg-accent text-accent-fg"
+                  title={t("post.op_title")}
+                >
+                  {t("post.op")}
+                </span>
+              </Show>
+              <a
+                href={`/chanview?f=&hash=${encodeURIComponent(props.post.authorHash || props.post.authorUrl)}`}
+                class="font-medium text-sm text-txt hover:underline truncate"
+              >
+                {props.post.authorName}
+              </a>
+            </div>
+            <Show when={authorAddressLabel()}>
+              <div class="flex items-center gap-1 min-w-0">
+                <span class="text-[0.625rem] text-muted truncate">{authorAddressLabel()}</span>
+                <PlatformIcon url={props.post.authorUrl} network={props.post.authorNetwork} size={12} />
+              </div>
+            </Show>
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <Show
+                when={
+                  props.post.verb && props.post.verb !== "Create" && !isRepeat()
+                }
+              >
+                <span class="text-xs text-muted italic shrink-0">
+                  {props.post.verb?.toLowerCase()}
+                </span>
+              </Show>
+              <Show when={isExpired()}>
+                <span
+                  class="shrink-0 px-1 py-px rounded text-[0.625rem] font-bold leading-none bg-muted/30 text-muted"
+                  title={t("post.expired_title")}
+                >
+                  {t("post.expired_badge")}
+                </span>
+              </Show>
+              <Show when={isExpiring()}>
+                <span
+                  class="flex items-center gap-0.5 shrink-0 px-1 py-px rounded text-[0.625rem] font-medium leading-none bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                  title={expiresTitle()}
+                >
+                  <MdOutlineTimer size={10} />
+                  {formatPostDate(props.post.expires!, locale())}
+                </span>
+              </Show>
+              <Show when={isScheduled()}>
+                <span
+                  class="flex items-center gap-0.5 shrink-0 px-1 py-px rounded text-[0.625rem] font-medium leading-none bg-sky-500/15 text-sky-600 dark:text-sky-400"
+                  title={scheduledTitle()}
+                >
+                  <MdOutlineSchedule size={10} />
+                  {t("post.scheduled_badge")} · {formatPostDate(props.post.created, locale())}
+                </span>
+              </Show>
+              <Show when={isDirectMessage()}>
+                <DmBadge />
+              </Show>
+              <Show when={props.post.location}>
+                <span class="flex items-center gap-0.5 min-w-0 text-[0.625rem] text-muted">
+                  <MdOutlineLocation_on size={10} class="shrink-0" />
+                  <span
+                    class="truncate max-w-[8rem] [&_a]:hover:underline"
+                    innerHTML={props.post.location}
+                  />
+                </span>
+              </Show>
+              <span class="flex items-center gap-1 shrink-0 ml-auto">
+                <Show when={editedAt()}>
+                  {(edited) => (
+                    <MdOutlineEdit
+                      size={11}
+                      class="text-muted shrink-0"
+                      title={`${t("post.edited")}: ${new Date(edited() + "Z").toLocaleString(locale())}`}
+                    />
+                  )}
+                </Show>
+                <span
+                  class="text-xs text-muted"
+                  title={new Date(props.post.created + "Z").toLocaleString(locale())}
+                >
+                  {formatPostDate(props.post.created, locale())}
+                </span>
+              </span>
+            </div>
+          </div>
         </div>
 
         <DmRecipients
@@ -1719,7 +1734,6 @@ export default function PostCard(props: {
             >
               {props.post.authorName}
             </a>
-            <PlatformIcon url={props.post.authorUrl} network={props.post.authorNetwork} size={12} />
             <Show when={props.post.via}>
               <div class="flex items-center gap-1">
                 <MdFillShare size={12} class="text-muted shrink-0" />
@@ -1733,30 +1747,16 @@ export default function PostCard(props: {
               </div>
             </Show>
           </div>
+          <Show when={authorAddressLabel()}>
+            <div class="flex items-center gap-1.5">
+              <span class="text-xs text-muted truncate">{authorAddressLabel()}</span>
+              <PlatformIcon url={props.post.authorUrl} network={props.post.authorNetwork} size={12} />
+            </div>
+          </Show>
           <DmRecipientsPC recipients={isDirectMessage() ? props.post.recipients : undefined} />
-          <div class="flex items-center gap-1.5">
-            <Show when={editedAt()}>
-              {(edited) => (
-                <MdOutlineEdit
-                  size={12}
-                  class="text-muted shrink-0"
-                  title={`${t("post.edited")}: ${new Date(
-                    edited() + "Z",
-                  ).toLocaleString(locale())}`}
-                />
-              )}
-            </Show>
-            <span
-              class="text-sm text-muted"
-              title={new Date(props.post.created + "Z").toLocaleString(
-                locale(),
-              )}
-            >
-              {formatPostDate(props.post.created, locale())}
-            </span>
-            <Show when={props.post.location}>
+          <Show when={props.post.location}>
+            <div class="flex items-center gap-1.5">
               <span class="flex items-center gap-0.5 min-w-0 text-sm text-muted">
-                <span class="opacity-60">·</span>
                 <MdOutlineLocation_on size={14} class="shrink-0" />
                 <Show
                   when={locationHref()}
@@ -1776,8 +1776,8 @@ export default function PostCard(props: {
                   />
                 </Show>
               </span>
-            </Show>
-          </div>
+            </div>
+          </Show>
         </div>
 
         <div class="ml-auto flex items-center gap-2 shrink-0 flex-wrap justify-end">
@@ -1832,6 +1832,25 @@ export default function PostCard(props: {
               {t("post.new_badge")}
             </span>
           </Show>
+          <span class="flex items-center gap-1">
+            <Show when={editedAt()}>
+              {(edited) => (
+                <MdOutlineEdit
+                  size={12}
+                  class="text-muted shrink-0"
+                  title={`${t("post.edited")}: ${new Date(
+                    edited() + "Z",
+                  ).toLocaleString(locale())}`}
+                />
+              )}
+            </Show>
+            <span
+              class="text-sm text-muted"
+              title={new Date(props.post.created + "Z").toLocaleString(locale())}
+            >
+              {formatPostDate(props.post.created, locale())}
+            </span>
+          </span>
         </div>
       </div>
 

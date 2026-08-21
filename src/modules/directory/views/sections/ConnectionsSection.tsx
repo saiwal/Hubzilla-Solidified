@@ -9,6 +9,7 @@ import { addConnection } from "../../people/api";
 import { useSearchParams } from "@solidjs/router";
 import ImportConnectionsModal from "../ImportConnectionsModal";
 import ConnectionEditorModal from "@/shared/views/ConnectionEditorModal";
+import { PlatformIcon } from "@/shared/stream/components/PlatformIcons";
 import Tooltip from "@/shared/views/Tooltip";
 import DMComposer from "@/shared/editor/composers/DMComposer";
 import { createRoom } from "@/modules/chat/api";
@@ -28,12 +29,6 @@ const ORDER_IDS: { id: ConnectionOrder; key: string }[] = [
   { id: "connected",      key: "order_oldest"    },
   { id: "connected_desc", key: "order_newest"    },
 ];
-
-const NETWORK_LABELS: Record<string, string> = {
-  zot6:        "Zot",
-  activitypub: "AP",
-  rss:         "RSS",
-};
 
 function formatDate(iso: string): string {
   if (!iso || iso.startsWith("0001")) return "—";
@@ -91,7 +86,6 @@ function ConnectionCard(props: { conn: Connection; onDeleted: () => void }) {
   const installedApps = useInstalledApps();
   const chatroomsInstalled = () => isAppInstalled(installedApps(), "/chat/");
   const navigate = useNavigate();
-  const networkLabel = () => NETWORK_LABELS[props.conn.network] ?? props.conn.network;
 
   function handleChatButtonClick() {
     setChatPanelOpen((v) => !v);
@@ -174,9 +168,7 @@ function ConnectionCard(props: { conn: Connection; onDeleted: () => void }) {
               {props.conn.name}
             </a>
             <PermissionDot granted={props.conn.granted_perms} />
-            <span class="shrink-0 text-xs px-1.5 py-0.5 rounded font-medium bg-accent-muted text-accent">
-              {networkLabel()}
-            </span>
+            <PlatformIcon url={props.conn.url} network={props.conn.network} size={14} />
             <Show when={props.conn.is_forum}>
               <span class="shrink-0 text-xs px-1.5 py-0.5 rounded font-medium bg-accent-muted text-accent">
                 {t("directory.forum")}
