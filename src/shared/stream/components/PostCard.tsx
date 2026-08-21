@@ -13,6 +13,7 @@ import {
 import { Portal } from "solid-js/web";
 import { useDropdown } from "@utsukta/spa-core/lib/useDropdown";
 import AuthorPopover from "./AuthorPopover";
+import { PlatformIcon } from "./PlatformIcons";
 import type { ThreadNode } from "@utsukta/spa-core/lib/thread";
 import { countAllComments, isRootPost } from "@utsukta/spa-core/lib/thread";
 import type { StreamHandlers } from "../types";
@@ -1092,6 +1093,7 @@ export default function PostCard(props: {
           >
             {props.post.authorName}
           </a>
+          <PlatformIcon url={props.post.authorUrl} network={props.post.authorNetwork} size={12} />
           <Show
             when={
               props.post.verb && props.post.verb !== "Create" && !isRepeat()
@@ -1717,6 +1719,7 @@ export default function PostCard(props: {
             >
               {props.post.authorName}
             </a>
+            <PlatformIcon url={props.post.authorUrl} network={props.post.authorNetwork} size={12} />
             <Show when={props.post.via}>
               <div class="flex items-center gap-1">
                 <MdFillShare size={12} class="text-muted shrink-0" />

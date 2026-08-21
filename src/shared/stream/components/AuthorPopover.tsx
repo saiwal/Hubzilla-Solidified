@@ -15,6 +15,8 @@ import { blockChannel, blockChannelFromSite } from "@utsukta/spa-core/lib/blockl
 import { useNavigate } from "@solidjs/router";
 import { useI18n } from "@utsukta/spa-core/i18n";
 import { useFloating } from "@utsukta/spa-core/lib/useFloating";
+import { usePlatformSoftware } from "@utsukta/spa-core/lib/usePlatformSoftware";
+import { PlatformIcon, platformLabel, networkBadge, type NetworkBadge } from "./PlatformIcons";
 
 interface Props {
   name: string;
@@ -33,22 +35,6 @@ type ConnState =
   | { tag: "connected"; conn: Connection | null }
   | { tag: "not_connected" }
   | { tag: "just_connected" };
-
-interface NetworkBadge {
-  label: string;
-  cls: string;
-}
-
-function networkBadge(network?: string): NetworkBadge | null {
-  if (!network) return null;
-  switch (network.toLowerCase()) {
-    case "zot6":      return { label: "Hubzilla",    cls: "bg-violet-500/20 text-violet-400" };
-    case "activitypub": return { label: "ActivityPub", cls: "bg-indigo-500/20 text-indigo-400" };
-    case "rss":       return { label: "RSS",          cls: "bg-orange-500/20 text-orange-400" };
-    case "diaspora":  return { label: "Diaspora",     cls: "bg-emerald-500/20 text-emerald-400" };
-    default:          return null;
-  }
-}
 
 function buildChatRoomName(names: string[]): string {
   if (names.length === 0) return "Chat";
@@ -277,6 +263,8 @@ export default function AuthorPopover(props: Props) {
     return networkBadge(net);
   };
 
+  const software = usePlatformSoftware(() => props.url);
+
   // Prefer the hash passed in from the item payload; fall back to the
   // resolved xchan_hash (fetched once the popover opens), then finally
   // the raw xchan url so the link is still available immediately.
@@ -333,10 +321,22 @@ export default function AuthorPopover(props: Props) {
                   <Show when={props.address}>
                     <div class="text-xs text-muted truncate mt-0.5">{props.address}</div>
                   </Show>
-                  <Show when={badge()}>
-                    {(b) => (
-                      <span class={`inline-block mt-1.5 px-2 py-0.5 rounded-full text-[0.625rem] font-semibold leading-none ${b().cls}`}>
-                        {b().label}
+                  <Show
+                    when={software()}
+                    fallback={
+                      <Show when={badge()}>
+                        {(b) => (
+                          <span class={`inline-block mt-1.5 px-2 py-0.5 rounded-full text-[0.625rem] font-semibold leading-none ${b().cls}`}>
+                            {b().label}
+                          </span>
+                        )}
+                      </Show>
+                    }
+                  >
+                    {(name) => (
+                      <span class="inline-flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full text-[0.625rem] font-semibold leading-none bg-accent/15 text-accent-txt">
+                        <PlatformIcon url={props.url} size={12} />
+                        {platformLabel(name())}
                       </span>
                     )}
                   </Show>
