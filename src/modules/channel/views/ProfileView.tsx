@@ -305,7 +305,7 @@ function CompactCard(props: { p: ChannelProfile; isOwner: boolean; isVisitor: bo
             </Show>
             <Show when={p.contact}>
               <p
-                class="text-xs text-muted [&_a]:text-accent [&_a]:no-underline hover:[&_a]:underline"
+                class="text-xs text-muted [&_a]:text-accent [&_a]:no-underline [&_a]:hover:underline"
                 innerHTML={renderBbcode(p.contact)}
               />
             </Show>
@@ -349,7 +349,7 @@ function FullCard(props: { p: ChannelProfile; isOwner: boolean; isVisitor: boole
           >
             <div
               class="text-sm text-txt leading-relaxed prose prose-sm dark:prose-invert max-w-none
-                     prose-a:text-accent prose-a:no-underline hover:prose-a:underline"
+                     prose-a:text-accent prose-a:no-underline prose-a:hover:underline"
               innerHTML={renderBbcode(p.about)}
             />
           </Show>
@@ -501,7 +501,7 @@ function Field(props: { label: string; value: string; bbcode?: boolean }) {
         >
           <div
             class="text-xs text-txt leading-relaxed prose prose-sm dark:prose-invert max-w-none prose-p:my-0
-                   prose-a:text-accent prose-a:no-underline hover:prose-a:underline"
+                   prose-a:text-accent prose-a:no-underline prose-a:hover:underline"
             innerHTML={renderBbcode(props.value)}
           />
         </Show>

@@ -1077,7 +1077,7 @@ export default function PostCard(props: {
             </Show>
           </AuthorPopover>
           <div class="flex flex-col min-w-0 flex-1">
-            <div class="flex items-center gap-2 min-w-0">
+            <div class="flex items-center gap-1.5 flex-wrap">
               <Show
                 when={
                   props.postAuthorAddress &&
@@ -1097,14 +1097,6 @@ export default function PostCard(props: {
               >
                 {props.post.authorName}
               </a>
-            </div>
-            <Show when={authorAddressLabel()}>
-              <div class="flex items-center gap-1 min-w-0">
-                <span class="text-[0.625rem] text-muted truncate">{authorAddressLabel()}</span>
-                <PlatformIcon url={props.post.authorUrl} network={props.post.authorNetwork} size={12} />
-              </div>
-            </Show>
-            <div class="flex items-center gap-1.5 flex-wrap">
               <Show
                 when={
                   props.post.verb && props.post.verb !== "Create" && !isRepeat()
@@ -1205,7 +1197,7 @@ export default function PostCard(props: {
             <div
               ref={setBodyRef}
               class="mt-1.5 prose prose-sm dark:prose-invert max-w-none text-muted
-                     prose-a:text-accent prose-a:no-underline hover:prose-a:underline
+                     prose-a:text-accent prose-a:no-underline prose-a:hover:underline
                      prose-blockquote:not-italic prose-blockquote:border-accent
                      prose-code:bg-overlay prose-code:px-1 prose-code:rounded prose-code:text-xs prose-code:text-txt
                      prose-code:before:content-none prose-code:after:content-none
@@ -1904,7 +1896,7 @@ export default function PostCard(props: {
               <div
                 ref={setBodyRef}
                 class="prose-code:break-all prose prose-sm dark:prose-invert max-w-none
-                       prose-a:text-accent prose-a:no-underline hover:prose-a:underline
+                       prose-a:text-accent prose-a:no-underline prose-a:hover:underline
                        prose-blockquote:not-italic prose-blockquote:border-accent
                        prose-code:bg-overlay prose-code:px-1 prose-code:rounded prose-code:text-sm prose-code:text-txt
                        prose-code:before:content-none prose-code:after:content-none

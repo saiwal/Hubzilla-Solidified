@@ -427,7 +427,7 @@ export default function ChanView() {
                 <Show when={xdata().about}>
                   <div
                     class="mt-4 text-sm text-txt leading-relaxed prose prose-sm dark:prose-invert max-w-none
-                           prose-a:text-accent prose-a:no-underline hover:prose-a:underline"
+                           prose-a:text-accent prose-a:no-underline prose-a:hover:underline"
                     innerHTML={renderBbcode(xdata().about)}
                   />
                 </Show>
@@ -583,7 +583,7 @@ function RemotePostCard(props: { post: RemotePost }) {
       </Show>
       <div
         class="text-txt leading-relaxed prose prose-sm dark:prose-invert max-w-none
-               prose-a:text-accent prose-a:no-underline hover:prose-a:underline
+               prose-a:text-accent prose-a:no-underline prose-a:hover:underline
                line-clamp-6"
         innerHTML={post.content}
       />

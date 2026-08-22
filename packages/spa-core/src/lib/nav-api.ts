@@ -131,6 +131,7 @@ const BI_TO_ICON: Record<string, string> = {
   "calendar-date": "calendar",
   "calendar-event": "calendar",
   cart: "cart",
+  "card-text": "cards",
   "chat-text": "chat",
   "chat-dots": "chat",
   "person-circle": "hq",

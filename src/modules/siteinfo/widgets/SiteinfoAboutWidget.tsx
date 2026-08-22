@@ -15,7 +15,7 @@ export default function SiteinfoAboutWidget() {
           <Section title={t("ui.siteinfo_about")}>
             <div
               class="prose prose-sm dark:prose-invert max-w-none text-txt
-                       prose-a:text-accent prose-a:no-underline hover:prose-a:underline"
+                       prose-a:text-accent prose-a:no-underline prose-a:hover:underline"
               innerHTML={DOMPurify.sanitize(bbcode(about()))}
             />
           </Section>

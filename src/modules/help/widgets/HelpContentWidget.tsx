@@ -151,7 +151,7 @@ export default function HelpContentWidget() {
                 <div
                   ref={bodyRef}
                   class="prose dark:prose-invert max-w-none
-                         prose-a:text-accent prose-a:no-underline hover:prose-a:underline
+                         prose-a:text-accent prose-a:no-underline prose-a:hover:underline
                          prose-blockquote:not-italic prose-blockquote:border-accent
                          prose-code:bg-overlay prose-code:px-1 prose-code:rounded prose-code:text-sm
                          prose-code:before:content-none prose-code:after:content-none

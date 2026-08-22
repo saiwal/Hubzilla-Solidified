@@ -48,7 +48,7 @@ export const profiles: RawDictionary["profiles"] = {
   about:              "परिचय",
   about_hint:         "BBCode समर्थित है।",
   keywords:           "कीवर्ड",
-  keywords_hint:      "स्थान-पृथक। खोज और सुझावों के लिए उपयोग किया जाता है।",
+  keywords_hint:      "अल्पविराम से अलग। खोज और सुझावों के लिए उपयोग किया जाता है।",
   hide_friends:       "दूसरों से मेरी कनेक्शन सूची छुपाएँ",
   publish_in_directory: "नेटवर्क डायरेक्टरी में मेरी प्रोफ़ाइल प्रकाशित करें",
   marital:            "संबंध स्थिति",

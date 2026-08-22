@@ -23,6 +23,7 @@ export function useSubjectNick(): () => string {
       "profile",
       "photos",
       "articles",
+      "cards",
       "cart",
       "chat",
       "calendar",
